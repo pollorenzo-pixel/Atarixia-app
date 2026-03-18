@@ -627,7 +627,6 @@
       padding-bottom: 8px;
     }
 
-    /* Foundation Home Cards */
     .foundation-home-panel {
       width: min(720px, 100%);
       display: flex;
@@ -709,7 +708,6 @@
       font-weight: 500;
     }
 
-    /* Session takeover */
     .session-overlay {
       position: fixed;
       inset: 0;
@@ -1193,8 +1191,7 @@ Let the session guide you.
     const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/ending audio foundation.mp3'];
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/ending audio foundation.mp3'];
 
-
-    const STORAGE_KEY = 'unstoppable_foundation_progress_v2';
+    const STORAGE_KEY = 'unstoppable_foundation_progress_v3';
 
     let isRunning = false;
     let hasAudio = false;
@@ -1208,6 +1205,9 @@ Let the session guide you.
     let sessionStarted = false;
     let sessionCompleted = false;
     let singleTapTimeout = null;
+
+    let currentPlaylist = [];
+    let currentTrackIndex = 0;
 
     let audioContext = null;
     let analyserNode = null;
@@ -1519,7 +1519,7 @@ return with discipline and calm.`
       return getSubcategoryData();
     }
 
-    function getCurrentAudioUrl() {
+    function getCurrentAudioSource() {
       const data = getCurrentPracticeData();
       return data && data.audio ? data.audio : '';
     }
@@ -1537,8 +1537,8 @@ return with discipline and calm.`
       frequencyData = null;
     }
 
-    function initAudio() {
-      const audioUrl = getCurrentAudioUrl();
+    function loadTrack(index) {
+      if (!currentPlaylist[index]) return false;
 
       stopAudioListeners();
 
@@ -1549,8 +1549,38 @@ return with discipline and calm.`
 
       destroyAudioReactiveGraph();
 
-      if (audioUrl) {
-        currentAudio = new Audio(audioUrl);
+      currentAudio = new Audio(currentPlaylist[index]);
+      currentAudio.loop = false;
+      currentAudio.volume = 0.7;
+      currentAudio.preload = 'auto';
+      currentAudio.addEventListener('ended', handleAudioEnded);
+
+      currentTrackIndex = index;
+      return true;
+    }
+
+    function initAudio() {
+      const audioSource = getCurrentAudioSource();
+
+      stopAudioListeners();
+
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+
+      destroyAudioReactiveGraph();
+      currentPlaylist = [];
+      currentTrackIndex = 0;
+
+      if (Array.isArray(audioSource)) {
+        currentPlaylist = audioSource.filter(Boolean);
+      } else if (audioSource) {
+        currentPlaylist = [audioSource];
+      }
+
+      if (currentPlaylist.length > 0) {
+        currentAudio = new Audio(currentPlaylist[0]);
         currentAudio.loop = false;
         currentAudio.volume = 0.7;
         currentAudio.preload = 'auto';
@@ -1632,7 +1662,22 @@ return with discipline and calm.`
       sessionCircleShell.style.filter = 'brightness(1)';
     }
 
-    function handleAudioEnded() {
+    async function handleAudioEnded() {
+      const nextIndex = currentTrackIndex + 1;
+
+      if (nextIndex < currentPlaylist.length) {
+        const loaded = loadTrack(nextIndex);
+
+        if (loaded) {
+          try {
+            await startPlayback();
+            return;
+          } catch (e) {
+            console.error('Failed to play next track:', e);
+          }
+        }
+      }
+
       completeSession();
     }
 
@@ -1873,6 +1918,7 @@ return with discipline and calm.`
 
       progressInterval = setInterval(() => {
         if (!currentAudio || !currentAudio.duration || !isFinite(currentAudio.duration)) return;
+
         const progress = currentAudio.currentTime / currentAudio.duration;
         sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress);
       }, 120);
@@ -1890,13 +1936,15 @@ return with discipline and calm.`
         audioStatus.classList.add('playing');
         volumeControl.classList.add('active');
 
-        sessionStateText.textContent = 'Playing';
-        sessionStateLabel.textContent = 'Session Active';
+        sessionStateText.textContent = currentTrackIndex > 0 ? 'Closing' : 'Playing';
+        sessionStateLabel.textContent = currentTrackIndex > 0 ? 'Ending Audio' : 'Session Active';
         sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
 
-        audioText.textContent = activePractice === 'Introduction'
-          ? 'Introduction Playing'
-          : 'Foundation Playing';
+        if (activePractice === 'Introduction') {
+          audioText.textContent = currentTrackIndex > 0 ? 'Introduction Closing Audio' : 'Introduction Playing';
+        } else {
+          audioText.textContent = currentTrackIndex > 0 ? 'Foundation Closing Audio' : 'Foundation Playing';
+        }
 
         requestWakeLock();
         initProgressTracking();
@@ -1964,6 +2012,11 @@ return with discipline and calm.`
       sessionStarted = false;
       sessionCompleted = false;
 
+      currentTrackIndex = 0;
+      if (currentPlaylist.length > 0) {
+        loadTrack(0);
+      }
+
       sessionCircleShell.classList.remove('running');
       audioStatus.classList.remove('playing');
       volumeControl.classList.remove('active');
@@ -1990,6 +2043,11 @@ return with discipline and calm.`
       if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
+      }
+
+      currentTrackIndex = 0;
+      if (currentPlaylist.length > 0) {
+        loadTrack(0);
       }
 
       isRunning = false;
@@ -2044,8 +2102,10 @@ return with discipline and calm.`
     }
 
     function repeatCurrentPractice() {
-      if (currentAudio) {
-        currentAudio.currentTime = 0;
+      currentTrackIndex = 0;
+
+      if (currentPlaylist.length > 0) {
+        loadTrack(0);
       }
 
       sessionProgressRing.style.strokeDashoffset = circumference;
