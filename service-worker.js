@@ -1,11 +1,20 @@
-const CACHE_NAME = "ataraxia-v3";
+const CACHE_NAME = "ataraxia-v4";
 
 const urlsToCache = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+
+  // meditation audio
+  "./audio/introduction audio 2.mp3",
+  "./audio/Breath only meditation foundation meditation.mp3",
+  "./audio/body awareness meditation.mp3",
+  "./audio/Thought awareness meditation.mp3",
+  "./audio/Emotional Awareness meditations.mp3",
+  "./audio/deep focus meditation.mp3"
+  "./audio/ending audio foundation.mp3"
 ];
 
 // Install
@@ -19,21 +28,14 @@ self.addEventListener("install", (event) => {
 
 // Fetch
 self.addEventListener("fetch", (event) => {
-  const request = event.request;
-
-  // IMPORTANT: don't cache audio
-  if (request.url.includes("/audio/")) {
-    return;
-  }
-
   event.respondWith(
-    caches.match(request).then((response) => {
-      return response || fetch(request);
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
     })
   );
 });
 
-// Activate
+// Activate (delete old caches)
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
