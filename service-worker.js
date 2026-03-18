@@ -1,13 +1,14 @@
-const CACHE_NAME = "ataraxia-v2";
+const CACHE_NAME = "ataraxia-v3";
 
 const urlsToCache = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icons/icon-192.png",
-  "./icons/icon-512.png",
+  "./icons/icon-512.png"
 ];
 
+// Install
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -16,14 +17,23 @@ self.addEventListener("install", (event) => {
   );
 });
 
+// Fetch
 self.addEventListener("fetch", (event) => {
+  const request = event.request;
+
+  // IMPORTANT: don't cache audio
+  if (request.url.includes("/audio/")) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(request).then((response) => {
+      return response || fetch(request);
     })
   );
 });
 
+// Activate
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
