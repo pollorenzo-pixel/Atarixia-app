@@ -1191,6 +1191,23 @@ Let the session guide you.
     const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/ending audio foundation.mp3'];
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/ending audio foundation.mp3'];
 
+    function preloadMeditationAudio() {
+    const audioFiles = [
+        INTRODUCTION_AUDIO,
+        FOUNDATION_BREATH_AWARENESS_AUDIO,
+        FOUNDATION_BODY_AWARENESS_AUDIO,
+        FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+        FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+        FOUNDATION_DEEP_FOCUS_AUDIO
+    ];
+
+    audioFiles.forEach(src => {
+        const audio = new Audio();
+        audio.preload = "auto";
+        audio.src = src;
+    });
+}
+    
     const STORAGE_KEY = 'unstoppable_foundation_progress_v3';
 
     let isRunning = false;
