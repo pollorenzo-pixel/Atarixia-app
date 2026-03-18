@@ -6,12 +6,6 @@ const urlsToCache = [
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./audio/introduction audio 2.mp3",
-  "./audio/Breath only meditation foundation meditation.mp3",
-  "./audio/body awareness meditation.mp3",
-  "./audio/Thought awareness meditation.mp3",
-  ".audio/Emotional Awareness meditations.mp3",
-  ".audio/deep focus meditation.mp3"
 ];
 
 self.addEventListener("install", (event) => {
