@@ -1,4 +1,4 @@
-const CACHE_NAME = "ataraxia-v1";
+const CACHE_NAME = "ataraxia-v2";
 
 const urlsToCache = [
   "./",
