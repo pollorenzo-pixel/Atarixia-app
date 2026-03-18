@@ -1,864 +1,1096 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f0f12">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Ataraxia">
-    <link rel="apple-touch-icon" href="icons/ChatGPT Image Mar 17, 2026, 01_30_19 PM.png>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#030303">
-    <title>Unstoppable Mindset</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        :root {
-            --bg: #030303;
-            --panel: rgba(255,255,255,0.03);
-            --panel-strong: rgba(255,255,255,0.05);
-            --line: rgba(255,255,255,0.08);
-            --line-strong: rgba(255,255,255,0.16);
-            --text: #f2f2f2;
-            --text-dim: #9b9b9b;
-            --text-faint: #666;
-            --success: #58d18f;
-            --shadow-lg: 0 25px 80px rgba(0,0,0,0.55);
-            --shadow-md: 0 12px 35px rgba(0,0,0,0.38);
-            --radius-pill: 999px;
-        }
-
-        html {
-            min-height: 100%;
-            background:
-                radial-gradient(circle at top, rgba(255,255,255,0.03) 0%, transparent 32%),
-                radial-gradient(circle at 18% 82%, rgba(255,255,255,0.03) 0%, transparent 28%),
-                radial-gradient(circle at 82% 22%, rgba(255,255,255,0.025) 0%, transparent 30%),
-                linear-gradient(180deg, #050505 0%, #020202 100%);
-        }
-
-        body {
-            min-height: 100%;
-            overflow-x: hidden;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            background: transparent;
-            color: var(--text);
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-
-        .atmosphere {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 45%),
-                linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 35%, rgba(0,0,0,0.35) 100%);
-        }
-
-        .atmosphere::after {
-            content: '';
-            position: absolute;
-            inset: -20%;
-            background:
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.015), transparent 22%),
-                radial-gradient(circle at 70% 65%, rgba(255,255,255,0.01), transparent 25%);
-            animation: drift 18s linear infinite;
-            opacity: 0.9;
-        }
-
-        @keyframes drift {
-            0% { transform: translate3d(0, 0, 0) scale(1); }
-            50% { transform: translate3d(1.5%, -1.5%, 0) scale(1.03); }
-            100% { transform: translate3d(0, 0, 0) scale(1); }
-        }
-
-        .grain {
-            position: fixed;
-            inset: 0;
-            opacity: 0.02;
-            z-index: 1;
-            pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-        }
-
-        .opening-scene {
-            position: fixed;
-            inset: 0;
-            z-index: 300;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 28px;
-            background:
-                radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 48%),
-                rgba(2,2,2,0.96);
-            backdrop-filter: blur(10px);
-            opacity: 1;
-            transition: opacity 1.8s ease, visibility 1.8s ease;
-        }
-
-        .opening-scene.fade-out {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .opening-inner {
-            max-width: 780px;
-            text-align: center;
-            animation: openingRise 1.8s ease both;
-        }
-
-        @keyframes openingRise {
-            0% {
-                opacity: 0;
-                transform: translateY(18px) scale(0.985);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .opening-quote {
-            font-size: clamp(28px, 5vw, 52px);
-            line-height: 1.2;
-            letter-spacing: -0.03em;
-            font-weight: 700;
-            color: var(--text);
-            text-wrap: balance;
-        }
-
-        .opening-author {
-            margin-top: 22px;
-            font-size: 11px;
-            letter-spacing: 0.32em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-        }
-
-        .opening-mark {
-            margin-top: 28px;
-            font-size: 9px;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-        }
-
-        .app-shell {
-            position: relative;
-            z-index: 2;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 1.2s ease, transform 1.2s ease;
-        }
-
-        .app-shell.revealed {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .nav {
-            position: sticky;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 18px 20px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.82), rgba(0,0,0,0.38), transparent);
-            backdrop-filter: blur(8px);
-        }
-
-        .logo-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .logo {
-            font-size: 10px;
-            letter-spacing: 0.34em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            font-weight: 700;
-        }
-
-        .logo-sub {
-            font-size: 9px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-        }
-
-        .menu-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 1px solid var(--line);
-            background: rgba(255,255,255,0.03);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
-
-        .menu-btn span {
-            width: 16px;
-            height: 1.5px;
-            background: var(--text);
-            opacity: 0.9;
-        }
-
-        .menu-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 99;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.35s ease;
-            background: rgba(2,2,2,0.96);
-            backdrop-filter: blur(16px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-        }
-
-        .menu-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .menu-panel {
-            width: min(460px, 100%);
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 28px;
-            border: 1px solid var(--line);
-            background: rgba(255,255,255,0.03);
-            box-shadow: var(--shadow-lg);
-            padding: 24px;
-        }
-
-        .menu-label {
-            font-size: 10px;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            margin-bottom: 18px;
-        }
-
-        .menu-item {
-            width: 100%;
-            text-align: left;
-            border: 1px solid transparent;
-            background: rgba(255,255,255,0.02);
-            color: var(--text-dim);
-            padding: 18px;
-            border-radius: 18px;
-            font-family: inherit;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
-
-        .menu-item.active,
-        .menu-item:hover {
-            border-color: var(--line);
-            background: rgba(255,255,255,0.05);
-            color: var(--text);
-        }
-
-        .menu-item-title {
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .menu-item-desc {
-            font-size: 12px;
-            color: var(--text-faint);
-            line-height: 1.5;
-        }
-
-        .menu-subsection {
-            margin: -2px 0 10px;
-            padding: 0 10px 0 18px;
-            border-left: 1px solid rgba(255,255,255,0.08);
-            display: none;
-            opacity: 0;
-            transform: translateY(-6px);
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-
-        .menu-subsection.visible {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .menu-subsection-label {
-            font-size: 8px;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            margin: 8px 0 10px;
-        }
-
-        .menu-subcat-btn {
-            width: 100%;
-            text-align: left;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid transparent;
-            background: rgba(255,255,255,0.015);
-            color: var(--text-dim);
-            font-family: inherit;
-            font-size: 11px;
-            cursor: pointer;
-            transition: 0.25s ease;
-            margin-bottom: 8px;
-        }
-
-        .menu-subcat-btn:last-child {
-            margin-bottom: 0;
-        }
-
-        .menu-subcat-btn.active,
-        .menu-subcat-btn:hover {
-            color: var(--text);
-            background: rgba(255,255,255,0.04);
-            border-color: rgba(255,255,255,0.08);
-        }
-
-        .main-content {
-            position: relative;
-            z-index: 10;
-            min-height: calc(100svh - 78px);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 24px 18px 48px;
-            gap: 18px;
-        }
-
-        .hero {
-            text-align: center;
-            max-width: 700px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .eyebrow,
-        .hero-title,
-        .hero-subtitle,
-        .bottom-note,
-        .mode-badge,
-        .practice-copy,
-        .journey-panel {
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .eyebrow {
-            font-size: 10px;
-            letter-spacing: 0.36em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            margin-bottom: 14px;
-        }
-
-        .hero-title {
-            font-size: clamp(34px, 8vw, 60px);
-            line-height: 0.95;
-            font-weight: 800;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-            color: var(--text);
-            margin-bottom: 14px;
-        }
-
-        .hero-subtitle {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            font-size: 10px;
-            letter-spacing: 0.32em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-        }
-
-        .hero-subtitle span {
-            position: relative;
-        }
-
-        .hero-subtitle span::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: -9px;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: var(--text-faint);
-            transform: translateY(-50%);
-        }
-
-        .hero-subtitle span:last-child::after {
-            display: none;
-        }
-
-        .fade-swap {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-
-        .practice-copy {
-            width: min(620px, 100%);
-            text-align: center;
-            border: 1px solid var(--line);
-            background: var(--panel);
-            box-shadow: var(--shadow-md);
-            border-radius: 22px;
-            padding: 20px 20px 18px;
-        }
-
-        .practice-copy-label {
-            font-size: 9px;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            margin-bottom: 12px;
-        }
-
-        .practice-copy-title {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .practice-copy-body {
-            font-size: 13px;
-            line-height: 1.7;
-            color: var(--text-dim);
-            white-space: pre-line;
-        }
-
-        .journey-panel {
-            width: min(620px, 100%);
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .journey-btn {
-            min-width: 180px;
-            height: 48px;
-            border-radius: 16px;
-            border: 1px solid var(--line);
-            background: rgba(255,255,255,0.04);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.25s ease;
-            padding: 0 18px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .journey-btn:hover {
-            background: rgba(255,255,255,0.07);
-            border-color: var(--line-strong);
-        }
-
-        .journey-btn.secondary {
-            background: rgba(255,255,255,0.02);
-            color: var(--text-dim);
-        }
-
-        .journey-btn.hidden {
-            display: none;
-        }
-
-        .timer-shell {
-            position: relative;
-            width: min(340px, 88vw);
-            aspect-ratio: 1 / 1;
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            box-shadow: var(--shadow-lg);
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .timer-shell.running {
-            box-shadow: 0 25px 90px rgba(0,0,0,0.65);
-        }
-
-        .timer-shell::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            background:
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.04), transparent 32%),
-                linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .timer-shell::after {
-            content: '';
-            position: absolute;
-            inset: 18px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.04);
-            box-shadow: inset 0 0 35px rgba(255,255,255,0.015);
-        }
-
-        .timer-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .timer-ring {
-            position: absolute;
-            inset: 0;
-            transform: rotate(-90deg);
-        }
-
-        .timer-ring circle {
-            fill: none;
-            stroke-width: 3;
-        }
-
-        .ring-bg {
-            stroke: rgba(255,255,255,0.06);
-        }
-
-        .ring-progress {
-            stroke: #f2f2f2;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.2s linear, stroke 0.3s ease;
-        }
-
-        .inner-core {
-            position: absolute;
-            inset: 34px;
-            border-radius: 50%;
-            background:
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03), transparent 36%),
-                rgba(255,255,255,0.015);
-            border: 1px solid rgba(255,255,255,0.045);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        .mode-badge {
-            position: absolute;
-            top: 42px;
-            font-size: 9px;
-            letter-spacing: 0.28em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            text-align: center;
-            padding: 0 18px;
-        }
-
-        .timer-text {
-            font-size: clamp(20px, 5vw, 28px);
-            font-weight: 800;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #f2f2f2;
-            transition: color 0.3s ease;
-        }
-
-        .timer-label {
-            margin-top: 10px;
-            font-size: 9px;
-            letter-spacing: 0.34em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-        }
-
-        .tap-hint {
-            margin-top: 12px;
-            font-size: 9px;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            opacity: 0.9;
-            text-align: center;
-            line-height: 1.5;
-        }
-
-        .status-row {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .audio-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
-            border-radius: var(--radius-pill);
-            border: 1px solid var(--line);
-            background: var(--panel);
-            color: var(--text-faint);
-            font-size: 10px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-        }
-
-        .audio-status.playing {
-            color: var(--success);
-            border-color: rgba(88,209,143,0.24);
-        }
-
-        .audio-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--text-faint);
-        }
-
-        .audio-status.playing .audio-dot {
-            background: var(--success);
-            animation: pulse 1.4s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%,100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.3); }
-        }
-
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: var(--radius-pill);
-            border: 1px solid var(--line);
-            background: var(--panel);
-            opacity: 0.45;
-            transition: 0.25s ease;
-        }
-
-        .volume-control.active {
-            opacity: 1;
-        }
-
-        .volume-icon {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        .volume-slider {
-            width: 130px;
-            height: 3px;
-            -webkit-appearance: none;
-            background: rgba(255,255,255,0.1);
-            border-radius: 999px;
-            outline: none;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--text);
-            border: 2px solid #111;
-            cursor: pointer;
-        }
-
-        .primary-btn {
-            min-width: 180px;
-            height: 56px;
-            border-radius: 18px;
-            border: 1px solid var(--line);
-            background: rgba(255,255,255,0.05);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.25s ease;
-            box-shadow: var(--shadow-md);
-            padding: 0 22px;
-        }
-
-        .primary-btn:hover {
-            background: rgba(255,255,255,0.08);
-            border-color: var(--line-strong);
-        }
-
-        .bottom-note {
-            font-size: 9px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text-faint);
-            text-align: center;
-            max-width: 540px;
-            padding-bottom: 8px;
-        }
-
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 20px 14px 42px;
-                gap: 16px;
-            }
-
-            .hero-title {
-                font-size: 30px;
-            }
-
-            .hero-subtitle {
-                gap: 12px;
-                letter-spacing: 0.22em;
-            }
-
-            .timer-shell {
-                width: min(300px, 90vw);
-            }
-
-            .inner-core {
-                inset: 30px;
-            }
-
-            .timer-text {
-                font-size: 18px;
-            }
-
-            .opening-quote {
-                font-size: 30px;
-                line-height: 1.22;
-            }
-
-            .practice-copy-body {
-                font-size: 12px;
-            }
-
-            .tap-hint {
-                font-size: 8px;
-            }
-
-            .journey-btn {
-                width: 100%;
-            }
-        }
-    </style>
-    <base target="_blank">
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <meta name="theme-color" content="#030303" />
+  <title>Unstoppable Mindset</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    :root {
+      --bg: #030303;
+      --panel: rgba(255, 255, 255, 0.03);
+      --panel-strong: rgba(255, 255, 255, 0.05);
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --text: #f2f2f2;
+      --text-dim: #9b9b9b;
+      --text-faint: #666;
+      --success: #58d18f;
+      --shadow-lg: 0 25px 80px rgba(0, 0, 0, 0.55);
+      --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.38);
+      --radius-pill: 999px;
+    }
+
+    html {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.03) 0%, transparent 32%),
+        radial-gradient(circle at 18% 82%, rgba(255,255,255,0.03) 0%, transparent 28%),
+        radial-gradient(circle at 82% 22%, rgba(255,255,255,0.025) 0%, transparent 30%),
+        linear-gradient(180deg, #050505 0%, #020202 100%);
+    }
+
+    body {
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: transparent;
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .atmosphere {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 45%),
+        linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 35%, rgba(0,0,0,0.35) 100%);
+    }
+
+    .atmosphere::after {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.015), transparent 22%),
+        radial-gradient(circle at 70% 65%, rgba(255,255,255,0.01), transparent 25%);
+      animation: drift 18s linear infinite;
+      opacity: 0.9;
+    }
+
+    @keyframes drift {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(1.5%, -1.5%, 0) scale(1.03); }
+      100% { transform: translate3d(0, 0, 0) scale(1); }
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      opacity: 0.02;
+      z-index: 1;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    .opening-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 28px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 48%),
+        rgba(2,2,2,0.96);
+      backdrop-filter: blur(10px);
+      opacity: 1;
+      transition: opacity 1.8s ease, visibility 1.8s ease;
+    }
+
+    .opening-scene.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .opening-inner {
+      max-width: 780px;
+      text-align: center;
+      animation: openingRise 1.8s ease both;
+    }
+
+    @keyframes openingRise {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .opening-quote {
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text);
+      text-wrap: balance;
+    }
+
+    .opening-author {
+      margin-top: 22px;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .opening-mark {
+      margin-top: 28px;
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    .app-shell.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.84), rgba(0,0,0,0.4), transparent);
+      backdrop-filter: blur(8px);
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .logo {
+      font-size: 10px;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .logo-sub {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .menu-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .menu-btn span {
+      width: 16px;
+      height: 1.5px;
+      background: var(--text);
+      opacity: 0.9;
+    }
+
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 140;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.35s ease;
+      background: rgba(2,2,2,0.96);
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .menu-panel {
+      width: min(460px, 100%);
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow-lg);
+      padding: 24px;
+    }
+
+    .menu-label {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 18px;
+    }
+
+    .menu-item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,0.02);
+      color: var(--text-dim);
+      padding: 18px;
+      border-radius: 18px;
+      font-family: inherit;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .menu-item.active,
+    .menu-item:hover {
+      border-color: var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    .menu-item-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .menu-item-desc {
+      font-size: 12px;
+      color: var(--text-faint);
+      line-height: 1.5;
+    }
+
+    .menu-subsection {
+      margin: -2px 0 10px;
+      padding: 0 10px 0 18px;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      display: none;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .menu-subsection.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu-subsection-label {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin: 8px 0 10px;
+    }
+
+    .menu-subcat-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,0.015);
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: 0.25s ease;
+      margin-bottom: 8px;
+    }
+
+    .menu-subcat-btn.active,
+    .menu-subcat-btn:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .main-content {
+      position: relative;
+      z-index: 10;
+      min-height: calc(100svh - 78px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 18px 48px;
+      gap: 18px;
+    }
+
+    .hero {
+      text-align: center;
+      max-width: 700px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .eyebrow,
+    .hero-title,
+    .hero-subtitle,
+    .bottom-note,
+    .practice-copy,
+    .journey-panel,
+    .foundation-home-panel {
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.36em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-size: clamp(34px, 8vw, 60px);
+      line-height: 0.95;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .hero-subtitle,
+    .session-subtitle {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .hero-subtitle span,
+    .session-subtitle span {
+      position: relative;
+    }
+
+    .hero-subtitle span::after,
+    .session-subtitle span::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -9px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text-faint);
+      transform: translateY(-50%);
+    }
+
+    .hero-subtitle span:last-child::after,
+    .session-subtitle span:last-child::after {
+      display: none;
+    }
+
+    .fade-swap {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .practice-copy {
+      width: min(620px, 100%);
+      text-align: center;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow-md);
+      border-radius: 22px;
+      padding: 20px 20px 18px;
+    }
+
+    .practice-copy-label {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 12px;
+    }
+
+    .practice-copy-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .practice-copy-body {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      white-space: pre-line;
+    }
+
+    .journey-panel {
+      width: min(620px, 100%);
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .journey-btn,
+    .completion-btn,
+    .foundation-card-btn {
+      min-width: 180px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.25s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    .journey-btn,
+    .completion-btn {
+      height: 48px;
+      padding: 0 18px;
+    }
+
+    .journey-btn:hover,
+    .completion-btn:hover,
+    .foundation-card-btn:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--line-strong);
+    }
+
+    .journey-btn.secondary,
+    .completion-btn.secondary {
+      background: rgba(255,255,255,0.02);
+      color: var(--text-dim);
+    }
+
+    .journey-btn.hidden,
+    .completion-panel.hidden,
+    .foundation-home-panel.hidden {
+      display: none;
+    }
+
+    .primary-btn {
+      min-width: 180px;
+      height: 56px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.25s ease;
+      box-shadow: var(--shadow-md);
+      padding: 0 22px;
+    }
+
+    .primary-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: var(--line-strong);
+    }
+
+    .status-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .audio-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text-faint);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .audio-status.playing {
+      color: var(--success);
+      border-color: rgba(88,209,143,0.24);
+    }
+
+    .audio-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-faint);
+    }
+
+    .audio-status.playing .audio-dot {
+      background: var(--success);
+      animation: pulseDot 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .volume-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--line);
+      background: var(--panel);
+      opacity: 0.45;
+      transition: 0.25s ease;
+    }
+
+    .volume-control.active {
+      opacity: 1;
+    }
+
+    .volume-icon {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .volume-slider {
+      width: 130px;
+      height: 3px;
+      -webkit-appearance: none;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      outline: none;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--text);
+      border: 2px solid #111;
+      cursor: pointer;
+    }
+
+    .bottom-note {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      text-align: center;
+      max-width: 540px;
+      padding-bottom: 8px;
+    }
+
+    /* Foundation Home Cards */
+    .foundation-home-panel {
+      width: min(720px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .foundation-home-header {
+      text-align: center;
+      color: var(--text-faint);
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .foundation-card-btn {
+      width: 100%;
+      text-align: left;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .foundation-card-btn.next {
+      border-color: rgba(88,209,143,0.18);
+      background: rgba(88,209,143,0.05);
+    }
+
+    .foundation-card-btn.completed {
+      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.045);
+    }
+
+    .foundation-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .foundation-card-kicker {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 6px;
+    }
+
+    .foundation-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      text-transform: none;
+    }
+
+    .foundation-card-status {
+      flex-shrink: 0;
+      min-width: 92px;
+      text-align: right;
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      padding-top: 4px;
+    }
+
+    .foundation-card-status.next {
+      color: var(--success);
+    }
+
+    .foundation-card-desc {
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--text-dim);
+      letter-spacing: normal;
+      text-transform: none;
+      font-weight: 500;
+    }
+
+    /* Session takeover */
+    .session-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 260;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 36%),
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,0.015) 0%, transparent 30%),
+        linear-gradient(180deg, rgba(4,4,4,1) 0%, rgba(2,2,2,1) 100%);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .session-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .session-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      justify-content: flex-end;
+      padding: 18px 18px 0;
+      background: linear-gradient(to bottom, rgba(2,2,2,0.94), rgba(2,2,2,0.25), transparent);
+    }
+
+    .session-exit-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-faint);
+      font-family: inherit;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 8px 4px;
+    }
+
+    .session-stage {
+      min-height: calc(100svh - 44px);
+      width: min(860px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      text-align: center;
+      padding: 12px 20px 40px;
+      transform: scale(0.96) translateY(18px);
+      transition: transform 0.85s ease;
+    }
+
+    .session-overlay.active .session-stage {
+      transform: scale(1) translateY(0);
+    }
+
+    .session-circle-shell {
+      position: relative;
+      width: min(72vw, 520px);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.35s ease, filter 0.25s ease;
+      box-shadow: 0 30px 120px rgba(0,0,0,0.82);
+      flex-shrink: 0;
+    }
+
+    .session-circle-shell.running {
+      box-shadow: 0 32px 150px rgba(0,0,0,0.9);
+    }
+
+    .session-circle-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), transparent 32%),
+        linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .session-circle-shell::after {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: inset 0 0 50px rgba(255,255,255,0.02);
+    }
+
+    .reactive-wave {
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+      opacity: 0.14;
+      transform: scale(1);
+      transition: transform 0.08s linear, opacity 0.08s linear, border-color 0.12s linear;
+      pointer-events: none;
+    }
+
+    .reactive-wave.wave-2 {
+      inset: -30px;
+      opacity: 0.10;
+    }
+
+    .reactive-wave.wave-3 {
+      inset: -46px;
+      opacity: 0.06;
+    }
+
+    .session-circle-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .session-ring {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+
+    .session-ring circle {
+      fill: none;
+      stroke-width: 4;
+    }
+
+    .session-ring-bg {
+      stroke: rgba(255,255,255,0.08);
+    }
+
+    .session-ring-progress {
+      stroke: #f2f2f2;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.12s linear;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.08));
+    }
+
+    .session-inner-core {
+      position: absolute;
+      inset: 42px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.035), transparent 36%),
+        rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0 24px;
+      text-align: center;
+      z-index: 2;
+      transition: box-shadow 0.14s linear;
+    }
+
+    .session-mode-badge {
+      position: absolute;
+      top: 52px;
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      padding: 0 24px;
+    }
+
+    .session-state-text {
+      font-size: clamp(22px, 4.2vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .session-state-label {
+      margin-top: 12px;
+      font-size: 10px;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .session-tap-hint {
+      margin-top: 16px;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      line-height: 1.5;
+      max-width: 280px;
+    }
+
+    .session-copy {
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .session-title {
+      font-size: clamp(26px, 5vw, 46px);
+      line-height: 1.02;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .session-controls-note {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .completion-message {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-top: 6px;
+    }
+
+    .completion-panel {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .main-content {
+        padding: 20px 14px 42px;
+        gap: 16px;
+      }
+
+      .hero-title {
+        font-size: 30px;
+      }
+
+      .hero-subtitle,
+      .session-subtitle {
+        gap: 10px;
+        letter-spacing: 0.22em;
+      }
+
+      .opening-quote {
+        font-size: 30px;
+        line-height: 1.22;
+      }
+
+      .practice-copy-body {
+        font-size: 12px;
+      }
+
+      .journey-btn,
+      .completion-btn,
+      .foundation-card-btn {
+        width: 100%;
+      }
+
+      .session-stage {
+        gap: 18px;
+        padding: 8px 16px 32px;
+      }
+
+      .session-circle-shell {
+        width: min(84vw, 420px);
+      }
+
+      .session-inner-core {
+        inset: 34px;
+      }
+
+      .session-state-text {
+        font-size: 20px;
+      }
+
+      .session-title {
+        font-size: 28px;
+      }
+
+      .session-tap-hint {
+        font-size: 8px;
+      }
+
+      .foundation-card-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .foundation-card-status {
+        text-align: left;
+        min-width: 0;
+      }
+    }
+  </style>
+  <base target="_blank">
 </head>
 <body>
-    <div class="atmosphere"></div>
-    <div class="grain"></div>
+  <div class="atmosphere"></div>
+  <div class="grain"></div>
 
-    <div class="opening-scene" id="openingScene">
-        <div class="opening-inner">
-            <div class="opening-quote" id="openingQuote">“The obstacle is the way.”</div>
-            <div class="opening-author" id="openingAuthor">Marcus Aurelius</div>
-            <div class="opening-mark">Quote of the Day</div>
+  <div class="opening-scene" id="openingScene">
+    <div class="opening-inner">
+      <div class="opening-quote" id="openingQuote">“The obstacle is the way.”</div>
+      <div class="opening-author" id="openingAuthor">Marcus Aurelius</div>
+      <div class="opening-mark">Quote of the Day</div>
+    </div>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <nav class="nav">
+      <div class="logo-wrap">
+        <div class="logo">Unstoppable Mindset</div>
+        <div class="logo-sub">Inner Chamber Training</div>
+      </div>
+      <button class="menu-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+
+    <div class="menu-overlay" id="menuOverlay">
+      <div class="menu-panel">
+        <div class="menu-label">Modes</div>
+
+        <button class="menu-item active" id="introductionMenuBtn" onclick="selectMainMode('Introduction')">
+          <div class="menu-item-title">Introduction</div>
+          <div class="menu-item-desc">A gentle entry point that helps the user settle, understand the practice, and begin without pressure.</div>
+        </button>
+
+        <button class="menu-item" id="foundationMenuBtn" onclick="toggleFoundationMenu()">
+          <div class="menu-item-title">Foundation</div>
+          <div class="menu-item-desc">The starting layer of meditation training. Simple, steady, and repeatable.</div>
+        </button>
+
+        <div class="menu-subsection" id="foundationSubsection">
+          <div class="menu-subsection-label">Foundation Practices</div>
+          <button class="menu-subcat-btn" id="BreathAwarenessBtn" onclick="setSubcategory('BreathAwareness', true, event)">Breath Awareness Meditation</button>
+          <button class="menu-subcat-btn" id="BodyAwarenessBtn" onclick="setSubcategory('BodyAwareness', true, event)">Body Awareness Meditation</button>
+          <button class="menu-subcat-btn" id="ThoughtAwarenessBtn" onclick="setSubcategory('ThoughtAwareness', true, event)">Thought Awareness Meditation</button>
+          <button class="menu-subcat-btn" id="EmotionalAwarenessBtn" onclick="setSubcategory('EmotionalAwareness', true, event)">Emotional Awareness Meditation</button>
+          <button class="menu-subcat-btn" id="DeepFocusBtn" onclick="setSubcategory('DeepFocus', true, event)">Deep Focus Meditation</button>
         </div>
+      </div>
     </div>
 
-    <div class="app-shell" id="appShell">
-        <nav class="nav">
-            <div class="logo-wrap">
-                <div class="logo">Ataraxia</div>
-                <div class="logo-sub">Inner Chamber Training</div>
-            </div>
-            <button class="menu-btn" onclick="toggleMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </nav>
-
-        <div class="menu-overlay" id="menuOverlay">
-            <div class="menu-panel">
-                <div class="menu-label">Modes</div>
-
-                <button class="menu-item active" id="introductionMenuBtn" onclick="selectMainMode('Introduction')">
-                    <div class="menu-item-title">Introduction</div>
-                    <div class="menu-item-desc">A gentle entry point that helps the user settle, understand the practice, and begin without pressure.</div>
-                </button>
-
-                <button class="menu-item" id="foundationMenuBtn" onclick="toggleFoundationMenu()">
-                    <div class="menu-item-title">Foundation</div>
-                    <div class="menu-item-desc">The starting layer of meditation training. Simple, steady, and repeatable.</div>
-                </button>
-
-                <div class="menu-subsection" id="foundationSubsection">
-                    <div class="menu-subsection-label">Foundation Practices</div>
-                    <button class="menu-subcat-btn" id="BreathAwarenessBtn" onclick="setSubcategory('BreathAwareness', true, event)">Breath Awareness Meditation</button>
-                    <button class="menu-subcat-btn" id="BodyAwarenessBtn" onclick="setSubcategory('BodyAwareness', true, event)">Body Awareness Meditation</button>
-                    <button class="menu-subcat-btn" id="ThoughtAwarenessBtn" onclick="setSubcategory('ThoughtAwareness', true, event)">Thought Awareness Meditation</button>
-                    <button class="menu-subcat-btn" id="EmotionalAwarenessBtn" onclick="setSubcategory('EmotionalAwareness', true, event)">Emotional Awareness Meditation</button>
-                    <button class="menu-subcat-btn" id="DeepFocusBtn" onclick="setSubcategory('DeepFocus', true, event)">Deep Focus Meditation</button>
-                </div>
-            </div>
+    <main class="main-content">
+      <div class="hero">
+        <div class="eyebrow" id="eyebrowText">Introduction</div>
+        <h1 class="hero-title" id="heroTitle">Arrive first.<br>Then begin.</h1>
+        <div class="hero-subtitle" id="heroSubtitle">
+          <span>Settle</span>
+          <span>Notice</span>
+          <span>Prepare</span>
         </div>
+      </div>
 
-        <main class="main-content">
-            <div class="hero">
-                <div class="eyebrow" id="eyebrowText">Introduction</div>
-                <h1 class="hero-title" id="heroTitle">Arrive first.<br>Then begin.</h1>
-                <div class="hero-subtitle" id="heroSubtitle">
-                    <span>Settle</span>
-                    <span>Notice</span>
-                    <span>Prepare</span>
-                </div>
-            </div>
-
-            <div class="practice-copy" id="practiceCopy">
-                <div class="practice-copy-label" id="practiceCopyLabel">Session Guidance</div>
-                <div class="practice-copy-title" id="practiceCopyTitle">Introduction</div>
-                <div class="practice-copy-body" id="practiceCopyBody">
+      <div class="practice-copy" id="practiceCopy">
+        <div class="practice-copy-label" id="practiceCopyLabel">Session Guidance</div>
+        <div class="practice-copy-title" id="practiceCopyTitle">Introduction</div>
+        <div class="practice-copy-body" id="practiceCopyBody">
 This is a place to begin.
 
 You do not need to clear your mind.
@@ -868,108 +1100,151 @@ You only need to arrive and follow the guidance.
 In this introduction, simply notice your body, your breathing, your mood, and your energy.
 
 Let the session guide you.
-                </div>
-            </div>
+        </div>
+      </div>
 
-            <div class="journey-panel" id="journeyPanel">
-                <button class="journey-btn secondary hidden" id="backToFoundationBtn" onclick="goToFoundationHome()">Back to Foundation</button>
-                <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
-            </div>
+      <div class="foundation-home-panel hidden" id="foundationHomePanel">
+        <div class="foundation-home-header">Foundation Path</div>
+        <div id="foundationCardsContainer"></div>
+      </div>
 
-            <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">
-                Start Session
-            </button>
+      <div class="journey-panel" id="journeyPanel">
+        <button class="journey-btn secondary hidden" id="backToFoundationBtn" onclick="goToFoundationHome()">Back to Foundation</button>
+        <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
+      </div>
 
-            <div class="timer-shell" id="timerShell">
-                <div class="timer-container" id="timerContainer">
-                    <svg class="timer-ring" viewBox="0 0 340 340">
-                        <circle class="ring-bg" cx="170" cy="170" r="155"></circle>
-                        <circle class="ring-progress" id="progressRing" cx="170" cy="170" r="155"></circle>
-                    </svg>
+      <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">
+        Begin Meditation
+      </button>
 
-                    <div class="inner-core">
-                        <div class="mode-badge" id="modeBadge">Introduction</div>
-                        <div class="timer-text" id="timerText">Ready</div>
-                        <div class="timer-label" id="timerLabel">Awaiting Start</div>
-                        <div class="tap-hint" id="tapHint">Tap to Pause · Tap Again to Resume · Double Tap to Reset</div>
-                    </div>
-                </div>
-            </div>
+      <div class="status-row">
+        <div class="audio-status" id="audioStatus">
+          <div class="audio-dot"></div>
+          <span id="audioText">Session Ready</span>
+        </div>
 
-            <div class="status-row">
-                <div class="audio-status" id="audioStatus">
-                    <div class="audio-dot"></div>
-                    <span id="audioText">Session Ready</span>
-                </div>
+        <div class="volume-control" id="volumeControl">
+          <span class="volume-icon">🔊</span>
+          <input
+            type="range"
+            class="volume-slider"
+            min="0"
+            max="100"
+            value="70"
+            oninput="setVolume(this.value)"
+          />
+        </div>
+      </div>
 
-                <div class="volume-control" id="volumeControl">
-                    <span class="volume-icon">🔊</span>
-                    <input
-                        type="range"
-                        class="volume-slider"
-                        min="0"
-                        max="100"
-                        value="70"
-                        oninput="setVolume(this.value)"
-                    >
-                </div>
-            </div>
+      <div class="bottom-note" id="bottomNote">This is your starting point.</div>
+    </main>
+  </div>
 
-            <div class="bottom-note" id="bottomNote">This is your starting point.</div>
-        </main>
+  <div class="session-overlay" id="sessionOverlay">
+    <div class="session-topbar">
+      <button class="session-exit-btn" onclick="exitSessionEarly()">Exit Session</button>
     </div>
 
-    <script>
-        const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
-        const FOUNDATION_BREATH_AWARENESS_AUDIO = 'audio/Breath only meditation foundation meditation.mp3';
-        const FOUNDATION_BODY_AWARENESS_AUDIO = 'audio/body awareness meditation.mp3';
-        const FOUNDATION_THOUGHT_AWARENESS_AUDIO = 'audio/Thought awareness meditation.mp3';
-        const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = 'audio/Emotional Awareness meditations.mp3';
-        const FOUNDATION_DEEP_FOCUS_AUDIO = 'audio/deep focus meditation.mp3';
+    <div class="session-stage">
+      <div class="session-circle-shell" id="sessionCircleShell">
+        <div class="reactive-wave wave-1" id="wave1"></div>
+        <div class="reactive-wave wave-2" id="wave2"></div>
+        <div class="reactive-wave wave-3" id="wave3"></div>
 
-        let isRunning = false;
-        let hasAudio = false;
-        let wakeLock = null;
-        let activePractice = 'Introduction';
-        let activeSubcategory = 'BreathAwareness';
-        let foundationMenuOpen = false;
-        let currentAudio = null;
-        let progressInterval = null;
-        let sessionStarted = false;
-        let singleTapTimeout = null;
+        <div class="session-circle-container">
+          <svg class="session-ring" viewBox="0 0 520 520">
+            <circle class="session-ring-bg" cx="260" cy="260" r="236"></circle>
+            <circle class="session-ring-progress" id="sessionProgressRing" cx="260" cy="260" r="236"></circle>
+          </svg>
 
-        const foundationOrder = [
-            'BreathAwareness',
-            'BodyAwareness',
-            'ThoughtAwareness',
-            'EmotionalAwareness',
-            'DeepFocus'
-        ];
+          <div class="session-inner-core" id="sessionInnerCore">
+            <div class="session-mode-badge" id="sessionModeBadge">Introduction</div>
+            <div class="session-state-text" id="sessionStateText">Ready</div>
+            <div class="session-state-label" id="sessionStateLabel">Awaiting Start</div>
+            <div class="session-tap-hint" id="sessionTapHint">Tap to Pause · Tap Again to Resume · Double Tap to Reset</div>
+          </div>
+        </div>
+      </div>
 
-        const quotes = [
-            { text: "The obstacle is the way.", author: "Marcus Aurelius" },
-            { text: "He who conquers himself is the mightiest warrior.", author: "Confucius" },
-            { text: "Calmness is the cradle of power.", author: "Josiah Gilbert Holland" },
-            { text: "The only way out is through.", author: "Robert Frost" },
-            { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
-            { text: "In stillness, power gathers.", author: "Unknown" },
-            { text: "What you practice grows stronger.", author: "Unknown" },
-            { text: "Return again. That is the training.", author: "Unknown" }
-        ];
+      <div class="session-copy">
+        <div class="session-title" id="sessionTitle">Arrive first.<br>Then begin.</div>
+        <div class="session-subtitle" id="sessionSubtitle">
+          <span>Settle</span>
+          <span>Notice</span>
+          <span>Prepare</span>
+        </div>
+        <div class="session-controls-note">Double tap the circle to reset the session.</div>
 
-        const practiceContent = {
-            Introduction: {
-                title: "Introduction",
-                description: "A welcoming guided entry into meditation, helping the user settle, notice their body, mood, and breathing without pressure.",
-                audio: INTRODUCTION_AUDIO,
-                eyebrow: "Introduction",
-                hero: "Arrive first.<br>Then begin.",
-                subtitle: ["Settle", "Notice", "Prepare"],
-                note: "This is your starting point.",
-                badge: "Introduction",
-                copyLabel: "Session Guidance",
-                copyTitle: "Introduction",
-                copyBody: `This is a place to begin.
+        <div class="completion-message" id="completionMessage" style="display:none;">Session complete</div>
+        <div class="completion-panel hidden" id="completionPanel">
+          <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat Practice</button>
+          <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
+          <button class="completion-btn secondary" onclick="goToFoundationFromCompletion()">Back to Foundation</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/ending audio foundation.mp3'];
+
+
+    const STORAGE_KEY = 'unstoppable_foundation_progress_v2';
+
+    let isRunning = false;
+    let hasAudio = false;
+    let wakeLock = null;
+    let activePractice = 'Introduction';
+    let activeSubcategory = 'BreathAwareness';
+    let foundationMenuOpen = false;
+    let currentAudio = null;
+    let progressInterval = null;
+    let pulseInterval = null;
+    let sessionStarted = false;
+    let sessionCompleted = false;
+    let singleTapTimeout = null;
+
+    let audioContext = null;
+    let analyserNode = null;
+    let mediaSourceNode = null;
+    let frequencyData = null;
+
+    const foundationOrder = [
+      'BreathAwareness',
+      'BodyAwareness',
+      'ThoughtAwareness',
+      'EmotionalAwareness',
+      'DeepFocus'
+    ];
+
+    const quotes = [
+      { text: "The obstacle is the way.", author: "Marcus Aurelius" },
+      { text: "He who conquers himself is the mightiest warrior.", author: "Confucius" },
+      { text: "Calmness is the cradle of power.", author: "Josiah Gilbert Holland" },
+      { text: "The only way out is through.", author: "Robert Frost" },
+      { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
+      { text: "In stillness, power gathers.", author: "Unknown" },
+      { text: "What you practice grows stronger.", author: "Unknown" },
+      { text: "Return again. That is the training.", author: "Unknown" }
+    ];
+
+    const practiceContent = {
+      Introduction: {
+        title: 'Introduction',
+        audio: INTRODUCTION_AUDIO,
+        eyebrow: 'Introduction',
+        hero: 'Arrive first.<br>Then begin.',
+        subtitle: ['Settle', 'Notice', 'Prepare'],
+        note: 'This is your starting point.',
+        badge: 'Introduction',
+        copyLabel: 'Session Guidance',
+        copyTitle: 'Introduction',
+        copyBody: `This is a place to begin.
 
 You do not need to clear your mind.
 You do not need to perform.
@@ -978,16 +1253,16 @@ You only need to arrive and follow the guidance.
 In this introduction, simply notice your body, your breathing, your mood, and your energy.
 
 Let the session guide you.`
-            },
-            FoundationHome: {
-                eyebrow: "Meditation Foundations",
-                hero: "Choose one practice.<br>Stay with it.",
-                subtitle: ["Simple", "Steady", "Repeatable"],
-                note: "Start with one practice. Return often.",
-                badge: "Foundation",
-                copyLabel: "Foundation Path",
-                copyTitle: "Beginner Practice Track",
-                copyBody: `Foundation is the place where meditation becomes familiar.
+      },
+      FoundationHome: {
+        eyebrow: 'Meditation Foundations',
+        hero: 'Choose one practice.<br>Stay with it.',
+        subtitle: ['Simple', 'Steady', 'Repeatable'],
+        note: 'Start with one practice. Return often.',
+        badge: 'Foundation',
+        copyLabel: 'Foundation Path',
+        copyTitle: 'Beginner Practice Track',
+        copyBody: `Foundation is the place where meditation becomes familiar.
 
 You do not need to master everything at once.
 Choose one practice and stay with it.
@@ -997,20 +1272,21 @@ Body awareness helps you settle.
 Thought awareness helps you observe.
 Emotional awareness helps you understand.
 Deep focus helps you strengthen attention.`
-            },
-            Foundation: {
-                subcategories: {
-                    BreathAwareness: {
-                        title: "Breath Awareness Meditation",
-                        audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
-                        eyebrow: "Meditation Foundations",
-                        hero: "Follow the breath.<br>Return to the moment.",
-                        subtitle: ["Observe", "Breathe", "Return"],
-                        note: "Each breath is a place to begin again.",
-                        badge: "Foundation · Breath Awareness",
-                        copyLabel: "Current Foundation Practice",
-                        copyTitle: "Breath Awareness Meditation",
-                        copyBody: `In this practice, bring attention to the breath.
+      },
+      Foundation: {
+        subcategories: {
+          BreathAwareness: {
+            title: 'Breath Awareness Meditation',
+            shortPurpose: 'Return to the present through the breath.',
+            audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
+            eyebrow: 'Meditation Foundations',
+            hero: 'Follow the breath.<br>Return to the moment.',
+            subtitle: ['Observe', 'Breathe', 'Return'],
+            note: 'Each breath is a place to begin again.',
+            badge: 'Foundation · Breath Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Breath Awareness Meditation',
+            copyBody: `In this practice, bring attention to the breath.
 
 Notice the air moving in and out through the nose.
 When the mind wanders, gently return to the breath.
@@ -1018,18 +1294,19 @@ There is nothing to force.
 
 The training is in noticing,
 and coming back.`
-                    },
-                    BodyAwareness: {
-                        title: "Body Awareness Meditation",
-                        audio: FOUNDATION_BODY_AWARENESS_AUDIO,
-                        eyebrow: "Meditation Foundations",
-                        hero: "Feel the body.<br>Settle into presence.",
-                        subtitle: ["Sense", "Soften", "Arrive"],
-                        note: "The body is your doorway back to now.",
-                        badge: "Foundation · Body Awareness",
-                        copyLabel: "Current Foundation Practice",
-                        copyTitle: "Body Awareness Meditation",
-                        copyBody: `In this practice, bring gentle attention to the body.
+          },
+          BodyAwareness: {
+            title: 'Body Awareness Meditation',
+            shortPurpose: 'Settle into the body and soften tension.',
+            audio: FOUNDATION_BODY_AWARENESS_AUDIO,
+            eyebrow: 'Meditation Foundations',
+            hero: 'Feel the body.<br>Settle into presence.',
+            subtitle: ['Sense', 'Soften', 'Arrive'],
+            note: 'The body is your doorway back to now.',
+            badge: 'Foundation · Body Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Body Awareness Meditation',
+            copyBody: `In this practice, bring gentle attention to the body.
 
 Notice contact points.
 Notice tension.
@@ -1037,54 +1314,57 @@ Notice warmth, heaviness, lightness, pressure, and stillness.
 
 You do not need to change anything.
 Simply feel what is already here.`
-                    },
-                    ThoughtAwareness: {
-                        title: "Thought Awareness Meditation",
-                        audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
-                        eyebrow: "Meditation Foundations",
-                        hero: "See the thoughts.<br>Do not chase them.",
-                        subtitle: ["Observe", "Allow", "Return"],
-                        note: "You are learning to witness, not follow.",
-                        badge: "Foundation · Thought Awareness",
-                        copyLabel: "Current Foundation Practice",
-                        copyTitle: "Thought Awareness Meditation",
-                        copyBody: `In this practice, notice thoughts as they arise.
+          },
+          ThoughtAwareness: {
+            title: 'Thought Awareness Meditation',
+            shortPurpose: 'Observe thoughts without getting carried away.',
+            audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+            eyebrow: 'Meditation Foundations',
+            hero: 'See the thoughts.<br>Do not chase them.',
+            subtitle: ['Observe', 'Allow', 'Return'],
+            note: 'You are learning to witness, not follow.',
+            badge: 'Foundation · Thought Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Thought Awareness Meditation',
+            copyBody: `In this practice, notice thoughts as they arise.
 
 Do not fight them.
 Do not follow them.
 See them like passing movement in the mind.
 
 Then gently return to simple awareness.`
-                    },
-                    EmotionalAwareness: {
-                        title: "Emotional Awareness Meditation",
-                        audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
-                        eyebrow: "Meditation Foundations",
-                        hero: "Name the feeling.<br>Stay with honesty.",
-                        subtitle: ["Notice", "Allow", "Understand"],
-                        note: "Awareness makes space around emotion.",
-                        badge: "Foundation · Emotional Awareness",
-                        copyLabel: "Current Foundation Practice",
-                        copyTitle: "Emotional Awareness Meditation",
-                        copyBody: `In this practice, notice the emotional tone of the moment.
+          },
+          EmotionalAwareness: {
+            title: 'Emotional Awareness Meditation',
+            shortPurpose: 'Recognise the feeling tone with honesty.',
+            audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+            eyebrow: 'Meditation Foundations',
+            hero: 'Name the feeling.<br>Stay with honesty.',
+            subtitle: ['Notice', 'Allow', 'Understand'],
+            note: 'Awareness makes space around emotion.',
+            badge: 'Foundation · Emotional Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Emotional Awareness Meditation',
+            copyBody: `In this practice, notice the emotional tone of the moment.
 
 You may feel calm, restless, heavy, open, irritated, soft, or uncertain.
 There is no wrong answer.
 
 Simply notice what is present,
 and give it space without judgment.`
-                    },
-                    DeepFocus: {
-                        title: "Deep Focus Meditation",
-                        audio: FOUNDATION_DEEP_FOCUS_AUDIO,
-                        eyebrow: "Meditation Foundations",
-                        hero: "Hold one point.<br>Strengthen attention.",
-                        subtitle: ["Aim", "Hold", "Return"],
-                        note: "Attention becomes stronger through repetition.",
-                        badge: "Foundation · Deep Focus",
-                        copyLabel: "Current Foundation Practice",
-                        copyTitle: "Deep Focus Meditation",
-                        copyBody: `In this practice, hold your attention on one chosen anchor.
+          },
+          DeepFocus: {
+            title: 'Deep Focus Meditation',
+            shortPurpose: 'Strengthen attention through steady return.',
+            audio: FOUNDATION_DEEP_FOCUS_AUDIO,
+            eyebrow: 'Meditation Foundations',
+            hero: 'Hold one point.<br>Strengthen attention.',
+            subtitle: ['Aim', 'Hold', 'Return'],
+            note: 'Attention becomes stronger through repetition.',
+            badge: 'Foundation · Deep Focus',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Deep Focus Meditation',
+            copyBody: `In this practice, hold your attention on one chosen anchor.
 
 It may be the breath,
 a point in the body,
@@ -1092,514 +1372,712 @@ or the simple feeling of presence.
 
 When attention drifts,
 return with discipline and calm.`
-                    }
-                }
-            }
-        };
+          }
+        }
+      }
+    };
 
-        const openingScene = document.getElementById('openingScene');
-        const openingQuote = document.getElementById('openingQuote');
-        const openingAuthor = document.getElementById('openingAuthor');
-        const appShell = document.getElementById('appShell');
+    const openingScene = document.getElementById('openingScene');
+    const openingQuote = document.getElementById('openingQuote');
+    const openingAuthor = document.getElementById('openingAuthor');
+    const appShell = document.getElementById('appShell');
 
-        const menuOverlay = document.getElementById('menuOverlay');
-        const foundationSubsection = document.getElementById('foundationSubsection');
-        const foundationMenuBtn = document.getElementById('foundationMenuBtn');
-        const introductionMenuBtn = document.getElementById('introductionMenuBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const foundationSubsection = document.getElementById('foundationSubsection');
+    const foundationMenuBtn = document.getElementById('foundationMenuBtn');
+    const introductionMenuBtn = document.getElementById('introductionMenuBtn');
 
-        const timerShell = document.getElementById('timerShell');
-        const progressRing = document.getElementById('progressRing');
-        const timerText = document.getElementById('timerText');
-        const timerLabel = document.getElementById('timerLabel');
-        const tapHint = document.getElementById('tapHint');
-        const audioStatus = document.getElementById('audioStatus');
-        const audioText = document.getElementById('audioText');
-        const volumeControl = document.getElementById('volumeControl');
-        const modeBadge = document.getElementById('modeBadge');
-        const eyebrowText = document.getElementById('eyebrowText');
-        const heroTitle = document.getElementById('heroTitle');
-        const heroSubtitle = document.getElementById('heroSubtitle');
-        const bottomNote = document.getElementById('bottomNote');
-        const practiceCopy = document.getElementById('practiceCopy');
-        const practiceCopyLabel = document.getElementById('practiceCopyLabel');
-        const practiceCopyTitle = document.getElementById('practiceCopyTitle');
-        const practiceCopyBody = document.getElementById('practiceCopyBody');
-        const startSessionBtn = document.getElementById('startSessionBtn');
-        const backToFoundationBtn = document.getElementById('backToFoundationBtn');
-        const nextPracticeBtn = document.getElementById('nextPracticeBtn');
+    const audioStatus = document.getElementById('audioStatus');
+    const audioText = document.getElementById('audioText');
+    const volumeControl = document.getElementById('volumeControl');
+    const eyebrowText = document.getElementById('eyebrowText');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroSubtitle = document.getElementById('heroSubtitle');
+    const bottomNote = document.getElementById('bottomNote');
+    const practiceCopy = document.getElementById('practiceCopy');
+    const practiceCopyLabel = document.getElementById('practiceCopyLabel');
+    const practiceCopyTitle = document.getElementById('practiceCopyTitle');
+    const practiceCopyBody = document.getElementById('practiceCopyBody');
+    const startSessionBtn = document.getElementById('startSessionBtn');
+    const backToFoundationBtn = document.getElementById('backToFoundationBtn');
+    const nextPracticeBtn = document.getElementById('nextPracticeBtn');
+    const foundationHomePanel = document.getElementById('foundationHomePanel');
+    const foundationCardsContainer = document.getElementById('foundationCardsContainer');
 
-        const radius = 155;
-        const circumference = 2 * Math.PI * radius;
-        progressRing.style.strokeDasharray = circumference;
-        progressRing.style.strokeDashoffset = circumference;
+    const sessionOverlay = document.getElementById('sessionOverlay');
+    const sessionCircleShell = document.getElementById('sessionCircleShell');
+    const sessionProgressRing = document.getElementById('sessionProgressRing');
+    const sessionModeBadge = document.getElementById('sessionModeBadge');
+    const sessionStateText = document.getElementById('sessionStateText');
+    const sessionStateLabel = document.getElementById('sessionStateLabel');
+    const sessionTapHint = document.getElementById('sessionTapHint');
+    const sessionTitle = document.getElementById('sessionTitle');
+    const sessionSubtitle = document.getElementById('sessionSubtitle');
+    const sessionInnerCore = document.getElementById('sessionInnerCore');
+    const completionPanel = document.getElementById('completionPanel');
+    const completionMessage = document.getElementById('completionMessage');
 
-        function toggleMenu() {
-            menuOverlay.classList.toggle('active');
+    const wave1 = document.getElementById('wave1');
+    const wave2 = document.getElementById('wave2');
+    const wave3 = document.getElementById('wave3');
+
+    const radius = 236;
+    const circumference = 2 * Math.PI * radius;
+    sessionProgressRing.style.strokeDasharray = circumference;
+    sessionProgressRing.style.strokeDashoffset = circumference;
+
+    function loadProgress() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+
+    function savePracticeComplete(practiceKey) {
+      if (!practiceKey) return;
+      const progress = loadProgress();
+      progress[practiceKey] = true;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+
+    function getNextRecommendedPractice() {
+      const progress = loadProgress();
+      for (const key of foundationOrder) {
+        if (!progress[key]) return key;
+      }
+      return foundationOrder[0];
+    }
+
+    function renderFoundationHomeCards() {
+      const progress = loadProgress();
+      const nextRecommended = getNextRecommendedPractice();
+
+      foundationCardsContainer.innerHTML = foundationOrder.map((key) => {
+        const item = practiceContent.Foundation.subcategories[key];
+        const completed = !!progress[key];
+        const isNext = !completed && key === nextRecommended;
+
+        let statusText = 'Not Started';
+        let statusClass = '';
+        if (completed) {
+          statusText = 'Completed';
+        } else if (isNext) {
+          statusText = 'Next';
+          statusClass = 'next';
         }
 
-        function closeMenu() {
-            menuOverlay.classList.remove('active');
+        return `
+          <button class="foundation-card-btn ${completed ? 'completed' : ''} ${isNext ? 'next' : ''}" onclick="openFoundationCard('${key}')">
+            <div class="foundation-card-top">
+              <div>
+                <div class="foundation-card-kicker">Foundation Practice</div>
+                <div class="foundation-card-title">${item.title}</div>
+              </div>
+              <div class="foundation-card-status ${statusClass}">${statusText}</div>
+            </div>
+            <div class="foundation-card-desc">${item.shortPurpose}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function openFoundationCard(key) {
+      setSubcategory(key, false);
+    }
+
+    function toggleMenu() {
+      menuOverlay.classList.toggle('active');
+    }
+
+    function closeMenu() {
+      menuOverlay.classList.remove('active');
+    }
+
+    function getQuoteOfTheDay() {
+      const now = new Date();
+      const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+      const daySeed = now.getFullYear() * 1000 + dayOfYear;
+      return quotes[daySeed % quotes.length];
+    }
+
+    function updateSubtitle(el, items) {
+      el.innerHTML = items.map(item => `<span>${item}</span>`).join('');
+    }
+
+    function getSubcategoryData() {
+      return practiceContent.Foundation.subcategories[activeSubcategory] || null;
+    }
+
+    function isFoundationHome() {
+      return activePractice === 'FoundationHome';
+    }
+
+    function getCurrentPracticeData() {
+      if (activePractice === 'Introduction') return practiceContent.Introduction;
+      if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
+      return getSubcategoryData();
+    }
+
+    function getCurrentAudioUrl() {
+      const data = getCurrentPracticeData();
+      return data && data.audio ? data.audio : '';
+    }
+
+    function stopAudioListeners() {
+      if (currentAudio) {
+        currentAudio.removeEventListener('ended', handleAudioEnded);
+      }
+    }
+
+    function destroyAudioReactiveGraph() {
+      stopReactivePulse();
+      analyserNode = null;
+      mediaSourceNode = null;
+      frequencyData = null;
+    }
+
+    function initAudio() {
+      const audioUrl = getCurrentAudioUrl();
+
+      stopAudioListeners();
+
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+
+      destroyAudioReactiveGraph();
+
+      if (audioUrl) {
+        currentAudio = new Audio(audioUrl);
+        currentAudio.loop = false;
+        currentAudio.volume = 0.7;
+        currentAudio.preload = 'auto';
+        currentAudio.addEventListener('ended', handleAudioEnded);
+        hasAudio = true;
+      } else {
+        hasAudio = false;
+      }
+
+      updateAudioStatus();
+      resetVisualSessionState();
+    }
+
+    async function ensureAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+
+      if (currentAudio && !analyserNode) {
+        analyserNode = audioContext.createAnalyser();
+        analyserNode.fftSize = 256;
+        analyserNode.smoothingTimeConstant = 0.82;
+        frequencyData = new Uint8Array(analyserNode.frequencyBinCount);
+
+        mediaSourceNode = audioContext.createMediaElementSource(currentAudio);
+        mediaSourceNode.connect(analyserNode);
+        analyserNode.connect(audioContext.destination);
+      }
+    }
+
+    function startReactivePulse() {
+      stopReactivePulse();
+
+      if (!analyserNode || !frequencyData) return;
+
+      pulseInterval = setInterval(() => {
+        analyserNode.getByteFrequencyData(frequencyData);
+
+        let sum = 0;
+        for (let i = 0; i < 18; i++) sum += frequencyData[i];
+        const avg = sum / 18;
+        const intensity = Math.min(1, avg / 110);
+
+        const s1 = 1 + intensity * 0.10;
+        const s2 = 1 + intensity * 0.16;
+        const s3 = 1 + intensity * 0.22;
+
+        const o1 = 0.10 + intensity * 0.20;
+        const o2 = 0.06 + intensity * 0.16;
+        const o3 = 0.03 + intensity * 0.12;
+
+        wave1.style.transform = `scale(${s1})`;
+        wave2.style.transform = `scale(${s2})`;
+        wave3.style.transform = `scale(${s3})`;
+
+        wave1.style.opacity = o1.toFixed(3);
+        wave2.style.opacity = o2.toFixed(3);
+        wave3.style.opacity = o3.toFixed(3);
+
+        sessionInnerCore.style.boxShadow = `inset 0 0 ${20 + intensity * 40}px rgba(255,255,255,${0.02 + intensity * 0.05})`;
+        sessionCircleShell.style.filter = `brightness(${1 + intensity * 0.08})`;
+      }, 60);
+    }
+
+    function stopReactivePulse() {
+      clearInterval(pulseInterval);
+      pulseInterval = null;
+
+      [wave1, wave2, wave3].forEach((wave, index) => {
+        wave.style.transform = 'scale(1)';
+        wave.style.opacity = index === 0 ? '0.14' : index === 1 ? '0.10' : '0.06';
+      });
+
+      sessionInnerCore.style.boxShadow = 'inset 0 0 0 rgba(255,255,255,0)';
+      sessionCircleShell.style.filter = 'brightness(1)';
+    }
+
+    function handleAudioEnded() {
+      completeSession();
+    }
+
+    function updateAudioStatus() {
+      if (!hasAudio) {
+        audioText.textContent = isFoundationHome()
+          ? 'Choose a Practice'
+          : 'Add Audio to Enable Session';
+        return;
+      }
+
+      if (activePractice === 'Introduction') {
+        audioText.textContent = 'Introduction Ready';
+      } else if (activePractice === 'FoundationHome') {
+        audioText.textContent = 'Choose a Foundation Practice';
+      } else {
+        audioText.textContent = 'Foundation Ready';
+      }
+    }
+
+    function updateMenuState() {
+      introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
+      foundationMenuBtn.classList.toggle(
+        'active',
+        activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen
+      );
+      foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
+
+      foundationOrder.forEach((key) => {
+        const btn = document.getElementById(`${key}Btn`);
+        if (btn) {
+          btn.classList.toggle('active', activePractice === 'Foundation' && activeSubcategory === key);
         }
+      });
+    }
 
-        function getQuoteOfTheDay() {
-            const now = new Date();
-            const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-            const daySeed = now.getFullYear() * 1000 + dayOfYear;
-            return quotes[daySeed % quotes.length];
+    function updateJourneyButtons() {
+      const showBack = activePractice === 'Foundation';
+      backToFoundationBtn.classList.toggle('hidden', !showBack);
+
+      const showNext = activePractice === 'Foundation';
+      nextPracticeBtn.classList.toggle('hidden', !showNext);
+
+      if (showNext) {
+        const next = getNextPracticeKey();
+        nextPracticeBtn.textContent = next ? 'Next Practice' : 'Back to First Practice';
+      }
+    }
+
+    function updateContentUI() {
+      const data = getCurrentPracticeData();
+
+      eyebrowText.textContent = data.eyebrow;
+      heroTitle.innerHTML = data.hero;
+      updateSubtitle(heroSubtitle, data.subtitle);
+      bottomNote.textContent = data.note;
+      practiceCopyLabel.textContent = data.copyLabel;
+      practiceCopyTitle.textContent = data.copyTitle;
+      practiceCopyBody.textContent = data.copyBody;
+
+      sessionModeBadge.textContent = data.badge;
+      sessionTitle.innerHTML = data.hero;
+      updateSubtitle(sessionSubtitle, data.subtitle);
+
+      const showFoundationHomeCards = activePractice === 'FoundationHome';
+      foundationHomePanel.classList.toggle('hidden', !showFoundationHomeCards);
+
+      if (showFoundationHomeCards) {
+        renderFoundationHomeCards();
+      }
+    }
+
+    function smoothSwapContent() {
+      eyebrowText.classList.add('fade-swap');
+      heroTitle.classList.add('fade-swap');
+      heroSubtitle.classList.add('fade-swap');
+      bottomNote.classList.add('fade-swap');
+      practiceCopy.classList.add('fade-swap');
+      foundationHomePanel.classList.add('fade-swap');
+
+      setTimeout(() => {
+        updateContentUI();
+        updateMenuState();
+        updateJourneyButtons();
+
+        eyebrowText.classList.remove('fade-swap');
+        heroTitle.classList.remove('fade-swap');
+        heroSubtitle.classList.remove('fade-swap');
+        bottomNote.classList.remove('fade-swap');
+        practiceCopy.classList.remove('fade-swap');
+        foundationHomePanel.classList.remove('fade-swap');
+      }, 320);
+    }
+
+    function showOpeningQuoteScene() {
+      const quote = getQuoteOfTheDay();
+      openingQuote.textContent = `“${quote.text}”`;
+      openingAuthor.textContent = quote.author;
+
+      setTimeout(() => {
+        openingScene.classList.add('fade-out');
+        appShell.classList.add('revealed');
+      }, 3200);
+    }
+
+    function toggleFoundationMenu() {
+      if (activePractice === 'FoundationHome' || activePractice === 'Foundation') {
+        foundationMenuOpen = !foundationMenuOpen;
+        updateMenuState();
+        return;
+      }
+
+      activePractice = 'FoundationHome';
+      foundationMenuOpen = true;
+      stopCurrentSession();
+      smoothSwapContent();
+      initAudio();
+    }
+
+    function selectMainMode(name) {
+      activePractice = name;
+      foundationMenuOpen = false;
+      stopCurrentSession();
+      smoothSwapContent();
+      initAudio();
+      closeMenu();
+    }
+
+    function setSubcategory(name, fromMenu = false, event = null) {
+      if (event) event.stopPropagation();
+
+      activePractice = 'Foundation';
+      activeSubcategory = name;
+      foundationMenuOpen = true;
+
+      stopCurrentSession();
+      smoothSwapContent();
+      initAudio();
+
+      if (fromMenu) closeMenu();
+    }
+
+    function goToFoundationHome() {
+      activePractice = 'FoundationHome';
+      foundationMenuOpen = true;
+      stopCurrentSession();
+      smoothSwapContent();
+      initAudio();
+    }
+
+    function getNextPracticeKey() {
+      const currentIndex = foundationOrder.indexOf(activeSubcategory);
+      if (currentIndex === -1) return foundationOrder[0];
+      if (currentIndex === foundationOrder.length - 1) return null;
+      return foundationOrder[currentIndex + 1];
+    }
+
+    function goToNextPractice() {
+      const next = getNextPracticeKey();
+      const target = next || foundationOrder[0];
+      setSubcategory(target, false);
+    }
+
+    function enterSessionMode() {
+      completionPanel.classList.add('hidden');
+      completionMessage.style.display = 'none';
+      sessionOverlay.classList.add('active');
+    }
+
+    function exitSessionMode() {
+      sessionOverlay.classList.remove('active');
+    }
+
+    function resetVisualSessionState() {
+      sessionStarted = false;
+      sessionCompleted = false;
+      isRunning = false;
+
+      clearInterval(progressInterval);
+      progressInterval = null;
+      stopReactivePulse();
+
+      startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
+      if (activePractice === 'FoundationHome') {
+        startSessionBtn.style.display = 'none';
+      }
+
+      sessionStateText.textContent = 'Ready';
+      sessionStateLabel.textContent = 'Awaiting Start';
+      sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      sessionCircleShell.classList.remove('running');
+      sessionProgressRing.style.strokeDashoffset = circumference;
+      completionPanel.classList.add('hidden');
+      completionMessage.style.display = 'none';
+
+      audioStatus.classList.remove('playing');
+      volumeControl.classList.remove('active');
+      exitSessionMode();
+    }
+
+    async function startSessionButton() {
+      if (!hasAudio || !currentAudio) {
+        audioText.textContent = 'Please Add Audio First';
+        return;
+      }
+
+      sessionStarted = true;
+      sessionCompleted = false;
+      startSessionBtn.style.display = 'none';
+      enterSessionMode();
+      await startPlayback();
+    }
+
+    function setVolume(val) {
+      const volume = val / 100;
+      if (currentAudio) currentAudio.volume = volume;
+    }
+
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
         }
+      } catch {}
+    }
 
-        function updateHeroSubtitle(items) {
-            heroSubtitle.innerHTML = items.map(item => `<span>${item}</span>`).join('');
+    async function releaseWakeLock() {
+      try {
+        if (wakeLock) {
+          await wakeLock.release();
+          wakeLock = null;
         }
+      } catch {}
+    }
 
-        function getSubcategoryData() {
-            return practiceContent.Foundation.subcategories[activeSubcategory] || null;
+    function initProgressTracking() {
+      clearInterval(progressInterval);
+
+      progressInterval = setInterval(() => {
+        if (!currentAudio || !currentAudio.duration || !isFinite(currentAudio.duration)) return;
+        const progress = currentAudio.currentTime / currentAudio.duration;
+        sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress);
+      }, 120);
+    }
+
+    async function startPlayback() {
+      if (!currentAudio) return;
+
+      try {
+        await ensureAudioContext();
+        await currentAudio.play();
+
+        isRunning = true;
+        sessionCircleShell.classList.add('running');
+        audioStatus.classList.add('playing');
+        volumeControl.classList.add('active');
+
+        sessionStateText.textContent = 'Playing';
+        sessionStateLabel.textContent = 'Session Active';
+        sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+
+        audioText.textContent = activePractice === 'Introduction'
+          ? 'Introduction Playing'
+          : 'Foundation Playing';
+
+        requestWakeLock();
+        initProgressTracking();
+        startReactivePulse();
+      } catch {
+        audioText.textContent = 'Tap Begin Meditation Again';
+      }
+    }
+
+    function pausePlayback() {
+      if (!currentAudio) return;
+
+      currentAudio.pause();
+      isRunning = false;
+      sessionCircleShell.classList.remove('running');
+      audioStatus.classList.remove('playing');
+
+      sessionStateText.textContent = 'Paused';
+      sessionStateLabel.textContent = 'Session Paused';
+      sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
+
+      audioText.textContent = activePractice === 'Introduction'
+        ? 'Introduction Paused'
+        : 'Foundation Paused';
+
+      stopReactivePulse();
+      releaseWakeLock();
+    }
+
+    function resumePlayback() {
+      startPlayback();
+    }
+
+    function handleCircleTap() {
+      if (!sessionStarted || !currentAudio || sessionCompleted) return;
+
+      if (singleTapTimeout) {
+        clearTimeout(singleTapTimeout);
+        singleTapTimeout = null;
+        resetSessionFromDoubleTap();
+        return;
+      }
+
+      singleTapTimeout = setTimeout(() => {
+        if (isRunning) {
+          pausePlayback();
+        } else {
+          resumePlayback();
         }
-
-        function isFoundationSubPractice() {
-            return activePractice === 'Foundation';
-        }
-
-        function isFoundationHome() {
-            return activePractice === 'FoundationHome';
-        }
-
-        function getCurrentPracticeData() {
-            if (activePractice === 'Introduction') return practiceContent.Introduction;
-            if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
-            return getSubcategoryData();
-        }
-
-        function getCurrentAudioUrl() {
-            const data = getCurrentPracticeData();
-            return data && data.audio ? data.audio : '';
-        }
-
-        function stopAudioListeners() {
-            if (currentAudio) {
-                currentAudio.removeEventListener('ended', handleAudioEnded);
-            }
-        }
-
-        function initAudio() {
-            const audioUrl = getCurrentAudioUrl();
-
-            stopAudioListeners();
-
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-
-            if (audioUrl) {
-                currentAudio = new Audio(audioUrl);
-                currentAudio.loop = false;
-                currentAudio.volume = 0.7;
-                currentAudio.preload = 'auto';
-                currentAudio.addEventListener('ended', handleAudioEnded);
-                hasAudio = true;
-            } else {
-                hasAudio = false;
-            }
-
-            updateAudioStatus();
-            resetVisualSessionState();
-        }
-
-        function handleAudioEnded() {
-            completeSession();
-        }
-
-        function updateAudioStatus() {
-            if (!hasAudio) {
-                audioText.textContent = isFoundationHome()
-                    ? 'Choose a Practice'
-                    : 'Add Audio to Enable Session';
-                return;
-            }
-
-            if (activePractice === 'Introduction') {
-                audioText.textContent = 'Introduction Ready';
-            } else if (activePractice === 'FoundationHome') {
-                audioText.textContent = 'Choose a Foundation Practice';
-            } else {
-                audioText.textContent = 'Foundation Ready';
-            }
-        }
-
-        function updateMenuState() {
-            introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
-            foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
-            foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
-
-            foundationOrder.forEach(key => {
-                const btn = document.getElementById(`${key}Btn`);
-                if (btn) {
-                    btn.classList.toggle('active', activePractice === 'Foundation' && activeSubcategory === key);
-                }
-            });
-        }
-
-        function updateJourneyButtons() {
-            const showBack = activePractice === 'Foundation';
-            backToFoundationBtn.classList.toggle('hidden', !showBack);
-
-            const showNext = activePractice === 'Foundation';
-            nextPracticeBtn.classList.toggle('hidden', !showNext);
-
-            if (showNext) {
-                const next = getNextPracticeKey();
-                nextPracticeBtn.textContent = next ? 'Next Practice' : 'Back to First Practice';
-            }
-        }
-
-        function updateContentUI() {
-            const data = getCurrentPracticeData();
-
-            eyebrowText.textContent = data.eyebrow;
-            heroTitle.innerHTML = data.hero;
-            updateHeroSubtitle(data.subtitle);
-            bottomNote.textContent = data.note;
-            modeBadge.textContent = data.badge;
-            practiceCopyLabel.textContent = data.copyLabel;
-            practiceCopyTitle.textContent = data.copyTitle;
-            practiceCopyBody.textContent = data.copyBody;
-        }
-
-        function smoothSwapContent() {
-            eyebrowText.classList.add('fade-swap');
-            heroTitle.classList.add('fade-swap');
-            heroSubtitle.classList.add('fade-swap');
-            bottomNote.classList.add('fade-swap');
-            modeBadge.classList.add('fade-swap');
-            practiceCopy.classList.add('fade-swap');
-
-            setTimeout(() => {
-                updateContentUI();
-                updateMenuState();
-                updateJourneyButtons();
-
-                eyebrowText.classList.remove('fade-swap');
-                heroTitle.classList.remove('fade-swap');
-                heroSubtitle.classList.remove('fade-swap');
-                bottomNote.classList.remove('fade-swap');
-                modeBadge.classList.remove('fade-swap');
-                practiceCopy.classList.remove('fade-swap');
-            }, 320);
-        }
-
-        function showOpeningQuoteScene() {
-            const quote = getQuoteOfTheDay();
-            openingQuote.textContent = `“${quote.text}”`;
-            openingAuthor.textContent = quote.author;
-
-            setTimeout(() => {
-                openingScene.classList.add('fade-out');
-                appShell.classList.add('revealed');
-            }, 3200);
-        }
-
-        function toggleFoundationMenu() {
-            if (activePractice === 'FoundationHome' || activePractice === 'Foundation') {
-                foundationMenuOpen = !foundationMenuOpen;
-                updateMenuState();
-                return;
-            }
-
-            activePractice = 'FoundationHome';
-            foundationMenuOpen = true;
-            stopCurrentSession();
-            smoothSwapContent();
-            initAudio();
-        }
-
-        function selectMainMode(name) {
-            activePractice = name;
-            foundationMenuOpen = false;
-            stopCurrentSession();
-            smoothSwapContent();
-            initAudio();
-            closeMenu();
-        }
-
-        function setSubcategory(name, fromMenu = false, event = null) {
-            if (event) event.stopPropagation();
-
-            activePractice = 'Foundation';
-            activeSubcategory = name;
-            foundationMenuOpen = true;
-
-            stopCurrentSession();
-            smoothSwapContent();
-            initAudio();
-
-            if (fromMenu) closeMenu();
-        }
-
-        function goToFoundationHome() {
-            activePractice = 'FoundationHome';
-            foundationMenuOpen = true;
-            stopCurrentSession();
-            smoothSwapContent();
-            initAudio();
-        }
-
-        function getNextPracticeKey() {
-            const currentIndex = foundationOrder.indexOf(activeSubcategory);
-            if (currentIndex === -1) return foundationOrder[0];
-            if (currentIndex === foundationOrder.length - 1) return null;
-            return foundationOrder[currentIndex + 1];
-        }
-
-        function goToNextPractice() {
-            const next = getNextPracticeKey();
-            const target = next || foundationOrder[0];
-            setSubcategory(target, false);
-        }
-
-        function resetVisualSessionState() {
-            sessionStarted = false;
-            isRunning = false;
-            clearInterval(progressInterval);
-            progressInterval = null;
-
-            timerShell.style.display = 'none';
-            startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
-
-            if (activePractice === 'FoundationHome') {
-                startSessionBtn.style.display = 'none';
-            }
-
-            timerText.textContent = 'Ready';
-            timerLabel.textContent = 'Awaiting Start';
-            tapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-            timerShell.classList.remove('running');
-            progressRing.style.strokeDashoffset = circumference;
-
-            audioStatus.classList.remove('playing');
-            volumeControl.classList.remove('active');
-        }
-
-        function startSessionButton() {
-            if (!hasAudio || !currentAudio) {
-                audioText.textContent = 'Please Add Audio First';
-                return;
-            }
-
-            sessionStarted = true;
-            startSessionBtn.style.display = 'none';
-            timerShell.style.display = 'flex';
-            startPlayback();
-        }
-
-        function setVolume(val) {
-            const volume = val / 100;
-            if (currentAudio) currentAudio.volume = volume;
-        }
-
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                }
-            } catch (err) {}
-        }
-
-        async function releaseWakeLock() {
-            try {
-                if (wakeLock) {
-                    await wakeLock.release();
-                    wakeLock = null;
-                }
-            } catch (err) {}
-        }
-
-        function initProgressTracking() {
-            clearInterval(progressInterval);
-
-            progressInterval = setInterval(() => {
-                if (!currentAudio || !currentAudio.duration || !isFinite(currentAudio.duration)) return;
-                const progress = currentAudio.currentTime / currentAudio.duration;
-                progressRing.style.strokeDashoffset = circumference * (1 - progress);
-            }, 120);
-        }
-
-        function startPlayback() {
-            if (!currentAudio) return;
-
-            currentAudio.play()
-                .then(() => {
-                    isRunning = true;
-                    timerShell.classList.add('running');
-                    audioStatus.classList.add('playing');
-                    volumeControl.classList.add('active');
-
-                    timerText.textContent = 'Playing';
-                    timerLabel.textContent = 'Session Active';
-                    tapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-
-                    if (activePractice === 'Introduction') {
-                        audioText.textContent = 'Introduction Playing';
-                    } else {
-                        audioText.textContent = 'Foundation Playing';
-                    }
-
-                    requestWakeLock();
-                    initProgressTracking();
-                })
-                .catch(() => {
-                    audioText.textContent = 'Tap Start Again';
-                });
-        }
-
-        function pausePlayback() {
-            if (!currentAudio) return;
-
-            currentAudio.pause();
-            isRunning = false;
-            timerShell.classList.remove('running');
-            audioStatus.classList.remove('playing');
-
-            timerText.textContent = 'Paused';
-            timerLabel.textContent = 'Session Paused';
-            tapHint.textContent = 'Tap to Resume · Double Tap to Reset';
-
-            if (activePractice === 'Introduction') {
-                audioText.textContent = 'Introduction Paused';
-            } else {
-                audioText.textContent = 'Foundation Paused';
-            }
-
-            releaseWakeLock();
-        }
-
-        function resumePlayback() {
-            startPlayback();
-        }
-
-        function handleCircleTap() {
-            if (!sessionStarted || !currentAudio) return;
-
-            if (singleTapTimeout) {
-                clearTimeout(singleTapTimeout);
-                singleTapTimeout = null;
-                resetSessionFromDoubleTap();
-                return;
-            }
-
-            singleTapTimeout = setTimeout(() => {
-                if (isRunning) {
-                    pausePlayback();
-                } else {
-                    resumePlayback();
-                }
-                singleTapTimeout = null;
-            }, 220);
-        }
-
-        async function resetSessionFromDoubleTap() {
-            clearInterval(progressInterval);
-            progressInterval = null;
-
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-            }
-
-            isRunning = false;
-            sessionStarted = false;
-
-            timerShell.classList.remove('running');
-            audioStatus.classList.remove('playing');
-            volumeControl.classList.remove('active');
-
-            progressRing.style.strokeDashoffset = circumference;
-            timerText.textContent = 'Ready';
-            timerLabel.textContent = 'Session Reset';
-            tapHint.textContent = 'Tap Start Session to Begin Again';
-
-            startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
-            timerShell.style.display = 'none';
-
-            updateAudioStatus();
-            await releaseWakeLock();
-        }
-
-        async function stopCurrentSession() {
-            clearInterval(progressInterval);
-            progressInterval = null;
-
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-            }
-
-            isRunning = false;
-            sessionStarted = false;
-
-            await releaseWakeLock();
-            updateAudioStatus();
-            resetVisualSessionState();
-        }
-
-        async function completeSession() {
-            clearInterval(progressInterval);
-            progressInterval = null;
-            isRunning = false;
-
-            if (currentAudio) {
-                currentAudio.pause();
-            }
-
-            timerShell.classList.remove('running');
-            audioStatus.classList.remove('playing');
-            volumeControl.classList.remove('active');
-
-            timerText.textContent = 'Complete';
-            timerLabel.textContent = 'Session Finished';
-            tapHint.textContent = 'Well done';
-
-            if (activePractice === 'Introduction') {
-                audioText.textContent = 'Introduction Complete';
-            } else {
-                audioText.textContent = 'Foundation Complete';
-            }
-
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
-            }
-
-            await releaseWakeLock();
-
-            setTimeout(() => {
-                if (currentAudio) currentAudio.currentTime = 0;
-                updateAudioStatus();
-                resetVisualSessionState();
-            }, 2200);
-        }
-
-        timerShell.addEventListener('click', handleCircleTap);
-
-        function syncUI() {
-            updateContentUI();
-            updateMenuState();
-            updateJourneyButtons();
-            updateAudioStatus();
-            resetVisualSessionState();
-        }
-
-        initAudio();
-        syncUI();
-        showOpeningQuoteScene();
-    </script>
-    <script>
-        if ("serviceWorker" in navigator) {
-             window.addEventListener("load", () => {
-             navigator.serviceWorker.register("./service-worker.js")
-             .then(() => console.log("Service Worker registered"))
-             .catch((error) => console.log("Service Worker registration failed:", error));
-          });
-       }
-    </script>
+        singleTapTimeout = null;
+      }, 220);
+    }
+
+    async function resetSessionFromDoubleTap() {
+      clearInterval(progressInterval);
+      progressInterval = null;
+      stopReactivePulse();
+
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+
+      isRunning = false;
+      sessionStarted = false;
+      sessionCompleted = false;
+
+      sessionCircleShell.classList.remove('running');
+      audioStatus.classList.remove('playing');
+      volumeControl.classList.remove('active');
+
+      sessionProgressRing.style.strokeDashoffset = circumference;
+      sessionStateText.textContent = 'Ready';
+      sessionStateLabel.textContent = 'Session Reset';
+      sessionTapHint.textContent = 'Tap Begin Meditation to Start Again';
+      completionPanel.classList.add('hidden');
+      completionMessage.style.display = 'none';
+
+      startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
+
+      updateAudioStatus();
+      await releaseWakeLock();
+      exitSessionMode();
+    }
+
+    async function stopCurrentSession() {
+      clearInterval(progressInterval);
+      progressInterval = null;
+      stopReactivePulse();
+
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+
+      isRunning = false;
+      sessionStarted = false;
+      sessionCompleted = false;
+
+      await releaseWakeLock();
+      updateAudioStatus();
+      resetVisualSessionState();
+    }
+
+    async function completeSession() {
+      clearInterval(progressInterval);
+      progressInterval = null;
+      stopReactivePulse();
+
+      isRunning = false;
+      sessionCompleted = true;
+
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+
+      if (activePractice === 'Foundation') {
+        savePracticeComplete(activeSubcategory);
+        renderFoundationHomeCards();
+      }
+
+      sessionCircleShell.classList.remove('running');
+      audioStatus.classList.remove('playing');
+      volumeControl.classList.remove('active');
+
+      sessionStateText.textContent = 'Complete';
+      sessionStateLabel.textContent = 'Session Finished';
+      sessionTapHint.textContent = 'Choose your next step';
+      completionMessage.style.display = 'block';
+      completionPanel.classList.remove('hidden');
+
+      audioText.textContent = activePractice === 'Introduction'
+        ? 'Introduction Complete'
+        : 'Foundation Complete';
+
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+
+      await releaseWakeLock();
+    }
+
+    async function exitSessionEarly() {
+      await stopCurrentSession();
+    }
+
+    function repeatCurrentPractice() {
+      if (currentAudio) {
+        currentAudio.currentTime = 0;
+      }
+
+      sessionProgressRing.style.strokeDashoffset = circumference;
+      completionPanel.classList.add('hidden');
+      completionMessage.style.display = 'none';
+      startSessionButton();
+    }
+
+    function goToNextPracticeFromCompletion() {
+      exitSessionMode();
+      goToNextPractice();
+    }
+
+    function goToFoundationFromCompletion() {
+      exitSessionMode();
+      goToFoundationHome();
+    }
+
+    sessionCircleShell.addEventListener('click', handleCircleTap);
+
+    function syncUI() {
+      updateContentUI();
+      updateMenuState();
+      updateJourneyButtons();
+      updateAudioStatus();
+      renderFoundationHomeCards();
+      resetVisualSessionState();
+    }
+
+    initAudio();
+    syncUI();
+    showOpeningQuoteScene();
+  </script>
 </body>
 </html>
