@@ -1155,12 +1155,71 @@
       margin-top: 6px;
     }
 
-    .completion-panel {
+    .reflection-screen,
+    .completion-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 320;
       display: flex;
-      gap: 10px;
       justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 6px;
+      align-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 42%),
+        rgba(2,2,2,0.97);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .reflection-screen.active,
+    .completion-screen.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .reflection-screen-panel,
+    .completion-screen-panel {
+      width: min(640px, 100%);
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.035);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .reflection-screen-kicker,
+    .completion-screen-kicker {
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .reflection-screen-title,
+    .completion-screen-title {
+      font-size: clamp(22px, 4.5vw, 34px);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .reflection-screen-subtitle,
+    .completion-screen-subtitle {
+      max-width: 520px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-dim);
     }
 
     .reflection-panel {
@@ -1414,6 +1473,33 @@ Let the session guide you.
 
       <div class="bottom-note" id="bottomNote">This is your starting point.</div>
     </main>
+  </div>
+
+  <div class="reflection-screen" id="reflectionScreen">
+    <div class="reflection-screen-panel">
+      <div class="reflection-screen-kicker">Reflection</div>
+      <div class="reflection-screen-title">What did you notice most?</div>
+      <div class="reflection-screen-subtitle">Take a moment and choose what stood out most in your practice.</div>
+      <div class="reflection-options" id="reflectionOptionsTakeover">
+        <button class="reflection-option-btn" data-reflection="Sounds">Sounds</button>
+        <button class="reflection-option-btn" data-reflection="Sensations">Sensations</button>
+        <button class="reflection-option-btn" data-reflection="Breath">Breath</button>
+        <button class="reflection-option-btn" data-reflection="Mind wandering">Mind wandering</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="completion-screen" id="completionScreen">
+    <div class="completion-screen-panel">
+      <div class="completion-screen-kicker">Session Complete</div>
+      <div class="completion-screen-title">Well done.</div>
+      <div class="completion-screen-subtitle" id="completionScreenSubtitle">Take a moment to acknowledge the practice you just completed.</div>
+      <div class="completion-panel" id="completionScreenPanel">
+        <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat Practice</button>
+        <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
+        <button class="completion-btn secondary" id="completionExitBtn" onclick="goToFoundationFromCompletion()">Exit</button>
+      </div>
+    </div>
   </div>
 
   <div class="session-overlay" id="sessionOverlay">
@@ -1825,8 +1911,13 @@ Everything can be included, all at once.`
     const completionPanel = document.getElementById('completionPanel');
     const completionMessage = document.getElementById('completionMessage');
     const reflectionPanel = document.getElementById('reflectionPanel');
+    const reflectionScreen = document.getElementById('reflectionScreen');
+    const completionScreen = document.getElementById('completionScreen');
+    const completionScreenSubtitle = document.getElementById('completionScreenSubtitle');
+    const completionExitBtn = document.getElementById('completionExitBtn');
     const circleCompleteOverlay = document.getElementById('circleCompleteOverlay');
     const reflectionOptions = document.getElementById('reflectionOptions');
+    const reflectionOptionsTakeover = document.getElementById('reflectionOptionsTakeover');
     const sessionSeekBar = document.getElementById('sessionSeekBar');
     const sessionCurrentTime = document.getElementById('sessionCurrentTime');
     const sessionDuration = document.getElementById('sessionDuration');
@@ -1897,6 +1988,40 @@ Everything can be included, all at once.`
       if (!reflectionPanel) return;
       reflectionPanel.classList.add('hidden');
       resetReflectionSelection();
+    }
+
+    function showReflectionTakeover() {
+      if (!reflectionScreen) return;
+      reflectionScreen.classList.add('active');
+    }
+
+    function hideReflectionTakeover() {
+      if (!reflectionScreen) return;
+      reflectionScreen.classList.remove('active');
+      resetReflectionSelection();
+    }
+
+    function showCompletionTakeover() {
+      const modeConfig = activePractice === 'Stability'
+        ? practiceContent.Stability
+        : activePractice === 'Foundation'
+          ? practiceContent.Foundation
+          : null;
+
+      if (completionScreenSubtitle) {
+        completionScreenSubtitle.textContent = modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+      }
+      if (completionExitBtn) {
+        completionExitBtn.textContent = activePractice === 'Stability' ? 'Exit' : 'Exit';
+      }
+      if (completionScreen) {
+        completionScreen.classList.add('active');
+      }
+    }
+
+    function hideCompletionTakeover() {
+      if (!completionScreen) return;
+      completionScreen.classList.remove('active');
     }
 
     function getNextRecommendedPractice() {
@@ -2293,16 +2418,8 @@ Everything can be included, all at once.`
       }
 
       completionDelayTimeout = setTimeout(() => {
-        const modeConfig = activePractice === 'Stability'
-          ? practiceContent.Stability
-          : activePractice === 'Foundation'
-            ? practiceContent.Foundation
-            : null;
-        completionMessage.textContent = modeConfig?.completionMessage || 'Session complete';
-        completionMessage.style.display = 'block';
-        showReflectionPanel();
-        completionPanel.classList.remove('hidden');
-      }, 2000);
+        showReflectionTakeover();
+      }, 1200);
 
       updateAudioStatus();
     }
@@ -2591,12 +2708,16 @@ Everything can be included, all at once.`
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
       hideReflectionPanel();
+      hideReflectionTakeover();
+      hideCompletionTakeover();
       hideCircleCompletionTakeover();
       sessionOverlay.classList.add('active');
     }
 
     function exitSessionMode() {
       sessionOverlay.classList.remove('active');
+      hideReflectionTakeover();
+      hideCompletionTakeover();
     }
 
     function resetVisualSessionState() {
@@ -2897,6 +3018,7 @@ Everything can be included, all at once.`
     }
 
     function repeatCurrentPractice() {
+      hideCompletionTakeover();
       currentTrackIndex = 0;
 
       if (currentPlaylist.length > 0) {
@@ -2907,11 +3029,14 @@ Everything can be included, all at once.`
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
       hideReflectionPanel();
+      hideReflectionTakeover();
+      hideCompletionTakeover();
       hideCircleCompletionTakeover();
       startSessionButton();
     }
 
     function goToNextPracticeFromCompletion() {
+      hideCompletionTakeover();
       exitSessionMode();
       if (activePractice === 'Stability') {
         const order = ['OpenAwareness', 'SensoryAwareness'];
@@ -2924,8 +3049,22 @@ Everything can be included, all at once.`
     }
 
     function goToFoundationFromCompletion() {
+      hideCompletionTakeover();
       exitSessionMode();
+      if (activePractice === 'Stability') {
+        selectMainMode('Introduction');
+        return;
+      }
       goToFoundationHome();
+    }
+
+    function handleReflectionChoice(button) {
+      if (!button) return;
+
+      selectedReflection = button.dataset.reflection || '';
+      saveReflectionEntry(selectedReflection);
+      hideReflectionTakeover();
+      showCompletionTakeover();
     }
 
     if (reflectionOptions) {
@@ -2940,6 +3079,13 @@ Everything can be included, all at once.`
         });
 
         saveReflectionEntry(selectedReflection);
+      });
+    }
+
+    if (reflectionOptionsTakeover) {
+      reflectionOptionsTakeover.addEventListener('click', (event) => {
+        const button = event.target.closest('.reflection-option-btn');
+        handleReflectionChoice(button);
       });
     }
 
