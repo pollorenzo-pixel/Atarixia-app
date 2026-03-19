@@ -1578,732 +1578,705 @@ Let the session guide you.
   </div>
 
   <script>
-    const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
-    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
-    const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
-    const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
-    const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
-    const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
+  const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+  const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
+  const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
+  const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
+  const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
+  const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
+  const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
+  const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
 
-// Stability (Expanding Awareness) Audio
-const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
-const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
+  const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
+  const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
+  const TRANSITION_DELAY = 2000;
 
-    function preloadMeditationAudio() {
-      const audioFiles = [
-        INTRODUCTION_AUDIO,
-        ...FOUNDATION_BREATH_AWARENESS_AUDIO,
-        ...FOUNDATION_BODY_AWARENESS_AUDIO,
-        ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
-        ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
-        ...FOUNDATION_DEEP_FOCUS_AUDIO
-      ].filter(Boolean);
+  const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
+  const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
 
-      audioFiles.forEach(src => {
-        const audio = new Audio();
-        audio.preload = 'auto';
-        audio.src = src;
-      });
+  const quotes = [
+    { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
+    { text: 'He who conquers himself is the mightiest warrior.', author: 'Confucius' },
+    { text: 'Calmness is the cradle of power.', author: 'Josiah Gilbert Holland' },
+    { text: 'Return again. That is the training.', author: 'Unknown' }
+  ];
+
+  const practiceContent = {
+    Introduction: {
+      eyebrow: 'Introduction',
+      hero: 'Arrive first.<br>Then begin.',
+      subtitle: ['Settle', 'Notice', 'Prepare'],
+      note: 'This is your starting point.',
+      badge: 'Introduction',
+      copyLabel: 'Session Guidance',
+      copyTitle: 'Introduction',
+      copyBody: `This is a place to begin.
+
+You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.`,
+      audio: [INTRODUCTION_AUDIO]
+    },
+    FoundationHome: {
+      eyebrow: 'Meditation Foundations',
+      hero: 'Choose one practice.<br>Stay with it.',
+      subtitle: ['Simple', 'Steady', 'Repeatable'],
+      note: 'Start with one practice. Return often.',
+      badge: 'Foundation',
+      copyLabel: 'Foundation Path',
+      copyTitle: 'Beginner Practice Track',
+      copyBody: `Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.`
+    },
+    Foundation: {
+      groundingText: 'Get comfortable and prepare to begin',
+      completionMessage: 'Well done. Stay with the feeling for a moment.',
+      readyAudioText: 'Foundation Ready',
+      pausedText: 'Paused',
+      pausedLabel: 'Session Paused',
+      subcategories: {
+        BreathAwareness: {
+          title: 'Breath Awareness Meditation',
+          shortPurpose: 'Return to the present through the breath.',
+          eyebrow: 'Meditation Foundations',
+          hero: 'Follow the breath.<br>Return to the moment.',
+          subtitle: ['Observe', 'Breathe', 'Return'],
+          note: 'Each breath is a place to begin again.',
+          badge: 'Foundation · Breath Awareness',
+          copyLabel: 'Current Foundation Practice',
+          copyTitle: 'Breath Awareness Meditation',
+          copyBody: `In this practice, bring attention to the breath. When the mind wanders, gently return.`,
+          audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
+          activeText: 'Playing', activeLabel: 'Breath Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+        },
+        BodyAwareness: {
+          title: 'Body Awareness Meditation',
+          shortPurpose: 'Settle into the body and soften tension.',
+          eyebrow: 'Meditation Foundations',
+          hero: 'Feel the body.<br>Settle into presence.',
+          subtitle: ['Sense', 'Soften', 'Arrive'],
+          note: 'The body is your doorway back to now.',
+          badge: 'Foundation · Body Awareness',
+          copyLabel: 'Current Foundation Practice',
+          copyTitle: 'Body Awareness Meditation',
+          copyBody: `In this practice, bring gentle attention to the body and feel what is already here.`,
+          audio: FOUNDATION_BODY_AWARENESS_AUDIO,
+          activeText: 'Playing', activeLabel: 'Body Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+        },
+        ThoughtAwareness: {
+          title: 'Thought Awareness Meditation',
+          shortPurpose: 'Observe thoughts without getting carried away.',
+          eyebrow: 'Meditation Foundations',
+          hero: 'See the thoughts.<br>Do not chase them.',
+          subtitle: ['Observe', 'Allow', 'Return'],
+          note: 'You are learning to witness, not follow.',
+          badge: 'Foundation · Thought Awareness',
+          copyLabel: 'Current Foundation Practice',
+          copyTitle: 'Thought Awareness Meditation',
+          copyBody: `In this practice, notice thoughts as they arise without following them.`,
+          audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+          activeText: 'Playing', activeLabel: 'Thought Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+        },
+        EmotionalAwareness: {
+          title: 'Emotional Awareness Meditation',
+          shortPurpose: 'Recognise the feeling tone with honesty.',
+          eyebrow: 'Meditation Foundations',
+          hero: 'Name the feeling.<br>Stay with honesty.',
+          subtitle: ['Notice', 'Allow', 'Understand'],
+          note: 'Awareness makes space around emotion.',
+          badge: 'Foundation · Emotional Awareness',
+          copyLabel: 'Current Foundation Practice',
+          copyTitle: 'Emotional Awareness Meditation',
+          copyBody: `In this practice, notice the emotional tone of the moment and give it space without judgment.`,
+          audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+          activeText: 'Playing', activeLabel: 'Emotional Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+        },
+        DeepFocus: {
+          title: 'Deep Focus Meditation',
+          shortPurpose: 'Strengthen attention through steady return.',
+          eyebrow: 'Meditation Foundations',
+          hero: 'Hold one point.<br>Strengthen attention.',
+          subtitle: ['Aim', 'Hold', 'Return'],
+          note: 'Attention becomes stronger through repetition.',
+          badge: 'Foundation · Deep Focus',
+          copyLabel: 'Current Foundation Practice',
+          copyTitle: 'Deep Focus Meditation',
+          copyBody: `In this practice, hold attention on one chosen anchor and return with calm discipline.`,
+          audio: FOUNDATION_DEEP_FOCUS_AUDIO,
+          activeText: 'Playing', activeLabel: 'Deep Focus', endingText: 'Closing', endingLabel: 'Ending Audio'
+        }
+      }
+    },
+    Stability: {
+      groundingText: 'Let everything settle.',
+      completionMessage: 'There was nothing to achieve. Just notice what is already here.',
+      readyAudioText: 'Ready to Begin Stability Practice',
+      pausedText: 'Still',
+      pausedLabel: 'Awareness Paused',
+      subcategories: {
+        OpenAwareness: {
+          title: 'Open Awareness Meditation',
+          shortPurpose: 'Let awareness open to everything at once.',
+          eyebrow: 'Stability · Expanding Awareness',
+          hero: 'Open the field.<br>Let everything appear.',
+          subtitle: ['Open', 'Notice', 'Remain'],
+          note: 'There is nothing to hold. Let awareness stay wide.',
+          badge: 'Stability · Open Awareness',
+          copyLabel: 'Current Stability Practice',
+          copyTitle: 'Open Awareness',
+          copyBody: `There is nothing to focus on. Simply notice whatever is present.`,
+          audio: [STABILITY_OPEN_AWARENESS_AUDIO],
+          activeText: 'Aware', activeLabel: 'Open Awareness', endingText: 'Open', endingLabel: 'Complete'
+        },
+        SensoryAwareness: {
+          title: 'Sensory Awareness Meditation',
+          shortPurpose: 'Rest in the full field of sensation.',
+          eyebrow: 'Stability · Expanding Awareness',
+          hero: 'Feel the full field.<br>Include sensation.',
+          subtitle: ['Sense', 'Include', 'Remain'],
+          note: 'Nothing needs to be chosen. Let sensation be known.',
+          badge: 'Stability · Sensory Awareness',
+          copyLabel: 'Current Stability Practice',
+          copyTitle: 'Sensory Awareness',
+          copyBody: `Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.`,
+          audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
+          activeText: 'Sensing', activeLabel: 'Sensory Awareness', endingText: 'Settling', endingLabel: 'Complete'
+        }
+      }
     }
+  };
 
-    window.addEventListener('load', () => {
-      preloadMeditationAudio();
+  const el = {
+    openingScene: document.getElementById('openingScene'),
+    openingQuote: document.getElementById('openingQuote'),
+    openingAuthor: document.getElementById('openingAuthor'),
+    appShell: document.getElementById('appShell'),
+    menuOverlay: document.getElementById('menuOverlay'),
+    foundationSubsection: document.getElementById('foundationSubsection'),
+    stabilitySubsection: document.getElementById('stabilitySubsection'),
+    foundationMenuBtn: document.getElementById('foundationMenuBtn'),
+    introductionMenuBtn: document.getElementById('introductionMenuBtn'),
+    stabilityMenuBtn: document.getElementById('stabilityMenuBtn'),
+    eyebrowText: document.getElementById('eyebrowText'),
+    heroTitle: document.getElementById('heroTitle'),
+    heroSubtitle: document.getElementById('heroSubtitle'),
+    bottomNote: document.getElementById('bottomNote'),
+    practiceCopyLabel: document.getElementById('practiceCopyLabel'),
+    practiceCopyTitle: document.getElementById('practiceCopyTitle'),
+    practiceCopyBody: document.getElementById('practiceCopyBody'),
+    startSessionBtn: document.getElementById('startSessionBtn'),
+    backToFoundationBtn: document.getElementById('backToFoundationBtn'),
+    nextPracticeBtn: document.getElementById('nextPracticeBtn'),
+    foundationHomePanel: document.getElementById('foundationHomePanel'),
+    foundationCardsContainer: document.getElementById('foundationCardsContainer'),
+    audioStatus: document.getElementById('audioStatus'),
+    audioText: document.getElementById('audioText'),
+    volumeControl: document.getElementById('volumeControl'),
+    sessionOverlay: document.getElementById('sessionOverlay'),
+    sessionCircleShell: document.getElementById('sessionCircleShell'),
+    sessionProgressRing: document.getElementById('sessionProgressRing'),
+    sessionModeBadge: document.getElementById('sessionModeBadge'),
+    sessionStateText: document.getElementById('sessionStateText'),
+    sessionStateLabel: document.getElementById('sessionStateLabel'),
+    sessionTapHint: document.getElementById('sessionTapHint'),
+    sessionTitle: document.getElementById('sessionTitle'),
+    sessionSubtitle: document.getElementById('sessionSubtitle'),
+    circleCompleteOverlay: document.getElementById('circleCompleteOverlay'),
+    reflectionScreen: document.getElementById('reflectionScreen'),
+    completionScreen: document.getElementById('completionScreen'),
+    completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
+    reflectionOptionsTakeover: document.getElementById('reflectionOptionsTakeover'),
+    sessionSeekBar: document.getElementById('sessionSeekBar'),
+    sessionCurrentTime: document.getElementById('sessionCurrentTime'),
+    sessionDuration: document.getElementById('sessionDuration')
+  };
+
+  const radius = 236;
+  const circumference = 2 * Math.PI * radius;
+  el.sessionProgressRing.style.strokeDasharray = circumference;
+  el.sessionProgressRing.style.strokeDashoffset = circumference;
+
+  let activePractice = 'Introduction';
+  let activeSubcategory = 'BreathAwareness';
+  let foundationMenuOpen = false;
+  let stabilityMenuOpen = false;
+  let currentPlaylist = [];
+  let currentTrackIndex = 0;
+  let currentAudio = null;
+  let isRunning = false;
+  let sessionStarted = false;
+  let sessionCompleted = false;
+  let isGrounding = false;
+  let singleTapTimeout = null;
+  let groundingTimeout = null;
+  let transitionTimeout = null;
+  let selectedReflection = '';
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  }
+
+  function savePracticeComplete(key) {
+    const progress = loadProgress();
+    progress[key] = true;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  }
+
+  function saveReflectionEntry(reflection) {
+    if (!reflection) return;
+    const existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
+    existing.push({ timestamp: new Date().toISOString(), mode: activePractice, practice: activeSubcategory || 'Introduction', reflection });
+    localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
+  }
+
+  function getSubcategoryData() {
+    if (activePractice === 'Foundation') return practiceContent.Foundation.subcategories[activeSubcategory] || null;
+    if (activePractice === 'Stability') return practiceContent.Stability.subcategories[activeSubcategory] || null;
+    return null;
+  }
+
+  function currentViewData() {
+    if (activePractice === 'Introduction') return practiceContent.Introduction;
+    if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
+    return getSubcategoryData() || practiceContent.Introduction;
+  }
+
+  function buildPlaylist() {
+    if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
+    const sub = getSubcategoryData();
+    return sub?.audio || [];
+  }
+
+  function formatTimeDisplay(seconds) {
+    if (!Number.isFinite(seconds)) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  function updateSeekUI() {
+    if (!currentAudio) {
+      el.sessionSeekBar.value = 0;
+      el.sessionCurrentTime.textContent = '00:00';
+      el.sessionDuration.textContent = '00:00';
+      el.sessionProgressRing.style.strokeDashoffset = circumference;
+      return;
+    }
+    const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : 0;
+    const current = Number.isFinite(currentAudio.currentTime) ? currentAudio.currentTime : 0;
+    const progress = duration > 0 ? (current / duration) * 100 : 0;
+    el.sessionSeekBar.value = progress;
+    el.sessionCurrentTime.textContent = formatTimeDisplay(current);
+    el.sessionDuration.textContent = formatTimeDisplay(duration);
+    el.sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress / 100);
+  }
+
+  function seekToPercent(percent) {
+    if (!currentAudio || !Number.isFinite(currentAudio.duration) || currentAudio.duration <= 0) return;
+    currentAudio.currentTime = Math.max(0, Math.min(currentAudio.duration, currentAudio.duration * (percent / 100)));
+    updateSeekUI();
+  }
+
+  function detachAudio() {
+    if (!currentAudio) return;
+    currentAudio.pause();
+    currentAudio.ontimeupdate = null;
+    currentAudio.onended = null;
+    currentAudio = null;
+  }
+
+  function setCircleState(state) {
+    el.sessionCircleShell.classList.remove('state-idle', 'state-grounding', 'state-playing', 'state-paused', 'state-ending', 'state-complete', 'stability-mode', 'running');
+    if (activePractice === 'Stability') el.sessionCircleShell.classList.add('stability-mode');
+    if (state) el.sessionCircleShell.classList.add(`state-${state}`);
+    if (state === 'playing' || state === 'ending') el.sessionCircleShell.classList.add('running');
+  }
+
+  function showOpeningQuoteScene() {
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    el.openingQuote.textContent = `“${q.text}”`;
+    el.openingAuthor.textContent = q.author;
+    setTimeout(() => {
+      el.openingScene.classList.add('fade-out');
+      el.appShell.classList.add('revealed');
+    }, 1800);
+  }
+
+  function toggleMenu() {
+    el.menuOverlay.classList.toggle('active');
+  }
+  window.toggleMenu = toggleMenu;
+
+  function closeMenu() {
+    el.menuOverlay.classList.remove('active');
+  }
+
+  function updateMenuState() {
+    el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
+    el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
+    el.stabilityMenuBtn.classList.toggle('active', activePractice === 'Stability' || stabilityMenuOpen);
+    el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
+    el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability');
+    [...foundationOrder, ...stabilityOrder].forEach((key) => {
+      const btn = document.getElementById(`${key}Btn`);
+      if (btn) btn.classList.toggle('active', activeSubcategory === key);
     });
-    
-    const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
-    const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
+  }
 
-    let isRunning = false;
-    let hasAudio = false;
-    let wakeLock = null;
-    let activePractice = 'Introduction';
-    let activeSubcategory = 'BreathAwareness';
-    let foundationMenuOpen = false;
-    let stabilityMenuOpen = false;
-    let currentAudio = null;
-    let progressInterval = null;
-    let pulseInterval = null;
-    let sessionStarted = false;
-    let sessionCompleted = false;
-    let singleTapTimeout = null;
-    let isSeeking = false;
-    let groundingTimeout = null;
-    let isGrounding = false;
-    let completionDelayTimeout = null;
-    let pendingTransitionTimeout = null;
-    let selectedReflection = '';
+  function updateJourneyButtons() {
+    el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
+    el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
+    el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
+    el.startSessionBtn.style.display = activePractice === 'FoundationHome' ? 'none' : 'inline-flex';
+  }
 
-    let currentPlaylist = [];
-    let currentTrackIndex = 0;
-    let playlistDurations = [];
-    let playlistDurationTotal = 0;
+  function updateContentUI() {
+    const data = currentViewData();
+    el.eyebrowText.textContent = data.eyebrow;
+    el.heroTitle.innerHTML = data.hero;
+    el.heroSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+    el.bottomNote.textContent = data.note;
+    el.practiceCopyLabel.textContent = data.copyLabel;
+    el.practiceCopyTitle.textContent = data.copyTitle;
+    el.practiceCopyBody.textContent = data.copyBody;
+    el.sessionModeBadge.textContent = data.badge || data.eyebrow;
+    el.sessionTitle.innerHTML = data.hero;
+    el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+  }
 
-    let audioContext = null;
-    let analyserNode = null;
-    let mediaSourceNode = null;
-    let frequencyData = null;
+  function updateAudioStatus() {
+    if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
+    else if (activePractice === 'FoundationHome') el.audioText.textContent = 'Choose a Foundation Practice';
+    else if (activePractice === 'Foundation') el.audioText.textContent = practiceContent.Foundation.readyAudioText;
+    else if (activePractice === 'Stability') el.audioText.textContent = practiceContent.Stability.readyAudioText;
+  }
 
-    const foundationOrder = [
-      'BreathAwareness',
-      'BodyAwareness',
-      'ThoughtAwareness',
-      'EmotionalAwareness',
-      'DeepFocus'
-    ];
+  function renderFoundationHomeCards() {
+    el.foundationCardsContainer.innerHTML = '';
+    const progress = loadProgress();
+    const nextKey = foundationOrder.find((k) => !progress[k]) || foundationOrder[0];
+    foundationOrder.forEach((key) => {
+      const data = practiceContent.Foundation.subcategories[key];
+      const btn = document.createElement('button');
+      btn.className = 'foundation-card-btn';
+      if (key === nextKey) btn.classList.add('next');
+      if (progress[key]) btn.classList.add('completed');
+      btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Foundation Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}</div>`;
+      btn.onclick = () => setSubcategory(key, false);
+      el.foundationCardsContainer.appendChild(btn);
+    });
+  }
 
-    const quotes = [
-      { text: "The obstacle is the way.", author: "Marcus Aurelius" },
-      { text: "He who conquers himself is the mightiest warrior.", author: "Confucius" },
-      { text: "Calmness is the cradle of power.", author: "Josiah Gilbert Holland" },
-      { text: "The only way out is through.", author: "Robert Frost" },
-      { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
-      { text: "In stillness, power gathers.", author: "Unknown" },
-      { text: "What you practice grows stronger.", author: "Unknown" },
-      { text: "Return again. That is the training.", author: "Unknown" }
-    ];
+  function resetVisualSessionState() {
+    setCircleState('idle');
+    el.sessionStateText.textContent = 'Ready';
+    el.sessionStateLabel.textContent = 'Awaiting Start';
+    el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+    el.circleCompleteOverlay.classList.remove('active');
+    updateSeekUI();
+  }
 
-    const practiceContent = {
-      Introduction: {
-        title: 'Introduction',
-        audio: INTRODUCTION_AUDIO,
-        eyebrow: 'Introduction',
-        hero: 'Arrive first.<br>Then begin.',
-        subtitle: ['Settle', 'Notice', 'Prepare'],
-        note: 'This is your starting point.',
-        badge: 'Introduction',
-        copyLabel: 'Session Guidance',
-        copyTitle: 'Introduction',
-        copyBody: `This is a place to begin.
+  function syncUI() {
+    updateContentUI();
+    updateMenuState();
+    updateJourneyButtons();
+    updateAudioStatus();
+    renderFoundationHomeCards();
+    resetVisualSessionState();
+  }
 
-You do not need to clear your mind.
-You do not need to perform.
-You only need to arrive and follow the guidance.
+  function loadTrack(index) {
+    if (!currentPlaylist[index]) return false;
+    detachAudio();
+    currentTrackIndex = index;
+    currentAudio = new Audio(currentPlaylist[index]);
+    currentAudio.preload = 'auto';
+    currentAudio.volume = Number(document.querySelector('.volume-slider')?.value || 70) / 100;
+    currentAudio.ontimeupdate = updateSeekUI;
+    currentAudio.onended = handleTrackEnd;
+    updateSeekUI();
+    return true;
+  }
 
-In this introduction, simply notice your body, your breathing, your mood, and your energy.
+  function initAudio() {
+    currentPlaylist = buildPlaylist();
+    loadTrack(0);
+  }
 
-Let the session guide you.`
-      },
-      FoundationHome: {
-        eyebrow: 'Meditation Foundations',
-        hero: 'Choose one practice.<br>Stay with it.',
-        subtitle: ['Simple', 'Steady', 'Repeatable'],
-        note: 'Start with one practice. Return often.',
-        badge: 'Foundation',
-        copyLabel: 'Foundation Path',
-        copyTitle: 'Beginner Practice Track',
-        copyBody: `Foundation is the place where meditation becomes familiar.
+  function hideReflectionTakeover() {
+    el.reflectionScreen.classList.remove('active');
+    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((b) => b.classList.remove('active'));
+    selectedReflection = '';
+  }
 
-You do not need to master everything at once.
-Choose one practice and stay with it.
+  function showReflectionTakeover() { el.reflectionScreen.classList.add('active'); }
+  function hideCompletionTakeover() { el.completionScreen.classList.remove('active'); }
+  function showCompletionTakeover() {
+    const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : practiceContent.Foundation;
+    el.completionScreenSubtitle.textContent = modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+    el.completionScreen.classList.add('active');
+  }
 
-Breath awareness helps you return.
-Body awareness helps you settle.
-Thought awareness helps you observe.
-Emotional awareness helps you understand.
-Deep focus helps you strengthen attention.`
-      },
-      Foundation: {
-        groundingText: 'Get comfortable and prepare to begin',
-        activeText: 'Playing',
-        activeLabel: 'Session Active',
-        endingText: 'Closing',
-        endingLabel: 'Ending Audio',
-        pausedText: 'Paused',
-        pausedLabel: 'Session Paused',
-        pausedAudioText: 'Foundation Paused',
-        readyAudioText: 'Foundation Ready',
-        activeAudioText: 'Foundation Playing',
-        endingAudioText: 'Foundation Ending Audio',
-        completionMessage: 'Well done. Stay with the feeling for a moment.',
-        subcategories: {
-          BreathAwareness: {
-            title: 'Breath Awareness Meditation',
-            shortPurpose: 'Return to the present through the breath.',
-            audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
-            eyebrow: 'Meditation Foundations',
-            hero: 'Follow the breath.<br>Return to the moment.',
-            subtitle: ['Observe', 'Breathe', 'Return'],
-            note: 'Each breath is a place to begin again.',
-            badge: 'Foundation · Breath Awareness',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Breath Awareness Meditation',
-            copyBody: `In this practice, bring attention to the breath.
+  function enterSessionMode() {
+    hideReflectionTakeover();
+    hideCompletionTakeover();
+    el.sessionOverlay.classList.add('active');
+  }
 
-Notice the air moving in and out through the nose.
-When the mind wanders, gently return to the breath.
-There is nothing to force.
+  function exitSessionMode() {
+    el.sessionOverlay.classList.remove('active');
+    hideReflectionTakeover();
+    hideCompletionTakeover();
+  }
 
-The training is in noticing,
-and coming back.`
-          },
-          BodyAwareness: {
-            title: 'Body Awareness Meditation',
-            shortPurpose: 'Settle into the body and soften tension.',
-            audio: FOUNDATION_BODY_AWARENESS_AUDIO,
-            eyebrow: 'Meditation Foundations',
-            hero: 'Feel the body.<br>Settle into presence.',
-            subtitle: ['Sense', 'Soften', 'Arrive'],
-            note: 'The body is your doorway back to now.',
-            badge: 'Foundation · Body Awareness',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Body Awareness Meditation',
-            copyBody: `In this practice, bring gentle attention to the body.
+  function startPlayback() {
+    if (!currentAudio) return;
+    const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : activePractice === 'Foundation' ? practiceContent.Foundation : null;
+    const sub = getSubcategoryData();
+    currentAudio.play().catch(() => {});
+    isRunning = true;
+    sessionStarted = true;
+    el.audioStatus.classList.add('playing');
+    el.volumeControl.classList.add('active');
+    setCircleState(currentTrackIndex > 0 ? 'ending' : 'playing');
+    el.sessionStateText.textContent = currentTrackIndex > 0 ? (sub?.endingText || modeConfig?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
+    el.sessionStateLabel.textContent = currentTrackIndex > 0 ? (sub?.endingLabel || modeConfig?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+    el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+    updateSeekUI();
+  }
 
-Notice contact points.
-Notice tension.
-Notice warmth, heaviness, lightness, pressure, and stillness.
+  function pausePlayback() {
+    if (!currentAudio) return;
+    currentAudio.pause();
+    isRunning = false;
+    const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : activePractice === 'Foundation' ? practiceContent.Foundation : null;
+    el.audioStatus.classList.remove('playing');
+    setCircleState('paused');
+    el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
+    el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
+    el.sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
+  }
 
-You do not need to change anything.
-Simply feel what is already here.`
-          },
-          ThoughtAwareness: {
-            title: 'Thought Awareness Meditation',
-            shortPurpose: 'Observe thoughts without getting carried away.',
-            audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
-            eyebrow: 'Meditation Foundations',
-            hero: 'See the thoughts.<br>Do not chase them.',
-            subtitle: ['Observe', 'Allow', 'Return'],
-            note: 'You are learning to witness, not follow.',
-            badge: 'Foundation · Thought Awareness',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Thought Awareness Meditation',
-            copyBody: `In this practice, notice thoughts as they arise.
-
-Do not fight them.
-Do not follow them.
-See them like passing movement in the mind.
-
-Then gently return to simple awareness.`
-          },
-          EmotionalAwareness: {
-            title: 'Emotional Awareness Meditation',
-            shortPurpose: 'Recognise the feeling tone with honesty.',
-            audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
-            eyebrow: 'Meditation Foundations',
-            hero: 'Name the feeling.<br>Stay with honesty.',
-            subtitle: ['Notice', 'Allow', 'Understand'],
-            note: 'Awareness makes space around emotion.',
-            badge: 'Foundation · Emotional Awareness',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Emotional Awareness Meditation',
-            copyBody: `In this practice, notice the emotional tone of the moment.
-
-You may feel calm, restless, heavy, open, irritated, soft, or uncertain.
-There is no wrong answer.
-
-Simply notice what is present,
-and give it space without judgment.`
-          },
-          DeepFocus: {
-            title: 'Deep Focus Meditation',
-            shortPurpose: 'Strengthen attention through steady return.',
-            audio: FOUNDATION_DEEP_FOCUS_AUDIO,
-            eyebrow: 'Meditation Foundations',
-            hero: 'Hold one point.<br>Strengthen attention.',
-            subtitle: ['Aim', 'Hold', 'Return'],
-            note: 'Attention becomes stronger through repetition.',
-            badge: 'Foundation · Deep Focus',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Deep Focus Meditation',
-            copyBody: `In this practice, hold your attention on one chosen anchor.
-
-It may be the breath,
-a point in the body,
-or the simple feeling of presence.
-
-When attention drifts,
-return with discipline and calm.`
-          }
-        }
-      },
-      Stability: {
-        groundingText: 'Let everything settle.',
-        activeText: 'Aware',
-        activeLabel: 'Open Awareness',
-        endingText: 'Open',
-        endingLabel: 'Ending Audio',
-        pausedText: 'Still',
-        pausedLabel: 'Awareness Paused',
-        pausedAudioText: 'Stability Still',
-        readyAudioText: 'Ready to Begin Stability Practice',
-        activeAudioText: 'Stability Open',
-        endingAudioText: 'Stability Ending Audio',
-        completionMessage: 'There was nothing to achieve. Just notice what is already here.',
-        subcategories: {
-          OpenAwareness: {
-            title: 'Open Awareness Meditation',
-            shortPurpose: 'Let awareness open to everything at once.',
-            audio: STABILITY_OPEN_AWARENESS_AUDIO,
-            eyebrow: 'Stability · Expanding Awareness',
-            hero: 'Open the field.<br>Let everything appear.',
-            subtitle: ['Open', 'Notice', 'Remain'],
-            note: 'There is nothing to hold. Let awareness stay wide.',
-            badge: 'Stability · Open Awareness',
-            copyLabel: 'Current Stability Practice',
-            copyTitle: 'Open Awareness',
-            activeText: 'Aware',
-            activeLabel: 'Open Awareness',
-            endingText: 'Open',
-            endingLabel: 'Ending Audio',
-            copyBody: `There is nothing to focus on.
-
-Simply notice whatever is present.
-Sounds, sensations, thoughts...
-let them come and go on their own.
-
-You do not need to follow anything.
-Just remain aware.`
-          },
-          SensoryAwareness: {
-            title: 'Sensory Awareness Meditation',
-            shortPurpose: 'Rest in the full field of sensation.',
-            audio: STABILITY_SENSORY_AWARENESS_AUDIO,
-            eyebrow: 'Stability · Expanding Awareness',
-            hero: 'Feel the full field.<br>Include sensation.',
-            subtitle: ['Sense', 'Include', 'Remain'],
-            note: 'Nothing needs to be chosen. Let sensation be known.',
-            badge: 'Stability · Sensory Awareness',
-            copyLabel: 'Current Stability Practice',
-            copyTitle: 'Sensory Awareness',
-            activeText: 'Sensing',
-            activeLabel: 'Sensory Awareness',
-            endingText: 'Settling',
-            endingLabel: 'Ending Audio',
-            copyBody: `Allow your awareness to rest in sensation.
-
-Notice sound, touch, temperature, pressure, and space.
-There is nothing to choose.
-Everything can be included, all at once.`
-          }
-        }
-      }
-    };
-
-    const openingScene = document.getElementById('openingScene');
-    const openingQuote = document.getElementById('openingQuote');
-    const openingAuthor = document.getElementById('openingAuthor');
-    const appShell = document.getElementById('appShell');
-
-    const menuOverlay = document.getElementById('menuOverlay');
-    const foundationSubsection = document.getElementById('foundationSubsection');
-    const foundationMenuBtn = document.getElementById('foundationMenuBtn');
-    const introductionMenuBtn = document.getElementById('introductionMenuBtn');
-
-    const audioStatus = document.getElementById('audioStatus');
-    const audioText = document.getElementById('audioText');
-    const volumeControl = document.getElementById('volumeControl');
-    const eyebrowText = document.getElementById('eyebrowText');
-    const heroTitle = document.getElementById('heroTitle');
-    const heroSubtitle = document.getElementById('heroSubtitle');
-    const bottomNote = document.getElementById('bottomNote');
-    const practiceCopy = document.getElementById('practiceCopy');
-    const practiceCopyLabel = document.getElementById('practiceCopyLabel');
-    const practiceCopyTitle = document.getElementById('practiceCopyTitle');
-    const practiceCopyBody = document.getElementById('practiceCopyBody');
-    const startSessionBtn = document.getElementById('startSessionBtn');
-    const backToFoundationBtn = document.getElementById('backToFoundationBtn');
-    const nextPracticeBtn = document.getElementById('nextPracticeBtn');
-    const foundationHomePanel = document.getElementById('foundationHomePanel');
-    const foundationCardsContainer = document.getElementById('foundationCardsContainer');
-
-    const sessionOverlay = document.getElementById('sessionOverlay');
-    const sessionCircleShell = document.getElementById('sessionCircleShell');
-    const sessionProgressRing = document.getElementById('sessionProgressRing');
-    const sessionModeBadge = document.getElementById('sessionModeBadge');
-    const sessionStateText = document.getElementById('sessionStateText');
-    const sessionStateLabel = document.getElementById('sessionStateLabel');
-    const sessionTapHint = document.getElementById('sessionTapHint');
-    const sessionTitle = document.getElementById('sessionTitle');
-    const sessionSubtitle = document.getElementById('sessionSubtitle');
-    const sessionInnerCore = document.getElementById('sessionInnerCore');
-    const completionPanel = document.getElementById('completionPanel');
-    const completionMessage = document.getElementById('completionMessage');
-    const reflectionPanel = document.getElementById('reflectionPanel');
-    const reflectionScreen = document.getElementById('reflectionScreen');
-    const completionScreen = document.getElementById('completionScreen');
-    const completionScreenSubtitle = document.getElementById('completionScreenSubtitle');
-    const completionExitBtn = document.getElementById('completionExitBtn');
-    const circleCompleteOverlay = document.getElementById('circleCompleteOverlay');
-    const reflectionOptions = document.getElementById('reflectionOptions');
-    const reflectionOptionsTakeover = document.getElementById('reflectionOptionsTakeover');
-    const sessionSeekBar = document.getElementById('sessionSeekBar');
-    const sessionCurrentTime = document.getElementById('sessionCurrentTime');
-    const sessionDuration = document.getElementById('sessionDuration');
-
-    const wave1 = document.getElementById('wave1');
-    const wave2 = document.getElementById('wave2');
-    const wave3 = document.getElementById('wave3');
-
-    const radius = 236;
-    const circumference = 2 * Math.PI * radius;
-    sessionProgressRing.style.strokeDasharray = circumference;
-    sessionProgressRing.style.strokeDashoffset = circumference;
-
-    function loadProgress() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      } catch {
-        return {};
-      }
-    }
-
-    function savePracticeComplete(practiceKey) {
-      if (!practiceKey) return;
-      const progress = loadProgress();
-      progress[practiceKey] = true;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-    }
-
-    function resetReflectionSelection() {
-      selectedReflection = '';
-      if (!reflectionOptions) return;
-      reflectionOptions.querySelectorAll('.reflection-option-btn').forEach((btn) => {
-        btn.classList.remove('active');
-      });
-    }
-
-    function saveReflectionEntry(reflection) {
-      if (!reflection) return;
-
-      const entry = {
-        timestamp: new Date().toISOString(),
-        mode: activePractice,
-        practice: activeSubcategory || 'Introduction',
-        reflection
-      };
-
-      const existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
-      existing.push(entry);
-      localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
-    }
-
-    function showCircleCompletionTakeover() {
-      if (!circleCompleteOverlay) return;
-      circleCompleteOverlay.classList.add('active');
-    }
-
-    function hideCircleCompletionTakeover() {
-      if (!circleCompleteOverlay) return;
-      circleCompleteOverlay.classList.remove('active');
-    }
-
-    function showReflectionPanel() {
-      if (!reflectionPanel) return;
-      reflectionPanel.classList.remove('hidden');
-    }
-
-    function hideReflectionPanel() {
-      if (!reflectionPanel) return;
-      reflectionPanel.classList.add('hidden');
-      resetReflectionSelection();
-    }
-
-    function showReflectionTakeover() {
-      if (!reflectionScreen) return;
-      reflectionScreen.classList.add('active');
-    }
-
-    function hideReflectionTakeover() {
-      if (!reflectionScreen) return;
-      reflectionScreen.classList.remove('active');
-      resetReflectionSelection();
-    }
-
-    function showCompletionTakeover() {
-      const modeConfig = activePractice === 'Stability'
-          ? practiceContent.Stability
-          : activePractice === 'Foundation'
-            ? practiceContent.Foundation
-            : null;
-        const subcategoryConfig = getSubcategoryData();
-
-        setCircleState(currentTrackIndex > 0 ? 'ending' : 'playing');
-        hideCircleCompletionTakeover();
-        sessionStateText.textContent = activePractice === 'Stability' && subcategoryConfig
-          ? (currentTrackIndex > 0 ? (subcategoryConfig.endingText || modeConfig.endingText) : (subcategoryConfig.activeText || modeConfig.activeText))
-          : modeConfig
-            ? (currentTrackIndex > 0 ? modeConfig.endingText : modeConfig.activeText)
-            : (currentTrackIndex > 0 ? 'Closing' : 'Playing');
-        sessionStateLabel.textContent = activePractice === 'Stability' && subcategoryConfig
-          ? (currentTrackIndex > 0 ? (subcategoryConfig.endingLabel || modeConfig.endingLabel) : (subcategoryConfig.activeLabel || modeConfig.activeLabel))
-          : modeConfig
-            ? (currentTrackIndex > 0 ? modeConfig.endingLabel : modeConfig.activeLabel)
-            : (currentTrackIndex > 0 ? 'Ending Audio' : 'Session Active');
-        sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-
-        if (activePractice === 'Introduction') {
-          audioText.textContent = currentTrackIndex > 0 ? 'Introduction Ending Audio' : 'Introduction Playing';
-        } else if (modeConfig) {
-          audioText.textContent = currentTrackIndex > 0 ? modeConfig.endingAudioText : modeConfig.activeAudioText;
-        }
-
-        requestWakeLock();
-        initProgressTracking();
-        startReactivePulse();
-      } catch {
-        audioText.textContent = 'Tap Begin Meditation Again';
-      }
-    }
-
-    function pausePlayback() {
-      if (!currentAudio) return;
-
-      currentAudio.pause();
+  function handleTrackEnd() {
+    if (currentTrackIndex < currentPlaylist.length - 1) {
       isRunning = false;
-      sessionCircleShell.classList.remove('running');
-      audioStatus.classList.remove('playing');
-
-      const modeConfig = activePractice === 'Stability'
-        ? practiceContent.Stability
-        : activePractice === 'Foundation'
-          ? practiceContent.Foundation
-          : null;
-
-      setCircleState('paused');
-      hideCircleCompletionTakeover();
-      sessionStateText.textContent = modeConfig ? modeConfig.pausedText : 'Paused';
-      sessionStateLabel.textContent = modeConfig ? modeConfig.pausedLabel : 'Session Paused';
-      sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
-
-      audioText.textContent = activePractice === 'Introduction'
-        ? 'Introduction Paused'
-        : modeConfig
-          ? modeConfig.pausedAudioText
-          : 'Session Paused';
-
-      stopReactivePulse();
-      releaseWakeLock();
+      setCircleState('ending');
+      el.sessionStateText.textContent = 'Settling';
+      el.sessionStateLabel.textContent = 'Transition';
+      el.sessionTapHint.textContent = 'Stay with the stillness.';
+      transitionTimeout = setTimeout(() => {
+        loadTrack(currentTrackIndex + 1);
+        startPlayback();
+      }, TRANSITION_DELAY);
+      return;
     }
+    sessionCompleted = true;
+    isRunning = false;
+    setCircleState('complete');
+    el.audioStatus.classList.remove('playing');
+    if (activePractice === 'Foundation' && activeSubcategory) savePracticeComplete(activeSubcategory);
+    setTimeout(() => showReflectionTakeover(), 900);
+  }
 
-    function resumePlayback() {
+  function handleCircleTap() {
+    if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
+    if (singleTapTimeout) {
+      clearTimeout(singleTapTimeout);
+      singleTapTimeout = null;
+      resetSessionFromDoubleTap();
+      return;
+    }
+    singleTapTimeout = setTimeout(() => {
+      if (isRunning) pausePlayback(); else startPlayback();
+      singleTapTimeout = null;
+    }, 220);
+  }
+
+  function resetSessionFromDoubleTap() {
+    clearTimeout(transitionTimeout);
+    clearTimeout(groundingTimeout);
+    isGrounding = false;
+    isRunning = false;
+    sessionStarted = false;
+    sessionCompleted = false;
+    loadTrack(0);
+    resetVisualSessionState();
+    exitSessionMode();
+  }
+
+  function startSessionButton() {
+    if (!currentPlaylist.length) return;
+    initAudio();
+    enterSessionMode();
+    sessionStarted = true;
+    sessionCompleted = false;
+    isGrounding = true;
+    setCircleState('grounding');
+    el.sessionStateText.textContent = 'Settle';
+    el.sessionStateLabel.textContent = 'Grounding';
+    el.sessionTapHint.textContent = activePractice === 'Stability' ? practiceContent.Stability.groundingText : activePractice === 'Foundation' ? practiceContent.Foundation.groundingText : 'Get comfortable and prepare to begin';
+    groundingTimeout = setTimeout(() => {
+      isGrounding = false;
       startPlayback();
+    }, 2000);
+  }
+  window.startSessionButton = startSessionButton;
+
+  function setVolume(value) {
+    if (currentAudio) currentAudio.volume = Number(value) / 100;
+  }
+  window.setVolume = setVolume;
+
+  function exitSessionEarly() {
+    clearTimeout(transitionTimeout);
+    clearTimeout(groundingTimeout);
+    detachAudio();
+    isRunning = false;
+    sessionStarted = false;
+    sessionCompleted = false;
+    initAudio();
+    resetVisualSessionState();
+    exitSessionMode();
+  }
+  window.exitSessionEarly = exitSessionEarly;
+
+  function selectMainMode(name) {
+    activePractice = name;
+    foundationMenuOpen = false;
+    stabilityMenuOpen = false;
+    if (name === 'Introduction') activeSubcategory = 'BreathAwareness';
+    initAudio();
+    syncUI();
+    closeMenu();
+  }
+  window.selectMainMode = selectMainMode;
+
+  function toggleFoundationMenu() {
+    if (activePractice !== 'FoundationHome' && activePractice !== 'Foundation') {
+      activePractice = 'FoundationHome';
+      stabilityMenuOpen = false;
+      foundationMenuOpen = true;
+    } else {
+      foundationMenuOpen = !foundationMenuOpen;
     }
+    syncUI();
+  }
+  window.toggleFoundationMenu = toggleFoundationMenu;
 
-    function handleCircleTap() {
-      if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
+  function setSubcategory(name, fromMenu = false, event = null) {
+    if (event) event.stopPropagation();
+    activePractice = 'Foundation';
+    activeSubcategory = name;
+    foundationMenuOpen = true;
+    stabilityMenuOpen = false;
+    initAudio();
+    syncUI();
+    if (fromMenu) closeMenu();
+  }
+  window.setSubcategory = setSubcategory;
 
-      if (singleTapTimeout) {
-        clearTimeout(singleTapTimeout);
-        singleTapTimeout = null;
-        resetSessionFromDoubleTap();
-        return;
-      }
-
-      singleTapTimeout = setTimeout(() => {
-        if (isRunning) {
-          pausePlayback();
-        } else {
-          resumePlayback();
-        }
-        singleTapTimeout = null;
-      }, 220);
+  function toggleStabilityMenu() {
+    if (activePractice !== 'Stability') {
+      activePractice = 'Stability';
+      activeSubcategory = 'OpenAwareness';
+      stabilityMenuOpen = true;
+      foundationMenuOpen = false;
+    } else {
+      stabilityMenuOpen = !stabilityMenuOpen;
     }
+    initAudio();
+    syncUI();
+  }
+  window.toggleStabilityMenu = toggleStabilityMenu;
 
-    async function resetSessionFromDoubleTap() {
-      if (groundingTimeout) {
-        clearTimeout(groundingTimeout);
-        groundingTimeout = null;
-      }
-      isGrounding = false;
-      clearInterval(progressInterval);
-      progressInterval = null;
-      stopReactivePulse();
+  function setStabilitySubcategory(name, fromMenu = false, event = null) {
+    if (event) event.stopPropagation();
+    activePractice = 'Stability';
+    activeSubcategory = name;
+    stabilityMenuOpen = true;
+    foundationMenuOpen = false;
+    initAudio();
+    syncUI();
+    if (fromMenu) closeMenu();
+  }
+  window.setStabilitySubcategory = setStabilitySubcategory;
 
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-      }
+  function goToFoundationHome() {
+    activePractice = 'FoundationHome';
+    foundationMenuOpen = true;
+    initAudio();
+    syncUI();
+  }
+  window.goToFoundationHome = goToFoundationHome;
 
-      isRunning = false;
-      sessionStarted = false;
-      sessionCompleted = false;
+  function goToNextPractice() {
+    const i = foundationOrder.indexOf(activeSubcategory);
+    const next = i >= 0 && i < foundationOrder.length - 1 ? foundationOrder[i + 1] : foundationOrder[0];
+    setSubcategory(next, false);
+  }
+  window.goToNextPractice = goToNextPractice;
 
-      currentTrackIndex = 0;
-      if (currentPlaylist.length > 0) {
-        loadTrack(0);
-      }
+  function repeatCurrentPractice() {
+    hideCompletionTakeover();
+    startSessionButton();
+  }
+  window.repeatCurrentPractice = repeatCurrentPractice;
 
-      sessionCircleShell.classList.remove('running');
-      audioStatus.classList.remove('playing');
-      volumeControl.classList.remove('active');
-
-      sessionProgressRing.style.strokeDashoffset = circumference;
-      setCircleState('idle');
-      hideCircleCompletionTakeover();
-      sessionStateText.textContent = 'Ready';
-      sessionStateLabel.textContent = 'Session Reset';
-      sessionTapHint.textContent = 'Tap Begin Meditation to Start Again';
-      completionPanel.classList.add('hidden');
-      completionMessage.style.display = 'none';
-      hideReflectionPanel();
-      hideCircleCompletionTakeover();
-
-      startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
-
-      updateAudioStatus();
-      updateSeekUI();
-      await releaseWakeLock();
-      exitSessionMode();
-    }
-
-    async function stopCurrentSession() {
-      if (groundingTimeout) {
-        clearTimeout(groundingTimeout);
-        groundingTimeout = null;
-      }
-      isGrounding = false;
-      clearInterval(progressInterval);
-      progressInterval = null;
-      stopReactivePulse();
-
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-      }
-
-      currentTrackIndex = 0;
-      if (currentPlaylist.length > 0) {
-        loadTrack(0);
-      }
-
-      isRunning = false;
-      sessionStarted = false;
-      sessionCompleted = false;
-
-      await releaseWakeLock();
-      updateAudioStatus();
-      resetVisualSessionState();
-    }
-
-    async function exitSessionEarly() {
-      await stopCurrentSession();
-    }
-
-    function repeatCurrentPractice() {
-      hideCompletionTakeover();
-      currentTrackIndex = 0;
-
-      if (currentPlaylist.length > 0) {
-        loadTrack(0);
-      }
-
-      sessionProgressRing.style.strokeDashoffset = circumference;
-      completionPanel.classList.add('hidden');
-      completionMessage.style.display = 'none';
-      hideReflectionPanel();
-      hideReflectionTakeover();
-      hideCompletionTakeover();
-      hideCircleCompletionTakeover();
-      startSessionButton();
-    }
-
-    function goToNextPracticeFromCompletion() {
-      hideCompletionTakeover();
-      exitSessionMode();
-      if (activePractice === 'Stability') {
-        const order = ['OpenAwareness', 'SensoryAwareness'];
-        const currentIndex = order.indexOf(activeSubcategory);
-        const next = currentIndex === -1 || currentIndex === order.length - 1 ? order[0] : order[currentIndex + 1];
-        setStabilitySubcategory(next, false);
-        return;
-      }
+  function goToNextPracticeFromCompletion() {
+    hideCompletionTakeover();
+    exitSessionMode();
+    if (activePractice === 'Stability') {
+      const i = stabilityOrder.indexOf(activeSubcategory);
+      const next = i >= 0 && i < stabilityOrder.length - 1 ? stabilityOrder[i + 1] : stabilityOrder[0];
+      setStabilitySubcategory(next, false);
+    } else {
       goToNextPractice();
     }
+  }
+  window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
 
-    function goToFoundationFromCompletion() {
-      hideCompletionTakeover();
-      exitSessionMode();
-      if (activePractice === 'Stability') {
-        selectMainMode('Introduction');
-        return;
-      }
-      goToFoundationHome();
-    }
+  function goToFoundationFromCompletion() {
+    hideCompletionTakeover();
+    exitSessionMode();
+    if (activePractice === 'Stability') selectMainMode('Introduction');
+    else goToFoundationHome();
+  }
+  window.goToFoundationFromCompletion = goToFoundationFromCompletion;
 
-    function handleReflectionChoice(button) {
-      if (!button) return;
+  function handleReflectionChoice(button) {
+    if (!button) return;
+    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((b) => b.classList.toggle('active', b === button));
+    selectedReflection = button.dataset.reflection || '';
+    saveReflectionEntry(selectedReflection);
+    hideReflectionTakeover();
+    showCompletionTakeover();
+  }
 
-      selectedReflection = button.dataset.reflection || '';
-      saveReflectionEntry(selectedReflection);
-      hideReflectionTakeover();
-      showCompletionTakeover();
-    }
+  el.reflectionOptionsTakeover.addEventListener('click', (event) => {
+    const button = event.target.closest('.reflection-option-btn');
+    handleReflectionChoice(button);
+  });
 
-    if (reflectionOptions) {
-      reflectionOptions.addEventListener('click', (event) => {
-        const button = event.target.closest('.reflection-option-btn');
-        if (!button) return;
+  el.sessionCircleShell.addEventListener('click', handleCircleTap);
+  el.sessionSeekBar.addEventListener('input', (e) => seekToPercent(Number(e.target.value)));
 
-        selectedReflection = button.dataset.reflection || '';
+  function preloadMeditationAudio() {
+    const audioFiles = [
+      INTRODUCTION_AUDIO,
+      ...FOUNDATION_BREATH_AWARENESS_AUDIO,
+      ...FOUNDATION_BODY_AWARENESS_AUDIO,
+      ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+      ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+      ...FOUNDATION_DEEP_FOCUS_AUDIO,
+      STABILITY_OPEN_AWARENESS_AUDIO,
+      STABILITY_SENSORY_AWARENESS_AUDIO
+    ].filter(Boolean);
+    audioFiles.forEach((src) => { const a = new Audio(); a.preload = 'auto'; a.src = src; });
+  }
 
-        reflectionOptions.querySelectorAll('.reflection-option-btn').forEach((btn) => {
-          btn.classList.toggle('active', btn === button);
-        });
-
-        saveReflectionEntry(selectedReflection);
-      });
-    }
-
-    if (reflectionOptionsTakeover) {
-      reflectionOptionsTakeover.addEventListener('click', (event) => {
-        const button = event.target.closest('.reflection-option-btn');
-        handleReflectionChoice(button);
-      });
-    }
-
-    sessionCircleShell.addEventListener('click', handleCircleTap);
-
-    sessionSeekBar.addEventListener('pointerdown', (event) => {
-      event.stopPropagation();
-      isSeeking = true;
-    });
-
-    sessionSeekBar.addEventListener('click', (event) => {
-      event.stopPropagation();
-    });
-
-    sessionSeekBar.addEventListener('input', async (event) => {
-      event.stopPropagation();
-      if (!currentAudio) return;
-      isSeeking = true;
-      const value = Number(event.target.value);
-      await seekToPercent(value);
-    });
-
-    const finishSeeking = async (event) => {
-      if (event) event.stopPropagation();
-      if (!currentAudio) {
-        isSeeking = false;
-        return;
-      }
-      const value = Number(sessionSeekBar.value);
-      await seekToPercent(value);
-      isSeeking = false;
-    };
-
-    sessionSeekBar.addEventListener('change', finishSeeking);
-    sessionSeekBar.addEventListener('pointerup', finishSeeking);
-    sessionSeekBar.addEventListener('touchend', finishSeeking);
-
-    function syncUI() {
-      // ensure stability mode visuals sync on load
-      if (activePractice === 'Stability') {
-        sessionCircleShell.classList.add('stability-mode');
-      } else {
-        sessionCircleShell.classList.remove('stability-mode');
-      }
-      setCircleState('idle');
-      updateContentUI();
-      updateMenuState();
-      updateJourneyButtons();
-      updateAudioStatus();
-      renderFoundationHomeCards();
-      resetVisualSessionState();
-    }
-
+  window.addEventListener('load', () => {
+    preloadMeditationAudio();
     initAudio();
     syncUI();
     showOpeningQuoteScene();
-  </script>
+  });
+</script>
 </body>
 </html>
