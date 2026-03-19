@@ -1807,11 +1807,10 @@ return with discipline and calm.`
     }
 
     async function handleAudioEnded() {
-      // If there is another track (e.g. ending audio), insert a small pause before playing it
+      // If there is another track (e.g. ending audio), insert a pause before playing it
       if (currentTrackIndex < currentPlaylist.length - 1) {
         const nextIndex = currentTrackIndex + 1;
 
-        // small intentional pause (adjustable)
         const TRANSITION_DELAY = 5000; // 5 seconds
 
         setTimeout(() => {
@@ -1850,13 +1849,6 @@ return with discipline and calm.`
       completionMessage.style.display = 'block';
 
       updateAudioStatus();
-    } catch (e) {
-            console.error('Failed to play next track:', e);
-          }
-        }
-      }
-
-      completeSession();
     }
 
     function formatTimeDisplay(seconds) {
