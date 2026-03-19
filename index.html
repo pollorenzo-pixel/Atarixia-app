@@ -1400,7 +1400,7 @@ const STABILITY_EFFORTLESS_AWARENESS_AUDIO = ['audio/effortless awareness medita
       preloadMeditationAudio();
     });
     
-    const STORAGE_KEY = 'unstoppable_foundation_progress_v3';
+    const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
 
     let isRunning = false;
     let hasAudio = false;
@@ -2046,35 +2046,50 @@ Simply remain.`
     }
 
     async function handleAudioEnded() {
-      // If there is another track (e.g. ending audio), insert a pause before playing it
       if (currentTrackIndex < currentPlaylist.length - 1) {
         const nextIndex = currentTrackIndex + 1;
+        const TRANSITION_DELAY = 2000;
+        const shouldContinue = sessionStarted && !sessionCompleted;
 
-        const TRANSITION_DELAY = 5000; // 5 seconds
+        isRunning = false;
+        sessionCircleShell.classList.remove('running');
+        audioStatus.classList.remove('playing');
+        volumeControl.classList.remove('active');
+        stopReactivePulse();
 
         setCircleState('ending');
+        sessionStateText.textContent = 'Open';
         sessionStateLabel.textContent = 'Transition';
         sessionTapHint.textContent = 'Stay with the stillness.';
+        audioText.textContent = activePractice === 'Stability'
+          ? 'Stability Transition'
+          : activePractice === 'Foundation'
+            ? 'Foundation Transition'
+            : 'Transition';
 
         if (pendingTransitionTimeout) {
           clearTimeout(pendingTransitionTimeout);
         }
 
-        pendingTransitionTimeout = setTimeout(() => {
+        pendingTransitionTimeout = setTimeout(async () => {
+          pendingTransitionTimeout = null;
           const loaded = loadTrack(nextIndex, 0);
           if (!loaded) return;
 
-          if (isRunning) {
-            startPlayback().catch(() => {});
-          } else {
-            updateSeekUI();
+          updateSeekUI();
+
+          if (shouldContinue) {
+            try {
+              await startPlayback();
+            } catch {
+              audioText.textContent = 'Tap to Continue';
+            }
           }
-                }, TRANSITION_DELAY);
+        }, TRANSITION_DELAY);
 
         return;
       }
 
-      // No more tracks → session complete
       sessionCompleted = true;
       isRunning = false;
       setCircleState('complete');
@@ -2097,7 +2112,6 @@ Simply remain.`
       sessionStateLabel.textContent = 'Session Complete';
       sessionTapHint.textContent = 'Stay here for a moment.';
 
-      // delay completion UI for stillness
       if (completionDelayTimeout) {
         clearTimeout(completionDelayTimeout);
       }
@@ -2471,7 +2485,7 @@ Simply remain.`
 
       sessionStateText.style.opacity = 0;
       setTimeout(() => {
-        sessionStateText.textContent = modeConfig && activePractice === 'Stability' ? 'Settle' : 'Settle';
+        sessionStateText.textContent = 'Settle';
         sessionStateText.style.opacity = 1;
       }, 200);
       sessionStateLabel.textContent = 'Grounding';
@@ -2688,44 +2702,6 @@ Simply remain.`
       await releaseWakeLock();
       updateAudioStatus();
       resetVisualSessionState();
-    }
-
-    async function completeSession() {
-      clearInterval(progressInterval);
-      progressInterval = null;
-      stopReactivePulse();
-
-      isRunning = false;
-      sessionCompleted = true;
-
-      if (currentAudio) {
-        currentAudio.pause();
-      }
-
-      if (activePractice === 'Foundation') {
-        savePracticeComplete(activeSubcategory);
-        renderFoundationHomeCards();
-      }
-
-      sessionCircleShell.classList.remove('running');
-      audioStatus.classList.remove('playing');
-      volumeControl.classList.remove('active');
-
-      sessionStateText.textContent = 'Complete';
-      sessionStateLabel.textContent = 'Session Finished';
-      sessionTapHint.textContent = 'Choose your next step';
-      completionMessage.style.display = 'block';
-      completionPanel.classList.remove('hidden');
-
-      audioText.textContent = activePractice === 'Introduction'
-        ? 'Introduction Complete'
-        : 'Foundation Complete';
-
-      if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]);
-      }
-
-      await releaseWakeLock();
     }
 
     async function exitSessionEarly() {
