@@ -7,7 +7,7 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   />
   <meta name="theme-color" content="#030303" />
-  <title>Unstoppable Mindset</title>
+  <title>Ataraxia</title>
   <style>
     * {
       margin: 0;
@@ -1093,7 +1093,7 @@
   <div class="app-shell" id="appShell">
     <nav class="nav">
       <div class="logo-wrap">
-        <div class="logo">Unstoppable Mindset</div>
+        <div class="logo">Ataraxia</div>
         <div class="logo-sub">Inner Chamber Training</div>
       </div>
       <button class="menu-btn" onclick="toggleMenu()">
@@ -1297,6 +1297,8 @@ Let the session guide you.
     let sessionCompleted = false;
     let singleTapTimeout = null;
     let isSeeking = false;
+    let groundingTimeout = null;
+    let isGrounding = false;
 
     let currentPlaylist = [];
     let currentTrackIndex = 0;
@@ -1811,7 +1813,7 @@ return with discipline and calm.`
       if (currentTrackIndex < currentPlaylist.length - 1) {
         const nextIndex = currentTrackIndex + 1;
 
-        const TRANSITION_DELAY = 2000; // 2 seconds
+        const TRANSITION_DELAY = 5000; // 5 seconds
 
         setTimeout(() => {
           const loaded = loadTrack(nextIndex, 0);
@@ -2095,10 +2097,16 @@ return with discipline and calm.`
       sessionStarted = false;
       sessionCompleted = false;
       isRunning = false;
+      isGrounding = false;
 
       clearInterval(progressInterval);
       progressInterval = null;
       stopReactivePulse();
+
+      if (groundingTimeout) {
+        clearTimeout(groundingTimeout);
+        groundingTimeout = null;
+      }
 
       startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
       if (activePractice === 'FoundationHome') {
@@ -2127,9 +2135,22 @@ return with discipline and calm.`
 
       sessionStarted = true;
       sessionCompleted = false;
+      isGrounding = true;
       startSessionBtn.style.display = 'none';
       enterSessionMode();
-      await startPlayback();
+
+      sessionStateText.textContent = 'Settle';
+      sessionStateLabel.textContent = 'Grounding';
+      sessionTapHint.textContent = 'Get comfortable and prepare to begin';
+      audioText.textContent = activePractice === 'Introduction'
+        ? 'Introduction Grounding'
+        : 'Foundation Grounding';
+
+      groundingTimeout = setTimeout(async () => {
+        groundingTimeout = null;
+        isGrounding = false;
+        await startPlayback();
+      }, 2000);
     }
 
     function setVolume(val) {
@@ -2221,7 +2242,7 @@ return with discipline and calm.`
     }
 
     function handleCircleTap() {
-      if (!sessionStarted || !currentAudio || sessionCompleted) return;
+      if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
 
       if (singleTapTimeout) {
         clearTimeout(singleTapTimeout);
@@ -2241,6 +2262,11 @@ return with discipline and calm.`
     }
 
     async function resetSessionFromDoubleTap() {
+      if (groundingTimeout) {
+        clearTimeout(groundingTimeout);
+        groundingTimeout = null;
+      }
+      isGrounding = false;
       clearInterval(progressInterval);
       progressInterval = null;
       stopReactivePulse();
@@ -2279,6 +2305,11 @@ return with discipline and calm.`
     }
 
     async function stopCurrentSession() {
+      if (groundingTimeout) {
+        clearTimeout(groundingTimeout);
+        groundingTimeout = null;
+      }
+      isGrounding = false;
       clearInterval(progressInterval);
       progressInterval = null;
       stopReactivePulse();
