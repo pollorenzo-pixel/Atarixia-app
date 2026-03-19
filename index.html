@@ -1110,6 +1110,65 @@
       margin-top: 6px;
     }
 
+    .reflection-panel {
+      width: min(620px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow-md);
+    }
+
+    .reflection-panel.hidden {
+      display: none;
+    }
+
+    .reflection-title {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .reflection-options {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reflection-option-btn {
+      min-width: 140px;
+      min-height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.25s ease;
+      padding: 0 14px;
+    }
+
+    .reflection-option-btn:hover,
+    .reflection-option-btn.active {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--line-strong);
+      color: var(--text);
+    }
+
     @media (max-width: 480px) {
       .main-content {
         padding: 20px 14px 42px;
@@ -1235,8 +1294,7 @@
         <div class="menu-subsection" id="stabilitySubsection">
           <div class="menu-subsection-label">Stability Practices</div>
           <button class="menu-subcat-btn" onclick="setStabilitySubcategory('OpenAwareness', true, event)">Open Awareness</button>
-          <button class="menu-subcat-btn" onclick="setStabilitySubcategory('PeripheralAwareness', true, event)">Peripheral Awareness</button>
-          <button class="menu-subcat-btn" onclick="setStabilitySubcategory('EffortlessAwareness', true, event)">Effortless Awareness</button>
+          <button class="menu-subcat-btn" onclick="setStabilitySubcategory('SensoryAwareness', true, event)">Sensory Awareness</button>
         </div>
       </div>
     </div>
@@ -1357,6 +1415,15 @@ Let the session guide you.
         </div>
 
         <div class="completion-message" id="completionMessage" style="display:none;">Session complete</div>
+        <div class="reflection-panel hidden" id="reflectionPanel">
+          <div class="reflection-title">What did you notice most?</div>
+          <div class="reflection-options" id="reflectionOptions">
+            <button class="reflection-option-btn" data-reflection="Sounds">Sounds</button>
+            <button class="reflection-option-btn" data-reflection="Sensations">Sensations</button>
+            <button class="reflection-option-btn" data-reflection="Breath">Breath</button>
+            <button class="reflection-option-btn" data-reflection="Mind wandering">Mind wandering</button>
+          </div>
+        </div>
         <div class="completion-panel hidden" id="completionPanel">
           <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat Practice</button>
           <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
@@ -1374,10 +1441,9 @@ Let the session guide you.
     const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
 
-// Stability (Expanding Awareness) Audio (add your files here)
-const STABILITY_OPEN_AWARENESS_AUDIO = ['audio/open awareness meditation.mp3', 'audio/open awareness ending.mp3'];
-const STABILITY_PERIPHERAL_AWARENESS_AUDIO = ['audio/peripheral awareness meditation.mp3', 'audio/peripheral awareness ending.mp3'];
-const STABILITY_EFFORTLESS_AWARENESS_AUDIO = ['audio/effortless awareness meditation.mp3', 'audio/effortless awareness ending.mp3'];
+// Stability (Expanding Awareness) Audio
+const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
+const STABILITY_SENSORY_AWARENESS_AUDIO = audio/sensory awareness meditation.mp3;
 
     function preloadMeditationAudio() {
       const audioFiles = [
@@ -1401,6 +1467,7 @@ const STABILITY_EFFORTLESS_AWARENESS_AUDIO = ['audio/effortless awareness medita
     });
     
     const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
+    const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
 
     let isRunning = false;
     let hasAudio = false;
@@ -1420,6 +1487,7 @@ const STABILITY_EFFORTLESS_AWARENESS_AUDIO = ['audio/effortless awareness medita
     let isGrounding = false;
     let completionDelayTimeout = null;
     let pendingTransitionTimeout = null;
+    let selectedReflection = '';
 
     let currentPlaylist = [];
     let currentTrackIndex = 0;
@@ -1491,7 +1559,6 @@ Emotional awareness helps you understand.
 Deep focus helps you strengthen attention.`
       },
       Foundation: {
-        completionMessage: 'Well done. Stay with the feeling for a moment.',
         groundingText: 'Get comfortable and prepare to begin',
         activeText: 'Playing',
         activeLabel: 'Session Active',
@@ -1503,6 +1570,7 @@ Deep focus helps you strengthen attention.`
         readyAudioText: 'Foundation Ready',
         activeAudioText: 'Foundation Playing',
         endingAudioText: 'Foundation Ending Audio',
+        completionMessage: 'Well done. Stay with the feeling for a moment.',
         subcategories: {
           BreathAwareness: {
             title: 'Breath Awareness Meditation',
@@ -1605,7 +1673,6 @@ return with discipline and calm.`
         }
       },
       Stability: {
-        completionMessage: 'There was nothing to achieve. Just notice what is already here.',
         groundingText: 'Let everything settle.',
         activeText: 'Aware',
         activeLabel: 'Open Awareness',
@@ -1614,9 +1681,10 @@ return with discipline and calm.`
         pausedText: 'Still',
         pausedLabel: 'Awareness Paused',
         pausedAudioText: 'Stability Still',
-        readyAudioText: 'Stability Ready',
+        readyAudioText: 'Ready to Begin Stability Practice',
         activeAudioText: 'Stability Open',
         endingAudioText: 'Stability Ending Audio',
+        completionMessage: 'There was nothing to achieve. Just notice what is already here.',
         subcategories: {
           OpenAwareness: {
             title: 'Open Awareness Meditation',
@@ -1638,43 +1706,22 @@ let them come and go on their own.
 You do not need to follow anything.
 Just remain aware.`
           },
-          PeripheralAwareness: {
-            title: 'Peripheral Awareness Meditation',
-            shortPurpose: 'Notice everything without choosing one thing.',
-            audio: STABILITY_PERIPHERAL_AWARENESS_AUDIO,
+          SensoryAwareness: {
+            title: 'Sensory Awareness Meditation',
+            shortPurpose: 'Rest in the full field of sensation.',
+            audio: STABILITY_SENSORY_AWARENESS_AUDIO,
             eyebrow: 'Stability · Expanding Awareness',
-            hero: 'Widen attention.<br>Include the whole field.',
-            subtitle: ['Widen', 'Include', 'Rest'],
-            note: 'Let the background of experience become visible.',
-            badge: 'Stability · Peripheral Awareness',
+            hero: 'Feel the full field.<br>Include sensation.',
+            subtitle: ['Sense', 'Include', 'Remain'],
+            note: 'Nothing needs to be chosen. Let sensation be known.',
+            badge: 'Stability · Sensory Awareness',
             copyLabel: 'Current Stability Practice',
-            copyTitle: 'Peripheral Awareness',
-            copyBody: `Instead of focusing on one point,
-allow your awareness to widen.
+            copyTitle: 'Sensory Awareness',
+            copyBody: `Allow your awareness to rest in sensation.
 
-Notice the space around you.
-The background of your experience.
-Everything can be included,
-without needing your attention.`
-          },
-          EffortlessAwareness: {
-            title: 'Effortless Awareness Meditation',
-            shortPurpose: 'Rest as awareness, without effort.',
-            audio: STABILITY_EFFORTLESS_AWARENESS_AUDIO,
-            eyebrow: 'Stability · Expanding Awareness',
-            hero: 'Do less.<br>Remain as awareness.',
-            subtitle: ['Rest', 'Allow', 'Remain'],
-            note: 'Awareness is already here. Nothing extra is needed.',
-            badge: 'Stability · Effortless Awareness',
-            copyLabel: 'Current Stability Practice',
-            copyTitle: 'Effortless Awareness',
-            copyBody: `There is nothing to do here.
-No need to control your attention.
-
-Awareness is already present.
-Let everything be as it is.
-
-Simply remain.`
+Notice sound, touch, temperature, pressure, and space.
+There is nothing to choose.
+Everything can be included, all at once.`
           }
         }
       }
@@ -1719,6 +1766,8 @@ Simply remain.`
     const sessionInnerCore = document.getElementById('sessionInnerCore');
     const completionPanel = document.getElementById('completionPanel');
     const completionMessage = document.getElementById('completionMessage');
+    const reflectionPanel = document.getElementById('reflectionPanel');
+    const reflectionOptions = document.getElementById('reflectionOptions');
     const sessionSeekBar = document.getElementById('sessionSeekBar');
     const sessionCurrentTime = document.getElementById('sessionCurrentTime');
     const sessionDuration = document.getElementById('sessionDuration');
@@ -1745,6 +1794,40 @@ Simply remain.`
       const progress = loadProgress();
       progress[practiceKey] = true;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+
+    function resetReflectionSelection() {
+      selectedReflection = '';
+      if (!reflectionOptions) return;
+      reflectionOptions.querySelectorAll('.reflection-option-btn').forEach((btn) => {
+        btn.classList.remove('active');
+      });
+    }
+
+    function saveReflectionEntry(reflection) {
+      if (!reflection) return;
+
+      const entry = {
+        timestamp: new Date().toISOString(),
+        mode: activePractice,
+        practice: activeSubcategory || 'Introduction',
+        reflection
+      };
+
+      const existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
+      existing.push(entry);
+      localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
+    }
+
+    function showReflectionPanel() {
+      if (!reflectionPanel) return;
+      reflectionPanel.classList.remove('hidden');
+    }
+
+    function hideReflectionPanel() {
+      if (!reflectionPanel) return;
+      reflectionPanel.classList.add('hidden');
+      resetReflectionSelection();
     }
 
     function getNextRecommendedPractice() {
@@ -1922,6 +2005,25 @@ Simply remain.`
       return true;
     }
 
+    function switchToTrack(index, startTime = 0) {
+      if (!currentAudio || !currentPlaylist[index]) return false;
+
+      currentAudio.pause();
+      currentTrackIndex = index;
+      currentAudio.src = currentPlaylist[index];
+      currentAudio.load();
+
+      const applyStartTime = () => {
+        if (startTime > 0 && Number.isFinite(currentAudio.duration)) {
+          currentAudio.currentTime = Math.min(startTime, currentAudio.duration);
+        }
+        updateSeekUI();
+      };
+
+      currentAudio.addEventListener('loadedmetadata', applyStartTime, { once: true });
+      return true;
+    }
+
     function initAudio() {
       const audioSource = getCurrentAudioSource();
 
@@ -2073,8 +2175,12 @@ Simply remain.`
 
         pendingTransitionTimeout = setTimeout(async () => {
           pendingTransitionTimeout = null;
-          const loaded = loadTrack(nextIndex, 0);
-          if (!loaded) return;
+
+          const switched = currentAudio
+            ? switchToTrack(nextIndex, 0)
+            : loadTrack(nextIndex, 0);
+
+          if (!switched) return;
 
           updateSeekUI();
 
@@ -2123,8 +2229,9 @@ Simply remain.`
             ? practiceContent.Foundation
             : null;
         completionMessage.textContent = modeConfig?.completionMessage || 'Session complete';
-        completionPanel.classList.remove('hidden');
         completionMessage.style.display = 'block';
+        showReflectionPanel();
+        completionPanel.classList.remove('hidden');
       }, 2000);
 
       updateAudioStatus();
@@ -2368,6 +2475,7 @@ Simply remain.`
     function selectMainMode(name) {
       activePractice = name;
       foundationMenuOpen = false;
+      stabilityMenuOpen = false;
       stopCurrentSession();
       smoothSwapContent();
       initAudio();
@@ -2412,6 +2520,7 @@ Simply remain.`
     function enterSessionMode() {
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
+      hideReflectionPanel();
       sessionOverlay.classList.add('active');
     }
 
@@ -2457,6 +2566,7 @@ Simply remain.`
       sessionProgressRing.style.strokeDashoffset = circumference;
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
+      hideReflectionPanel();
 
       audioStatus.classList.remove('playing');
       volumeControl.classList.remove('active');
@@ -2666,6 +2776,7 @@ Simply remain.`
       sessionTapHint.textContent = 'Tap Begin Meditation to Start Again';
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
+      hideReflectionPanel();
 
       startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
 
@@ -2718,13 +2829,14 @@ Simply remain.`
       sessionProgressRing.style.strokeDashoffset = circumference;
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
+      hideReflectionPanel();
       startSessionButton();
     }
 
     function goToNextPracticeFromCompletion() {
       exitSessionMode();
       if (activePractice === 'Stability') {
-        const order = ['OpenAwareness', 'PeripheralAwareness', 'EffortlessAwareness'];
+        const order = ['OpenAwareness', 'SensoryAwareness'];
         const currentIndex = order.indexOf(activeSubcategory);
         const next = currentIndex === -1 || currentIndex === order.length - 1 ? order[0] : order[currentIndex + 1];
         setStabilitySubcategory(next, false);
@@ -2736,6 +2848,21 @@ Simply remain.`
     function goToFoundationFromCompletion() {
       exitSessionMode();
       goToFoundationHome();
+    }
+
+    if (reflectionOptions) {
+      reflectionOptions.addEventListener('click', (event) => {
+        const button = event.target.closest('.reflection-option-btn');
+        if (!button) return;
+
+        selectedReflection = button.dataset.reflection || '';
+
+        reflectionOptions.querySelectorAll('.reflection-option-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn === button);
+        });
+
+        saveReflectionEntry(selectedReflection);
+      });
     }
 
     sessionCircleShell.addEventListener('click', handleCircleTap);
