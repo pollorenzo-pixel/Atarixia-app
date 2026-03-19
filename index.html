@@ -978,6 +978,7 @@
       text-align: center;
       z-index: 2;
       transition: box-shadow 0.25s ease, opacity 0.25s ease;
+      overflow: hidden;
     }
 
     .session-mode-badge {
@@ -1014,6 +1015,58 @@
       color: var(--text-faint);
       line-height: 1.5;
       max-width: 280px;
+    }
+
+    .circle-complete-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 26px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.018) 44%, rgba(255,255,255,0.01) 100%);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .circle-complete-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .circle-complete-mark {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: var(--text);
+      box-shadow: inset 0 0 24px rgba(255,255,255,0.03);
+    }
+
+    .circle-complete-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .circle-complete-subtitle {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      line-height: 1.5;
+      max-width: 220px;
     }
 
     .session-copy {
@@ -1385,6 +1438,11 @@ Let the session guide you.
             <div class="session-state-text" id="sessionStateText">Ready</div>
             <div class="session-state-label" id="sessionStateLabel">Awaiting Start</div>
             <div class="session-tap-hint" id="sessionTapHint">Tap to Pause · Tap Again to Resume · Double Tap to Reset</div>
+            <div class="circle-complete-overlay" id="circleCompleteOverlay">
+              <div class="circle-complete-mark">✓</div>
+              <div class="circle-complete-title">Completed</div>
+              <div class="circle-complete-subtitle">Your session is complete. Take a moment before continuing.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1767,6 +1825,7 @@ Everything can be included, all at once.`
     const completionPanel = document.getElementById('completionPanel');
     const completionMessage = document.getElementById('completionMessage');
     const reflectionPanel = document.getElementById('reflectionPanel');
+    const circleCompleteOverlay = document.getElementById('circleCompleteOverlay');
     const reflectionOptions = document.getElementById('reflectionOptions');
     const sessionSeekBar = document.getElementById('sessionSeekBar');
     const sessionCurrentTime = document.getElementById('sessionCurrentTime');
@@ -1817,6 +1876,16 @@ Everything can be included, all at once.`
       const existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
       existing.push(entry);
       localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
+    }
+
+    function showCircleCompletionTakeover() {
+      if (!circleCompleteOverlay) return;
+      circleCompleteOverlay.classList.add('active');
+    }
+
+    function hideCircleCompletionTakeover() {
+      if (!circleCompleteOverlay) return;
+      circleCompleteOverlay.classList.remove('active');
     }
 
     function showReflectionPanel() {
@@ -2199,6 +2268,7 @@ Everything can be included, all at once.`
       sessionCompleted = true;
       isRunning = false;
       setCircleState('complete');
+      showCircleCompletionTakeover();
 
       sessionCircleShell.classList.remove('running');
       audioStatus.classList.remove('playing');
@@ -2521,6 +2591,7 @@ Everything can be included, all at once.`
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
       hideReflectionPanel();
+      hideCircleCompletionTakeover();
       sessionOverlay.classList.add('active');
     }
 
@@ -2559,6 +2630,7 @@ Everything can be included, all at once.`
         startSessionBtn.style.display = 'none';
       }
 
+      hideCircleCompletionTakeover();
       sessionStateText.textContent = 'Ready';
       sessionStateLabel.textContent = 'Awaiting Start';
       sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
@@ -2567,6 +2639,7 @@ Everything can be included, all at once.`
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
       hideReflectionPanel();
+      hideCircleCompletionTakeover();
 
       audioStatus.classList.remove('playing');
       volumeControl.classList.remove('active');
@@ -2666,6 +2739,7 @@ Everything can be included, all at once.`
             : null;
 
         setCircleState(currentTrackIndex > 0 ? 'ending' : 'playing');
+        hideCircleCompletionTakeover();
         sessionStateText.textContent = modeConfig
           ? (currentTrackIndex > 0 ? modeConfig.endingText : modeConfig.activeText)
           : (currentTrackIndex > 0 ? 'Closing' : 'Playing');
@@ -2703,6 +2777,7 @@ Everything can be included, all at once.`
           : null;
 
       setCircleState('paused');
+      hideCircleCompletionTakeover();
       sessionStateText.textContent = modeConfig ? modeConfig.pausedText : 'Paused';
       sessionStateLabel.textContent = modeConfig ? modeConfig.pausedLabel : 'Session Paused';
       sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
@@ -2771,12 +2846,14 @@ Everything can be included, all at once.`
 
       sessionProgressRing.style.strokeDashoffset = circumference;
       setCircleState('idle');
+      hideCircleCompletionTakeover();
       sessionStateText.textContent = 'Ready';
       sessionStateLabel.textContent = 'Session Reset';
       sessionTapHint.textContent = 'Tap Begin Meditation to Start Again';
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
       hideReflectionPanel();
+      hideCircleCompletionTakeover();
 
       startSessionBtn.style.display = hasAudio ? 'inline-flex' : 'none';
 
@@ -2830,6 +2907,7 @@ Everything can be included, all at once.`
       completionPanel.classList.add('hidden');
       completionMessage.style.display = 'none';
       hideReflectionPanel();
+      hideCircleCompletionTakeover();
       startSessionButton();
     }
 
