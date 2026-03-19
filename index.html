@@ -1807,16 +1807,50 @@ return with discipline and calm.`
     }
 
     async function handleAudioEnded() {
-      const nextIndex = currentTrackIndex + 1;
+      // If there is another track (e.g. ending audio), insert a small pause before playing it
+      if (currentTrackIndex < currentPlaylist.length - 1) {
+        const nextIndex = currentTrackIndex + 1;
 
-      if (nextIndex < currentPlaylist.length) {
-        const loaded = loadTrack(nextIndex);
+        // small intentional pause (adjustable)
+        const TRANSITION_DELAY = 800; // 0.8 seconds
 
-        if (loaded) {
-          try {
-            await startPlayback();
-            return;
-          } catch (e) {
+        setTimeout(() => {
+          const loaded = loadTrack(nextIndex, 0);
+          if (!loaded) return;
+
+          if (isRunning) {
+            startPlayback().catch(() => {});
+          } else {
+            updateSeekUI();
+          }
+        }, TRANSITION_DELAY);
+
+        return;
+      }
+
+      // No more tracks → session complete
+      sessionCompleted = true;
+      isRunning = false;
+
+      sessionCircleShell.classList.remove('running');
+      audioStatus.classList.remove('playing');
+      volumeControl.classList.remove('active');
+
+      clearInterval(progressInterval);
+      progressInterval = null;
+
+      stopReactivePulse();
+      releaseWakeLock();
+
+      sessionStateText.textContent = 'Completed';
+      sessionStateLabel.textContent = 'Session Complete';
+      sessionTapHint.textContent = 'Well done. Take a moment before continuing.';
+
+      completionPanel.classList.remove('hidden');
+      completionMessage.style.display = 'block';
+
+      updateAudioStatus();
+    } catch (e) {
             console.error('Failed to play next track:', e);
           }
         }
