@@ -108,6 +108,68 @@
       visibility: hidden;
     }
 
+    .welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 290;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 42%),
+        #010101;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      overflow: hidden;
+    }
+
+    .welcome-screen.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .welcome-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .welcome-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .welcome-content {
+      position: relative;
+      z-index: 2;
+      width: min(860px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .welcome-ring-wrap {
+      position: relative;
+      width: min(72vw, 460px);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    
+
     .opening-inner {
       max-width: 780px;
       text-align: center;
@@ -457,6 +519,118 @@
       line-height: 1.7;
       color: var(--text-dim);
       white-space: pre-line;
+    }
+
+    .lesson-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lesson-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 310;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 42%),
+        rgba(2,2,2,0.98);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    .lesson-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: none;
+    }
+
+    .lesson-overlay-panel {
+      width: min(880px, 100%);
+      border-radius: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      padding: 32px 20px;
+      text-align: center;
+      transform: translateY(12px) scale(0.985);
+      opacity: 0;
+    }
+
+    .lesson-overlay.active .lesson-overlay-panel {
+      animation: lessonOverlayIn 0.6s ease forwards;
+    }
+
+    .lesson-overlay.exit .lesson-overlay-panel {
+      animation: lessonOverlayOut 0.55s ease forwards;
+    }
+
+    .lesson-overlay-kicker {
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 16px;
+    }
+
+    .lesson-overlay-title {
+      font-size: clamp(30px, 6vw, 56px);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      font-weight: 800;
+      color: var(--text);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .lesson-overlay-body {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 16px;
+      line-height: 1.9;
+      color: var(--text-dim);
+      white-space: pre-line;
+    }
+
+    .lesson-card.highlight {
+      animation: lessonCardPulse 0.8s ease;
+    }
+
+    @keyframes lessonOverlayIn {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes lessonOverlayOut {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.99);
+      }
+    }
+
+    @keyframes lessonCardPulse {
+      0%, 100% {
+        border-color: var(--line);
+        background: var(--panel);
+      }
+      50% {
+        border-color: var(--line-strong);
+        background: rgba(255,255,255,0.06);
+      }
     }
 
     .journey-panel {
@@ -1362,6 +1536,18 @@
     </div>
   </div>
 
+  <div class="welcome-screen" id="welcomeScreen">
+    <canvas class="welcome-canvas" id="welcomeCanvas"></canvas>
+    <div class="welcome-content">
+      <div class="welcome-ring-wrap"></div>
+      <div class="welcome-kicker" id="welcomeTapHint" style="display:none;">Tap anywhere to begin</div>
+    </div>
+    <audio id="audio/Brittney welcome audio.mp3" preload="auto">
+      <!-- Add your welcome audio source manually here -->
+      <!-- Example: <source src="audio/your welcome audio.mp3" type="audio/mpeg"> -->
+    </audio>
+  </div>
+
   <div class="app-shell" id="appShell">
     <nav class="nav">
       <div class="logo-wrap">
@@ -1405,8 +1591,8 @@
 
         <div class="menu-subsection" id="stabilitySubsection">
           <div class="menu-subsection-label">Stability Practices</div>
-          <button class="menu-subcat-btn" onclick="setStabilitySubcategory('OpenAwareness', true, event)">Open Awareness</button>
-          <button class="menu-subcat-btn" onclick="setStabilitySubcategory('SensoryAwareness', true, event)">Sensory Awareness</button>
+          <button class="menu-subcat-btn" id="OpenAwarenessBtn" onclick="setStabilitySubcategory('OpenAwareness', true, event)">Open Awareness</button>
+          <button class="menu-subcat-btn" id="SensoryAwarenessBtn" onclick="setStabilitySubcategory('SensoryAwareness', true, event)">Sensory Awareness</button>
         </div>
       </div>
     </div>
@@ -1428,14 +1614,14 @@
         <div class="practice-copy-body" id="practiceCopyBody">
 This is a place to begin.
 
-You do not need to clear your mind.
-You do not need to perform.
-You only need to arrive and follow the guidance.
+You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.
+      </div>
+      </div>
 
-In this introduction, simply notice your body, your breathing, your mood, and your energy.
-
-Let the session guide you.
-        </div>
+      <div class="practice-copy lesson-card" id="lessonCard" style="display:none;">
+        <div class="practice-copy-label">Lesson</div>
+        <div class="practice-copy-title" id="lessonTitle">Before you begin</div>
+        <div class="practice-copy-body" id="lessonBody">A short lesson will appear here.</div>
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
@@ -1473,6 +1659,14 @@ Let the session guide you.
 
       <div class="bottom-note" id="bottomNote">This is your starting point.</div>
     </main>
+  </div>
+
+  <div class="lesson-overlay" id="lessonOverlay">
+    <div class="lesson-overlay-panel">
+      <div class="lesson-overlay-kicker">Lesson</div>
+      <div class="lesson-overlay-title" id="lessonOverlayTitle">Before you begin</div>
+      <div class="lesson-overlay-body" id="lessonOverlayBody">A short lesson will appear here.</div>
+    </div>
   </div>
 
   <div class="reflection-screen" id="reflectionScreen">
@@ -1578,7 +1772,7 @@ Let the session guide you.
   </div>
 
   <script>
-  const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+   const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
   const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
   const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
   const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
@@ -1590,6 +1784,10 @@ Let the session guide you.
   const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
   const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
   const TRANSITION_DELAY = 2000;
+
+  function isLegacyMultiTrackSession() {
+    return activePractice === 'Foundation' && Array.isArray(currentPlaylist) && currentPlaylist.length > 1;
+  }
 
   const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
   const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
@@ -1644,6 +1842,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Breath Awareness Meditation',
           copyBody: `In this practice, bring attention to the breath. When the mind wanders, gently return.`,
           audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
+          lesson: 'Your mind will wander. The skill is returning.',
+          reinforcement: 'Each return to the breath strengthens attention.',
           activeText: 'Playing', activeLabel: 'Breath Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
         },
         BodyAwareness: {
@@ -1658,6 +1858,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Body Awareness Meditation',
           copyBody: `In this practice, bring gentle attention to the body and feel what is already here.`,
           audio: FOUNDATION_BODY_AWARENESS_AUDIO,
+          lesson: 'You do not need to change the body. Only feel it clearly.',
+          reinforcement: 'Feeling the body directly builds grounded presence.',
           activeText: 'Playing', activeLabel: 'Body Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
         },
         ThoughtAwareness: {
@@ -1672,6 +1874,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Thought Awareness Meditation',
           copyBody: `In this practice, notice thoughts as they arise without following them.`,
           audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+          lesson: 'You are not trying to stop thought. You are learning not to follow it.',
+          reinforcement: 'Seeing thought without chasing it builds mental distance.',
           activeText: 'Playing', activeLabel: 'Thought Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
         },
         EmotionalAwareness: {
@@ -1686,6 +1890,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Emotional Awareness Meditation',
           copyBody: `In this practice, notice the emotional tone of the moment and give it space without judgment.`,
           audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+          lesson: 'You are not here to fix the feeling. Only to know it.',
+          reinforcement: 'Allowing emotion without reacting builds steadiness.',
           activeText: 'Playing', activeLabel: 'Emotional Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
         },
         DeepFocus: {
@@ -1700,6 +1906,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Deep Focus Meditation',
           copyBody: `In this practice, hold attention on one chosen anchor and return with calm discipline.`,
           audio: FOUNDATION_DEEP_FOCUS_AUDIO,
+          lesson: 'Attention becomes stronger each time you return to one point.',
+          reinforcement: 'Sustained return trains stronger concentration.',
           activeText: 'Playing', activeLabel: 'Deep Focus', endingText: 'Closing', endingLabel: 'Ending Audio'
         }
       }
@@ -1723,6 +1931,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Open Awareness',
           copyBody: `There is nothing to focus on. Simply notice whatever is present.`,
           audio: [STABILITY_OPEN_AWARENESS_AUDIO],
+          lesson: 'Nothing needs to be chosen. Let the whole field be included.',
+          reinforcement: 'Resting in openness trains stable awareness without force.',
           activeText: 'Aware', activeLabel: 'Open Awareness', endingText: 'Open', endingLabel: 'Complete'
         },
         SensoryAwareness: {
@@ -1737,6 +1947,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
           copyTitle: 'Sensory Awareness',
           copyBody: `Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.`,
           audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
+          lesson: 'Let sensation come to you. Do not narrow attention.',
+          reinforcement: 'Including the full sensory field widens and steadies awareness.',
           activeText: 'Sensing', activeLabel: 'Sensory Awareness', endingText: 'Settling', endingLabel: 'Complete'
         }
       }
@@ -1744,6 +1956,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
   };
 
   const el = {
+    welcomeScreen: document.getElementById('welcomeScreen'),
+    welcomeTapHint: document.getElementById('welcomeTapHint'),
+    welcomeCanvas: document.getElementById('welcomeCanvas'),
+    welcomeAudio: document.getElementById('welcomeAudio'),
+    lessonCard: document.getElementById('lessonCard'),
+    lessonTitle: document.getElementById('lessonTitle'),
+    lessonBody: document.getElementById('lessonBody'),
+    lessonOverlay: document.getElementById('lessonOverlay'),
+    lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
+    lessonOverlayBody: document.getElementById('lessonOverlayBody'),
     openingScene: document.getElementById('openingScene'),
     openingQuote: document.getElementById('openingQuote'),
     openingAuthor: document.getElementById('openingAuthor'),
@@ -1808,6 +2030,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
   let groundingTimeout = null;
   let transitionTimeout = null;
   let selectedReflection = '';
+  let lessonOverlayTimeout = null;
+  let lessonOverlayExitTimeout = null;
+  let shownLessonKey = '';
+  let welcomeAudioCtx = null;
+  let welcomeAnalyser = null;
+  let welcomeSource = null;
+  let welcomeData = null;
+  let welcomeAnimationFrame = null;
+  let welcomeStarted = false;
+  let welcomeDismissed = false;
+  let welcomeNeedsGesture = false;
 
   function loadProgress() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
@@ -1841,7 +2074,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
   function buildPlaylist() {
     if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
     const sub = getSubcategoryData();
-    return sub?.audio || [];
+    if (!sub?.audio) return [];
+
+    // Foundation is the only legacy multi-track area.
+    if (activePractice === 'Foundation') {
+      return Array.isArray(sub.audio) ? sub.audio : [sub.audio];
+    }
+
+    // Everything else is single-track by default, even if wrapped in an array.
+    return [Array.isArray(sub.audio) ? sub.audio[0] : sub.audio].filter(Boolean);
   }
 
   function formatTimeDisplay(seconds) {
@@ -1895,8 +2136,166 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.openingAuthor.textContent = q.author;
     setTimeout(() => {
       el.openingScene.classList.add('fade-out');
-      el.appShell.classList.add('revealed');
+      startWelcomeFlow();
     }, 1800);
+  }
+
+  function ensureWelcomeAudioGraph() {
+    if (welcomeAudioCtx) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    welcomeAudioCtx = new AudioCtx();
+    welcomeAnalyser = welcomeAudioCtx.createAnalyser();
+    welcomeAnalyser.fftSize = 256;
+    welcomeData = new Uint8Array(welcomeAnalyser.frequencyBinCount);
+    welcomeSource = welcomeAudioCtx.createMediaElementSource(el.welcomeAudio);
+    welcomeSource.connect(welcomeAnalyser);
+    welcomeAnalyser.connect(welcomeAudioCtx.destination);
+  }
+
+  function drawWelcomeRing() {
+    const canvas = el.welcomeCanvas;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const w = rect.width;
+    const h = rect.height;
+    const cx = w / 2;
+    const cy = h * 0.42;
+    // make ring much larger (almost full screen)
+      const outerBase = Math.min(w, h) * 0.42;
+    const innerBase = outerBase * 0.6;
+    const particleCount = Math.max(3200, Math.floor(w * 4.2));
+
+    const render = () => {
+      welcomeAnimationFrame = requestAnimationFrame(render);
+      ctx.clearRect(0, 0, w, h);
+
+      let amp = 0.18;
+      if (welcomeAnalyser && welcomeData) {
+        welcomeAnalyser.getByteFrequencyData(welcomeData);
+        let sum = 0;
+        for (let i = 0; i < welcomeData.length; i++) sum += welcomeData[i];
+        amp = Math.max(0.12, Math.min(0.95, (sum / welcomeData.length) / 120));
+      }
+
+      // stronger, more visible pulse
+      const speakScale = 1 + amp * 0.35;
+      const outerR = outerBase * speakScale;
+      const innerR = innerBase * (1 + amp * 0.15);
+      const haloR = outerR * 1.03;
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+
+      for (let i = 0; i < particleCount; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const radialMix = Math.random();
+        const bias = Math.pow(radialMix, 0.55);
+        const r = innerR + (outerR - innerR) * bias;
+        const jitter = (Math.random() - 0.5) * (6 + amp * 10);
+        const x = cx + Math.cos(theta) * (r + jitter);
+        const y = cy + Math.sin(theta) * (r + jitter * 0.72);
+        const size = Math.random() < 0.88 ? 1 : 1.4;
+        const alphaCore = 0.05 + bias * 0.12 + amp * 0.08;
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(0.18, alphaCore)})`;
+        ctx.fillRect(x, y, size, size);
+      }
+
+      for (let i = 0; i < particleCount * 0.16; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const spread = haloR + Math.random() * (22 + amp * 18);
+        const x = cx + Math.cos(theta) * spread;
+        const y = cy + Math.sin(theta) * spread;
+        const alpha = 0.015 + Math.random() * 0.03 + amp * 0.01;
+        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+
+      const glow = ctx.createRadialGradient(cx, cy, innerR * 0.2, cx, cy, outerR * 1.2);
+      glow.addColorStop(0, `rgba(255,255,255,${0.01 + amp * 0.018})`);
+      glow.addColorStop(0.58, 'rgba(255,255,255,0.012)');
+      glow.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR * 1.22, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    };
+
+    render();
+  }
+
+  function endWelcomeFlow() {
+    if (welcomeDismissed) return;
+    welcomeDismissed = true;
+    welcomeNeedsGesture = false;
+    el.welcomeTapHint.style.display = 'none';
+    el.welcomeScreen.classList.add('fade-out');
+    setTimeout(() => {
+      el.appShell.classList.add('revealed');
+      if (welcomeAnimationFrame) cancelAnimationFrame(welcomeAnimationFrame);
+    }, 700);
+  }
+
+  async function startWelcomePlayback() {
+    const hasManualWelcomeSource = el.welcomeAudio.querySelector('source') || el.welcomeAudio.currentSrc || el.welcomeAudio.src;
+    if (!hasManualWelcomeSource) {
+      welcomeStarted = false;
+      welcomeNeedsGesture = false;
+      el.welcomeTapHint.style.display = 'block';
+      el.welcomeTapHint.textContent = 'Add welcome audio source in the HTML audio tag';
+      return Promise.resolve(false);
+    }
+    if (welcomeStarted) return true;
+    welcomeStarted = true;
+
+    el.welcomeAudio.preload = 'auto';
+    el.welcomeAudio.load();
+    ensureWelcomeAudioGraph();
+
+    try {
+      if (welcomeAudioCtx && welcomeAudioCtx.state === 'suspended') {
+        await welcomeAudioCtx.resume();
+      }
+
+      if (!welcomeAnimationFrame) {
+        drawWelcomeRing();
+      }
+
+      const playPromise = el.welcomeAudio.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+      }
+
+      welcomeNeedsGesture = false;
+      el.welcomeTapHint.style.display = 'none';
+    } catch (err) {
+      welcomeStarted = false;
+      welcomeNeedsGesture = true;
+      el.welcomeTapHint.style.display = 'block';
+      return false;
+    }
+
+    el.welcomeAudio.onended = () => {
+      setTimeout(endWelcomeFlow, 400);
+    };
+    return true;
+  }
+
+  function startWelcomeFlow() {
+    el.welcomeScreen.classList.add('active');
+    startWelcomePlayback();
+  }
+
+  async function tryUnlockWelcomePlayback() {
+    if (!welcomeNeedsGesture || welcomeDismissed) return;
+    await startWelcomePlayback();
   }
 
   function toggleMenu() {
@@ -1914,9 +2313,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.stabilityMenuBtn.classList.toggle('active', activePractice === 'Stability' || stabilityMenuOpen);
     el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
     el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability');
+
     [...foundationOrder, ...stabilityOrder].forEach((key) => {
       const btn = document.getElementById(`${key}Btn`);
-      if (btn) btn.classList.toggle('active', activeSubcategory === key);
+      if (btn) {
+        btn.classList.toggle('active', activeSubcategory === key);
+      }
     });
   }
 
@@ -1939,6 +2341,21 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.sessionModeBadge.textContent = data.badge || data.eyebrow;
     el.sessionTitle.innerHTML = data.hero;
     el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+
+    const lessonText = data.lesson || '';
+    if (lessonText && activePractice !== 'Introduction' && activePractice !== 'FoundationHome') {
+      el.lessonCard.style.display = 'block';
+      el.lessonTitle.textContent = data.copyTitle || 'Before you begin';
+      el.lessonBody.textContent = lessonText;
+      el.lessonOverlayTitle.textContent = data.copyTitle || 'Before you begin';
+      el.lessonOverlayBody.textContent = lessonText;
+      maybeShowLessonOverlay(data);
+    } else {
+      el.lessonCard.style.display = 'none';
+      el.lessonTitle.textContent = 'Before you begin';
+      el.lessonBody.textContent = '';
+      hideLessonOverlayImmediate();
+    }
   }
 
   function updateAudioStatus() {
@@ -1997,7 +2414,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   function initAudio() {
     currentPlaylist = buildPlaylist();
-    loadTrack(0);
+    if (currentPlaylist.length) {
+      loadTrack(0);
+    } else {
+      detachAudio();
+      updateSeekUI();
+    }
   }
 
   function hideReflectionTakeover() {
@@ -2006,11 +2428,37 @@ You do not need to clear your mind. You do not need to perform. You only need to
     selectedReflection = '';
   }
 
+  function hideLessonOverlayImmediate() {
+    clearTimeout(lessonOverlayTimeout);
+    clearTimeout(lessonOverlayExitTimeout);
+    el.lessonOverlay.classList.remove('active', 'exit');
+  }
+
+  function maybeShowLessonOverlay(data) {
+    const lessonKey = `${activePractice}:${activeSubcategory}:${data.lesson || ''}`;
+    if (!data.lesson || shownLessonKey === lessonKey) return;
+
+    shownLessonKey = lessonKey;
+    hideLessonOverlayImmediate();
+    el.lessonOverlay.classList.add('active');
+
+    lessonOverlayTimeout = setTimeout(() => {
+      el.lessonOverlay.classList.add('exit');
+      el.lessonCard.classList.add('highlight');
+
+      lessonOverlayExitTimeout = setTimeout(() => {
+        el.lessonOverlay.classList.remove('active', 'exit');
+        setTimeout(() => el.lessonCard.classList.remove('highlight'), 250);
+      }, 560);
+    }, 4400);
+  }
+
   function showReflectionTakeover() { el.reflectionScreen.classList.add('active'); }
   function hideCompletionTakeover() { el.completionScreen.classList.remove('active'); }
   function showCompletionTakeover() {
     const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : practiceContent.Foundation;
-    el.completionScreenSubtitle.textContent = modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+    const sub = getSubcategoryData();
+    el.completionScreenSubtitle.textContent = sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
     el.completionScreen.classList.add('active');
   }
 
@@ -2035,9 +2483,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
     sessionStarted = true;
     el.audioStatus.classList.add('playing');
     el.volumeControl.classList.add('active');
-    setCircleState(currentTrackIndex > 0 ? 'ending' : 'playing');
-    el.sessionStateText.textContent = currentTrackIndex > 0 ? (sub?.endingText || modeConfig?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
-    el.sessionStateLabel.textContent = currentTrackIndex > 0 ? (sub?.endingLabel || modeConfig?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+
+    const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
+    setCircleState(inEndingPhase ? 'ending' : 'playing');
+    el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || modeConfig?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
+    el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || modeConfig?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
     el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
     updateSeekUI();
   }
@@ -2055,7 +2505,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
   }
 
   function handleTrackEnd() {
-    if (currentTrackIndex < currentPlaylist.length - 1) {
+    // Only legacy Foundation practices use a meditation track followed by a separate ending track.
+    if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
       isRunning = false;
       setCircleState('ending');
       el.sessionStateText.textContent = 'Settling';
@@ -2067,11 +2518,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
       }, TRANSITION_DELAY);
       return;
     }
+
     sessionCompleted = true;
     isRunning = false;
     setCircleState('complete');
     el.audioStatus.classList.remove('playing');
-    if (activePractice === 'Foundation' && activeSubcategory) savePracticeComplete(activeSubcategory);
+    el.volumeControl.classList.remove('active');
+
+    if (activePractice === 'Foundation' && activeSubcategory) {
+      savePracticeComplete(activeSubcategory);
+    }
+
     setTimeout(() => showReflectionTakeover(), 900);
   }
 
@@ -2141,6 +2598,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     activePractice = name;
     foundationMenuOpen = false;
     stabilityMenuOpen = false;
+    shownLessonKey = '';
     if (name === 'Introduction') activeSubcategory = 'BreathAwareness';
     initAudio();
     syncUI();
@@ -2166,6 +2624,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     activeSubcategory = name;
     foundationMenuOpen = true;
     stabilityMenuOpen = false;
+    shownLessonKey = '';
     initAudio();
     syncUI();
     if (fromMenu) closeMenu();
@@ -2192,6 +2651,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     activeSubcategory = name;
     stabilityMenuOpen = true;
     foundationMenuOpen = false;
+    shownLessonKey = '';
     initAudio();
     syncUI();
     if (fromMenu) closeMenu();
@@ -2201,6 +2661,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
   function goToFoundationHome() {
     activePractice = 'FoundationHome';
     foundationMenuOpen = true;
+    shownLessonKey = '';
     initAudio();
     syncUI();
   }
@@ -2277,6 +2738,23 @@ You do not need to clear your mind. You do not need to perform. You only need to
     syncUI();
     showOpeningQuoteScene();
   });
+
+  window.addEventListener('resize', () => {
+    if (el.welcomeScreen.classList.contains('active') && !welcomeDismissed) {
+      if (welcomeAnimationFrame) cancelAnimationFrame(welcomeAnimationFrame);
+      drawWelcomeRing();
+    }
+  });
+
+  el.welcomeScreen.addEventListener('click', async () => {
+    if (welcomeDismissed) return;
+    if (welcomeNeedsGesture || !welcomeStarted || el.welcomeAudio.paused) {
+      await startWelcomePlayback();
+    }
+  });
+
+  document.addEventListener('pointerdown', tryUnlockWelcomePlayback, { passive: true });
+  document.addEventListener('keydown', tryUnlockWelcomePlayback);
 </script>
 </body>
 </html>
