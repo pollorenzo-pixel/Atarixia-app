@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#030303" />
   <title>Ataraxia</title>
   <style>
@@ -29,7 +26,6 @@
       --success: #58d18f;
       --shadow-lg: 0 25px 80px rgba(0, 0, 0, 0.55);
       --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.38);
-      --radius-pill: 999px;
     }
 
     html {
@@ -61,23 +57,6 @@
         linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 35%, rgba(0,0,0,0.35) 100%);
     }
 
-    .atmosphere::after {
-      content: "";
-      position: absolute;
-      inset: -20%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.015), transparent 22%),
-        radial-gradient(circle at 70% 65%, rgba(255,255,255,0.01), transparent 25%);
-      animation: drift 18s linear infinite;
-      opacity: 0.9;
-    }
-
-    @keyframes drift {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      50% { transform: translate3d(1.5%, -1.5%, 0) scale(1.03); }
-      100% { transform: translate3d(0, 0, 0) scale(1); }
-    }
-
     .grain {
       position: fixed;
       inset: 0;
@@ -100,12 +79,48 @@
         rgba(2,2,2,0.96);
       backdrop-filter: blur(10px);
       opacity: 1;
-      transition: opacity 1.8s ease, visibility 1.8s ease;
+      transition: opacity 1.4s ease, visibility 1.4s ease;
     }
 
     .opening-scene.fade-out {
       opacity: 0;
       visibility: hidden;
+    }
+
+    .opening-inner {
+      max-width: 780px;
+      text-align: center;
+      animation: openingRise 1.4s ease both;
+    }
+
+    @keyframes openingRise {
+      0% { opacity: 0; transform: translateY(18px) scale(0.985); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .opening-quote {
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      font-weight: 700;
+      color: var(--text);
+      text-wrap: balance;
+    }
+
+    .opening-author {
+      margin-top: 22px;
+      font-size: 11px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .opening-mark {
+      margin-top: 28px;
+      font-size: 9px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-faint);
     }
 
     .welcome-screen {
@@ -122,7 +137,7 @@
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
       overflow: hidden;
     }
 
@@ -159,11 +174,20 @@
       padding: 20px;
     }
 
+    .welcome-ring-wrap {
+      position: relative;
+      width: min(60vmin, 660px);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     .welcome-caption {
       position: absolute;
       left: 50%;
       bottom: 124px;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       width: min(760px, calc(100% - 48px));
       font-size: clamp(14px, 2vw, 20px);
       line-height: 1.75;
@@ -172,7 +196,7 @@
       text-align: center;
       text-wrap: balance;
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.25s ease;
       pointer-events: none;
       z-index: 3;
       white-space: pre-line;
@@ -183,42 +207,22 @@
       opacity: 1;
     }
 
-    .welcome-ring-wrap {
-      position: relative;
-      width: min(60vmin, 660px);
-      aspect-ratio: 1 / 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
     .welcome-start-btn {
       position: absolute;
       left: 50%;
       top: 50%;
-      bottom: auto;
       transform: translate(-50%, -50%);
-      min-width: 220px;
-      height: 46px;
-      padding: 0 18px;
+      padding: 12px 22px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.06);
       color: var(--text);
-      font-family: inherit;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.22em;
+      font-size: 11px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      box-shadow: var(--shadow-md);
       cursor: pointer;
-      z-index: 3;
-      transition: opacity 0.25s ease, transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-    }
-
-    .welcome-start-btn:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: var(--line-strong);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
     }
 
     .welcome-start-btn.hidden {
@@ -227,58 +231,37 @@
       transform: translate(-50%, -46%);
     }
 
-    
-
-    
-
-    .opening-inner {
-      max-width: 780px;
-      text-align: center;
-      animation: openingRise 1.8s ease both;
+    .welcome-start-btn:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--line-strong);
     }
 
-    @keyframes openingRise {
-      0% {
-        opacity: 0;
-        transform: translateY(18px) scale(0.985);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .opening-quote {
-      font-size: clamp(28px, 5vw, 52px);
-      line-height: 1.2;
-      letter-spacing: -0.03em;
-      font-weight: 700;
-      color: var(--text);
-      text-wrap: balance;
-    }
-
-    .opening-author {
-      margin-top: 22px;
-      font-size: 11px;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .opening-mark {
-      margin-top: 28px;
-      font-size: 9px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
+    .welcome-skip-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      border: none;
+      background: transparent;
       color: var(--text-faint);
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 3;
+      padding: 8px 6px;
+      transition: color 0.2s ease, opacity 0.2s ease;
     }
+
+    .welcome-skip-btn:hover { color: var(--text-dim); }
+    .welcome-skip-btn.hidden { opacity: 0; pointer-events: none; }
 
     .app-shell {
       position: relative;
       z-index: 2;
       opacity: 0;
       transform: translateY(10px);
-      transition: opacity 1.2s ease, transform 1.2s ease;
+      transition: opacity 0.9s ease, transform 0.9s ease;
     }
 
     .app-shell.revealed {
@@ -298,26 +281,9 @@
       backdrop-filter: blur(8px);
     }
 
-    .logo-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .logo {
-      font-size: 10px;
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      font-weight: 700;
-    }
-
-    .logo-sub {
-      font-size: 9px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
+    .logo-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .logo { font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--text-dim); font-weight: 700; }
+    .logo-sub { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint); }
 
     .menu-btn {
       width: 42px;
@@ -334,12 +300,7 @@
       transition: 0.25s ease;
     }
 
-    .menu-btn span {
-      width: 16px;
-      height: 1.5px;
-      background: var(--text);
-      opacity: 0.9;
-    }
+    .menu-btn span { width: 16px; height: 1.5px; background: var(--text); opacity: 0.9; }
 
     .menu-overlay {
       position: fixed;
@@ -356,10 +317,7 @@
       padding: 24px;
     }
 
-    .menu-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
+    .menu-overlay.active { opacity: 1; pointer-events: all; }
 
     .menu-panel {
       width: min(460px, 100%);
@@ -372,14 +330,7 @@
       padding: 24px;
     }
 
-    .menu-label {
-      font-size: 10px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 18px;
-    }
-
+    .menu-label { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 18px; }
     .menu-item {
       width: 100%;
       text-align: left;
@@ -394,26 +345,14 @@
       transition: 0.25s ease;
     }
 
-    .menu-item.active,
-    .menu-item:hover {
+    .menu-item.active, .menu-item:hover {
       border-color: var(--line);
       background: rgba(255,255,255,0.05);
       color: var(--text);
     }
 
-    .menu-item-title {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .menu-item-desc {
-      font-size: 12px;
-      color: var(--text-faint);
-      line-height: 1.5;
-    }
+    .menu-item-title { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+    .menu-item-desc { font-size: 12px; color: var(--text-faint); line-height: 1.5; }
 
     .menu-subsection {
       margin: -2px 0 10px;
@@ -425,19 +364,8 @@
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    .menu-subsection.visible {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .menu-subsection-label {
-      font-size: 8px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin: 8px 0 10px;
-    }
+    .menu-subsection.visible { display: block; opacity: 1; transform: translateY(0); }
+    .menu-subsection-label { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); margin: 8px 0 10px; }
 
     .menu-subcat-btn {
       width: 100%;
@@ -454,8 +382,7 @@
       margin-bottom: 8px;
     }
 
-    .menu-subcat-btn.active,
-    .menu-subcat-btn:hover {
+    .menu-subcat-btn.active, .menu-subcat-btn:hover {
       color: var(--text);
       background: rgba(255,255,255,0.04);
       border-color: rgba(255,255,255,0.08);
@@ -481,33 +408,8 @@
       align-items: center;
     }
 
-    .eyebrow,
-    .hero-title,
-    .hero-subtitle,
-    .bottom-note,
-    .practice-copy,
-    .journey-panel,
-    .foundation-home-panel {
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .eyebrow {
-      font-size: 10px;
-      letter-spacing: 0.36em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 14px;
-    }
-
-    .hero-title {
-      font-size: clamp(34px, 8vw, 60px);
-      line-height: 0.95;
-      font-weight: 800;
-      letter-spacing: -0.05em;
-      text-transform: uppercase;
-      color: var(--text);
-      margin-bottom: 14px;
-    }
+    .eyebrow { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 14px; }
+    .hero-title { font-size: clamp(34px, 8vw, 60px); line-height: 0.95; font-weight: 800; letter-spacing: -0.05em; text-transform: uppercase; color: var(--text); margin-bottom: 14px; }
 
     .hero-subtitle,
     .session-subtitle {
@@ -522,9 +424,7 @@
     }
 
     .hero-subtitle span,
-    .session-subtitle span {
-      position: relative;
-    }
+    .session-subtitle span { position: relative; }
 
     .hero-subtitle span::after,
     .session-subtitle span::after {
@@ -540,14 +440,7 @@
     }
 
     .hero-subtitle span:last-child::after,
-    .session-subtitle span:last-child::after {
-      display: none;
-    }
-
-    .fade-swap {
-      opacity: 0;
-      transform: translateY(8px);
-    }
+    .session-subtitle span:last-child::after { display: none; }
 
     .practice-copy {
       width: min(620px, 100%);
@@ -559,33 +452,11 @@
       padding: 20px 20px 18px;
     }
 
-    .practice-copy-label {
-      font-size: 9px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 12px;
-    }
+    .practice-copy-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
+    .practice-copy-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 8px; }
+    .practice-copy-body { font-size: 13px; line-height: 1.7; color: var(--text-dim); white-space: pre-line; }
 
-    .practice-copy-title {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-
-    .practice-copy-body {
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--text-dim);
-      white-space: pre-line;
-    }
-
-    .lesson-card {
-      position: relative;
-      overflow: hidden;
-    }
+    .lesson-card { position: relative; overflow: hidden; }
 
     .lesson-overlay {
       position: fixed;
@@ -604,184 +475,118 @@
       transition: opacity 0.45s ease, visibility 0.45s ease;
     }
 
-    .lesson-overlay.active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: none;
-    }
-
+    .lesson-overlay.active { opacity: 1; visibility: visible; }
     .lesson-overlay-panel {
       width: min(880px, 100%);
-      border-radius: 0;
-      border: none;
-      background: transparent;
-      box-shadow: none;
       padding: 32px 20px;
       text-align: center;
       transform: translateY(12px) scale(0.985);
       opacity: 0;
     }
-
-    .lesson-overlay.active .lesson-overlay-panel {
-      animation: lessonOverlayIn 0.6s ease forwards;
-    }
-
-    .lesson-overlay.exit .lesson-overlay-panel {
-      animation: lessonOverlayOut 0.55s ease forwards;
-    }
-
-    .lesson-overlay-kicker {
-      font-size: 10px;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 16px;
-    }
-
-    .lesson-overlay-title {
-      font-size: clamp(30px, 6vw, 56px);
-      line-height: 1.02;
-      letter-spacing: -0.05em;
-      font-weight: 800;
-      color: var(--text);
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-
-    .lesson-overlay-body {
-      max-width: 700px;
-      margin: 0 auto;
-      font-size: 16px;
-      line-height: 1.9;
-      color: var(--text-dim);
-      white-space: pre-line;
-    }
-
-    .lesson-card.highlight {
-      animation: lessonCardPulse 0.8s ease;
-    }
+    .lesson-overlay.active .lesson-overlay-panel { animation: lessonOverlayIn 0.6s ease forwards; }
+    .lesson-overlay.exit .lesson-overlay-panel { animation: lessonOverlayOut 0.55s ease forwards; }
+    .lesson-overlay-kicker { font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 16px; }
+    .lesson-overlay-title { font-size: clamp(30px, 6vw, 56px); line-height: 1.02; letter-spacing: -0.05em; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 16px; }
+    .lesson-overlay-body { max-width: 700px; margin: 0 auto; font-size: 16px; line-height: 1.9; color: var(--text-dim); white-space: pre-line; }
+    .lesson-card.highlight { animation: lessonCardPulse 0.8s ease; }
 
     @keyframes lessonOverlayIn {
-      0% {
-        opacity: 0;
-        transform: translateY(18px) scale(0.97);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      0% { opacity: 0; transform: translateY(18px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes lessonOverlayOut {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.99);
-      }
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-8px) scale(0.99); }
     }
 
     @keyframes lessonCardPulse {
-      0%, 100% {
-        border-color: var(--line);
-        background: var(--panel);
-      }
-      50% {
-        border-color: var(--line-strong);
-        background: rgba(255,255,255,0.06);
-      }
+      0%,100% { border-color: var(--line); background: var(--panel); }
+      50% { border-color: var(--line-strong); background: rgba(255,255,255,0.06); }
     }
 
     .journey-panel {
-      width: min(620px, 100%);
+      width: 100%;
       display: flex;
-      gap: 10px;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .journey-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
       flex-wrap: wrap;
+    }
+
+    .journey-row-primary {
+      display: flex;
+      justify-content: center;
+      width: 100%;
     }
 
     .journey-btn,
     .completion-btn,
     .foundation-card-btn {
       min-width: 180px;
-      border-radius: 16px;
+      border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.05);
       color: var(--text);
       font-family: inherit;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       cursor: pointer;
       transition: 0.25s ease;
       box-shadow: var(--shadow-md);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
-    .journey-btn,
-    .completion-btn {
-      height: 48px;
-      padding: 0 18px;
-    }
-
-    .journey-btn:hover,
-    .completion-btn:hover,
-    .foundation-card-btn:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: var(--line-strong);
-    }
-
-    .journey-btn.secondary,
-    .completion-btn.secondary {
-      background: rgba(255,255,255,0.02);
-      color: var(--text-dim);
-    }
-
-    .journey-btn.hidden,
-    .foundation-home-panel.hidden {
-      display: none;
-    }
+    .journey-btn, .completion-btn { height: 48px; padding: 0 18px; }
+    .journey-btn:hover, .completion-btn:hover, .foundation-card-btn:hover { background: rgba(255,255,255,0.07); border-color: var(--line-strong); }
+    .journey-btn.secondary, .completion-btn.secondary { background: rgba(255,255,255,0.02); color: var(--text-dim); }
+    .journey-btn.hidden, .foundation-home-panel.hidden { display: none; }
 
     .primary-btn {
-      min-width: 180px;
-      height: 56px;
-      border-radius: 18px;
+      min-width: 240px;
+      height: 54px;
+      border-radius: 999px;
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.05);
       color: var(--text);
       font-family: inherit;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       cursor: pointer;
       transition: 0.25s ease;
       box-shadow: var(--shadow-md);
-      padding: 0 22px;
-    }
-
-    .primary-btn:hover {
-      background: rgba(255,255,255,0.08);
-      border-color: var(--line-strong);
-    }
-
-    .status-row {
-      display: flex;
-      flex-direction: column;
+      padding: 0 18px;
+      display: inline-flex;
       align-items: center;
-      gap: 12px;
-      width: 100%;
+      justify-content: center;
+      text-align: center;
+      vertical-align: middle;
     }
+    .primary-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--line-strong); }
+
+    .status-row { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
 
     .audio-status {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 10px 14px;
-      border-radius: var(--radius-pill);
+      border-radius: 999px;
       border: 1px solid var(--line);
       background: var(--panel);
       color: var(--text-faint);
@@ -790,22 +595,9 @@
       text-transform: uppercase;
     }
 
-    .audio-status.playing {
-      color: var(--success);
-      border-color: rgba(88,209,143,0.24);
-    }
-
-    .audio-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--text-faint);
-    }
-
-    .audio-status.playing .audio-dot {
-      background: var(--success);
-      animation: pulseDot 1.4s ease-in-out infinite;
-    }
+    .audio-status.playing { color: var(--success); border-color: rgba(88,209,143,0.24); }
+    .audio-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
+    .audio-status.playing .audio-dot { background: var(--success); animation: pulseDot 1.4s ease-in-out infinite; }
 
     @keyframes pulseDot {
       0%,100% { opacity: 1; transform: scale(1); }
@@ -817,40 +609,18 @@
       align-items: center;
       gap: 10px;
       padding: 10px 14px;
-      border-radius: var(--radius-pill);
+      border-radius: 999px;
       border: 1px solid var(--line);
       background: var(--panel);
       opacity: 0.45;
       transition: 0.25s ease;
     }
 
-    .volume-control.active {
-      opacity: 1;
-    }
-
-    .volume-icon {
-      font-size: 13px;
-      color: var(--text-dim);
-    }
-
-    .volume-slider {
-      width: 130px;
-      height: 3px;
-      -webkit-appearance: none;
-      background: rgba(255,255,255,0.1);
-      border-radius: 999px;
-      outline: none;
-    }
-
-    .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: var(--text);
-      border: 2px solid #111;
-      cursor: pointer;
-    }
+    .volume-control.active { opacity: 1; }
+    .volume-icon { font-size: 13px; color: var(--text-dim); }
+    .volume-slider { width: 130px; height: 3px; -webkit-appearance: none; background: rgba(255,255,255,0.1); border-radius: 999px; outline: none; }
+    .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--text); border: 2px solid #111; cursor: pointer; }
+    .volume-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--text); border: 2px solid #111; cursor: pointer; }
 
     .bottom-note {
       font-size: 9px;
@@ -862,86 +632,31 @@
       padding-bottom: 8px;
     }
 
-    .foundation-home-panel {
-      width: min(720px, 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .foundation-home-header {
+    .foundation-home-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 12px; }
+    .insight-card {
+      width: min(620px, 100%);
       text-align: center;
-      color: var(--text-faint);
-      font-size: 9px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
+      border: 1px solid rgba(88,209,143,0.14);
+      background: rgba(88,209,143,0.04);
+      box-shadow: var(--shadow-md);
+      border-radius: 22px;
+      padding: 18px 18px 16px;
+      display: none;
     }
-
-    .foundation-card-btn {
-      width: 100%;
-      text-align: left;
-      padding: 18px;
-      background: rgba(255,255,255,0.03);
-    }
-
-    .foundation-card-btn.next {
-      border-color: rgba(88,209,143,0.18);
-      background: rgba(88,209,143,0.05);
-    }
-
-    .foundation-card-btn.completed {
-      border-color: rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.045);
-    }
-
-    .foundation-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .foundation-card-kicker {
-      font-size: 8px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 6px;
-    }
-
-    .foundation-card-title {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--text);
-      text-transform: none;
-    }
-
-    .foundation-card-status {
-      flex-shrink: 0;
-      min-width: 92px;
-      text-align: right;
-      font-size: 8px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      padding-top: 4px;
-    }
-
-    .foundation-card-status.next {
-      color: var(--success);
-    }
-
-    .foundation-card-desc {
-      font-size: 12px;
-      line-height: 1.65;
-      color: var(--text-dim);
-      letter-spacing: normal;
-      text-transform: none;
-      font-weight: 500;
-    }
+    .insight-card.visible { display: block; }
+    .insight-kicker { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(88,209,143,0.88); margin-bottom: 10px; }
+    .insight-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 8px; }
+    .insight-body { font-size: 12px; line-height: 1.7; color: var(--text-dim); white-space: pre-line; }
+    .foundation-home-header { text-align: center; color: var(--text-faint); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 4px; }
+    .foundation-card-btn { width: 100%; text-align: left; padding: 18px; background: rgba(255,255,255,0.03); }
+    .foundation-card-btn.next { border-color: rgba(88,209,143,0.18); background: rgba(88,209,143,0.05); }
+    .foundation-card-btn.completed { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.045); }
+    .foundation-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .foundation-card-kicker { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
+    .foundation-card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); text-transform: none; }
+    .foundation-card-status { flex-shrink: 0; min-width: 92px; text-align: right; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); padding-top: 4px; }
+    .foundation-card-status.next { color: var(--success); }
+    .foundation-card-desc { font-size: 12px; line-height: 1.65; color: var(--text-dim); letter-spacing: normal; text-transform: none; font-weight: 500; }
 
     .session-overlay {
       position: fixed;
@@ -958,12 +673,7 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
-
-    .session-overlay.active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-    }
+    .session-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
 
     .session-topbar {
       position: sticky;
@@ -1002,9 +712,7 @@
       transition: transform 0.85s ease;
     }
 
-    .session-overlay.active .session-stage {
-      transform: scale(1) translateY(0);
-    }
+    .session-overlay.active .session-stage { transform: scale(1) translateY(0); }
 
     .session-circle-shell {
       position: relative;
@@ -1018,111 +726,42 @@
       transition: transform 0.18s ease, box-shadow 0.35s ease, filter 0.25s ease;
       box-shadow: 0 30px 120px rgba(0,0,0,0.82);
       flex-shrink: 0;
-      --circle-scale: 1;
-      --circle-brightness: 1;
-      --core-glow: 0;
-      transform: scale(var(--circle-scale));
-      filter: brightness(var(--circle-brightness));
+      transform: scale(1);
+      filter: brightness(1);
     }
 
-    .session-circle-shell.running {
-      box-shadow: 0 32px 150px rgba(0,0,0,0.9);
-    }
-
-    .session-circle-shell.state-grounding {
-      animation: groundingBreath 4.2s ease-in-out infinite;
-    }
-
-    .session-circle-shell.state-playing {
-      animation: playingBreath 4.8s ease-in-out infinite;
-    }
-
-    .session-circle-shell.state-ending {
-      animation: endingBreath 6.2s ease-in-out infinite;
-    }
-
-    /* Stability mode: more stillness, less intensity */
-    .session-circle-shell.stability-mode.state-grounding {
-      animation: stabilityGrounding 5.8s ease-in-out infinite;
-    }
-
-    .session-circle-shell.stability-mode.state-playing {
-      animation: stabilityPlaying 7.2s ease-in-out infinite;
-    }
-
-    .session-circle-shell.stability-mode.state-ending {
-      animation: stabilityEnding 8.5s ease-in-out infinite;
-    }
-
-    @keyframes stabilityGrounding {
-      0%, 100% {
-        transform: scale(0.998);
-        filter: brightness(0.99);
-      }
-      50% {
-        transform: scale(1.006);
-        filter: brightness(1.01);
-      }
-    }
-
-    @keyframes stabilityPlaying {
-      0%, 100% {
-        transform: scale(0.999);
-        filter: brightness(0.992);
-      }
-      50% {
-        transform: scale(1.008);
-        filter: brightness(1.012);
-      }
-    }
-
-    @keyframes stabilityEnding {
-      0%, 100% {
-        transform: scale(1);
-        filter: brightness(0.995);
-      }
-      50% {
-        transform: scale(1.006);
-        filter: brightness(1.008);
-      }
-    }
-
-    .session-circle-shell.state-paused,
-    .session-circle-shell.state-complete {
-      animation: none;
-    }
+    .session-circle-shell.running { box-shadow: 0 32px 150px rgba(0,0,0,0.9); }
+    .session-circle-shell.state-grounding { animation: groundingBreath 4.2s ease-in-out infinite; }
+    .session-circle-shell.state-playing { animation: playingBreath 4.8s ease-in-out infinite; }
+    .session-circle-shell.state-ending { animation: endingBreath 6.2s ease-in-out infinite; }
+    .session-circle-shell.stability-mode.state-grounding { animation: stabilityGrounding 5.8s ease-in-out infinite; }
+    .session-circle-shell.stability-mode.state-playing { animation: stabilityPlaying 7.2s ease-in-out infinite; }
+    .session-circle-shell.stability-mode.state-ending { animation: stabilityEnding 8.5s ease-in-out infinite; }
+    .session-circle-shell.state-paused, .session-circle-shell.state-complete { animation: none; }
 
     @keyframes groundingBreath {
-      0%, 100% {
-        transform: scale(0.992);
-        filter: brightness(0.985);
-      }
-      50% {
-        transform: scale(1.012);
-        filter: brightness(1.02);
-      }
+      0%,100% { transform: scale(0.992); filter: brightness(0.985); }
+      50% { transform: scale(1.012); filter: brightness(1.02); }
     }
-
     @keyframes playingBreath {
-      0%, 100% {
-        transform: scale(0.994);
-        filter: brightness(0.99);
-      }
-      50% {
-        transform: scale(1.016);
-        filter: brightness(1.035);
-      }
+      0%,100% { transform: scale(0.994); filter: brightness(0.99); }
+      50% { transform: scale(1.016); filter: brightness(1.035); }
     }
-
     @keyframes endingBreath {
-      0%, 100% {
-        transform: scale(0.996);
-        filter: brightness(0.99);
-      }
-      50% {
-        transform: scale(1.01);
-        filter: brightness(1.018);
-      }
+      0%,100% { transform: scale(0.996); filter: brightness(0.99); }
+      50% { transform: scale(1.01); filter: brightness(1.018); }
+    }
+    @keyframes stabilityGrounding {
+      0%,100% { transform: scale(0.998); filter: brightness(0.99); }
+      50% { transform: scale(1.006); filter: brightness(1.01); }
+    }
+    @keyframes stabilityPlaying {
+      0%,100% { transform: scale(0.999); filter: brightness(0.992); }
+      50% { transform: scale(1.008); filter: brightness(1.012); }
+    }
+    @keyframes stabilityEnding {
+      0%,100% { transform: scale(1); filter: brightness(0.995); }
+      50% { transform: scale(1.006); filter: brightness(1.008); }
     }
 
     .session-circle-shell::before {
@@ -1155,47 +794,14 @@
       transition: transform 0.08s linear, opacity 0.08s linear, border-color 0.12s linear;
       pointer-events: none;
     }
+    .reactive-wave.wave-2 { inset: -30px; opacity: 0.10; }
+    .reactive-wave.wave-3 { inset: -46px; opacity: 0.06; }
 
-    .reactive-wave.wave-2 {
-      inset: -30px;
-      opacity: 0.10;
-    }
-
-    .reactive-wave.wave-3 {
-      inset: -46px;
-      opacity: 0.06;
-    }
-
-    .session-circle-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .session-ring {
-      position: absolute;
-      inset: 0;
-      transform: rotate(-90deg);
-    }
-
-    .session-ring circle {
-      fill: none;
-      stroke-width: 4;
-    }
-
-    .session-ring-bg {
-      stroke: rgba(255,255,255,0.08);
-    }
-
-    .session-ring-progress {
-      stroke: #f2f2f2;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.12s linear;
-      filter: drop-shadow(0 0 8px rgba(255,255,255,0.08));
-    }
+    .session-circle-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+    .session-ring { position: absolute; inset: 0; transform: rotate(-90deg); }
+    .session-ring circle { fill: none; stroke-width: 4; }
+    .session-ring-bg { stroke: rgba(255,255,255,0.08); }
+    .session-ring-progress { stroke: #f2f2f2; stroke-linecap: round; transition: stroke-dashoffset 0.12s linear; filter: drop-shadow(0 0 8px rgba(255,255,255,0.08)); }
 
     .session-inner-core {
       position: absolute;
@@ -1216,121 +822,20 @@
       overflow: hidden;
     }
 
-    .session-mode-badge {
-      position: absolute;
-      top: 52px;
-      font-size: 9px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      padding: 0 24px;
-    }
+    .session-mode-badge { position: absolute; top: 52px; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-faint); padding: 0 24px; }
+    .session-state-text { font-size: clamp(22px, 4.2vw, 34px); font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); }
+    .session-state-label { margin-top: 12px; font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--text-faint); }
+    .session-tap-hint { margin-top: 16px; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); line-height: 1.5; max-width: 280px; }
 
-    .session-state-text {
-      font-size: clamp(22px, 4.2vw, 34px);
-      font-weight: 800;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
+    .session-copy { max-width: 720px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .session-title { font-size: clamp(26px, 5vw, 46px); line-height: 1.02; font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; color: var(--text); }
+    .session-controls-note { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint); }
 
-    .session-state-label {
-      margin-top: 12px;
-      font-size: 10px;
-      letter-spacing: 0.34em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
-    .session-tap-hint {
-      margin-top: 16px;
-      font-size: 9px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      line-height: 1.5;
-      max-width: 280px;
-    }
-
-    
-
-    .session-copy {
-      max-width: 720px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .session-title {
-      font-size: clamp(26px, 5vw, 46px);
-      line-height: 1.02;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-
-    .session-controls-note {
-      font-size: 9px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
-    .session-seek-wrap {
-      width: min(720px, 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-      margin-top: -4px;
-    }
-
-    .session-seek-bar {
-      width: min(520px, 100%);
-      -webkit-appearance: none;
-      appearance: none;
-      height: 4px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      outline: none;
-      cursor: pointer;
-    }
-
-    .session-seek-bar::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--text);
-      border: 2px solid #111;
-      cursor: pointer;
-      box-shadow: 0 0 0 4px rgba(255,255,255,0.04);
-    }
-
-    .session-seek-bar::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--text);
-      border: 2px solid #111;
-      cursor: pointer;
-      box-shadow: 0 0 0 4px rgba(255,255,255,0.04);
-    }
-
-    .session-time-row {
-      width: min(520px, 100%);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 10px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
+    .session-seek-wrap { width: min(720px, 100%); display: flex; flex-direction: column; gap: 10px; align-items: center; margin-top: -4px; }
+    .session-seek-bar { width: min(520px, 100%); -webkit-appearance: none; appearance: none; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.12); outline: none; cursor: pointer; }
+    .session-seek-bar::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--text); border: 2px solid #111; cursor: pointer; box-shadow: 0 0 0 4px rgba(255,255,255,0.04); }
+    .session-seek-bar::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--text); border: 2px solid #111; cursor: pointer; box-shadow: 0 0 0 4px rgba(255,255,255,0.04); }
+    .session-time-row { width: min(520px, 100%); display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-faint); }
 
     .reflection-screen,
     .completion-screen {
@@ -1352,11 +857,7 @@
     }
 
     .reflection-screen.active,
-    .completion-screen.active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-    }
+    .completion-screen.active { opacity: 1; visibility: visible; pointer-events: auto; }
 
     .reflection-screen-panel,
     .completion-screen-panel {
@@ -1374,40 +875,13 @@
     }
 
     .reflection-screen-kicker,
-    .completion-screen-kicker {
-      font-size: 9px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
+    .completion-screen-kicker { font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-faint); }
     .reflection-screen-title,
-    .completion-screen-title {
-      font-size: clamp(22px, 4.5vw, 34px);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      font-weight: 800;
-      color: var(--text);
-      text-transform: uppercase;
-    }
-
+    .completion-screen-title { font-size: clamp(22px, 4.5vw, 34px); line-height: 1.1; letter-spacing: -0.03em; font-weight: 800; color: var(--text); text-transform: uppercase; }
     .reflection-screen-subtitle,
-    .completion-screen-subtitle {
-      max-width: 520px;
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--text-dim);
-    }
-
+    .completion-screen-subtitle { max-width: 520px; font-size: 13px; line-height: 1.7; color: var(--text-dim); }
     .reflection-options,
-    .completion-panel {
-      margin-top: 6px;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .completion-panel { margin-top: 6px; width: 100%; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 
     .reflection-option-btn {
       min-width: 140px;
@@ -1427,77 +901,23 @@
     }
 
     .reflection-option-btn:hover,
-    .reflection-option-btn.active {
-      background: rgba(255,255,255,0.07);
-      border-color: var(--line-strong);
-      color: var(--text);
-    }
+    .reflection-option-btn.active { background: rgba(255,255,255,0.07); border-color: var(--line-strong); color: var(--text); }
 
     @media (max-width: 480px) {
-      .main-content {
-        padding: 20px 14px 42px;
-        gap: 16px;
-      }
-
-      .hero-title {
-        font-size: 30px;
-      }
-
-      .hero-subtitle,
-      .session-subtitle {
-        gap: 10px;
-        letter-spacing: 0.22em;
-      }
-
-      .opening-quote {
-        font-size: 30px;
-        line-height: 1.22;
-      }
-
-      .practice-copy-body {
-        font-size: 12px;
-      }
-
-      .journey-btn,
-      .completion-btn,
-      .foundation-card-btn {
-        width: 100%;
-      }
-
-      .session-stage {
-        gap: 18px;
-        padding: 8px 16px 32px;
-      }
-
-      .session-circle-shell {
-        width: min(84vw, 420px);
-      }
-
-      .session-inner-core {
-        inset: 34px;
-      }
-
-      .session-state-text {
-        font-size: 20px;
-      }
-
-      .session-title {
-        font-size: 28px;
-      }
-
-      .session-tap-hint {
-        font-size: 8px;
-      }
-
-      .foundation-card-top {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .foundation-card-status {
-        text-align: left;
-        min-width: 0;
-      }
+      .main-content { padding: 20px 14px 42px; gap: 16px; }
+      .hero-title { font-size: 30px; }
+      .hero-subtitle, .session-subtitle { gap: 10px; letter-spacing: 0.22em; }
+      .opening-quote { font-size: 30px; line-height: 1.22; }
+      .practice-copy-body { font-size: 12px; }
+      .journey-btn, .completion-btn, .foundation-card-btn { width: 100%; }
+      .session-stage { gap: 18px; padding: 8px 16px 32px; }
+      .session-circle-shell { width: min(84vw, 420px); }
+      .session-inner-core { inset: 34px; }
+      .session-state-text { font-size: 20px; }
+      .session-title { font-size: 28px; }
+      .session-tap-hint { font-size: 8px; }
+      .foundation-card-top { flex-direction: column; align-items: flex-start; }
+      .foundation-card-status { text-align: left; min-width: 0; }
     }
   </style>
   <base target="_blank">
@@ -1516,6 +936,7 @@
 
   <div class="welcome-screen" id="welcomeScreen">
     <canvas class="welcome-canvas" id="welcomeCanvas"></canvas>
+    <button class="welcome-skip-btn" id="welcomeSkipBtn" type="button">Skip Intro</button>
     <div class="welcome-content">
       <div class="welcome-ring-wrap">
         <button class="welcome-start-btn" id="welcomeStartBtn" type="button">Begin Welcome</button>
@@ -1534,15 +955,16 @@
         <div class="logo-sub">Inner Chamber Training</div>
       </div>
       <button class="menu-btn" onclick="toggleMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
       </button>
     </nav>
 
-    <div class="menu-overlay" id="menuOverlay">
-      <div class="menu-panel">
-        <div class="menu-label">Modes</div>
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
+      <div class="menu-panel" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <div class="menu-label" style="margin-bottom:0;">Modes</div>
+          <button class="session-exit-btn" onclick="closeMenu()" style="padding:0;">Close</button>
+        </div>
 
         <button class="menu-item" id="introductionMenuBtn" onclick="selectMainMode('Introduction')">
           <div class="menu-item-title">Introduction</div>
@@ -1580,21 +1002,15 @@
       <div class="hero">
         <div class="eyebrow" id="eyebrowText">Introduction</div>
         <h1 class="hero-title" id="heroTitle">Arrive first.<br>Then begin.</h1>
-        <div class="hero-subtitle" id="heroSubtitle">
-          <span>Settle</span>
-          <span>Notice</span>
-          <span>Prepare</span>
-        </div>
+        <div class="hero-subtitle" id="heroSubtitle"><span>Settle</span><span>Notice</span><span>Prepare</span></div>
       </div>
 
-      <div class="practice-copy" id="practiceCopy">
+      <div class="practice-copy">
         <div class="practice-copy-label" id="practiceCopyLabel">Session Guidance</div>
         <div class="practice-copy-title" id="practiceCopyTitle">Introduction</div>
-        <div class="practice-copy-body" id="practiceCopyBody">
-This is a place to begin.
+        <div class="practice-copy-body" id="practiceCopyBody">This is a place to begin.
 
-You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.
-      </div>
+You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.</div>
       </div>
 
       <div class="practice-copy lesson-card" id="lessonCard" style="display:none;">
@@ -1604,35 +1020,31 @@ You do not need to clear your mind. You do not need to perform. You only need to
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
-        <div class="foundation-home-header">Foundation Path</div>
+        <div class="foundation-home-header">Foundation Practices</div>
         <div id="foundationCardsContainer"></div>
       </div>
 
-      <div class="journey-panel" id="journeyPanel">
-        <button class="journey-btn secondary hidden" id="backToFoundationBtn" onclick="goToFoundationHome()">Back to Foundation</button>
-        <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
+      <div class="insight-card" id="insightCard">
+        <div class="insight-kicker">Awareness Mirror</div>
+        <div class="insight-title" id="insightTitle">You are building consistency.</div>
+        <div class="insight-body" id="insightBody">Complete a few sessions and Ataraxia will start reflecting your patterns back to you.</div>
       </div>
 
-      <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">
-        Begin Meditation
-      </button>
+      <div class="journey-panel">
+        <div class="journey-row">
+          <button class="journey-btn hidden" id="backToFoundationBtn" onclick="goToFoundationHome()">Back to Foundation</button>
+          <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
+        </div>
+        <div class="journey-row-primary">
+          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Begin Meditation</button>
+        </div>
+      </div>
 
       <div class="status-row">
-        <div class="audio-status" id="audioStatus">
-          <div class="audio-dot"></div>
-          <span id="audioText">Session Ready</span>
-        </div>
-
+        <div class="audio-status" id="audioStatus"><span class="audio-dot"></span><span id="audioText">Introduction Ready</span></div>
         <div class="volume-control" id="volumeControl">
-          <span class="volume-icon">🔊</span>
-          <input
-            type="range"
-            class="volume-slider"
-            min="0"
-            max="100"
-            value="70"
-            oninput="setVolume(this.value)"
-          />
+          <div class="volume-icon">◌</div>
+          <input class="volume-slider" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)">
         </div>
       </div>
 
@@ -1645,6 +1057,45 @@ You do not need to clear your mind. You do not need to perform. You only need to
       <div class="lesson-overlay-kicker">Lesson</div>
       <div class="lesson-overlay-title" id="lessonOverlayTitle">Before you begin</div>
       <div class="lesson-overlay-body" id="lessonOverlayBody">A short lesson will appear here.</div>
+    </div>
+  </div>
+
+  <div class="session-overlay" id="sessionOverlay">
+    <div class="session-topbar">
+      <button class="session-exit-btn" onclick="exitSessionEarly()">Exit Session</button>
+    </div>
+    <div class="session-stage">
+      <div class="session-circle-shell state-idle" id="sessionCircleShell">
+        <div class="reactive-wave wave-1" id="wave1"></div>
+        <div class="reactive-wave wave-2" id="wave2"></div>
+        <div class="reactive-wave wave-3" id="wave3"></div>
+        <div class="session-circle-container">
+          <svg class="session-ring" viewBox="0 0 520 520" aria-hidden="true">
+            <circle class="session-ring-bg" cx="260" cy="260" r="236"></circle>
+            <circle class="session-ring-progress" id="sessionProgressRing" cx="260" cy="260" r="236"></circle>
+          </svg>
+          <div class="session-inner-core" id="sessionInnerCore">
+            <div class="session-mode-badge" id="sessionModeBadge">Introduction</div>
+            <div class="session-state-text" id="sessionStateText">Ready</div>
+            <div class="session-state-label" id="sessionStateLabel">Awaiting Start</div>
+            <div class="session-tap-hint" id="sessionTapHint">Tap to Pause · Tap Again to Resume · Double Tap to Reset</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="session-copy">
+        <div class="session-title" id="sessionTitle">Arrive first.<br>Then begin.</div>
+        <div class="session-subtitle" id="sessionSubtitle"><span>Settle</span><span>Notice</span><span>Prepare</span></div>
+        <div class="session-controls-note">Tap the circle to pause or resume. Double tap to reset.</div>
+      </div>
+
+      <div class="session-seek-wrap">
+        <input class="session-seek-bar" id="sessionSeekBar" type="range" min="0" max="100" value="0">
+        <div class="session-time-row">
+          <span id="sessionCurrentTime">00:00</span>
+          <span id="sessionDuration">00:00</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1667,1243 +1118,1288 @@ You do not need to clear your mind. You do not need to perform. You only need to
       <div class="completion-screen-kicker">Session Complete</div>
       <div class="completion-screen-title" id="completionScreenTitle">Well done.</div>
       <div class="completion-screen-subtitle" id="completionScreenSubtitle">Take a moment to acknowledge the practice you just completed.</div>
-      <div class="completion-panel" id="completionScreenPanel">
+      <div class="completion-panel">
         <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat Practice</button>
         <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
-        <button class="completion-btn secondary" id="completionExitBtn" onclick="goToFoundationFromCompletion()">Exit</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="session-overlay" id="sessionOverlay">
-    <div class="session-topbar">
-      <button class="session-exit-btn" onclick="exitSessionEarly()">Exit Session</button>
-    </div>
-
-    <div class="session-stage">
-      <div class="session-circle-shell" id="sessionCircleShell">
-        <div class="reactive-wave wave-1" id="wave1"></div>
-        <div class="reactive-wave wave-2" id="wave2"></div>
-        <div class="reactive-wave wave-3" id="wave3"></div>
-
-        <div class="session-circle-container">
-          <svg class="session-ring" viewBox="0 0 520 520">
-            <circle class="session-ring-bg" cx="260" cy="260" r="236"></circle>
-            <circle class="session-ring-progress" id="sessionProgressRing" cx="260" cy="260" r="236"></circle>
-          </svg>
-
-          <div class="session-inner-core" id="sessionInnerCore">
-            <div class="session-mode-badge" id="sessionModeBadge">Introduction</div>
-            <div class="session-state-text" id="sessionStateText">Ready</div>
-            <div class="session-state-label" id="sessionStateLabel">Awaiting Start</div>
-            <div class="session-tap-hint" id="sessionTapHint">Tap to Pause · Tap Again to Resume · Double Tap to Reset</div>
-            </div>
-        </div>
-      </div>
-
-      <div class="session-copy">
-        <div class="session-title" id="sessionTitle">Arrive first.<br>Then begin.</div>
-        <div class="session-subtitle" id="sessionSubtitle">
-          <span>Settle</span>
-          <span>Notice</span>
-          <span>Prepare</span>
-        </div>
-        <div class="session-controls-note">Double tap the circle to reset the session.</div>
-
-        <div class="session-seek-wrap" id="sessionSeekWrap">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value="0"
-            step="0.1"
-            class="session-seek-bar"
-            id="sessionSeekBar"
-          />
-          <div class="session-time-row">
-            <span id="sessionCurrentTime">00:00</span>
-            <span id="sessionDuration">00:00</span>
-          </div>
-        </div>
-
-        
+        <button class="completion-btn secondary" onclick="goToFoundationFromCompletion()">Exit</button>
       </div>
     </div>
   </div>
 
   <script>
+    const WELCOME_SEEN_STORAGE_KEY = 'ataraxia_welcome_seen_v1';
     const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
-  const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/foundation meditation/Breath only meditation foundation meditation.mp3', 'audio/foundation meditation/ending audio foundation.mp3'];
-  const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/foundation meditation/body awareness meditation.mp3', 'audio/foundation meditation/foundation audio endings/body awareness ending audio.mp3'];
-  const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/foundation meditation/Thought awareness meditation.mp3', 'audio/foundation meditation/foundation audio endings/thought awareness ending audio.mp3'];
-  const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/foundation meditation/Emotional Awareness meditations.mp3', 'audio/foundation meditation/foundation audio endings/emotional awareness ending audio.mp3'];
-  const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/foundation meditation/deep focus meditation.mp3', 'audio/foundation meditation/foundation audio endings/deep focus ending audio.mp3'];
-  const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/Stability meditation/open awareness meditation.mp3';
-  const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/Stability meditation/sensory awareness meditation.mp3';
+    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
+    const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
+    const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
+    const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
+    const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
+    const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
 
-  const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
-  const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
-  const TRANSITION_DELAY = 2000;
+    const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
+    const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
+    const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
+    const TRANSITION_DELAY = 2000;
+    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
+    const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
 
-  const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
-  const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
+    const quotes = [
+      { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
+      { text: 'He who conquers himself is the mightiest warrior.', author: 'Confucius' },
+      { text: 'Calmness is the cradle of power.', author: 'Josiah Gilbert Holland' },
+      { text: 'Return again. That is the training.', author: 'Unknown' }
+    ];
 
-  const quotes = [
-    { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
-    { text: 'He who conquers himself is the mightiest warrior.', author: 'Confucius' },
-    { text: 'Calmness is the cradle of power.', author: 'Josiah Gilbert Holland' },
-    { text: 'Return again. That is the training.', author: 'Unknown' }
-  ];
-
-  const WELCOME_SCRIPT_OFFSET = 0.0;
-
-  const WELCOME_SCRIPT_CUES = [
-    { start: 0.0, end: 2.43, text: 'Hey… welcome to Ataraxia.' },
-    { start: 3.06, end: 4.97, text: 'Before we begin, just a quick note.' },
-    { start: 5.33, end: 7.66, text: 'This app is designed to help you train your mind…' },
-    { start: 8.16, end: 12.05, text: 'To build focus, awareness, and a calmer, more steady state.' },
-    { start: 12.53, end: 15.10, text: 'Think of it like going to the gym… but for your attention.' },
-    { start: 16.40, end: 25.10, text: `These practices are based on well-known techniques in mindfulness and mental training…
+    const WELCOME_SCRIPT_CUES = [
+      { start: 0.0, end: 2.43, text: 'Hey… welcome to Ataraxia.' },
+      { start: 3.06, end: 4.97, text: 'Before we begin, just a quick note.' },
+      { start: 5.33, end: 7.66, text: 'This app is designed to help you train your mind…' },
+      { start: 8.16, end: 12.05, text: 'To build focus, awareness, and a calmer, more steady state.' },
+      { start: 12.53, end: 15.10, text: 'Think of it like going to the gym… but for your attention.' },
+      { start: 16.40, end: 25.10, text: `These practices are based on well-known techniques in mindfulness and mental training…
 This isn’t a replacement for professional medical or psychological care.` },
-    { start: 25.68, end: 31.16, text: 'If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
-    { start: 31.89, end: 35.97, text: 'Also, some sessions involve closing your eyes or going into deeper focus.' },
-    { start: 36.38, end: 42.48, text: `So just make sure you’re in a safe place…
+      { start: 25.68, end: 31.16, text: 'If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
+      { start: 31.89, end: 35.97, text: 'Also, some sessions involve closing your eyes or going into deeper focus.' },
+      { start: 36.38, end: 42.48, text: `So just make sure you’re in a safe place…
 And definitely not driving or doing anything that needs your full attention.` },
-    { start: 43.55, end: 45.87, text: 'And remember… you’re always in control.' },
-    { start: 46.37, end: 50.79, text: 'If something doesn’t feel right, you can pause, adjust, or stop at any time.' },
-    { start: 51.84, end: 56.03, text: `Take what works for you…
+      { start: 43.55, end: 45.87, text: 'And remember… you’re always in control.' },
+      { start: 46.37, end: 50.79, text: 'If something doesn’t feel right, you can pause, adjust, or stop at any time.' },
+      { start: 51.84, end: 56.03, text: `Take what works for you…
 Leave what doesn’t…
 And move at your own pace.` },
-    { start: 56.91, end: 58.67, text: `Alright…
+      { start: 56.91, end: 58.67, text: `Alright…
 Let’s begin.` }
-  ];
+    ];
 
-  
+    const REFLECTION_REINFORCEMENT = {
+      Breath: {
+        title: 'You noticed the breath.',
+        body: 'That means your attention found an anchor. Each return strengthens focus.'
+      },
+      Sounds: {
+        title: 'You noticed sound.',
+        body: 'That means awareness stayed open. Noticing without chasing builds steadiness.'
+      },
+      Sensations: {
+        title: 'You noticed sensation.',
+        body: 'That means you were present in the body. Presence grows when sensation is clearly known.'
+      },
+      'Mind wandering': {
+        title: 'You noticed mind wandering.',
+        body: 'That is not failure. Catching distraction is the moment awareness gets stronger.'
+      }
+    };
 
-  const REFLECTION_REINFORCEMENT = {
-    Breath: {
-      title: 'You noticed the breath.',
-      body: 'That means your attention found an anchor. Each return strengthens focus.'
-    },
-    Sounds: {
-      title: 'You noticed sound.',
-      body: 'That means awareness stayed open. Noticing without chasing builds steadiness.'
-    },
-    Sensations: {
-      title: 'You noticed sensation.',
-      body: 'That means you were present in the body. Presence grows when sensation is clearly known.'
-    },
-    'Mind wandering': {
-      title: 'You noticed mind wandering.',
-      body: 'That is not failure. Catching distraction is the moment awareness gets stronger.'
-    }
-  };
-
-  const practiceContent = {
-    Introduction: {
-      eyebrow: 'Introduction',
-      hero: 'Arrive first.<br>Then begin.',
-      subtitle: ['Settle', 'Notice', 'Prepare'],
-      note: 'This is your starting point.',
-      badge: 'Introduction',
-      copyLabel: 'Session Guidance',
-      copyTitle: 'Introduction',
-      copyBody: `This is a place to begin.
+    const practiceContent = {
+      Introduction: {
+        eyebrow: 'Introduction',
+        hero: 'Arrive first.<br>Then begin.',
+        subtitle: ['Settle', 'Notice', 'Prepare'],
+        note: 'This is your starting point.',
+        badge: 'Introduction',
+        copyLabel: 'Session Guidance',
+        copyTitle: 'Introduction',
+        copyBody: `This is a place to begin.
 
 You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.`,
-      audio: [INTRODUCTION_AUDIO]
-    },
-    FoundationHome: {
-      eyebrow: 'Meditation Foundations',
-      hero: 'Choose one practice.<br>Stay with it.',
-      subtitle: ['Simple', 'Steady', 'Repeatable'],
-      note: 'Start with one practice. Return often.',
-      badge: 'Foundation',
-      copyLabel: 'Foundation Path',
-      copyTitle: 'Beginner Practice Track',
-      copyBody: `Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.`
-    },
-    Foundation: {
-      groundingText: 'Get comfortable and prepare to begin',
-      completionMessage: 'Well done. Stay with the feeling for a moment.',
-      readyAudioText: 'Foundation Ready',
-      pausedText: 'Paused',
-      pausedLabel: 'Session Paused',
-      subcategories: {
-        BreathAwareness: {
-          title: 'Breath Awareness Meditation',
-          shortPurpose: 'Return to the present through the breath.',
-          eyebrow: 'Meditation Foundations',
-          hero: 'Follow the breath.<br>Return to the moment.',
-          subtitle: ['Observe', 'Breathe', 'Return'],
-          note: 'Each breath is a place to begin again.',
-          badge: 'Foundation · Breath Awareness',
-          copyLabel: 'Current Foundation Practice',
-          copyTitle: 'Breath Awareness Meditation',
-          copyBody: `In this practice, bring attention to the breath. When the mind wanders, gently return.`,
-          audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
-          lesson: 'Your mind will wander. The skill is returning.',
-          reinforcement: 'Each return to the breath strengthens attention.',
-          activeText: 'Playing',
-          activeLabel: 'Breath Awareness',
-          endingText: 'Closing',
-          endingLabel: 'Ending Audio'
-        },
-        BodyAwareness: {
-          title: 'Body Awareness Meditation',
-          shortPurpose: 'Settle into the body and soften tension.',
-          eyebrow: 'Meditation Foundations',
-          hero: 'Feel the body.<br>Settle into presence.',
-          subtitle: ['Sense', 'Soften', 'Arrive'],
-          note: 'The body is your doorway back to now.',
-          badge: 'Foundation · Body Awareness',
-          copyLabel: 'Current Foundation Practice',
-          copyTitle: 'Body Awareness Meditation',
-          copyBody: `In this practice, bring gentle attention to the body and feel what is already here.`,
-          audio: FOUNDATION_BODY_AWARENESS_AUDIO,
-          lesson: 'You do not need to change the body. Only feel it clearly.',
-          reinforcement: 'Feeling the body directly builds grounded presence.',
-          activeText: 'Playing',
-          activeLabel: 'Body Awareness',
-          endingText: 'Closing',
-          endingLabel: 'Ending Audio'
-        },
-        ThoughtAwareness: {
-          title: 'Thought Awareness Meditation',
-          shortPurpose: 'Observe thoughts without getting carried away.',
-          eyebrow: 'Meditation Foundations',
-          hero: 'See the thoughts.<br>Do not chase them.',
-          subtitle: ['Observe', 'Allow', 'Return'],
-          note: 'You are learning to witness, not follow.',
-          badge: 'Foundation · Thought Awareness',
-          copyLabel: 'Current Foundation Practice',
-          copyTitle: 'Thought Awareness Meditation',
-          copyBody: `In this practice, notice thoughts as they arise without following them.`,
-          audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
-          lesson: 'You are not trying to stop thought. You are learning not to follow it.',
-          reinforcement: 'Seeing thought without chasing it builds mental distance.',
-          activeText: 'Playing',
-          activeLabel: 'Thought Awareness',
-          endingText: 'Closing',
-          endingLabel: 'Ending Audio'
-        },
-        EmotionalAwareness: {
-          title: 'Emotional Awareness Meditation',
-          shortPurpose: 'Recognise the feeling tone with honesty.',
-          eyebrow: 'Meditation Foundations',
-          hero: 'Name the feeling.<br>Stay with honesty.',
-          subtitle: ['Notice', 'Allow', 'Understand'],
-          note: 'Awareness makes space around emotion.',
-          badge: 'Foundation · Emotional Awareness',
-          copyLabel: 'Current Foundation Practice',
-          copyTitle: 'Emotional Awareness Meditation',
-          copyBody: `In this practice, notice the emotional tone of the moment and give it space without judgment.`,
-          audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
-          lesson: 'You are not here to fix the feeling. Only to know it.',
-          reinforcement: 'Allowing emotion without reacting builds steadiness.',
-          activeText: 'Playing',
-          activeLabel: 'Emotional Awareness',
-          endingText: 'Closing',
-          endingLabel: 'Ending Audio'
-        },
-        DeepFocus: {
-          title: 'Deep Focus Meditation',
-          shortPurpose: 'Strengthen attention through steady return.',
-          eyebrow: 'Meditation Foundations',
-          hero: 'Hold one point.<br>Strengthen attention.',
-          subtitle: ['Aim', 'Hold', 'Return'],
-          note: 'Attention becomes stronger through repetition.',
-          badge: 'Foundation · Deep Focus',
-          copyLabel: 'Current Foundation Practice',
-          copyTitle: 'Deep Focus Meditation',
-          copyBody: `In this practice, hold attention on one chosen anchor and return with calm discipline.`,
-          audio: FOUNDATION_DEEP_FOCUS_AUDIO,
-          lesson: 'Attention becomes stronger each time you return to one point.',
-          reinforcement: 'Sustained return trains stronger concentration.',
-          activeText: 'Playing',
-          activeLabel: 'Deep Focus',
-          endingText: 'Closing',
-          endingLabel: 'Ending Audio'
+        audio: [INTRODUCTION_AUDIO]
+      },
+      FoundationHome: {
+        eyebrow: 'Meditation Foundations',
+        hero: 'Choose one practice.<br>Stay with it.',
+        subtitle: ['Simple', 'Steady', 'Repeatable'],
+        note: 'Start with one practice. Return often.',
+        badge: 'Foundation',
+        copyLabel: 'Foundation Path',
+        copyTitle: 'Beginner Practice Track',
+        copyBody: 'Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.'
+      },
+      Foundation: {
+        groundingText: 'Get comfortable and prepare to begin',
+        completionMessage: 'Well done. Stay with the feeling for a moment.',
+        readyAudioText: 'Foundation Ready',
+        pausedText: 'Paused',
+        pausedLabel: 'Session Paused',
+        activeText: 'Playing',
+        activeLabel: 'Session Active',
+        subcategories: {
+          BreathAwareness: {
+            title: 'Breath Awareness Meditation',
+            shortPurpose: 'Return to the present through the breath.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Follow the breath.<br>Return to the moment.',
+            subtitle: ['Observe', 'Breathe', 'Return'],
+            note: 'Each breath is a place to begin again.',
+            badge: 'Foundation · Breath Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Breath Awareness Meditation',
+            copyBody: 'In this practice, bring attention to the breath. When the mind wanders, gently return.',
+            audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
+            lesson: 'Your mind will wander. The skill is returning.',
+            reinforcement: 'Each return to the breath strengthens attention.',
+            activeText: 'Playing',
+            activeLabel: 'Breath Awareness',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          BodyAwareness: {
+            title: 'Body Awareness Meditation',
+            shortPurpose: 'Settle into the body and soften tension.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Feel the body.<br>Settle into presence.',
+            subtitle: ['Sense', 'Soften', 'Arrive'],
+            note: 'The body is your doorway back to now.',
+            badge: 'Foundation · Body Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Body Awareness Meditation',
+            copyBody: 'In this practice, bring gentle attention to the body and feel what is already here.',
+            audio: FOUNDATION_BODY_AWARENESS_AUDIO,
+            lesson: 'You do not need to change the body. Only feel it clearly.',
+            reinforcement: 'Feeling the body directly builds grounded presence.',
+            activeText: 'Playing',
+            activeLabel: 'Body Awareness',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          ThoughtAwareness: {
+            title: 'Thought Awareness Meditation',
+            shortPurpose: 'Observe thoughts without getting carried away.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'See the thoughts.<br>Do not chase them.',
+            subtitle: ['Observe', 'Allow', 'Return'],
+            note: 'You are learning to witness, not follow.',
+            badge: 'Foundation · Thought Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Thought Awareness Meditation',
+            copyBody: 'In this practice, notice thoughts as they arise without following them.',
+            audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+            lesson: 'You are not trying to stop thought. You are learning not to follow it.',
+            reinforcement: 'Seeing thought without chasing it builds mental distance.',
+            activeText: 'Playing',
+            activeLabel: 'Thought Awareness',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          EmotionalAwareness: {
+            title: 'Emotional Awareness Meditation',
+            shortPurpose: 'Recognise the feeling tone with honesty.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Name the feeling.<br>Stay with honesty.',
+            subtitle: ['Notice', 'Allow', 'Understand'],
+            note: 'Awareness makes space around emotion.',
+            badge: 'Foundation · Emotional Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Emotional Awareness Meditation',
+            copyBody: 'In this practice, notice the emotional tone of the moment and give it space without judgment.',
+            audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+            lesson: 'You are not here to fix the feeling. Only to know it.',
+            reinforcement: 'Allowing emotion without reacting builds steadiness.',
+            activeText: 'Playing',
+            activeLabel: 'Emotional Awareness',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          DeepFocus: {
+            title: 'Deep Focus Meditation',
+            shortPurpose: 'Strengthen attention through steady return.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Hold one point.<br>Strengthen attention.',
+            subtitle: ['Aim', 'Hold', 'Return'],
+            note: 'Attention becomes stronger through repetition.',
+            badge: 'Foundation · Deep Focus',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Deep Focus Meditation',
+            copyBody: 'In this practice, hold attention on one chosen anchor and return with calm discipline.',
+            audio: FOUNDATION_DEEP_FOCUS_AUDIO,
+            lesson: 'Attention becomes stronger each time you return to one point.',
+            reinforcement: 'Sustained return trains stronger concentration.',
+            activeText: 'Playing',
+            activeLabel: 'Deep Focus',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          }
+        }
+      },
+      Stability: {
+        groundingText: 'Let everything settle.',
+        completionMessage: 'There was nothing to achieve. Just notice what is already here.',
+        readyAudioText: 'Ready to Begin Stability Practice',
+        pausedText: 'Still',
+        pausedLabel: 'Awareness Paused',
+        activeText: 'Aware',
+        activeLabel: 'Open Awareness',
+        subcategories: {
+          OpenAwareness: {
+            title: 'Open Awareness Meditation',
+            shortPurpose: 'Let awareness open to everything at once.',
+            eyebrow: 'Stability · Expanding Awareness',
+            hero: 'Open the field.<br>Let everything appear.',
+            subtitle: ['Open', 'Notice', 'Remain'],
+            note: 'There is nothing to hold. Let awareness stay wide.',
+            badge: 'Stability · Open Awareness',
+            copyLabel: 'Current Stability Practice',
+            copyTitle: 'Open Awareness',
+            copyBody: 'There is nothing to focus on. Simply notice whatever is present.',
+            audio: [STABILITY_OPEN_AWARENESS_AUDIO],
+            lesson: 'Nothing needs to be chosen. Let the whole field be included.',
+            reinforcement: 'Resting in openness trains stable awareness without force.',
+            activeText: 'Aware',
+            activeLabel: 'Open Awareness',
+            endingText: 'Open',
+            endingLabel: 'Complete'
+          },
+          SensoryAwareness: {
+            title: 'Sensory Awareness Meditation',
+            shortPurpose: 'Rest in the full field of sensation.',
+            eyebrow: 'Stability · Expanding Awareness',
+            hero: 'Feel the full field.<br>Include sensation.',
+            subtitle: ['Sense', 'Include', 'Remain'],
+            note: 'Nothing needs to be chosen. Let sensation be known.',
+            badge: 'Stability · Sensory Awareness',
+            copyLabel: 'Current Stability Practice',
+            copyTitle: 'Sensory Awareness',
+            copyBody: 'Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.',
+            audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
+            lesson: 'Let sensation come to you. Do not narrow attention.',
+            reinforcement: 'Including the full sensory field widens and steadies awareness.',
+            activeText: 'Sensing',
+            activeLabel: 'Sensory Awareness',
+            endingText: 'Settling',
+            endingLabel: 'Complete'
+          }
         }
       }
-    },
-    Stability: {
-      groundingText: 'Let everything settle.',
-      completionMessage: 'There was nothing to achieve. Just notice what is already here.',
-      readyAudioText: 'Ready to Begin Stability Practice',
-      pausedText: 'Still',
-      pausedLabel: 'Awareness Paused',
-      subcategories: {
-        OpenAwareness: {
-          title: 'Open Awareness Meditation',
-          shortPurpose: 'Let awareness open to everything at once.',
-          eyebrow: 'Stability · Expanding Awareness',
-          hero: 'Open the field.<br>Let everything appear.',
-          subtitle: ['Open', 'Notice', 'Remain'],
-          note: 'There is nothing to hold. Let awareness stay wide.',
-          badge: 'Stability · Open Awareness',
-          copyLabel: 'Current Stability Practice',
-          copyTitle: 'Open Awareness',
-          copyBody: `There is nothing to focus on. Simply notice whatever is present.`,
-          audio: [STABILITY_OPEN_AWARENESS_AUDIO],
-          lesson: 'Nothing needs to be chosen. Let the whole field be included.',
-          reinforcement: 'Resting in openness trains stable awareness without force.',
-          activeText: 'Aware',
-          activeLabel: 'Open Awareness',
-          endingText: 'Open',
-          endingLabel: 'Complete'
-        },
-        SensoryAwareness: {
-          title: 'Sensory Awareness Meditation',
-          shortPurpose: 'Rest in the full field of sensation.',
-          eyebrow: 'Stability · Expanding Awareness',
-          hero: 'Feel the full field.<br>Include sensation.',
-          subtitle: ['Sense', 'Include', 'Remain'],
-          note: 'Nothing needs to be chosen. Let sensation be known.',
-          badge: 'Stability · Sensory Awareness',
-          copyLabel: 'Current Stability Practice',
-          copyTitle: 'Sensory Awareness',
-          copyBody: `Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.`,
-          audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
-          lesson: 'Let sensation come to you. Do not narrow attention.',
-          reinforcement: 'Including the full sensory field widens and steadies awareness.',
-          activeText: 'Sensing',
-          activeLabel: 'Sensory Awareness',
-          endingText: 'Settling',
-          endingLabel: 'Complete'
+    };
+
+    const el = {
+      openingScene: document.getElementById('openingScene'),
+      openingQuote: document.getElementById('openingQuote'),
+      openingAuthor: document.getElementById('openingAuthor'),
+      welcomeScreen: document.getElementById('welcomeScreen'),
+      welcomeCanvas: document.getElementById('welcomeCanvas'),
+      welcomeStartBtn: document.getElementById('welcomeStartBtn'),
+      welcomeSkipBtn: document.getElementById('welcomeSkipBtn'),
+      welcomeCaption: document.getElementById('welcomeCaption'),
+      welcomeAudio: document.getElementById('welcomeAudio'),
+      appShell: document.getElementById('appShell'),
+      menuOverlay: document.getElementById('menuOverlay'),
+      introductionMenuBtn: document.getElementById('introductionMenuBtn'),
+      foundationMenuBtn: document.getElementById('foundationMenuBtn'),
+      stabilityMenuBtn: document.getElementById('stabilityMenuBtn'),
+      foundationSubsection: document.getElementById('foundationSubsection'),
+      stabilitySubsection: document.getElementById('stabilitySubsection'),
+      eyebrowText: document.getElementById('eyebrowText'),
+      heroTitle: document.getElementById('heroTitle'),
+      heroSubtitle: document.getElementById('heroSubtitle'),
+      practiceCopyLabel: document.getElementById('practiceCopyLabel'),
+      practiceCopyTitle: document.getElementById('practiceCopyTitle'),
+      practiceCopyBody: document.getElementById('practiceCopyBody'),
+      lessonCard: document.getElementById('lessonCard'),
+      lessonTitle: document.getElementById('lessonTitle'),
+      lessonBody: document.getElementById('lessonBody'),
+      lessonOverlay: document.getElementById('lessonOverlay'),
+      lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
+      lessonOverlayBody: document.getElementById('lessonOverlayBody'),
+      foundationHomePanel: document.getElementById('foundationHomePanel'),
+      foundationCardsContainer: document.getElementById('foundationCardsContainer'),
+      backToFoundationBtn: document.getElementById('backToFoundationBtn'),
+      nextPracticeBtn: document.getElementById('nextPracticeBtn'),
+      startSessionBtn: document.getElementById('startSessionBtn'),
+      audioStatus: document.getElementById('audioStatus'),
+      audioText: document.getElementById('audioText'),
+      volumeControl: document.getElementById('volumeControl'),
+      bottomNote: document.getElementById('bottomNote'),
+      sessionOverlay: document.getElementById('sessionOverlay'),
+      sessionCircleShell: document.getElementById('sessionCircleShell'),
+      sessionInnerCore: document.getElementById('sessionInnerCore'),
+      wave1: document.getElementById('wave1'),
+      wave2: document.getElementById('wave2'),
+      wave3: document.getElementById('wave3'),
+      sessionProgressRing: document.getElementById('sessionProgressRing'),
+      sessionModeBadge: document.getElementById('sessionModeBadge'),
+      sessionStateText: document.getElementById('sessionStateText'),
+      sessionStateLabel: document.getElementById('sessionStateLabel'),
+      sessionTapHint: document.getElementById('sessionTapHint'),
+      sessionTitle: document.getElementById('sessionTitle'),
+      sessionSubtitle: document.getElementById('sessionSubtitle'),
+      sessionSeekBar: document.getElementById('sessionSeekBar'),
+      sessionCurrentTime: document.getElementById('sessionCurrentTime'),
+      sessionDuration: document.getElementById('sessionDuration'),
+      reflectionScreen: document.getElementById('reflectionScreen'),
+      reflectionOptionsTakeover: document.getElementById('reflectionOptionsTakeover'),
+      completionScreen: document.getElementById('completionScreen'),
+      completionScreenTitle: document.getElementById('completionScreenTitle'),
+      completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
+      insightCard: document.getElementById('insightCard'),
+      insightTitle: document.getElementById('insightTitle'),
+      insightBody: document.getElementById('insightBody')
+    };
+
+    const radius = 236;
+    const circumference = 2 * Math.PI * radius;
+    el.sessionProgressRing.style.strokeDasharray = circumference;
+    el.sessionProgressRing.style.strokeDashoffset = circumference;
+
+    let activePractice = 'Introduction';
+    let activeSubcategory = 'BreathAwareness';
+    let foundationMenuOpen = false;
+    let stabilityMenuOpen = false;
+    let currentPlaylist = [];
+    let currentTrackIndex = 0;
+    let currentAudio = null;
+    let isRunning = false;
+    let sessionStarted = false;
+    let sessionCompleted = false;
+    let isGrounding = false;
+    let singleTapTimeout = null;
+    let groundingTimeout = null;
+    let transitionTimeout = null;
+    let lessonOverlayTimeout = null;
+    let lessonOverlayExitTimeout = null;
+    let shownLessonKey = '';
+    let welcomeAnimationFrame = null;
+    let welcomeDismissed = false;
+    let welcomeStarted = false;
+    let welcomeAudioCtx = null;
+    let welcomeAnalyser = null;
+    let welcomeSource = null;
+    let welcomeData = null;
+
+    function hasSeenWelcomeIntro() {
+      try {
+        return localStorage.getItem(WELCOME_SEEN_STORAGE_KEY) === '1';
+      } catch {
+        return false;
+      }
+    }
+
+    function markWelcomeIntroSeen() {
+      try {
+        localStorage.setItem(WELCOME_SEEN_STORAGE_KEY, '1');
+      } catch {}
+    }
+
+    function loadProgress() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+
+    function savePracticeComplete(key) {
+      if (!key) return;
+      const progress = loadProgress();
+      progress[key] = true;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+
+    function saveReflectionEntry(reflection) {
+      if (!reflection) return;
+      let existing = [];
+      try {
+        existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
+      } catch {
+        existing = [];
+      }
+      existing.push({
+        timestamp: new Date().toISOString(),
+        mode: activePractice,
+        practice: activeSubcategory || 'Introduction',
+        reflection
+      });
+      localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
+    }
+
+    function loadSessionHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_HISTORY_STORAGE_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveSessionHistory(history) {
+      localStorage.setItem(SESSION_HISTORY_STORAGE_KEY, JSON.stringify(history));
+    }
+
+    function recordCompletedSession(reflection) {
+      const history = loadSessionHistory();
+      history.push({
+        timestamp: new Date().toISOString(),
+        mode: activePractice,
+        practice: activeSubcategory || 'Introduction',
+        reflection: reflection || ''
+      });
+      saveSessionHistory(history.slice(-120));
+    }
+
+    function getTrainingInsights() {
+      const history = loadSessionHistory();
+      const total = history.length;
+      if (!total) {
+        return {
+          total: 0,
+          streak: 0,
+          topReflection: '',
+          lastReflection: '',
+          assessment: '',
+          feedback: '',
+          title: 'You are building consistency.',
+          body: 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.'
+        };
+      }
+
+      const days = [...new Set(history.map((entry) => entry.timestamp.slice(0, 10)))].sort().reverse();
+      let streak = 0;
+      if (days.length) {
+        const today = new Date();
+        let cursor = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+        for (let i = 0; i < days.length; i++) {
+          const key = cursor.toISOString().slice(0, 10);
+          if (days.includes(key)) {
+            streak += 1;
+            cursor.setUTCDate(cursor.getUTCDate() - 1);
+          } else {
+            break;
+          }
         }
       }
-    }
-  };
 
-  const el = {
-    welcomeScreen: document.getElementById('welcomeScreen'),
-    welcomeCanvas: document.getElementById('welcomeCanvas'),
-    welcomeStartBtn: document.getElementById('welcomeStartBtn'),
-    welcomeCaption: document.getElementById('welcomeCaption'),
-    welcomeAudio: document.getElementById('welcomeAudio'),
-    lessonCard: document.getElementById('lessonCard'),
-    
-    lessonTitle: document.getElementById('lessonTitle'),
-    lessonBody: document.getElementById('lessonBody'),
-    lessonOverlay: document.getElementById('lessonOverlay'),
-    lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
-    lessonOverlayBody: document.getElementById('lessonOverlayBody'),
-    openingScene: document.getElementById('openingScene'),
-    openingQuote: document.getElementById('openingQuote'),
-    openingAuthor: document.getElementById('openingAuthor'),
-    appShell: document.getElementById('appShell'),
-    menuOverlay: document.getElementById('menuOverlay'),
-    foundationSubsection: document.getElementById('foundationSubsection'),
-    stabilitySubsection: document.getElementById('stabilitySubsection'),
-    foundationMenuBtn: document.getElementById('foundationMenuBtn'),
-    introductionMenuBtn: document.getElementById('introductionMenuBtn'),
-    stabilityMenuBtn: document.getElementById('stabilityMenuBtn'),
-    eyebrowText: document.getElementById('eyebrowText'),
-    heroTitle: document.getElementById('heroTitle'),
-    heroSubtitle: document.getElementById('heroSubtitle'),
-    bottomNote: document.getElementById('bottomNote'),
-    practiceCopyLabel: document.getElementById('practiceCopyLabel'),
-    practiceCopyTitle: document.getElementById('practiceCopyTitle'),
-    practiceCopyBody: document.getElementById('practiceCopyBody'),
-    startSessionBtn: document.getElementById('startSessionBtn'),
-    backToFoundationBtn: document.getElementById('backToFoundationBtn'),
-    nextPracticeBtn: document.getElementById('nextPracticeBtn'),
-    foundationHomePanel: document.getElementById('foundationHomePanel'),
-    foundationCardsContainer: document.getElementById('foundationCardsContainer'),
-    audioStatus: document.getElementById('audioStatus'),
-    audioText: document.getElementById('audioText'),
-    volumeControl: document.getElementById('volumeControl'),
-    sessionOverlay: document.getElementById('sessionOverlay'),
-    sessionCircleShell: document.getElementById('sessionCircleShell'),
-    sessionProgressRing: document.getElementById('sessionProgressRing'),
-    sessionModeBadge: document.getElementById('sessionModeBadge'),
-    sessionStateText: document.getElementById('sessionStateText'),
-    sessionStateLabel: document.getElementById('sessionStateLabel'),
-    sessionTapHint: document.getElementById('sessionTapHint'),
-    sessionTitle: document.getElementById('sessionTitle'),
-    sessionSubtitle: document.getElementById('sessionSubtitle'),
-        reflectionScreen: document.getElementById('reflectionScreen'),
-    completionScreen: document.getElementById('completionScreen'),
-    completionScreenTitle: document.getElementById('completionScreenTitle'),
-    completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
-    reflectionOptionsTakeover: document.getElementById('reflectionOptionsTakeover'),
-    sessionSeekBar: document.getElementById('sessionSeekBar'),
-    sessionCurrentTime: document.getElementById('sessionCurrentTime'),
-    sessionDuration: document.getElementById('sessionDuration')
-  };
+      const reflectionCounts = {};
+      const practiceCounts = {};
+      const modeCounts = {};
+      history.forEach((entry) => {
+        if (entry.reflection) reflectionCounts[entry.reflection] = (reflectionCounts[entry.reflection] || 0) + 1;
+        if (entry.practice) practiceCounts[entry.practice] = (practiceCounts[entry.practice] || 0) + 1;
+        if (entry.mode) modeCounts[entry.mode] = (modeCounts[entry.mode] || 0) + 1;
+      });
 
-  const radius = 236;
-  const circumference = 2 * Math.PI * radius;
-  el.sessionProgressRing.style.strokeDasharray = circumference;
-  el.sessionProgressRing.style.strokeDashoffset = circumference;
+      const topReflection = Object.entries(reflectionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const lastReflection = history[history.length - 1]?.reflection || '';
+      const topPractice = Object.entries(practiceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const dominantMode = Object.entries(modeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
 
-  let activePractice = 'Introduction';
-  let activeSubcategory = 'BreathAwareness';
-  let foundationMenuOpen = false;
-  let stabilityMenuOpen = false;
-  let currentPlaylist = [];
-  let currentTrackIndex = 0;
-  let currentAudio = null;
-  let isRunning = false;
-  let sessionStarted = false;
-  let sessionCompleted = false;
-  let isGrounding = false;
-  let singleTapTimeout = null;
-  let groundingTimeout = null;
-  let transitionTimeout = null;
-  let lessonOverlayTimeout = null;
-  let lessonOverlayExitTimeout = null;
-  let shownLessonKey = '';
-  let welcomeAnimationFrame = null;
-  let welcomeDismissed = false;
-  let welcomeStarted = false;
-  let welcomeAudioCtx = null;
-  let welcomeAnalyser = null;
-  let welcomeSource = null;
-  let welcomeData = null;
+      let assessment = 'Your awareness is still taking shape.';
+      let feedback = 'Keep repeating the same practice until the return feels more natural.';
 
-  function isLegacyMultiTrackSession() {
-    return activePractice === 'Foundation' && currentPlaylist.length > 1;
-  }
-
-  function loadProgress() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    } catch {
-      return {};
-    }
-  }
-
-  function savePracticeComplete(key) {
-    if (!key) return;
-    const progress = loadProgress();
-    progress[key] = true;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }
-
-  function saveReflectionEntry(reflection) {
-    if (!reflection) return;
-    let existing = [];
-    try {
-      existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
-    } catch {
-      existing = [];
-    }
-    existing.push({
-      timestamp: new Date().toISOString(),
-      mode: activePractice,
-      practice: activeSubcategory || 'Introduction',
-      reflection
-    });
-    localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
-  }
-
-  function getSubcategoryData() {
-    if (activePractice === 'Foundation') return practiceContent.Foundation.subcategories[activeSubcategory] || null;
-    if (activePractice === 'Stability') return practiceContent.Stability.subcategories[activeSubcategory] || null;
-    return null;
-  }
-
-  function currentViewData() {
-    if (activePractice === 'Introduction') return practiceContent.Introduction;
-    if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
-    return getSubcategoryData() || practiceContent.Introduction;
-  }
-
-  function getModeConfig() {
-    if (activePractice === 'Foundation') return practiceContent.Foundation;
-    if (activePractice === 'Stability') return practiceContent.Stability;
-    return null;
-  }
-
-  function buildPlaylist() {
-    if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
-    const sub = getSubcategoryData();
-    if (!sub?.audio) return [];
-    if (activePractice === 'Foundation') {
-      return Array.isArray(sub.audio) ? sub.audio : [sub.audio];
-    }
-    return [Array.isArray(sub.audio) ? sub.audio[0] : sub.audio].filter(Boolean);
-  }
-
-  function formatTimeDisplay(seconds) {
-    if (!Number.isFinite(seconds)) return '00:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  }
-
-  function updateSeekUI() {
-    if (!currentAudio) {
-      el.sessionSeekBar.value = 0;
-      el.sessionCurrentTime.textContent = '00:00';
-      el.sessionDuration.textContent = '00:00';
-      el.sessionProgressRing.style.strokeDashoffset = circumference;
-      return;
-    }
-    const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : 0;
-    const current = Number.isFinite(currentAudio.currentTime) ? currentAudio.currentTime : 0;
-    const progress = duration > 0 ? (current / duration) * 100 : 0;
-    el.sessionSeekBar.value = progress;
-    el.sessionCurrentTime.textContent = formatTimeDisplay(current);
-    el.sessionDuration.textContent = formatTimeDisplay(duration);
-    el.sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress / 100);
-  }
-
-  function seekToPercent(percent) {
-    if (!currentAudio || !Number.isFinite(currentAudio.duration) || currentAudio.duration <= 0) return;
-    currentAudio.currentTime = Math.max(0, Math.min(currentAudio.duration, currentAudio.duration * (percent / 100)));
-    updateSeekUI();
-  }
-
-  function detachAudio() {
-    if (!currentAudio) return;
-    currentAudio.pause();
-    currentAudio.ontimeupdate = null;
-    currentAudio.onended = null;
-    currentAudio = null;
-  }
-
-  function setCircleState(state) {
-    el.sessionCircleShell.classList.remove('state-idle', 'state-grounding', 'state-playing', 'state-paused', 'state-ending', 'state-complete', 'stability-mode', 'running');
-    if (activePractice === 'Stability') {
-      el.sessionCircleShell.classList.add('stability-mode');
-    }
-    if (state) {
-      el.sessionCircleShell.classList.add(`state-${state}`);
-    }
-    if (state === 'playing' || state === 'ending') {
-      el.sessionCircleShell.classList.add('running');
-    }
-  }
-
-  function showOpeningQuoteScene() {
-    const q = quotes[Math.floor(Math.random() * quotes.length)];
-    el.openingQuote.textContent = `“${q.text}”`;
-    el.openingAuthor.textContent = q.author;
-    setTimeout(() => {
-      el.openingScene.classList.add('fade-out');
-      startWelcomeFlow();
-    }, 1800);
-  }
-
-  function ensureWelcomeAudioGraph() {
-    if (welcomeAudioCtx) return;
-
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx || !el.welcomeAudio) return;
-
-    welcomeAudioCtx = new AudioCtx();
-    welcomeAnalyser = welcomeAudioCtx.createAnalyser();
-    welcomeAnalyser.fftSize = 256;
-
-    const bufferLength = welcomeAnalyser.frequencyBinCount;
-    welcomeData = new Uint8Array(bufferLength);
-
-    welcomeSource = welcomeAudioCtx.createMediaElementSource(el.welcomeAudio);
-
-    welcomeSource.connect(welcomeAnalyser);
-    welcomeAnalyser.connect(welcomeAudioCtx.destination);
-}
-
-function getWelcomeAudioLevel() {
-    if (!welcomeAnalyser || !welcomeData) return 0.2;
-
-    welcomeAnalyser.getByteFrequencyData(welcomeData);
-
-    let sum = 0;
-    for (let i = 0; i < welcomeData.length; i++) {
-      sum += welcomeData[i];
-    }
-
-    return Math.max(0.05, Math.min(1, (sum / welcomeData.length) / 140));
-}
-
-  function drawWelcomeRing() {
-    const canvas = el.welcomeCanvas;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const w = rect.width;
-    const h = rect.height;
-    const cx = w / 2;
-    const cy = h * 0.42;
-    const outerBase = Math.min(w, h) * 0.30;
-    const innerBase = outerBase * 0.58;
-    const particleCount = Math.max(24000, Math.floor(w * 22));
-
-    const render = () => {
-      welcomeAnimationFrame = requestAnimationFrame(render);
-      ctx.clearRect(0, 0, w, h);
-
-      let amp = getWelcomeAudioLevel();
-
-      const speakScale = 1 + amp * 0.35;
-      const outerR = outerBase * speakScale;
-      const innerR = innerBase * (1 + amp * 0.15);
-      const haloR = outerR * 1.03;
-
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-
-      for (let i = 0; i < particleCount; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const radialMix = Math.random();
-        const bias = Math.pow(radialMix, 0.24);
-        const r = innerR + (outerR - innerR) * bias;
-        const jitter = (Math.random() - 0.5) * (5.2 + amp * 4.2);
-        const x = cx + Math.cos(theta) * (r + jitter);
-        const y = cy + Math.sin(theta) * (r + jitter * 0.72);
-        const size = Math.random() < 0.94 ? 1 : 1.35;
-        const alphaCore = 0.11 + bias * 0.2 + amp * 0.08;
-        ctx.fillStyle = `rgba(255,255,255,${Math.min(0.28, alphaCore)})`;
-        ctx.fillRect(x, y, size, size);
+      if (topReflection === 'Mind wandering') {
+        assessment = 'Your mind often moves quickly before it settles.';
+        feedback = 'That is not failure. Notice the drift, return once, and count that return as the win.';
+      } else if (topReflection === 'Breath') {
+        assessment = 'Your attention is learning to stabilise around an anchor.';
+        feedback = 'Stay with breath-based practice and let each return deepen concentration rather than chasing novelty.';
+      } else if (topReflection === 'Sensations') {
+        assessment = 'Your awareness is becoming more embodied and immediate.';
+        feedback = 'Use body and sensory practices to strengthen presence. Feel, stay, soften, remain.';
+      } else if (topReflection === 'Sounds') {
+        assessment = 'Your awareness is opening beyond a single object.';
+        feedback = 'This suggests wider field awareness is growing. Notice, include, do not chase, stay open.';
       }
 
-      // dense fog core
-      for (let i = 0; i < particleCount * 1.45; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const t = Math.random();
-        const r = innerR + (outerR - innerR) * Math.pow(t, 0.18);
-        const x = cx + Math.cos(theta) * r;
-        const y = cy + Math.sin(theta) * r;
-        ctx.fillStyle = 'rgba(255,255,255,0.028)';
-        ctx.fillRect(x, y, 1, 1);
+      if (streak >= 3) {
+        feedback += `
+
+You have shown up for ${streak} days in a row. Consistency is now part of the training, not just the outcome.`;
       }
 
-      // ultra fine grain layer
-      for (let i = 0; i < particleCount * 2.1; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const r = innerR + Math.random() * (outerR - innerR);
-        const x = cx + Math.cos(theta) * r;
-        const y = cy + Math.sin(theta) * r;
-        ctx.fillStyle = 'rgba(255,255,255,0.012)';
-        ctx.fillRect(x, y, 1, 1);
+      if (dominantMode === 'Foundation' && total >= 5) {
+        feedback += `
+
+You are still building the base layer of attention. Repetition matters more than variety right now.`;
       }
 
-      // outer halo grain
-      for (let i = 0; i < particleCount * 0.16; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const spread = haloR + Math.random() * (25 + amp * 10);
-        const x = cx + Math.cos(theta) * spread;
-        const y = cy + Math.sin(theta) * spread;
-        const alpha = 0.015 + Math.random() * 0.03 + amp * 0.015;
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-        ctx.fillRect(x, y, 1, 1);
+      if (dominantMode === 'Stability' && total >= 5) {
+        feedback += `
+
+You are spending more time in open awareness. Keep balancing openness with one anchored practice so clarity stays strong.`;
       }
 
-      // inner cut refinement for a cleaner hollow center
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-out';
-      const cut = ctx.createRadialGradient(cx, cy, innerR * 0.9, cx, cy, innerR * 1.1);
-      cut.addColorStop(0, 'rgba(0,0,0,1)');
-      cut.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = cut;
-      ctx.beginPath();
-      ctx.arc(cx, cy, innerR * 1.1, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      if (topPractice === 'BreathAwareness' && topReflection === 'Mind wandering') {
+        feedback += `
 
-      const glow = ctx.createRadialGradient(cx, cy, innerR * 0.28, cx, cy, outerR * 1.28);
-      glow.addColorStop(0, `rgba(255,255,255,${0.055 + amp * 0.04})`);
-      glow.addColorStop(0.6, 'rgba(255,255,255,0.02)');
-      glow.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(cx, cy, outerR * 1.22, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-    };
-
-    render();
-  }
-
-  function updateWelcomeCaption() {
-    if (!el.welcomeCaption || !el.welcomeAudio) return;
-
-    const rawTime = el.welcomeAudio.currentTime || 0;
-    const t = Math.max(0, rawTime + WELCOME_SCRIPT_OFFSET);
-    const cue = WELCOME_SCRIPT_CUES.find((item) => t >= item.start && t < item.end);
-
-    if (cue) {
-      if (el.welcomeCaption.textContent !== cue.text) {
-        el.welcomeCaption.textContent = cue.text;
+Recommendation: stay with Breath Awareness a little longer before moving on. Your brain is still learning the return.`;
       }
-      el.welcomeCaption.classList.add('visible');
-      return;
+
+      const title = streak >= 2 ? `${streak} days of showing up.` : `You've completed ${total} session${total === 1 ? '' : 's'}.`;
+      const body = `What Ataraxia is noticing:
+${assessment}
+
+Pattern emerging: ${topReflection || 'Still emerging'}${topPractice ? ` • Most used practice: ${topPractice}` : ''}
+Last session: ${lastReflection || 'No reflection saved'}
+
+Suggested direction:
+${feedback}`;
+
+      return { total, streak, topReflection, lastReflection, assessment, feedback, title, body };
     }
 
-    // hold the previous line briefly during tiny gaps so the captions feel less jumpy
-    const previousCue = [...WELCOME_SCRIPT_CUES].reverse().find((item) => t >= item.end && t < item.end + 0.45);
-    if (previousCue) {
-      if (el.welcomeCaption.textContent !== previousCue.text) {
-        el.welcomeCaption.textContent = previousCue.text;
+    function getModeConfig() {
+      if (activePractice === 'Foundation') return practiceContent.Foundation;
+      if (activePractice === 'Stability') return practiceContent.Stability;
+      return null;
+    }
+
+    function getSubcategoryData() {
+      if (activePractice === 'Foundation') return practiceContent.Foundation.subcategories[activeSubcategory] || null;
+      if (activePractice === 'Stability') return practiceContent.Stability.subcategories[activeSubcategory] || null;
+      return null;
+    }
+
+    function currentViewData() {
+      if (activePractice === 'Introduction') return practiceContent.Introduction;
+      if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
+      return getSubcategoryData() || practiceContent.Introduction;
+    }
+
+    function buildPlaylist() {
+      if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
+      const sub = getSubcategoryData();
+      if (!sub?.audio) return [];
+      if (activePractice === 'Foundation') return Array.isArray(sub.audio) ? sub.audio : [sub.audio];
+      return [Array.isArray(sub.audio) ? sub.audio[0] : sub.audio].filter(Boolean);
+    }
+
+    function isLegacyMultiTrackSession() {
+      return activePractice === 'Foundation' && currentPlaylist.length > 1;
+    }
+
+    function formatTimeDisplay(seconds) {
+      if (!Number.isFinite(seconds)) return '00:00';
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function updateSeekUI() {
+      if (!currentAudio) {
+        el.sessionSeekBar.value = 0;
+        el.sessionCurrentTime.textContent = '00:00';
+        el.sessionDuration.textContent = '00:00';
+        el.sessionProgressRing.style.strokeDashoffset = circumference;
+        return;
       }
-      el.welcomeCaption.classList.add('visible');
-      return;
+      const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : 0;
+      const current = Number.isFinite(currentAudio.currentTime) ? currentAudio.currentTime : 0;
+      const progress = duration > 0 ? (current / duration) * 100 : 0;
+      el.sessionSeekBar.value = progress;
+      el.sessionCurrentTime.textContent = formatTimeDisplay(current);
+      el.sessionDuration.textContent = formatTimeDisplay(duration);
+      el.sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress / 100);
     }
 
-    el.welcomeCaption.textContent = '';
-    el.welcomeCaption.classList.remove('visible');
-  }
-
-  async function startWelcomePlayback() {
-    if (welcomeStarted || !el.welcomeAudio) return false;
-
-    welcomeStarted = true;
-    ensureWelcomeAudioGraph();
-    el.welcomeStartBtn.classList.add('hidden');
-
-    try {
-      if (welcomeAudioCtx && welcomeAudioCtx.state === 'suspended') {
-        await welcomeAudioCtx.resume();
-      }
-      await el.welcomeAudio.play();
-      updateWelcomeCaption();
-    } catch {
-      welcomeStarted = false;
-      el.welcomeStartBtn.classList.remove('hidden');
-      return false;
-    }
-
-    el.welcomeAudio.ontimeupdate = updateWelcomeCaption;
-    el.welcomeAudio.onended = () => {
-      el.welcomeCaption.classList.remove('visible');
-      setTimeout(endWelcomeFlow, 350);
-    };
-
-    return true;
-  }
-
-  function endWelcomeFlow() {
-    if (welcomeDismissed) return;
-    welcomeDismissed = true;
-    el.welcomeStartBtn.classList.add('hidden');
-    el.welcomeCaption.classList.remove('visible');
-    if (el.welcomeAudio) {
-      el.welcomeAudio.pause();
-      el.welcomeAudio.ontimeupdate = null;
-    }
-    el.welcomeScreen.classList.add('fade-out');
-    setTimeout(() => {
-      el.appShell.classList.add('revealed');
-      if (welcomeAnimationFrame) {
-        cancelAnimationFrame(welcomeAnimationFrame);
-        welcomeAnimationFrame = null;
-      }
-    }, 700);
-  }
-
-  function startWelcomeFlow() {
-    el.welcomeScreen.classList.add('active');
-    if (!welcomeAnimationFrame) {
-      drawWelcomeRing();
-    }
-    el.welcomeStartBtn.classList.remove('hidden');
-  }
-
-  function toggleMenu() {
-    el.menuOverlay.classList.toggle('active');
-  }
-  window.toggleMenu = toggleMenu;
-
-  function closeMenu() {
-    el.menuOverlay.classList.remove('active');
-  }
-
-  function updateMenuState() {
-    el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
-    el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
-    el.stabilityMenuBtn.classList.toggle('active', activePractice === 'Stability' || stabilityMenuOpen);
-    el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
-    el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability');
-
-    [...foundationOrder, ...stabilityOrder].forEach((key) => {
-      const btn = document.getElementById(`${key}Btn`);
-      if (btn) {
-        btn.classList.toggle('active', activeSubcategory === key);
-      }
-    });
-  }
-
-  function updateJourneyButtons() {
-    el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
-    el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-    el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-    el.startSessionBtn.style.display = activePractice === 'FoundationHome' ? 'none' : 'inline-flex';
-  }
-
-  function hideLessonOverlayImmediate() {
-    clearTimeout(lessonOverlayTimeout);
-    clearTimeout(lessonOverlayExitTimeout);
-    el.lessonOverlay.classList.remove('active', 'exit');
-  }
-
-  function maybeShowLessonOverlay(data) {
-    const lessonKey = `${activePractice}:${activeSubcategory}:${data.lesson || ''}`;
-    if (!data.lesson || shownLessonKey === lessonKey) return;
-
-    shownLessonKey = lessonKey;
-    hideLessonOverlayImmediate();
-    el.lessonOverlay.classList.add('active');
-
-    lessonOverlayTimeout = setTimeout(() => {
-      el.lessonOverlay.classList.add('exit');
-      el.lessonCard.classList.add('highlight');
-
-      lessonOverlayExitTimeout = setTimeout(() => {
-        el.lessonOverlay.classList.remove('active', 'exit');
-        setTimeout(() => el.lessonCard.classList.remove('highlight'), 250);
-      }, 560);
-    }, 4400);
-  }
-
-  function updateContentUI() {
-    const data = currentViewData();
-    el.eyebrowText.textContent = data.eyebrow;
-    el.heroTitle.innerHTML = data.hero;
-    el.heroSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-    el.bottomNote.textContent = data.note;
-    el.practiceCopyLabel.textContent = data.copyLabel;
-    el.practiceCopyTitle.textContent = data.copyTitle;
-    el.practiceCopyBody.textContent = data.copyBody;
-    el.sessionModeBadge.textContent = data.badge || data.eyebrow;
-    el.sessionTitle.innerHTML = data.hero;
-    el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-
-    const lessonText = data.lesson || '';
-    if (lessonText && activePractice !== 'Introduction' && activePractice !== 'FoundationHome') {
-      el.lessonCard.style.display = 'block';
-      el.lessonTitle.textContent = data.copyTitle || 'Before you begin';
-      el.lessonBody.textContent = lessonText;
-      el.lessonOverlayTitle.textContent = data.copyTitle || 'Before you begin';
-      el.lessonOverlayBody.textContent = lessonText;
-      maybeShowLessonOverlay(data);
-    } else {
-      el.lessonCard.style.display = 'none';
-      el.lessonTitle.textContent = 'Before you begin';
-      el.lessonBody.textContent = '';
-      hideLessonOverlayImmediate();
-    }
-
-    const modeConfig = getModeConfig();
-    
-  }
-
-  function updateAudioStatus() {
-    if (activePractice === 'Introduction') {
-      el.audioText.textContent = 'Introduction Ready';
-    } else if (activePractice === 'FoundationHome') {
-      el.audioText.textContent = 'Choose a Foundation Practice';
-    } else if (activePractice === 'Foundation') {
-      el.audioText.textContent = practiceContent.Foundation.readyAudioText;
-    } else if (activePractice === 'Stability') {
-      el.audioText.textContent = practiceContent.Stability.readyAudioText;
-    }
-  }
-
-  function renderFoundationHomeCards() {
-    el.foundationCardsContainer.innerHTML = '';
-    const progress = loadProgress();
-    const nextKey = foundationOrder.find((k) => !progress[k]) || foundationOrder[0];
-
-    foundationOrder.forEach((key) => {
-      const data = practiceContent.Foundation.subcategories[key];
-      const btn = document.createElement('button');
-      btn.className = 'foundation-card-btn';
-      if (key === nextKey) btn.classList.add('next');
-      if (progress[key]) btn.classList.add('completed');
-      btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Foundation Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}</div>`;
-      btn.addEventListener('click', () => setSubcategory(key, false));
-      el.foundationCardsContainer.appendChild(btn);
-    });
-  }
-
-  function resetVisualSessionState() {
-    setCircleState('idle');
-    el.sessionStateText.textContent = 'Ready';
-    el.sessionStateLabel.textContent = 'Awaiting Start';
-    el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-        updateSeekUI();
-  }
-
-  function syncUI() {
-    updateContentUI();
-    updateMenuState();
-    updateJourneyButtons();
-    updateAudioStatus();
-    renderFoundationHomeCards();
-    resetVisualSessionState();
-  }
-
-  function loadTrack(index) {
-    if (!currentPlaylist[index]) return false;
-    detachAudio();
-    currentTrackIndex = index;
-    currentAudio = new Audio(currentPlaylist[index]);
-    currentAudio.preload = 'auto';
-    currentAudio.volume = Number(document.querySelector('.volume-slider')?.value || 70) / 100;
-    currentAudio.ontimeupdate = updateSeekUI;
-    currentAudio.onended = handleTrackEnd;
-    updateSeekUI();
-    return true;
-  }
-
-  function initAudio() {
-    currentPlaylist = buildPlaylist();
-    if (currentPlaylist.length) {
-      loadTrack(0);
-    } else {
-      detachAudio();
+    function seekToPercent(percent) {
+      if (!currentAudio || !Number.isFinite(currentAudio.duration) || currentAudio.duration <= 0) return;
+      currentAudio.currentTime = Math.max(0, Math.min(currentAudio.duration, currentAudio.duration * (percent / 100)));
       updateSeekUI();
     }
-  }
 
-  function hideReflectionTakeover() {
-    el.reflectionScreen.classList.remove('active');
-    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
-  }
-
-  function showReflectionTakeover() {
-    el.reflectionScreen.classList.add('active');
-  }
-
-  function hideCompletionTakeover() {
-    el.completionScreen.classList.remove('active');
-  }
-
-  function showCompletionTakeover(reflection = '') {
-    const modeConfig = getModeConfig();
-    const sub = getSubcategoryData();
-    const reinforcement = REFLECTION_REINFORCEMENT[reflection] || null;
-
-    el.completionScreenTitle.textContent = reinforcement?.title || 'Well done.';
-    el.completionScreenSubtitle.textContent = reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
-    el.completionScreen.classList.add('active');
-  }
-
-  function enterSessionMode() {
-    hideReflectionTakeover();
-    hideCompletionTakeover();
-    el.sessionOverlay.classList.add('active');
-  }
-
-  function exitSessionMode() {
-    el.sessionOverlay.classList.remove('active');
-    hideReflectionTakeover();
-    hideCompletionTakeover();
-  }
-
-  function startPlayback() {
-    if (!currentAudio) return;
-    const modeConfig = getModeConfig();
-    const sub = getSubcategoryData();
-
-    currentAudio.play().catch(() => {});
-    isRunning = true;
-    sessionStarted = true;
-    el.audioStatus.classList.add('playing');
-    el.volumeControl.classList.add('active');
-
-    const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
-    setCircleState(inEndingPhase ? 'ending' : 'playing');
-    el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
-    el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
-    el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-    updateSeekUI();
-  }
-
-  function pausePlayback() {
-    if (!currentAudio) return;
-    currentAudio.pause();
-    isRunning = false;
-    const modeConfig = getModeConfig();
-    el.audioStatus.classList.remove('playing');
-    setCircleState('paused');
-    el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
-    el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
-    el.sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
-  }
-
-  function handleTrackEnd() {
-    if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
-      isRunning = false;
-      setCircleState('ending');
-      el.sessionStateText.textContent = 'Settling';
-      el.sessionStateLabel.textContent = 'Transition';
-      el.sessionTapHint.textContent = 'Stay with the stillness.';
-      transitionTimeout = setTimeout(() => {
-        loadTrack(currentTrackIndex + 1);
-        startPlayback();
-      }, TRANSITION_DELAY);
-      return;
+    function detachAudio() {
+      if (!currentAudio) return;
+      currentAudio.pause();
+      currentAudio.ontimeupdate = null;
+      currentAudio.onended = null;
+      currentAudio = null;
     }
 
-    sessionCompleted = true;
-    isRunning = false;
-    setCircleState('complete');
-    el.audioStatus.classList.remove('playing');
-    el.volumeControl.classList.remove('active');
-
-    if (activePractice === 'Foundation' && activeSubcategory) {
-      savePracticeComplete(activeSubcategory);
+    function setCircleState(state) {
+      el.sessionCircleShell.classList.remove('state-idle', 'state-grounding', 'state-playing', 'state-paused', 'state-ending', 'state-complete', 'stability-mode', 'running');
+      if (activePractice === 'Stability') el.sessionCircleShell.classList.add('stability-mode');
+      if (state) el.sessionCircleShell.classList.add(`state-${state}`);
+      if (state === 'playing' || state === 'ending') el.sessionCircleShell.classList.add('running');
     }
 
-    setTimeout(showReflectionTakeover, 900);
-  }
+    function updateMenuState() {
+      el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
+      el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
+      el.stabilityMenuBtn.classList.toggle('active', activePractice === 'Stability' || stabilityMenuOpen);
+      el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
+      el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability');
 
-  function handleCircleTap() {
-    if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
-
-    if (singleTapTimeout) {
-      clearTimeout(singleTapTimeout);
-      singleTapTimeout = null;
-      resetSessionFromDoubleTap();
-      return;
+      [...foundationOrder, ...stabilityOrder].forEach((key) => {
+        const btn = document.getElementById(`${key}Btn`);
+        if (btn) btn.classList.toggle('active', activeSubcategory === key);
+      });
     }
 
-    singleTapTimeout = setTimeout(() => {
-      if (isRunning) {
-        pausePlayback();
+    function updateJourneyButtons() {
+      el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
+      el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
+      el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
+      el.startSessionBtn.style.display = activePractice === 'FoundationHome' ? 'none' : 'inline-flex';
+    }
+
+    function hideLessonOverlayImmediate() {
+      clearTimeout(lessonOverlayTimeout);
+      clearTimeout(lessonOverlayExitTimeout);
+      el.lessonOverlay.classList.remove('active', 'exit');
+    }
+
+    function maybeShowLessonOverlay(data) {
+      const lessonKey = `${activePractice}:${activeSubcategory}:${data.lesson || ''}`;
+      if (!data.lesson || shownLessonKey === lessonKey) return;
+      shownLessonKey = lessonKey;
+      hideLessonOverlayImmediate();
+      el.lessonOverlay.classList.add('active');
+      lessonOverlayTimeout = setTimeout(() => {
+        el.lessonOverlay.classList.add('exit');
+        el.lessonCard.classList.add('highlight');
+        lessonOverlayExitTimeout = setTimeout(() => {
+          el.lessonOverlay.classList.remove('active', 'exit');
+          setTimeout(() => el.lessonCard.classList.remove('highlight'), 250);
+        }, 560);
+      }, 4400);
+    }
+
+    function updateContentUI() {
+      const data = currentViewData();
+      el.eyebrowText.textContent = data.eyebrow;
+      el.heroTitle.innerHTML = data.hero;
+      el.heroSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+      el.practiceCopyLabel.textContent = data.copyLabel;
+      el.practiceCopyTitle.textContent = data.copyTitle;
+      el.practiceCopyBody.textContent = data.copyBody;
+      el.sessionModeBadge.textContent = data.badge || data.eyebrow;
+      el.sessionTitle.innerHTML = data.hero;
+      el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+      el.bottomNote.textContent = data.note;
+
+      if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome') {
+        el.lessonCard.style.display = 'block';
+        el.lessonTitle.textContent = data.copyTitle || 'Before you begin';
+        el.lessonBody.textContent = data.lesson;
+        el.lessonOverlayTitle.textContent = data.copyTitle || 'Before you begin';
+        el.lessonOverlayBody.textContent = data.lesson;
+        maybeShowLessonOverlay(data);
       } else {
-        startPlayback();
+        el.lessonCard.style.display = 'none';
+        el.lessonTitle.textContent = 'Before you begin';
+        el.lessonBody.textContent = '';
+        hideLessonOverlayImmediate();
       }
-      singleTapTimeout = null;
-    }, 220);
-  }
-
-  function resetSessionFromDoubleTap() {
-    clearTimeout(transitionTimeout);
-    clearTimeout(groundingTimeout);
-    isGrounding = false;
-    isRunning = false;
-    sessionStarted = false;
-    sessionCompleted = false;
-    if (currentPlaylist.length) {
-      loadTrack(0);
     }
-    resetVisualSessionState();
-    exitSessionMode();
-  }
 
-  function startSessionButton() {
-    if (!currentPlaylist.length) return;
-    initAudio();
-    enterSessionMode();
-    sessionStarted = true;
-    sessionCompleted = false;
-    isGrounding = true;
-    setCircleState('grounding');
-    el.sessionStateText.textContent = 'Settle';
-    el.sessionStateLabel.textContent = 'Grounding';
-    el.sessionTapHint.textContent = getModeConfig()?.groundingText || 'Get comfortable and prepare to begin';
+    function updateAudioStatus() {
+      if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
+      else if (activePractice === 'FoundationHome') el.audioText.textContent = 'Choose a Foundation Practice';
+      else if (activePractice === 'Foundation') el.audioText.textContent = practiceContent.Foundation.readyAudioText;
+      else if (activePractice === 'Stability') el.audioText.textContent = practiceContent.Stability.readyAudioText;
+    }
 
-    groundingTimeout = setTimeout(() => {
+    function updateInsightCard() {
+      const insights = getTrainingInsights();
+      const showOnThisScreen = activePractice === 'FoundationHome' || activePractice === 'Foundation' || activePractice === 'Stability';
+      if (!insights.total || !showOnThisScreen) {
+        el.insightCard.classList.remove('visible');
+        return;
+      }
+      el.insightCard.classList.add('visible');
+      el.insightTitle.textContent = insights.title;
+      el.insightBody.textContent = insights.body;
+    }
+
+    function renderFoundationHomeCards() {
+      el.foundationCardsContainer.innerHTML = '';
+      const progress = loadProgress();
+      const nextKey = foundationOrder.find((key) => !progress[key]) || foundationOrder[0];
+      foundationOrder.forEach((key) => {
+        const data = practiceContent.Foundation.subcategories[key];
+        const btn = document.createElement('button');
+        btn.className = 'foundation-card-btn';
+        if (key === nextKey) btn.classList.add('next');
+        if (progress[key]) btn.classList.add('completed');
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Foundation Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}</div>`;
+        btn.addEventListener('click', () => setSubcategory(key, false));
+        el.foundationCardsContainer.appendChild(btn);
+      });
+    }
+
+    function resetVisualSessionState() {
+      setCircleState('idle');
+      el.sessionStateText.textContent = 'Ready';
+      el.sessionStateLabel.textContent = 'Awaiting Start';
+      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      updateSeekUI();
+    }
+
+    function syncUI() {
+      updateContentUI();
+      updateMenuState();
+      updateJourneyButtons();
+      updateAudioStatus();
+      renderFoundationHomeCards();
+      updateInsightCard();
+      resetVisualSessionState();
+    }
+
+    function loadTrack(index) {
+      if (!currentPlaylist[index]) return false;
+      detachAudio();
+      currentTrackIndex = index;
+      currentAudio = new Audio(currentPlaylist[index]);
+      currentAudio.preload = 'auto';
+      currentAudio.volume = Number(document.querySelector('.volume-slider')?.value || 70) / 100;
+      currentAudio.ontimeupdate = updateSeekUI;
+      currentAudio.onended = handleTrackEnd;
+      updateSeekUI();
+      return true;
+    }
+
+    function initAudio() {
+      currentPlaylist = buildPlaylist();
+      if (currentPlaylist.length) loadTrack(0);
+      else {
+        detachAudio();
+        updateSeekUI();
+      }
+    }
+
+    function hideReflectionTakeover() {
+      el.reflectionScreen.classList.remove('active');
+      el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
+    }
+
+    function showReflectionTakeover() {
+      el.reflectionScreen.classList.add('active');
+    }
+
+    function hideCompletionTakeover() {
+      el.completionScreen.classList.remove('active');
+    }
+
+    function showCompletionTakeover(reflection = '') {
+      const modeConfig = getModeConfig();
+      const sub = getSubcategoryData();
+      const reinforcement = REFLECTION_REINFORCEMENT[reflection] || null;
+      const insights = getTrainingInsights();
+      el.completionScreenTitle.textContent = reinforcement?.title || 'Well done.';
+      el.completionScreenSubtitle.textContent = reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+      if (insights.streak >= 2) {
+        el.completionScreenSubtitle.textContent += `
+
+${insights.streak} days of showing up.`;
+      }
+      el.completionScreen.classList.add('active');
+    }
+
+    function enterSessionMode() {
+      hideReflectionTakeover();
+      hideCompletionTakeover();
+      el.sessionOverlay.classList.add('active');
+    }
+
+    function exitSessionMode() {
+      el.sessionOverlay.classList.remove('active');
+      hideReflectionTakeover();
+      hideCompletionTakeover();
+    }
+
+    function startPlayback() {
+      if (!currentAudio) return;
+      const modeConfig = getModeConfig();
+      const sub = getSubcategoryData();
+      currentAudio.play().catch(() => {});
+      isRunning = true;
+      sessionStarted = true;
+      el.audioStatus.classList.add('playing');
+      el.volumeControl.classList.add('active');
+      const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
+      setCircleState(inEndingPhase ? 'ending' : 'playing');
+      el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
+      el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      updateSeekUI();
+    }
+
+    function pausePlayback() {
+      if (!currentAudio) return;
+      currentAudio.pause();
+      isRunning = false;
+      const modeConfig = getModeConfig();
+      el.audioStatus.classList.remove('playing');
+      setCircleState('paused');
+      el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
+      el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
+      el.sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
+    }
+
+    function handleTrackEnd() {
+      if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
+        isRunning = false;
+        setCircleState('ending');
+        el.sessionStateText.textContent = 'Settling';
+        el.sessionStateLabel.textContent = 'Transition';
+        el.sessionTapHint.textContent = 'Stay with the stillness.';
+        transitionTimeout = setTimeout(() => {
+          loadTrack(currentTrackIndex + 1);
+          startPlayback();
+        }, TRANSITION_DELAY);
+        return;
+      }
+
+      sessionCompleted = true;
+      isRunning = false;
+      setCircleState('complete');
+      el.audioStatus.classList.remove('playing');
+      el.volumeControl.classList.remove('active');
+      if (activePractice === 'Foundation' && activeSubcategory) savePracticeComplete(activeSubcategory);
+      setTimeout(showReflectionTakeover, 900);
+    }
+
+    function handleCircleTap() {
+      if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
+      if (singleTapTimeout) {
+        clearTimeout(singleTapTimeout);
+        singleTapTimeout = null;
+        resetSessionFromDoubleTap();
+        return;
+      }
+      singleTapTimeout = setTimeout(() => {
+        if (isRunning) pausePlayback();
+        else startPlayback();
+        singleTapTimeout = null;
+      }, 220);
+    }
+
+    function resetSessionFromDoubleTap() {
+      clearTimeout(transitionTimeout);
+      clearTimeout(groundingTimeout);
       isGrounding = false;
-      startPlayback();
-    }, 2000);
-  }
-  window.startSessionButton = startSessionButton;
-
-  function setVolume(value) {
-    if (currentAudio) {
-      currentAudio.volume = Number(value) / 100;
+      isRunning = false;
+      sessionStarted = false;
+      sessionCompleted = false;
+      if (currentPlaylist.length) loadTrack(0);
+      resetVisualSessionState();
+      exitSessionMode();
     }
-  }
-  window.setVolume = setVolume;
 
-  function exitSessionEarly() {
-    clearTimeout(transitionTimeout);
-    clearTimeout(groundingTimeout);
-    detachAudio();
-    isRunning = false;
-    sessionStarted = false;
-    sessionCompleted = false;
-    initAudio();
-    resetVisualSessionState();
-    exitSessionMode();
-  }
-  window.exitSessionEarly = exitSessionEarly;
-
-  function selectMainMode(name) {
-    activePractice = name;
-    foundationMenuOpen = false;
-    stabilityMenuOpen = false;
-    shownLessonKey = '';
-    if (name === 'Introduction') {
-      activeSubcategory = 'BreathAwareness';
+    function startSessionButton() {
+      if (!currentPlaylist.length) return;
+      initAudio();
+      enterSessionMode();
+      sessionStarted = true;
+      sessionCompleted = false;
+      isGrounding = true;
+      setCircleState('grounding');
+      el.sessionStateText.textContent = 'Settle';
+      el.sessionStateLabel.textContent = 'Grounding';
+      el.sessionTapHint.textContent = getModeConfig()?.groundingText || 'Get comfortable and prepare to begin';
+      groundingTimeout = setTimeout(() => {
+        isGrounding = false;
+        startPlayback();
+      }, 2000);
     }
-    initAudio();
-    syncUI();
-    closeMenu();
-  }
-  window.selectMainMode = selectMainMode;
+    window.startSessionButton = startSessionButton;
 
-  function toggleFoundationMenu() {
-    if (activePractice !== 'FoundationHome' && activePractice !== 'Foundation') {
-      activePractice = 'FoundationHome';
+    function setVolume(value) {
+      if (currentAudio) currentAudio.volume = Number(value) / 100;
+    }
+    window.setVolume = setVolume;
+
+    function exitSessionEarly() {
+      clearTimeout(transitionTimeout);
+      clearTimeout(groundingTimeout);
+      detachAudio();
+      isRunning = false;
+      sessionStarted = false;
+      sessionCompleted = false;
+      initAudio();
+      resetVisualSessionState();
+      exitSessionMode();
+    }
+    window.exitSessionEarly = exitSessionEarly;
+
+    function toggleMenu() {
+      el.menuOverlay.classList.toggle('active');
+    }
+    window.toggleMenu = toggleMenu;
+
+    function closeMenu() {
+      el.menuOverlay.classList.remove('active');
+    }
+
+    function selectMainMode(name) {
+      activePractice = name;
+      foundationMenuOpen = false;
       stabilityMenuOpen = false;
-      foundationMenuOpen = true;
-    } else {
-      foundationMenuOpen = !foundationMenuOpen;
+      shownLessonKey = '';
+      if (name === 'Introduction') activeSubcategory = 'BreathAwareness';
+      initAudio();
+      syncUI();
+      closeMenu();
     }
-    initAudio();
-    syncUI();
-  }
-  window.toggleFoundationMenu = toggleFoundationMenu;
+    window.selectMainMode = selectMainMode;
 
-  function setSubcategory(name, fromMenu = false, event = null) {
-    if (event) event.stopPropagation();
-    activePractice = 'Foundation';
-    activeSubcategory = name;
-    foundationMenuOpen = true;
-    stabilityMenuOpen = false;
-    shownLessonKey = '';
-    initAudio();
-    syncUI();
-    if (fromMenu) closeMenu();
-  }
-  window.setSubcategory = setSubcategory;
+    function toggleFoundationMenu() {
+      if (activePractice !== 'FoundationHome' && activePractice !== 'Foundation') {
+        activePractice = 'FoundationHome';
+        stabilityMenuOpen = false;
+        foundationMenuOpen = true;
+      } else {
+        foundationMenuOpen = !foundationMenuOpen;
+      }
+      initAudio();
+      syncUI();
+    }
+    window.toggleFoundationMenu = toggleFoundationMenu;
 
-  function toggleStabilityMenu() {
-    if (activePractice !== 'Stability') {
+    function setSubcategory(name, fromMenu = false, event = null) {
+      if (event) event.stopPropagation();
+      activePractice = 'Foundation';
+      activeSubcategory = name;
+      foundationMenuOpen = true;
+      stabilityMenuOpen = false;
+      shownLessonKey = '';
+      initAudio();
+      syncUI();
+      if (fromMenu) closeMenu();
+    }
+    window.setSubcategory = setSubcategory;
+
+    function toggleStabilityMenu() {
+      if (activePractice !== 'Stability') {
+        activePractice = 'Stability';
+        activeSubcategory = 'OpenAwareness';
+        stabilityMenuOpen = true;
+        foundationMenuOpen = false;
+      } else {
+        stabilityMenuOpen = !stabilityMenuOpen;
+      }
+      initAudio();
+      syncUI();
+    }
+    window.toggleStabilityMenu = toggleStabilityMenu;
+
+    function setStabilitySubcategory(name, fromMenu = false, event = null) {
+      if (event) event.stopPropagation();
       activePractice = 'Stability';
-      activeSubcategory = 'OpenAwareness';
+      activeSubcategory = name;
       stabilityMenuOpen = true;
       foundationMenuOpen = false;
-    } else {
-      stabilityMenuOpen = !stabilityMenuOpen;
+      shownLessonKey = '';
+      initAudio();
+      syncUI();
+      if (fromMenu) closeMenu();
     }
-    initAudio();
-    syncUI();
-  }
-  window.toggleStabilityMenu = toggleStabilityMenu;
+    window.setStabilitySubcategory = setStabilitySubcategory;
 
-  function setStabilitySubcategory(name, fromMenu = false, event = null) {
-    if (event) event.stopPropagation();
-    activePractice = 'Stability';
-    activeSubcategory = name;
-    stabilityMenuOpen = true;
-    foundationMenuOpen = false;
-    shownLessonKey = '';
-    initAudio();
-    syncUI();
-    if (fromMenu) closeMenu();
-  }
-  window.setStabilitySubcategory = setStabilitySubcategory;
-
-  function goToFoundationHome() {
-    activePractice = 'FoundationHome';
-    foundationMenuOpen = true;
-    shownLessonKey = '';
-    initAudio();
-    syncUI();
-  }
-  window.goToFoundationHome = goToFoundationHome;
-
-  function goToNextPractice() {
-    const index = foundationOrder.indexOf(activeSubcategory);
-    const next = index >= 0 && index < foundationOrder.length - 1 ? foundationOrder[index + 1] : foundationOrder[0];
-    setSubcategory(next, false);
-  }
-  window.goToNextPractice = goToNextPractice;
-
-  function repeatCurrentPractice() {
-    hideCompletionTakeover();
-    startSessionButton();
-  }
-  window.repeatCurrentPractice = repeatCurrentPractice;
-
-  function goToNextPracticeFromCompletion() {
-    hideCompletionTakeover();
-    exitSessionMode();
-    if (activePractice === 'Stability') {
-      const index = stabilityOrder.indexOf(activeSubcategory);
-      const next = index >= 0 && index < stabilityOrder.length - 1 ? stabilityOrder[index + 1] : stabilityOrder[0];
-      setStabilitySubcategory(next, false);
-    } else {
-      goToNextPractice();
+    function goToFoundationHome() {
+      activePractice = 'FoundationHome';
+      foundationMenuOpen = true;
+      shownLessonKey = '';
+      initAudio();
+      syncUI();
     }
-  }
-  window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
+    window.goToFoundationHome = goToFoundationHome;
 
-  function goToFoundationFromCompletion() {
-    hideCompletionTakeover();
-    exitSessionMode();
-    if (activePractice === 'Stability') {
-      selectMainMode('Introduction');
-    } else {
-      goToFoundationHome();
+    function goToNextPractice() {
+      const index = foundationOrder.indexOf(activeSubcategory);
+      const next = index >= 0 && index < foundationOrder.length - 1 ? foundationOrder[index + 1] : foundationOrder[0];
+      setSubcategory(next, false);
     }
-  }
-  window.goToFoundationFromCompletion = goToFoundationFromCompletion;
+    window.goToNextPractice = goToNextPractice;
 
-  function handleReflectionChoice(button) {
-    if (!button) return;
-    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => {
-      btn.classList.toggle('active', btn === button);
-    });
-    const reflection = button.dataset.reflection || '';
-    saveReflectionEntry(reflection);
-    hideReflectionTakeover();
-    showCompletionTakeover(reflection);
-  }
+    function repeatCurrentPractice() {
+      hideCompletionTakeover();
+      startSessionButton();
+    }
+    window.repeatCurrentPractice = repeatCurrentPractice;
 
-  el.reflectionOptionsTakeover.addEventListener('click', (event) => {
-    const button = event.target.closest('.reflection-option-btn');
-    handleReflectionChoice(button);
-  });
-
-  el.sessionCircleShell.addEventListener('click', handleCircleTap);
-  el.sessionSeekBar.addEventListener('input', (event) => {
-    seekToPercent(Number(event.target.value));
-  });
-
-  function preloadMeditationAudio() {
-    const audioFiles = [
-      INTRODUCTION_AUDIO,
-      ...FOUNDATION_BREATH_AWARENESS_AUDIO,
-      ...FOUNDATION_BODY_AWARENESS_AUDIO,
-      ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
-      ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
-      ...FOUNDATION_DEEP_FOCUS_AUDIO,
-      STABILITY_OPEN_AWARENESS_AUDIO,
-      STABILITY_SENSORY_AWARENESS_AUDIO
-    ].filter(Boolean);
-    audioFiles.forEach((src) => {
-      const audio = new Audio();
-      audio.preload = 'auto';
-      audio.src = src;
-    });
-  }
-
-  window.addEventListener('load', () => {
-    preloadMeditationAudio();
-    initAudio();
-    syncUI();
-    showOpeningQuoteScene();
-  });
-
-  window.addEventListener('resize', () => {
-    if (el.welcomeScreen.classList.contains('active') && !welcomeDismissed) {
-      if (welcomeAnimationFrame) {
-        cancelAnimationFrame(welcomeAnimationFrame);
-        welcomeAnimationFrame = null;
+    function goToNextPracticeFromCompletion() {
+      hideCompletionTakeover();
+      exitSessionMode();
+      if (activePractice === 'Stability') {
+        const index = stabilityOrder.indexOf(activeSubcategory);
+        const next = index >= 0 && index < stabilityOrder.length - 1 ? stabilityOrder[index + 1] : stabilityOrder[0];
+        setStabilitySubcategory(next, false);
+      } else {
+        goToNextPractice();
       }
-      drawWelcomeRing();
     }
-  });
+    window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
 
-  el.welcomeStartBtn.addEventListener('click', async (event) => {
-    event.stopPropagation();
-    await startWelcomePlayback();
-  });
-</script>
+    function goToFoundationFromCompletion() {
+      hideCompletionTakeover();
+      exitSessionMode();
+      if (activePractice === 'Stability') {
+        activePractice = 'Stability';
+        activeSubcategory = 'OpenAwareness';
+        stabilityMenuOpen = true;
+        foundationMenuOpen = false;
+        shownLessonKey = '';
+        initAudio();
+        syncUI();
+      } else {
+        goToFoundationHome();
+      }
+    }
+    window.goToFoundationFromCompletion = goToFoundationFromCompletion;
+
+    function handleReflectionChoice(button) {
+      if (!button) return;
+      el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.toggle('active', btn === button));
+      const reflection = button.dataset.reflection || '';
+      saveReflectionEntry(reflection);
+      recordCompletedSession(reflection);
+      hideReflectionTakeover();
+      updateInsightCard();
+      showCompletionTakeover(reflection);
+    }
+
+    function preloadMeditationAudio() {
+      const audioFiles = [
+        INTRODUCTION_AUDIO,
+        ...FOUNDATION_BREATH_AWARENESS_AUDIO,
+        ...FOUNDATION_BODY_AWARENESS_AUDIO,
+        ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
+        ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
+        ...FOUNDATION_DEEP_FOCUS_AUDIO,
+        STABILITY_OPEN_AWARENESS_AUDIO,
+        STABILITY_SENSORY_AWARENESS_AUDIO
+      ].filter(Boolean);
+      audioFiles.forEach((src) => {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = src;
+      });
+    }
+
+    function ensureWelcomeAudioGraph() {
+      if (welcomeAudioCtx) return;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx || !el.welcomeAudio) return;
+      welcomeAudioCtx = new AudioCtx();
+      welcomeAnalyser = welcomeAudioCtx.createAnalyser();
+      welcomeAnalyser.fftSize = 256;
+      welcomeData = new Uint8Array(welcomeAnalyser.frequencyBinCount);
+      welcomeSource = welcomeAudioCtx.createMediaElementSource(el.welcomeAudio);
+      welcomeSource.connect(welcomeAnalyser);
+      welcomeAnalyser.connect(welcomeAudioCtx.destination);
+    }
+
+    function getWelcomeAudioLevel() {
+      if (!welcomeAnalyser || !welcomeData) return 0.2;
+      welcomeAnalyser.getByteFrequencyData(welcomeData);
+      let sum = 0;
+      for (let i = 0; i < welcomeData.length; i++) sum += welcomeData[i];
+      return Math.max(0.05, Math.min(1, (sum / welcomeData.length) / 140));
+    }
+
+    function drawWelcomeRing() {
+      const canvas = el.welcomeCanvas;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const w = rect.width;
+      const h = rect.height;
+      const cx = w / 2;
+      const cy = h * 0.42;
+      const outerBase = Math.min(w, h) * 0.30;
+      const innerBase = outerBase * 0.58;
+      const particleCount = Math.max(24000, Math.floor(w * 22));
+
+      const render = () => {
+        welcomeAnimationFrame = requestAnimationFrame(render);
+        ctx.clearRect(0, 0, w, h);
+
+        const amp = getWelcomeAudioLevel();
+        const speakScale = 1 + amp * 0.35;
+        const outerR = outerBase * speakScale;
+        const innerR = innerBase * (1 + amp * 0.15);
+        const haloR = outerR * 1.03;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+
+        for (let i = 0; i < particleCount; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const radialMix = Math.random();
+          const bias = Math.pow(radialMix, 0.24);
+          const r = innerR + (outerR - innerR) * bias;
+          const jitter = (Math.random() - 0.5) * (5.2 + amp * 4.2);
+          const x = cx + Math.cos(theta) * (r + jitter);
+          const y = cy + Math.sin(theta) * (r + jitter * 0.72);
+          const size = Math.random() < 0.94 ? 1 : 1.35;
+          const alphaCore = 0.11 + bias * 0.2 + amp * 0.08;
+          ctx.fillStyle = `rgba(255,255,255,${Math.min(0.28, alphaCore)})`;
+          ctx.fillRect(x, y, size, size);
+        }
+
+        for (let i = 0; i < particleCount * 1.45; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const t = Math.random();
+          const r = innerR + (outerR - innerR) * Math.pow(t, 0.18);
+          const x = cx + Math.cos(theta) * r;
+          const y = cy + Math.sin(theta) * r;
+          ctx.fillStyle = 'rgba(255,255,255,0.028)';
+          ctx.fillRect(x, y, 1, 1);
+        }
+
+        for (let i = 0; i < particleCount * 2.1; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const r = innerR + Math.random() * (outerR - innerR);
+          const x = cx + Math.cos(theta) * r;
+          const y = cy + Math.sin(theta) * r;
+          ctx.fillStyle = 'rgba(255,255,255,0.012)';
+          ctx.fillRect(x, y, 1, 1);
+        }
+
+        for (let i = 0; i < particleCount * 0.16; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const spread = haloR + Math.random() * (25 + amp * 10);
+          const x = cx + Math.cos(theta) * spread;
+          const y = cy + Math.sin(theta) * spread;
+          const alpha = 0.015 + Math.random() * 0.03 + amp * 0.015;
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.fillRect(x, y, 1, 1);
+        }
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        const cut = ctx.createRadialGradient(cx, cy, innerR * 0.9, cx, cy, innerR * 1.1);
+        cut.addColorStop(0, 'rgba(0,0,0,1)');
+        cut.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = cut;
+        ctx.beginPath();
+        ctx.arc(cx, cy, innerR * 1.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        const glow = ctx.createRadialGradient(cx, cy, innerR * 0.28, cx, cy, outerR * 1.28);
+        glow.addColorStop(0, `rgba(255,255,255,${0.055 + amp * 0.04})`);
+        glow.addColorStop(0.6, 'rgba(255,255,255,0.02)');
+        glow.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR * 1.22, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      };
+
+      render();
+    }
+
+    function updateWelcomeCaption() {
+      const t = el.welcomeAudio.currentTime || 0;
+      const cue = WELCOME_SCRIPT_CUES.find((item) => t >= item.start && t < item.end);
+      if (cue) {
+        if (el.welcomeCaption.textContent !== cue.text) el.welcomeCaption.textContent = cue.text;
+        el.welcomeCaption.classList.add('visible');
+        return;
+      }
+      const previousCue = [...WELCOME_SCRIPT_CUES].reverse().find((item) => t >= item.end && t < item.end + 0.45);
+      if (previousCue) {
+        if (el.welcomeCaption.textContent !== previousCue.text) el.welcomeCaption.textContent = previousCue.text;
+        el.welcomeCaption.classList.add('visible');
+        return;
+      }
+      el.welcomeCaption.textContent = '';
+      el.welcomeCaption.classList.remove('visible');
+    }
+
+    async function startWelcomePlayback() {
+      if (welcomeStarted || !el.welcomeAudio) return false;
+      welcomeStarted = true;
+      ensureWelcomeAudioGraph();
+      el.welcomeStartBtn.classList.add('hidden');
+      try {
+        if (welcomeAudioCtx && welcomeAudioCtx.state === 'suspended') await welcomeAudioCtx.resume();
+        el.welcomeAudio.currentTime = 0;
+        await el.welcomeAudio.play();
+        updateWelcomeCaption();
+      } catch {
+        welcomeStarted = false;
+        el.welcomeStartBtn.classList.remove('hidden');
+        return false;
+      }
+      el.welcomeAudio.ontimeupdate = updateWelcomeCaption;
+      el.welcomeAudio.onended = () => {
+        el.welcomeCaption.classList.remove('visible');
+        markWelcomeIntroSeen();
+        setTimeout(endWelcomeFlow, 350);
+      };
+      return true;
+    }
+
+    function endWelcomeFlow() {
+      if (welcomeDismissed) return;
+      welcomeDismissed = true;
+      el.welcomeStartBtn.classList.add('hidden');
+      el.welcomeSkipBtn.classList.add('hidden');
+      el.welcomeCaption.classList.remove('visible');
+      if (el.welcomeAudio) {
+        el.welcomeAudio.pause();
+        el.welcomeAudio.ontimeupdate = null;
+      }
+      el.welcomeScreen.classList.add('fade-out');
+      setTimeout(() => {
+        el.appShell.classList.add('revealed');
+        if (welcomeAnimationFrame) {
+          cancelAnimationFrame(welcomeAnimationFrame);
+          welcomeAnimationFrame = null;
+        }
+      }, 700);
+    }
+
+    function startWelcomeFlow() {
+      el.welcomeScreen.classList.add('active');
+      el.welcomeSkipBtn.classList.remove('hidden');
+      if (!welcomeAnimationFrame) drawWelcomeRing();
+    }
+
+    function showOpeningQuoteScene() {
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      el.openingQuote.textContent = `“${q.text}”`;
+      el.openingAuthor.textContent = q.author;
+      setTimeout(() => {
+        el.openingScene.classList.add('fade-out');
+        if (hasSeenWelcomeIntro()) {
+          el.appShell.classList.add('revealed');
+        } else {
+          startWelcomeFlow();
+        }
+      }, 1800);
+    }
+
+    el.reflectionOptionsTakeover.addEventListener('click', (event) => {
+      const button = event.target.closest('.reflection-option-btn');
+      handleReflectionChoice(button);
+    });
+
+    el.sessionCircleShell.addEventListener('click', handleCircleTap);
+    el.sessionSeekBar.addEventListener('input', (event) => seekToPercent(Number(event.target.value)));
+    el.welcomeStartBtn.addEventListener('click', async (event) => {
+      event.stopPropagation();
+      await startWelcomePlayback();
+    });
+    el.welcomeSkipBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      markWelcomeIntroSeen();
+      endWelcomeFlow();
+    });
+
+    window.addEventListener('load', () => {
+      preloadMeditationAudio();
+      initAudio();
+      syncUI();
+      showOpeningQuoteScene();
+    });
+
+    window.addEventListener('resize', () => {
+      if (el.welcomeScreen.classList.contains('active') && !welcomeDismissed) {
+        if (welcomeAnimationFrame) {
+          cancelAnimationFrame(welcomeAnimationFrame);
+          welcomeAnimationFrame = null;
+        }
+        drawWelcomeRing();
+      }
+    });
+  </script>
 </body>
 </html>
