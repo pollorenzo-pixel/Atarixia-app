@@ -1455,6 +1455,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let singleTapTimeout = null;
     let groundingTimeout = null;
     let transitionTimeout = null;
+    let pendingTrackAdvance = false;
     let lessonOverlayTimeout = null;
     let lessonOverlayExitTimeout = null;
     let shownLessonKey = '';
@@ -1850,6 +1851,9 @@ ${feedback}`;
       currentAudio.volume = Number(document.querySelector('.volume-slider')?.value || 70) / 100;
       currentAudio.ontimeupdate = updateSeekUI;
       currentAudio.onended = handleTrackEnd;
+      currentAudio.onpause = () => {
+        updateSeekUI();
+      };
       updateSeekUI();
       return true;
     }
@@ -1907,17 +1911,25 @@ ${insights.streak} days of showing up.`;
       if (!currentAudio) return;
       const modeConfig = getModeConfig();
       const sub = getSubcategoryData();
-      currentAudio.play().catch(() => {});
-      isRunning = true;
-      sessionStarted = true;
-      el.audioStatus.classList.add('playing');
-      el.volumeControl.classList.add('active');
-      const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
-      setCircleState(inEndingPhase ? 'ending' : 'playing');
-      el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
-      el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
-      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-      updateSeekUI();
+      currentAudio.play().then(() => {
+        isRunning = true;
+        sessionStarted = true;
+        el.audioStatus.classList.add('playing');
+        el.volumeControl.classList.add('active');
+        const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
+        setCircleState(inEndingPhase ? 'ending' : 'playing');
+        el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
+        el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+        el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+        updateSeekUI();
+      }).catch(() => {
+        isRunning = false;
+        el.audioStatus.classList.remove('playing');
+        setCircleState('paused');
+        el.sessionStateText.textContent = 'Paused';
+        el.sessionStateLabel.textContent = 'Awaiting Resume';
+        el.sessionTapHint.textContent = pendingTrackAdvance ? 'Tap to continue closing audio.' : 'Tap to resume.';
+      });
     }
 
     function pausePlayback() {
@@ -1932,20 +1944,50 @@ ${insights.streak} days of showing up.`;
       el.sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
     }
 
+    function advanceToNextTrackIfNeeded(force = false) {
+      if (!isLegacyMultiTrackSession()) return false;
+      if (currentTrackIndex >= currentPlaylist.length - 1) return false;
+      if (!currentAudio) return false;
+
+      const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : 0;
+      const reachedEnd = currentAudio.ended || (duration > 0 && currentAudio.currentTime >= Math.max(0, duration - 0.25));
+      if (!force && !pendingTrackAdvance && !reachedEnd) return false;
+
+      pendingTrackAdvance = false;
+      clearTimeout(transitionTimeout);
+      loadTrack(currentTrackIndex + 1);
+      startPlayback();
+      return true;
+    }
+
+    function maybeRecoverAudioState() {
+      if (!sessionStarted || sessionCompleted || !el.sessionOverlay.classList.contains('active')) return;
+
+      if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
+        const recovered = advanceToNextTrackIfNeeded();
+        if (recovered) return;
+      }
+
+      if (currentAudio && isRunning && currentAudio.paused && !document.hidden) {
+        currentAudio.play().catch(() => {});
+      }
+    }
+
     function handleTrackEnd() {
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
         isRunning = false;
+        pendingTrackAdvance = true;
         setCircleState('ending');
         el.sessionStateText.textContent = 'Settling';
         el.sessionStateLabel.textContent = 'Transition';
         el.sessionTapHint.textContent = 'Stay with the stillness.';
         transitionTimeout = setTimeout(() => {
-          loadTrack(currentTrackIndex + 1);
-          startPlayback();
+          advanceToNextTrackIfNeeded(true);
         }, TRANSITION_DELAY);
         return;
       }
 
+      pendingTrackAdvance = false;
       sessionCompleted = true;
       isRunning = false;
       setCircleState('complete');
@@ -1985,6 +2027,7 @@ ${insights.streak} days of showing up.`;
     function resetSessionFromDoubleTap() {
       clearTimeout(transitionTimeout);
       clearTimeout(groundingTimeout);
+      pendingTrackAdvance = false;
       isGrounding = false;
       isRunning = false;
       sessionStarted = false;
@@ -2020,6 +2063,7 @@ ${insights.streak} days of showing up.`;
     function exitSessionEarly() {
       clearTimeout(transitionTimeout);
       clearTimeout(groundingTimeout);
+      pendingTrackAdvance = false;
       detachAudio();
       isRunning = false;
       sessionStarted = false;
@@ -2426,6 +2470,20 @@ ${insights.streak} days of showing up.`;
       if (event.key === 'Escape') {
         closeMenu();
       }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        setTimeout(maybeRecoverAudioState, 250);
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      setTimeout(maybeRecoverAudioState, 250);
+    });
+
+    window.addEventListener('pageshow', () => {
+      setTimeout(maybeRecoverAudioState, 250);
     });
   </script>
 </body>
