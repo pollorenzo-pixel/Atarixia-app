@@ -149,7 +149,7 @@
     .welcome-content {
       position: relative;
       z-index: 2;
-      width: min(860px, 100%);
+      width: min(1000px, 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -159,14 +159,75 @@
       padding: 20px;
     }
 
+    .welcome-caption {
+      position: absolute;
+      left: 50%;
+      bottom: 124px;
+      transform: translate(-50%, -50%);
+      width: min(760px, calc(100% - 48px));
+      font-size: clamp(14px, 2vw, 20px);
+      line-height: 1.75;
+      letter-spacing: 0.01em;
+      color: rgba(242,242,242,0.92);
+      text-align: center;
+      text-wrap: balance;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      z-index: 3;
+      white-space: pre-line;
+      text-shadow: 0 0 20px rgba(0,0,0,0.35);
+    }
+
+    .welcome-caption.visible {
+      opacity: 1;
+    }
+
     .welcome-ring-wrap {
       position: relative;
-      width: min(72vw, 460px);
+      width: min(60vmin, 660px);
       aspect-ratio: 1 / 1;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
+    .welcome-start-btn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      bottom: auto;
+      transform: translate(-50%, -50%);
+      min-width: 220px;
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      z-index: 3;
+      transition: opacity 0.25s ease, transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .welcome-start-btn:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--line-strong);
+    }
+
+    .welcome-start-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -46%);
+    }
+
+    
 
     
 
@@ -638,6 +699,7 @@
       display: flex;
       gap: 10px;
       justify-content: center;
+      align-items: center;
       flex-wrap: wrap;
     }
 
@@ -679,7 +741,6 @@
     }
 
     .journey-btn.hidden,
-    .completion-panel.hidden,
     .foundation-home-panel.hidden {
       display: none;
     }
@@ -1191,57 +1252,7 @@
       max-width: 280px;
     }
 
-    .circle-complete-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      padding: 26px;
-      background:
-        radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.018) 44%, rgba(255,255,255,0.01) 100%);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity 0.35s ease, visibility 0.35s ease;
-    }
-
-    .circle-complete-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .circle-complete-mark {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.12);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      color: var(--text);
-      box-shadow: inset 0 0 24px rgba(255,255,255,0.03);
-    }
-
-    .circle-complete-title {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-
-    .circle-complete-subtitle {
-      font-size: 9px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      line-height: 1.5;
-      max-width: 220px;
-    }
+    
 
     .session-copy {
       max-width: 720px;
@@ -1321,14 +1332,6 @@
       color: var(--text-faint);
     }
 
-    .completion-message {
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-top: 6px;
-    }
-
     .reflection-screen,
     .completion-screen {
       position: fixed;
@@ -1396,34 +1399,9 @@
       color: var(--text-dim);
     }
 
-    .reflection-panel {
-      width: min(620px, 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      margin-top: 10px;
-      padding: 18px;
-      border-radius: 22px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.03);
-      box-shadow: var(--shadow-md);
-    }
-
-    .reflection-panel.hidden {
-      display: none;
-    }
-
-    .reflection-title {
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      text-align: center;
-      line-height: 1.6;
-    }
-
-    .reflection-options {
+    .reflection-options,
+    .completion-panel {
+      margin-top: 6px;
       width: 100%;
       display: flex;
       justify-content: center;
@@ -1539,12 +1517,13 @@
   <div class="welcome-screen" id="welcomeScreen">
     <canvas class="welcome-canvas" id="welcomeCanvas"></canvas>
     <div class="welcome-content">
-      <div class="welcome-ring-wrap"></div>
-      <div class="welcome-kicker" id="welcomeTapHint" style="display:none;">Tap anywhere to begin</div>
+      <div class="welcome-ring-wrap">
+        <button class="welcome-start-btn" id="welcomeStartBtn" type="button">Begin Welcome</button>
+      </div>
+      <div class="welcome-caption" id="welcomeCaption"></div>
     </div>
-    <audio id="audio/Brittney welcome audio.mp3" preload="auto">
-      <!-- Add your welcome audio source manually here -->
-      <!-- Example: <source src="audio/your welcome audio.mp3" type="audio/mpeg"> -->
+    <audio id="welcomeAudio" preload="auto">
+      <source src="audio/Brittney welcome audio.mp3" type="audio/mpeg">
     </audio>
   </div>
 
@@ -1686,7 +1665,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
   <div class="completion-screen" id="completionScreen">
     <div class="completion-screen-panel">
       <div class="completion-screen-kicker">Session Complete</div>
-      <div class="completion-screen-title">Well done.</div>
+      <div class="completion-screen-title" id="completionScreenTitle">Well done.</div>
       <div class="completion-screen-subtitle" id="completionScreenSubtitle">Take a moment to acknowledge the practice you just completed.</div>
       <div class="completion-panel" id="completionScreenPanel">
         <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat Practice</button>
@@ -1718,12 +1697,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
             <div class="session-state-text" id="sessionStateText">Ready</div>
             <div class="session-state-label" id="sessionStateLabel">Awaiting Start</div>
             <div class="session-tap-hint" id="sessionTapHint">Tap to Pause · Tap Again to Resume · Double Tap to Reset</div>
-            <div class="circle-complete-overlay" id="circleCompleteOverlay">
-              <div class="circle-complete-mark">✓</div>
-              <div class="circle-complete-title">Completed</div>
-              <div class="circle-complete-subtitle">Your session is complete. Take a moment before continuing.</div>
             </div>
-          </div>
         </div>
       </div>
 
@@ -1752,42 +1726,24 @@ You do not need to clear your mind. You do not need to perform. You only need to
           </div>
         </div>
 
-        <div class="completion-message" id="completionMessage" style="display:none;">Session complete</div>
-        <div class="reflection-panel hidden" id="reflectionPanel">
-          <div class="reflection-title">What did you notice most?</div>
-          <div class="reflection-options" id="reflectionOptions">
-            <button class="reflection-option-btn" data-reflection="Sounds">Sounds</button>
-            <button class="reflection-option-btn" data-reflection="Sensations">Sensations</button>
-            <button class="reflection-option-btn" data-reflection="Breath">Breath</button>
-            <button class="reflection-option-btn" data-reflection="Mind wandering">Mind wandering</button>
-          </div>
-        </div>
-        <div class="completion-panel hidden" id="completionPanel">
-          <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat Practice</button>
-          <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
-          <button class="completion-btn secondary" onclick="goToFoundationFromCompletion()">Back to Foundation</button>
-        </div>
+        
       </div>
     </div>
   </div>
 
   <script>
-   const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
-  const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
-  const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
-  const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
-  const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
-  const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
-  const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
-  const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
+    const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+  const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/foundation meditation/Breath only meditation foundation meditation.mp3', 'audio/foundation meditation/ending audio foundation.mp3'];
+  const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/foundation meditation/body awareness meditation.mp3', 'audio/foundation meditation/foundation audio endings/body awareness ending audio.mp3'];
+  const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/foundation meditation/Thought awareness meditation.mp3', 'audio/foundation meditation/foundation audio endings/thought awareness ending audio.mp3'];
+  const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/foundation meditation/Emotional Awareness meditations.mp3', 'audio/foundation meditation/foundation audio endings/emotional awareness ending audio.mp3'];
+  const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/foundation meditation/deep focus meditation.mp3', 'audio/foundation meditation/foundation audio endings/deep focus ending audio.mp3'];
+  const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/Stability meditation/open awareness meditation.mp3';
+  const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/Stability meditation/sensory awareness meditation.mp3';
 
   const STORAGE_KEY = 'ataraxia_foundation_progress_v3';
   const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
   const TRANSITION_DELAY = 2000;
-
-  function isLegacyMultiTrackSession() {
-    return activePractice === 'Foundation' && Array.isArray(currentPlaylist) && currentPlaylist.length > 1;
-  }
 
   const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
   const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
@@ -1798,6 +1754,50 @@ You do not need to clear your mind. You do not need to perform. You only need to
     { text: 'Calmness is the cradle of power.', author: 'Josiah Gilbert Holland' },
     { text: 'Return again. That is the training.', author: 'Unknown' }
   ];
+
+  const WELCOME_SCRIPT_OFFSET = 0.0;
+
+  const WELCOME_SCRIPT_CUES = [
+    { start: 0.0, end: 2.43, text: 'Hey… welcome to Ataraxia.' },
+    { start: 3.06, end: 4.97, text: 'Before we begin, just a quick note.' },
+    { start: 5.33, end: 7.66, text: 'This app is designed to help you train your mind…' },
+    { start: 8.16, end: 12.05, text: 'To build focus, awareness, and a calmer, more steady state.' },
+    { start: 12.53, end: 15.10, text: 'Think of it like going to the gym… but for your attention.' },
+    { start: 16.40, end: 25.10, text: `These practices are based on well-known techniques in mindfulness and mental training…
+This isn’t a replacement for professional medical or psychological care.` },
+    { start: 25.68, end: 31.16, text: 'If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
+    { start: 31.89, end: 35.97, text: 'Also, some sessions involve closing your eyes or going into deeper focus.' },
+    { start: 36.38, end: 42.48, text: `So just make sure you’re in a safe place…
+And definitely not driving or doing anything that needs your full attention.` },
+    { start: 43.55, end: 45.87, text: 'And remember… you’re always in control.' },
+    { start: 46.37, end: 50.79, text: 'If something doesn’t feel right, you can pause, adjust, or stop at any time.' },
+    { start: 51.84, end: 56.03, text: `Take what works for you…
+Leave what doesn’t…
+And move at your own pace.` },
+    { start: 56.91, end: 58.67, text: `Alright…
+Let’s begin.` }
+  ];
+
+  
+
+  const REFLECTION_REINFORCEMENT = {
+    Breath: {
+      title: 'You noticed the breath.',
+      body: 'That means your attention found an anchor. Each return strengthens focus.'
+    },
+    Sounds: {
+      title: 'You noticed sound.',
+      body: 'That means awareness stayed open. Noticing without chasing builds steadiness.'
+    },
+    Sensations: {
+      title: 'You noticed sensation.',
+      body: 'That means you were present in the body. Presence grows when sensation is clearly known.'
+    },
+    'Mind wandering': {
+      title: 'You noticed mind wandering.',
+      body: 'That is not failure. Catching distraction is the moment awareness gets stronger.'
+    }
+  };
 
   const practiceContent = {
     Introduction: {
@@ -1844,7 +1844,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: FOUNDATION_BREATH_AWARENESS_AUDIO,
           lesson: 'Your mind will wander. The skill is returning.',
           reinforcement: 'Each return to the breath strengthens attention.',
-          activeText: 'Playing', activeLabel: 'Breath Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+          activeText: 'Playing',
+          activeLabel: 'Breath Awareness',
+          endingText: 'Closing',
+          endingLabel: 'Ending Audio'
         },
         BodyAwareness: {
           title: 'Body Awareness Meditation',
@@ -1860,7 +1863,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: FOUNDATION_BODY_AWARENESS_AUDIO,
           lesson: 'You do not need to change the body. Only feel it clearly.',
           reinforcement: 'Feeling the body directly builds grounded presence.',
-          activeText: 'Playing', activeLabel: 'Body Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+          activeText: 'Playing',
+          activeLabel: 'Body Awareness',
+          endingText: 'Closing',
+          endingLabel: 'Ending Audio'
         },
         ThoughtAwareness: {
           title: 'Thought Awareness Meditation',
@@ -1876,7 +1882,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO,
           lesson: 'You are not trying to stop thought. You are learning not to follow it.',
           reinforcement: 'Seeing thought without chasing it builds mental distance.',
-          activeText: 'Playing', activeLabel: 'Thought Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+          activeText: 'Playing',
+          activeLabel: 'Thought Awareness',
+          endingText: 'Closing',
+          endingLabel: 'Ending Audio'
         },
         EmotionalAwareness: {
           title: 'Emotional Awareness Meditation',
@@ -1892,7 +1901,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
           lesson: 'You are not here to fix the feeling. Only to know it.',
           reinforcement: 'Allowing emotion without reacting builds steadiness.',
-          activeText: 'Playing', activeLabel: 'Emotional Awareness', endingText: 'Closing', endingLabel: 'Ending Audio'
+          activeText: 'Playing',
+          activeLabel: 'Emotional Awareness',
+          endingText: 'Closing',
+          endingLabel: 'Ending Audio'
         },
         DeepFocus: {
           title: 'Deep Focus Meditation',
@@ -1908,7 +1920,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: FOUNDATION_DEEP_FOCUS_AUDIO,
           lesson: 'Attention becomes stronger each time you return to one point.',
           reinforcement: 'Sustained return trains stronger concentration.',
-          activeText: 'Playing', activeLabel: 'Deep Focus', endingText: 'Closing', endingLabel: 'Ending Audio'
+          activeText: 'Playing',
+          activeLabel: 'Deep Focus',
+          endingText: 'Closing',
+          endingLabel: 'Ending Audio'
         }
       }
     },
@@ -1933,7 +1948,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: [STABILITY_OPEN_AWARENESS_AUDIO],
           lesson: 'Nothing needs to be chosen. Let the whole field be included.',
           reinforcement: 'Resting in openness trains stable awareness without force.',
-          activeText: 'Aware', activeLabel: 'Open Awareness', endingText: 'Open', endingLabel: 'Complete'
+          activeText: 'Aware',
+          activeLabel: 'Open Awareness',
+          endingText: 'Open',
+          endingLabel: 'Complete'
         },
         SensoryAwareness: {
           title: 'Sensory Awareness Meditation',
@@ -1949,7 +1967,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
           audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
           lesson: 'Let sensation come to you. Do not narrow attention.',
           reinforcement: 'Including the full sensory field widens and steadies awareness.',
-          activeText: 'Sensing', activeLabel: 'Sensory Awareness', endingText: 'Settling', endingLabel: 'Complete'
+          activeText: 'Sensing',
+          activeLabel: 'Sensory Awareness',
+          endingText: 'Settling',
+          endingLabel: 'Complete'
         }
       }
     }
@@ -1957,10 +1978,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   const el = {
     welcomeScreen: document.getElementById('welcomeScreen'),
-    welcomeTapHint: document.getElementById('welcomeTapHint'),
     welcomeCanvas: document.getElementById('welcomeCanvas'),
+    welcomeStartBtn: document.getElementById('welcomeStartBtn'),
+    welcomeCaption: document.getElementById('welcomeCaption'),
     welcomeAudio: document.getElementById('welcomeAudio'),
     lessonCard: document.getElementById('lessonCard'),
+    
     lessonTitle: document.getElementById('lessonTitle'),
     lessonBody: document.getElementById('lessonBody'),
     lessonOverlay: document.getElementById('lessonOverlay'),
@@ -2000,9 +2023,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     sessionTapHint: document.getElementById('sessionTapHint'),
     sessionTitle: document.getElementById('sessionTitle'),
     sessionSubtitle: document.getElementById('sessionSubtitle'),
-    circleCompleteOverlay: document.getElementById('circleCompleteOverlay'),
-    reflectionScreen: document.getElementById('reflectionScreen'),
+        reflectionScreen: document.getElementById('reflectionScreen'),
     completionScreen: document.getElementById('completionScreen'),
+    completionScreenTitle: document.getElementById('completionScreenTitle'),
     completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
     reflectionOptionsTakeover: document.getElementById('reflectionOptionsTakeover'),
     sessionSeekBar: document.getElementById('sessionSeekBar'),
@@ -2029,24 +2052,31 @@ You do not need to clear your mind. You do not need to perform. You only need to
   let singleTapTimeout = null;
   let groundingTimeout = null;
   let transitionTimeout = null;
-  let selectedReflection = '';
   let lessonOverlayTimeout = null;
   let lessonOverlayExitTimeout = null;
   let shownLessonKey = '';
+  let welcomeAnimationFrame = null;
+  let welcomeDismissed = false;
+  let welcomeStarted = false;
   let welcomeAudioCtx = null;
   let welcomeAnalyser = null;
   let welcomeSource = null;
   let welcomeData = null;
-  let welcomeAnimationFrame = null;
-  let welcomeStarted = false;
-  let welcomeDismissed = false;
-  let welcomeNeedsGesture = false;
+
+  function isLegacyMultiTrackSession() {
+    return activePractice === 'Foundation' && currentPlaylist.length > 1;
+  }
 
   function loadProgress() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch {
+      return {};
+    }
   }
 
   function savePracticeComplete(key) {
+    if (!key) return;
     const progress = loadProgress();
     progress[key] = true;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
@@ -2054,8 +2084,18 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   function saveReflectionEntry(reflection) {
     if (!reflection) return;
-    const existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
-    existing.push({ timestamp: new Date().toISOString(), mode: activePractice, practice: activeSubcategory || 'Introduction', reflection });
+    let existing = [];
+    try {
+      existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
+    } catch {
+      existing = [];
+    }
+    existing.push({
+      timestamp: new Date().toISOString(),
+      mode: activePractice,
+      practice: activeSubcategory || 'Introduction',
+      reflection
+    });
     localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
   }
 
@@ -2071,17 +2111,19 @@ You do not need to clear your mind. You do not need to perform. You only need to
     return getSubcategoryData() || practiceContent.Introduction;
   }
 
+  function getModeConfig() {
+    if (activePractice === 'Foundation') return practiceContent.Foundation;
+    if (activePractice === 'Stability') return practiceContent.Stability;
+    return null;
+  }
+
   function buildPlaylist() {
     if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
     const sub = getSubcategoryData();
     if (!sub?.audio) return [];
-
-    // Foundation is the only legacy multi-track area.
     if (activePractice === 'Foundation') {
       return Array.isArray(sub.audio) ? sub.audio : [sub.audio];
     }
-
-    // Everything else is single-track by default, even if wrapped in an array.
     return [Array.isArray(sub.audio) ? sub.audio[0] : sub.audio].filter(Boolean);
   }
 
@@ -2125,9 +2167,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   function setCircleState(state) {
     el.sessionCircleShell.classList.remove('state-idle', 'state-grounding', 'state-playing', 'state-paused', 'state-ending', 'state-complete', 'stability-mode', 'running');
-    if (activePractice === 'Stability') el.sessionCircleShell.classList.add('stability-mode');
-    if (state) el.sessionCircleShell.classList.add(`state-${state}`);
-    if (state === 'playing' || state === 'ending') el.sessionCircleShell.classList.add('running');
+    if (activePractice === 'Stability') {
+      el.sessionCircleShell.classList.add('stability-mode');
+    }
+    if (state) {
+      el.sessionCircleShell.classList.add(`state-${state}`);
+    }
+    if (state === 'playing' || state === 'ending') {
+      el.sessionCircleShell.classList.add('running');
+    }
   }
 
   function showOpeningQuoteScene() {
@@ -2142,16 +2190,35 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   function ensureWelcomeAudioGraph() {
     if (welcomeAudioCtx) return;
+
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
+    if (!AudioCtx || !el.welcomeAudio) return;
+
     welcomeAudioCtx = new AudioCtx();
     welcomeAnalyser = welcomeAudioCtx.createAnalyser();
     welcomeAnalyser.fftSize = 256;
-    welcomeData = new Uint8Array(welcomeAnalyser.frequencyBinCount);
+
+    const bufferLength = welcomeAnalyser.frequencyBinCount;
+    welcomeData = new Uint8Array(bufferLength);
+
     welcomeSource = welcomeAudioCtx.createMediaElementSource(el.welcomeAudio);
+
     welcomeSource.connect(welcomeAnalyser);
     welcomeAnalyser.connect(welcomeAudioCtx.destination);
-  }
+}
+
+function getWelcomeAudioLevel() {
+    if (!welcomeAnalyser || !welcomeData) return 0.2;
+
+    welcomeAnalyser.getByteFrequencyData(welcomeData);
+
+    let sum = 0;
+    for (let i = 0; i < welcomeData.length; i++) {
+      sum += welcomeData[i];
+    }
+
+    return Math.max(0.05, Math.min(1, (sum / welcomeData.length) / 140));
+}
 
   function drawWelcomeRing() {
     const canvas = el.welcomeCanvas;
@@ -2166,24 +2233,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
     const h = rect.height;
     const cx = w / 2;
     const cy = h * 0.42;
-    // make ring much larger (almost full screen)
-      const outerBase = Math.min(w, h) * 0.42;
-    const innerBase = outerBase * 0.6;
-    const particleCount = Math.max(3200, Math.floor(w * 4.2));
+    const outerBase = Math.min(w, h) * 0.30;
+    const innerBase = outerBase * 0.58;
+    const particleCount = Math.max(24000, Math.floor(w * 22));
 
     const render = () => {
       welcomeAnimationFrame = requestAnimationFrame(render);
       ctx.clearRect(0, 0, w, h);
 
-      let amp = 0.18;
-      if (welcomeAnalyser && welcomeData) {
-        welcomeAnalyser.getByteFrequencyData(welcomeData);
-        let sum = 0;
-        for (let i = 0; i < welcomeData.length; i++) sum += welcomeData[i];
-        amp = Math.max(0.12, Math.min(0.95, (sum / welcomeData.length) / 120));
-      }
+      let amp = getWelcomeAudioLevel();
 
-      // stronger, more visible pulse
       const speakScale = 1 + amp * 0.35;
       const outerR = outerBase * speakScale;
       const innerR = innerBase * (1 + amp * 0.15);
@@ -2195,30 +2254,64 @@ You do not need to clear your mind. You do not need to perform. You only need to
       for (let i = 0; i < particleCount; i++) {
         const theta = Math.random() * Math.PI * 2;
         const radialMix = Math.random();
-        const bias = Math.pow(radialMix, 0.55);
+        const bias = Math.pow(radialMix, 0.24);
         const r = innerR + (outerR - innerR) * bias;
-        const jitter = (Math.random() - 0.5) * (6 + amp * 10);
+        const jitter = (Math.random() - 0.5) * (5.2 + amp * 4.2);
         const x = cx + Math.cos(theta) * (r + jitter);
         const y = cy + Math.sin(theta) * (r + jitter * 0.72);
-        const size = Math.random() < 0.88 ? 1 : 1.4;
-        const alphaCore = 0.05 + bias * 0.12 + amp * 0.08;
-        ctx.fillStyle = `rgba(255,255,255,${Math.min(0.18, alphaCore)})`;
+        const size = Math.random() < 0.94 ? 1 : 1.35;
+        const alphaCore = 0.11 + bias * 0.2 + amp * 0.08;
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(0.28, alphaCore)})`;
         ctx.fillRect(x, y, size, size);
       }
 
+      // dense fog core
+      for (let i = 0; i < particleCount * 1.45; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const t = Math.random();
+        const r = innerR + (outerR - innerR) * Math.pow(t, 0.18);
+        const x = cx + Math.cos(theta) * r;
+        const y = cy + Math.sin(theta) * r;
+        ctx.fillStyle = 'rgba(255,255,255,0.028)';
+        ctx.fillRect(x, y, 1, 1);
+      }
+
+      // ultra fine grain layer
+      for (let i = 0; i < particleCount * 2.1; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const r = innerR + Math.random() * (outerR - innerR);
+        const x = cx + Math.cos(theta) * r;
+        const y = cy + Math.sin(theta) * r;
+        ctx.fillStyle = 'rgba(255,255,255,0.012)';
+        ctx.fillRect(x, y, 1, 1);
+      }
+
+      // outer halo grain
       for (let i = 0; i < particleCount * 0.16; i++) {
         const theta = Math.random() * Math.PI * 2;
-        const spread = haloR + Math.random() * (22 + amp * 18);
+        const spread = haloR + Math.random() * (25 + amp * 10);
         const x = cx + Math.cos(theta) * spread;
         const y = cy + Math.sin(theta) * spread;
-        const alpha = 0.015 + Math.random() * 0.03 + amp * 0.01;
+        const alpha = 0.015 + Math.random() * 0.03 + amp * 0.015;
         ctx.fillStyle = `rgba(255,255,255,${alpha})`;
         ctx.fillRect(x, y, 1, 1);
       }
 
-      const glow = ctx.createRadialGradient(cx, cy, innerR * 0.2, cx, cy, outerR * 1.2);
-      glow.addColorStop(0, `rgba(255,255,255,${0.01 + amp * 0.018})`);
-      glow.addColorStop(0.58, 'rgba(255,255,255,0.012)');
+      // inner cut refinement for a cleaner hollow center
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      const cut = ctx.createRadialGradient(cx, cy, innerR * 0.9, cx, cy, innerR * 1.1);
+      cut.addColorStop(0, 'rgba(0,0,0,1)');
+      cut.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = cut;
+      ctx.beginPath();
+      ctx.arc(cx, cy, innerR * 1.1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      const glow = ctx.createRadialGradient(cx, cy, innerR * 0.28, cx, cy, outerR * 1.28);
+      glow.addColorStop(0, `rgba(255,255,255,${0.055 + amp * 0.04})`);
+      glow.addColorStop(0.6, 'rgba(255,255,255,0.02)');
       glow.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
@@ -2231,71 +2324,88 @@ You do not need to clear your mind. You do not need to perform. You only need to
     render();
   }
 
-  function endWelcomeFlow() {
-    if (welcomeDismissed) return;
-    welcomeDismissed = true;
-    welcomeNeedsGesture = false;
-    el.welcomeTapHint.style.display = 'none';
-    el.welcomeScreen.classList.add('fade-out');
-    setTimeout(() => {
-      el.appShell.classList.add('revealed');
-      if (welcomeAnimationFrame) cancelAnimationFrame(welcomeAnimationFrame);
-    }, 700);
+  function updateWelcomeCaption() {
+    if (!el.welcomeCaption || !el.welcomeAudio) return;
+
+    const rawTime = el.welcomeAudio.currentTime || 0;
+    const t = Math.max(0, rawTime + WELCOME_SCRIPT_OFFSET);
+    const cue = WELCOME_SCRIPT_CUES.find((item) => t >= item.start && t < item.end);
+
+    if (cue) {
+      if (el.welcomeCaption.textContent !== cue.text) {
+        el.welcomeCaption.textContent = cue.text;
+      }
+      el.welcomeCaption.classList.add('visible');
+      return;
+    }
+
+    // hold the previous line briefly during tiny gaps so the captions feel less jumpy
+    const previousCue = [...WELCOME_SCRIPT_CUES].reverse().find((item) => t >= item.end && t < item.end + 0.45);
+    if (previousCue) {
+      if (el.welcomeCaption.textContent !== previousCue.text) {
+        el.welcomeCaption.textContent = previousCue.text;
+      }
+      el.welcomeCaption.classList.add('visible');
+      return;
+    }
+
+    el.welcomeCaption.textContent = '';
+    el.welcomeCaption.classList.remove('visible');
   }
 
   async function startWelcomePlayback() {
-    const hasManualWelcomeSource = el.welcomeAudio.querySelector('source') || el.welcomeAudio.currentSrc || el.welcomeAudio.src;
-    if (!hasManualWelcomeSource) {
-      welcomeStarted = false;
-      welcomeNeedsGesture = false;
-      el.welcomeTapHint.style.display = 'block';
-      el.welcomeTapHint.textContent = 'Add welcome audio source in the HTML audio tag';
-      return Promise.resolve(false);
-    }
-    if (welcomeStarted) return true;
-    welcomeStarted = true;
+    if (welcomeStarted || !el.welcomeAudio) return false;
 
-    el.welcomeAudio.preload = 'auto';
-    el.welcomeAudio.load();
+    welcomeStarted = true;
     ensureWelcomeAudioGraph();
+    el.welcomeStartBtn.classList.add('hidden');
 
     try {
       if (welcomeAudioCtx && welcomeAudioCtx.state === 'suspended') {
         await welcomeAudioCtx.resume();
       }
-
-      if (!welcomeAnimationFrame) {
-        drawWelcomeRing();
-      }
-
-      const playPromise = el.welcomeAudio.play();
-      if (playPromise !== undefined) {
-        await playPromise;
-      }
-
-      welcomeNeedsGesture = false;
-      el.welcomeTapHint.style.display = 'none';
-    } catch (err) {
+      await el.welcomeAudio.play();
+      updateWelcomeCaption();
+    } catch {
       welcomeStarted = false;
-      welcomeNeedsGesture = true;
-      el.welcomeTapHint.style.display = 'block';
+      el.welcomeStartBtn.classList.remove('hidden');
       return false;
     }
 
+    el.welcomeAudio.ontimeupdate = updateWelcomeCaption;
     el.welcomeAudio.onended = () => {
-      setTimeout(endWelcomeFlow, 400);
+      el.welcomeCaption.classList.remove('visible');
+      setTimeout(endWelcomeFlow, 350);
     };
+
     return true;
+  }
+
+  function endWelcomeFlow() {
+    if (welcomeDismissed) return;
+    welcomeDismissed = true;
+    el.welcomeStartBtn.classList.add('hidden');
+    el.welcomeCaption.classList.remove('visible');
+    if (el.welcomeAudio) {
+      el.welcomeAudio.pause();
+      el.welcomeAudio.ontimeupdate = null;
+    }
+    el.welcomeScreen.classList.add('fade-out');
+    setTimeout(() => {
+      el.appShell.classList.add('revealed');
+      if (welcomeAnimationFrame) {
+        cancelAnimationFrame(welcomeAnimationFrame);
+        welcomeAnimationFrame = null;
+      }
+    }, 700);
   }
 
   function startWelcomeFlow() {
     el.welcomeScreen.classList.add('active');
-    startWelcomePlayback();
-  }
-
-  async function tryUnlockWelcomePlayback() {
-    if (!welcomeNeedsGesture || welcomeDismissed) return;
-    await startWelcomePlayback();
+    if (!welcomeAnimationFrame) {
+      drawWelcomeRing();
+    }
+    el.welcomeStartBtn.classList.remove('hidden');
   }
 
   function toggleMenu() {
@@ -2329,6 +2439,31 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.startSessionBtn.style.display = activePractice === 'FoundationHome' ? 'none' : 'inline-flex';
   }
 
+  function hideLessonOverlayImmediate() {
+    clearTimeout(lessonOverlayTimeout);
+    clearTimeout(lessonOverlayExitTimeout);
+    el.lessonOverlay.classList.remove('active', 'exit');
+  }
+
+  function maybeShowLessonOverlay(data) {
+    const lessonKey = `${activePractice}:${activeSubcategory}:${data.lesson || ''}`;
+    if (!data.lesson || shownLessonKey === lessonKey) return;
+
+    shownLessonKey = lessonKey;
+    hideLessonOverlayImmediate();
+    el.lessonOverlay.classList.add('active');
+
+    lessonOverlayTimeout = setTimeout(() => {
+      el.lessonOverlay.classList.add('exit');
+      el.lessonCard.classList.add('highlight');
+
+      lessonOverlayExitTimeout = setTimeout(() => {
+        el.lessonOverlay.classList.remove('active', 'exit');
+        setTimeout(() => el.lessonCard.classList.remove('highlight'), 250);
+      }, 560);
+    }, 4400);
+  }
+
   function updateContentUI() {
     const data = currentViewData();
     el.eyebrowText.textContent = data.eyebrow;
@@ -2356,19 +2491,28 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.lessonBody.textContent = '';
       hideLessonOverlayImmediate();
     }
+
+    const modeConfig = getModeConfig();
+    
   }
 
   function updateAudioStatus() {
-    if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
-    else if (activePractice === 'FoundationHome') el.audioText.textContent = 'Choose a Foundation Practice';
-    else if (activePractice === 'Foundation') el.audioText.textContent = practiceContent.Foundation.readyAudioText;
-    else if (activePractice === 'Stability') el.audioText.textContent = practiceContent.Stability.readyAudioText;
+    if (activePractice === 'Introduction') {
+      el.audioText.textContent = 'Introduction Ready';
+    } else if (activePractice === 'FoundationHome') {
+      el.audioText.textContent = 'Choose a Foundation Practice';
+    } else if (activePractice === 'Foundation') {
+      el.audioText.textContent = practiceContent.Foundation.readyAudioText;
+    } else if (activePractice === 'Stability') {
+      el.audioText.textContent = practiceContent.Stability.readyAudioText;
+    }
   }
 
   function renderFoundationHomeCards() {
     el.foundationCardsContainer.innerHTML = '';
     const progress = loadProgress();
     const nextKey = foundationOrder.find((k) => !progress[k]) || foundationOrder[0];
+
     foundationOrder.forEach((key) => {
       const data = practiceContent.Foundation.subcategories[key];
       const btn = document.createElement('button');
@@ -2376,7 +2520,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (key === nextKey) btn.classList.add('next');
       if (progress[key]) btn.classList.add('completed');
       btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Foundation Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}</div>`;
-      btn.onclick = () => setSubcategory(key, false);
+      btn.addEventListener('click', () => setSubcategory(key, false));
       el.foundationCardsContainer.appendChild(btn);
     });
   }
@@ -2386,8 +2530,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.sessionStateText.textContent = 'Ready';
     el.sessionStateLabel.textContent = 'Awaiting Start';
     el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-    el.circleCompleteOverlay.classList.remove('active');
-    updateSeekUI();
+        updateSeekUI();
   }
 
   function syncUI() {
@@ -2424,41 +2567,24 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   function hideReflectionTakeover() {
     el.reflectionScreen.classList.remove('active');
-    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((b) => b.classList.remove('active'));
-    selectedReflection = '';
+    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
   }
 
-  function hideLessonOverlayImmediate() {
-    clearTimeout(lessonOverlayTimeout);
-    clearTimeout(lessonOverlayExitTimeout);
-    el.lessonOverlay.classList.remove('active', 'exit');
+  function showReflectionTakeover() {
+    el.reflectionScreen.classList.add('active');
   }
 
-  function maybeShowLessonOverlay(data) {
-    const lessonKey = `${activePractice}:${activeSubcategory}:${data.lesson || ''}`;
-    if (!data.lesson || shownLessonKey === lessonKey) return;
-
-    shownLessonKey = lessonKey;
-    hideLessonOverlayImmediate();
-    el.lessonOverlay.classList.add('active');
-
-    lessonOverlayTimeout = setTimeout(() => {
-      el.lessonOverlay.classList.add('exit');
-      el.lessonCard.classList.add('highlight');
-
-      lessonOverlayExitTimeout = setTimeout(() => {
-        el.lessonOverlay.classList.remove('active', 'exit');
-        setTimeout(() => el.lessonCard.classList.remove('highlight'), 250);
-      }, 560);
-    }, 4400);
+  function hideCompletionTakeover() {
+    el.completionScreen.classList.remove('active');
   }
 
-  function showReflectionTakeover() { el.reflectionScreen.classList.add('active'); }
-  function hideCompletionTakeover() { el.completionScreen.classList.remove('active'); }
-  function showCompletionTakeover() {
-    const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : practiceContent.Foundation;
+  function showCompletionTakeover(reflection = '') {
+    const modeConfig = getModeConfig();
     const sub = getSubcategoryData();
-    el.completionScreenSubtitle.textContent = sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+    const reinforcement = REFLECTION_REINFORCEMENT[reflection] || null;
+
+    el.completionScreenTitle.textContent = reinforcement?.title || 'Well done.';
+    el.completionScreenSubtitle.textContent = reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
     el.completionScreen.classList.add('active');
   }
 
@@ -2476,8 +2602,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   function startPlayback() {
     if (!currentAudio) return;
-    const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : activePractice === 'Foundation' ? practiceContent.Foundation : null;
+    const modeConfig = getModeConfig();
     const sub = getSubcategoryData();
+
     currentAudio.play().catch(() => {});
     isRunning = true;
     sessionStarted = true;
@@ -2486,8 +2613,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
     setCircleState(inEndingPhase ? 'ending' : 'playing');
-    el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || modeConfig?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
-    el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || modeConfig?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+    el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
+    el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
     el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
     updateSeekUI();
   }
@@ -2496,7 +2623,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     if (!currentAudio) return;
     currentAudio.pause();
     isRunning = false;
-    const modeConfig = activePractice === 'Stability' ? practiceContent.Stability : activePractice === 'Foundation' ? practiceContent.Foundation : null;
+    const modeConfig = getModeConfig();
     el.audioStatus.classList.remove('playing');
     setCircleState('paused');
     el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
@@ -2505,7 +2632,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
   }
 
   function handleTrackEnd() {
-    // Only legacy Foundation practices use a meditation track followed by a separate ending track.
     if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
       isRunning = false;
       setCircleState('ending');
@@ -2529,19 +2655,25 @@ You do not need to clear your mind. You do not need to perform. You only need to
       savePracticeComplete(activeSubcategory);
     }
 
-    setTimeout(() => showReflectionTakeover(), 900);
+    setTimeout(showReflectionTakeover, 900);
   }
 
   function handleCircleTap() {
     if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
+
     if (singleTapTimeout) {
       clearTimeout(singleTapTimeout);
       singleTapTimeout = null;
       resetSessionFromDoubleTap();
       return;
     }
+
     singleTapTimeout = setTimeout(() => {
-      if (isRunning) pausePlayback(); else startPlayback();
+      if (isRunning) {
+        pausePlayback();
+      } else {
+        startPlayback();
+      }
       singleTapTimeout = null;
     }, 220);
   }
@@ -2553,7 +2685,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     isRunning = false;
     sessionStarted = false;
     sessionCompleted = false;
-    loadTrack(0);
+    if (currentPlaylist.length) {
+      loadTrack(0);
+    }
     resetVisualSessionState();
     exitSessionMode();
   }
@@ -2568,7 +2702,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
     setCircleState('grounding');
     el.sessionStateText.textContent = 'Settle';
     el.sessionStateLabel.textContent = 'Grounding';
-    el.sessionTapHint.textContent = activePractice === 'Stability' ? practiceContent.Stability.groundingText : activePractice === 'Foundation' ? practiceContent.Foundation.groundingText : 'Get comfortable and prepare to begin';
+    el.sessionTapHint.textContent = getModeConfig()?.groundingText || 'Get comfortable and prepare to begin';
+
     groundingTimeout = setTimeout(() => {
       isGrounding = false;
       startPlayback();
@@ -2577,7 +2712,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
   window.startSessionButton = startSessionButton;
 
   function setVolume(value) {
-    if (currentAudio) currentAudio.volume = Number(value) / 100;
+    if (currentAudio) {
+      currentAudio.volume = Number(value) / 100;
+    }
   }
   window.setVolume = setVolume;
 
@@ -2599,7 +2736,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     foundationMenuOpen = false;
     stabilityMenuOpen = false;
     shownLessonKey = '';
-    if (name === 'Introduction') activeSubcategory = 'BreathAwareness';
+    if (name === 'Introduction') {
+      activeSubcategory = 'BreathAwareness';
+    }
     initAudio();
     syncUI();
     closeMenu();
@@ -2614,6 +2753,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     } else {
       foundationMenuOpen = !foundationMenuOpen;
     }
+    initAudio();
     syncUI();
   }
   window.toggleFoundationMenu = toggleFoundationMenu;
@@ -2668,8 +2808,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
   window.goToFoundationHome = goToFoundationHome;
 
   function goToNextPractice() {
-    const i = foundationOrder.indexOf(activeSubcategory);
-    const next = i >= 0 && i < foundationOrder.length - 1 ? foundationOrder[i + 1] : foundationOrder[0];
+    const index = foundationOrder.indexOf(activeSubcategory);
+    const next = index >= 0 && index < foundationOrder.length - 1 ? foundationOrder[index + 1] : foundationOrder[0];
     setSubcategory(next, false);
   }
   window.goToNextPractice = goToNextPractice;
@@ -2684,8 +2824,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
     hideCompletionTakeover();
     exitSessionMode();
     if (activePractice === 'Stability') {
-      const i = stabilityOrder.indexOf(activeSubcategory);
-      const next = i >= 0 && i < stabilityOrder.length - 1 ? stabilityOrder[i + 1] : stabilityOrder[0];
+      const index = stabilityOrder.indexOf(activeSubcategory);
+      const next = index >= 0 && index < stabilityOrder.length - 1 ? stabilityOrder[index + 1] : stabilityOrder[0];
       setStabilitySubcategory(next, false);
     } else {
       goToNextPractice();
@@ -2696,18 +2836,23 @@ You do not need to clear your mind. You do not need to perform. You only need to
   function goToFoundationFromCompletion() {
     hideCompletionTakeover();
     exitSessionMode();
-    if (activePractice === 'Stability') selectMainMode('Introduction');
-    else goToFoundationHome();
+    if (activePractice === 'Stability') {
+      selectMainMode('Introduction');
+    } else {
+      goToFoundationHome();
+    }
   }
   window.goToFoundationFromCompletion = goToFoundationFromCompletion;
 
   function handleReflectionChoice(button) {
     if (!button) return;
-    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((b) => b.classList.toggle('active', b === button));
-    selectedReflection = button.dataset.reflection || '';
-    saveReflectionEntry(selectedReflection);
+    el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn === button);
+    });
+    const reflection = button.dataset.reflection || '';
+    saveReflectionEntry(reflection);
     hideReflectionTakeover();
-    showCompletionTakeover();
+    showCompletionTakeover(reflection);
   }
 
   el.reflectionOptionsTakeover.addEventListener('click', (event) => {
@@ -2716,7 +2861,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
   });
 
   el.sessionCircleShell.addEventListener('click', handleCircleTap);
-  el.sessionSeekBar.addEventListener('input', (e) => seekToPercent(Number(e.target.value)));
+  el.sessionSeekBar.addEventListener('input', (event) => {
+    seekToPercent(Number(event.target.value));
+  });
 
   function preloadMeditationAudio() {
     const audioFiles = [
@@ -2729,7 +2876,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
       STABILITY_OPEN_AWARENESS_AUDIO,
       STABILITY_SENSORY_AWARENESS_AUDIO
     ].filter(Boolean);
-    audioFiles.forEach((src) => { const a = new Audio(); a.preload = 'auto'; a.src = src; });
+    audioFiles.forEach((src) => {
+      const audio = new Audio();
+      audio.preload = 'auto';
+      audio.src = src;
+    });
   }
 
   window.addEventListener('load', () => {
@@ -2741,20 +2892,18 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
   window.addEventListener('resize', () => {
     if (el.welcomeScreen.classList.contains('active') && !welcomeDismissed) {
-      if (welcomeAnimationFrame) cancelAnimationFrame(welcomeAnimationFrame);
+      if (welcomeAnimationFrame) {
+        cancelAnimationFrame(welcomeAnimationFrame);
+        welcomeAnimationFrame = null;
+      }
       drawWelcomeRing();
     }
   });
 
-  el.welcomeScreen.addEventListener('click', async () => {
-    if (welcomeDismissed) return;
-    if (welcomeNeedsGesture || !welcomeStarted || el.welcomeAudio.paused) {
-      await startWelcomePlayback();
-    }
+  el.welcomeStartBtn.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    await startWelcomePlayback();
   });
-
-  document.addEventListener('pointerdown', tryUnlockWelcomePlayback, { passive: true });
-  document.addEventListener('keydown', tryUnlockWelcomePlayback);
 </script>
 </body>
 </html>
