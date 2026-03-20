@@ -563,9 +563,9 @@
       background: rgba(255,255,255,0.05);
       color: var(--text);
       font-family: inherit;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       cursor: pointer;
       transition: 0.25s ease;
@@ -1027,7 +1027,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       <div class="insight-card" id="insightCard">
         <div class="insight-kicker">Awareness Mirror</div>
         <div class="insight-title" id="insightTitle">You are building consistency.</div>
-        <div class="insight-body" id="insightBody">Complete a few sessions and Ataraxia will start reflecting your patterns back to you.</div>
+        <div class="insight-body" id="insightBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
       </div>
 
       <div class="journey-panel">
@@ -1126,7 +1126,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     </div>
   </div>
 
-  <script>
+ <script>
     const WELCOME_SEEN_STORAGE_KEY = 'ataraxia_welcome_seen_v1';
     const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
@@ -1496,19 +1496,23 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function saveReflectionEntry(reflection) {
+      if (activePractice === 'Introduction') return;
       if (!reflection) return;
+
       let existing = [];
       try {
         existing = JSON.parse(localStorage.getItem(REFLECTION_STORAGE_KEY) || '[]');
       } catch {
         existing = [];
       }
+
       existing.push({
         timestamp: new Date().toISOString(),
         mode: activePractice,
-        practice: activeSubcategory || 'Introduction',
+        practice: activeSubcategory || 'Unknown',
         reflection
       });
+
       localStorage.setItem(REFLECTION_STORAGE_KEY, JSON.stringify(existing));
     }
 
@@ -1525,17 +1529,21 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function recordCompletedSession(reflection) {
+      if (activePractice === 'Introduction') return;
+
       const history = loadSessionHistory();
       history.push({
         timestamp: new Date().toISOString(),
         mode: activePractice,
-        practice: activeSubcategory || 'Introduction',
+        practice: activeSubcategory || 'Unknown',
         reflection: reflection || ''
       });
+
       saveSessionHistory(history.slice(-120));
     }
 
     function getTrainingInsights() {
+      // Only analyse real meditation practices (exclude Introduction automatically via storage layer)
       const history = loadSessionHistory();
       const total = history.length;
       if (!total) {
@@ -1943,7 +1951,19 @@ ${insights.streak} days of showing up.`;
       setCircleState('complete');
       el.audioStatus.classList.remove('playing');
       el.volumeControl.classList.remove('active');
-      if (activePractice === 'Foundation' && activeSubcategory) savePracticeComplete(activeSubcategory);
+
+      if (activePractice === 'Introduction') {
+        setTimeout(() => {
+          exitSessionMode();
+          resetVisualSessionState();
+        }, 700);
+        return;
+      }
+
+      if (activePractice === 'Foundation' && activeSubcategory) {
+        savePracticeComplete(activeSubcategory);
+      }
+
       setTimeout(showReflectionTakeover, 900);
     }
 
@@ -2018,6 +2038,7 @@ ${insights.streak} days of showing up.`;
     function closeMenu() {
       el.menuOverlay.classList.remove('active');
     }
+    window.closeMenu = closeMenu;
 
     function selectMainMode(name) {
       activePractice = name;
@@ -2398,6 +2419,12 @@ ${insights.streak} days of showing up.`;
           welcomeAnimationFrame = null;
         }
         drawWelcomeRing();
+      }
+    });
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeMenu();
       }
     });
   </script>
