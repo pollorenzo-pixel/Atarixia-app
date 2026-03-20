@@ -47,6 +47,11 @@
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
+    body.session-active {
+      overflow: hidden;
+      height: 100svh;
+    }
+
     .atmosphere {
       position: fixed;
       inset: 0;
@@ -670,9 +675,14 @@
       visibility: hidden;
       pointer-events: none;
       transition: opacity 0.6s ease, visibility 0.6s ease;
-      overflow-y: auto;
+      overflow: hidden;
       -webkit-overflow-scrolling: touch;
     }
+
+    .session-overlay.scrollable {
+      overflow-y: auto;
+    }
+
     .session-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
 
     .session-topbar {
@@ -1126,7 +1136,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     </div>
   </div>
 
- <script>
+  <script>
     const WELCOME_SEEN_STORAGE_KEY = 'ataraxia_welcome_seen_v1';
     const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
@@ -1411,6 +1421,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       volumeControl: document.getElementById('volumeControl'),
       bottomNote: document.getElementById('bottomNote'),
       sessionOverlay: document.getElementById('sessionOverlay'),
+      sessionStage: document.querySelector('.session-stage'),
       sessionCircleShell: document.getElementById('sessionCircleShell'),
       sessionInnerCore: document.getElementById('sessionInnerCore'),
       wave1: document.getElementById('wave1'),
@@ -1466,6 +1477,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let welcomeAnalyser = null;
     let welcomeSource = null;
     let welcomeData = null;
+    let wakeLockHandle = null;
 
     function hasSeenWelcomeIntro() {
       try {
@@ -1895,16 +1907,47 @@ ${insights.streak} days of showing up.`;
       el.completionScreen.classList.add('active');
     }
 
+    function updateSessionScrollability() {
+      const topbarHeight = document.querySelector('.session-topbar')?.offsetHeight || 0;
+      const stageHeight = el.sessionStage?.scrollHeight || 0;
+      const needsScroll = stageHeight + topbarHeight > window.innerHeight - 8;
+      el.sessionOverlay.classList.toggle('scrollable', needsScroll);
+    }
+
+    async function requestWakeLock() {
+      try {
+        if (!('wakeLock' in navigator) || wakeLockHandle || !sessionStarted || sessionCompleted) return;
+        wakeLockHandle = await navigator.wakeLock.request('screen');
+        wakeLockHandle.addEventListener('release', () => {
+          wakeLockHandle = null;
+        });
+      } catch {
+        wakeLockHandle = null;
+      }
+    }
+
+    async function releaseWakeLock() {
+      try {
+        await wakeLockHandle?.release();
+      } catch {}
+      wakeLockHandle = null;
+    }
+
     function enterSessionMode() {
       hideReflectionTakeover();
       hideCompletionTakeover();
+      document.body.classList.add('session-active');
       el.sessionOverlay.classList.add('active');
+      updateSessionScrollability();
+      requestWakeLock();
     }
 
     function exitSessionMode() {
-      el.sessionOverlay.classList.remove('active');
+      el.sessionOverlay.classList.remove('active', 'scrollable');
+      document.body.classList.remove('session-active');
       hideReflectionTakeover();
       hideCompletionTakeover();
+      releaseWakeLock();
     }
 
     function startPlayback() {
@@ -1922,6 +1965,8 @@ ${insights.streak} days of showing up.`;
         el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
         el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
         updateSeekUI();
+        updateSessionScrollability();
+        requestWakeLock();
       }).catch(() => {
         isRunning = false;
         el.audioStatus.classList.remove('playing');
@@ -1942,6 +1987,7 @@ ${insights.streak} days of showing up.`;
       el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
       el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
       el.sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
+      releaseWakeLock();
     }
 
     function advanceToNextTrackIfNeeded(force = false) {
@@ -2464,6 +2510,9 @@ ${insights.streak} days of showing up.`;
         }
         drawWelcomeRing();
       }
+      if (el.sessionOverlay.classList.contains('active')) {
+        updateSessionScrollability();
+      }
     });
 
     window.addEventListener('keydown', (event) => {
@@ -2474,16 +2523,36 @@ ${insights.streak} days of showing up.`;
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        setTimeout(maybeRecoverAudioState, 250);
+        setTimeout(() => {
+          maybeRecoverAudioState();
+          if (sessionStarted && !sessionCompleted && el.sessionOverlay.classList.contains('active')) {
+            requestWakeLock();
+            updateSessionScrollability();
+          }
+        }, 250);
+      } else if (wakeLockHandle) {
+        releaseWakeLock();
       }
     });
 
     window.addEventListener('focus', () => {
-      setTimeout(maybeRecoverAudioState, 250);
+      setTimeout(() => {
+        maybeRecoverAudioState();
+        if (sessionStarted && !sessionCompleted && el.sessionOverlay.classList.contains('active')) {
+          requestWakeLock();
+          updateSessionScrollability();
+        }
+      }, 250);
     });
 
     window.addEventListener('pageshow', () => {
-      setTimeout(maybeRecoverAudioState, 250);
+      setTimeout(() => {
+        maybeRecoverAudioState();
+        if (sessionStarted && !sessionCompleted && el.sessionOverlay.classList.contains('active')) {
+          requestWakeLock();
+          updateSessionScrollability();
+        }
+      }, 250);
     });
   </script>
 </body>
