@@ -949,7 +949,7 @@
     <button class="welcome-skip-btn" id="welcomeSkipBtn" type="button">Skip Intro</button>
     <div class="welcome-content">
       <div class="welcome-ring-wrap">
-        <button class="welcome-start-btn" id="welcomeStartBtn" type="button">Begin Welcome</button>
+        <button class="welcome-start-btn" id="welcomeStartBtn" type="button">Open</button>
       </div>
       <div class="welcome-caption" id="welcomeCaption"></div>
     </div>
@@ -975,6 +975,11 @@
           <div class="menu-label" style="margin-bottom:0;">Modes</div>
           <button class="session-exit-btn" onclick="closeMenu()" style="padding:0;">Close</button>
         </div>
+
+        <button class="menu-item" id="welcomeMenuBtn" onclick="selectMainMode('Welcome')">
+          <div class="menu-item-title">Before You Begin (Disclaimer)</div>
+          <div class="menu-item-desc">Access the disclaimer audio anytime before you begin.</div>
+        </button>
 
         <button class="menu-item" id="introductionMenuBtn" onclick="selectMainMode('Introduction')">
           <div class="menu-item-title">Introduction</div>
@@ -1010,17 +1015,15 @@
 
     <main class="main-content">
       <div class="hero">
-        <div class="eyebrow" id="eyebrowText">Introduction</div>
-        <h1 class="hero-title" id="heroTitle">Arrive first.<br>Then begin.</h1>
-        <div class="hero-subtitle" id="heroSubtitle"><span>Settle</span><span>Notice</span><span>Prepare</span></div>
+        <div class="eyebrow" id="eyebrowText">Before You Begin (Disclaimer)</div>
+        <h1 class="hero-title" id="heroTitle">Welcome first.<br>Then begin.</h1>
+        <div class="hero-subtitle" id="heroSubtitle"><span>Arrive</span><span>Listen</span><span>Begin</span></div>
       </div>
 
       <div class="practice-copy">
         <div class="practice-copy-label" id="practiceCopyLabel">Session Guidance</div>
-        <div class="practice-copy-title" id="practiceCopyTitle">Introduction</div>
-        <div class="practice-copy-body" id="practiceCopyBody">This is a place to begin.
-
-You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.</div>
+        <div class="practice-copy-title" id="practiceCopyTitle">Before You Begin (Disclaimer)</div>
+        <div class="practice-copy-body" id="practiceCopyBody">A short disclaimer audio explaining how to use the app, what to expect, and important safety guidance before practice.</div>
       </div>
 
       <div class="practice-copy lesson-card" id="lessonCard" style="display:none;">
@@ -1046,12 +1049,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
           <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
         </div>
         <div class="journey-row-primary">
-          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Begin Meditation</button>
+          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Open</button>
         </div>
       </div>
 
       <div class="status-row">
-        <div class="audio-status" id="audioStatus"><span class="audio-dot"></span><span id="audioText">Introduction Ready</span></div>
+        <div class="audio-status" id="audioStatus"><span class="audio-dot"></span><span id="audioText">Disclaimer Audio Ready</span></div>
         <div class="volume-control" id="volumeControl">
           <div class="volume-icon">◌</div>
           <input class="volume-slider" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)">
@@ -1136,7 +1139,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     </div>
   </div>
 
-  <script>
+ <script>
     const WELCOME_SEEN_STORAGE_KEY = 'ataraxia_welcome_seen_v1';
     const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
@@ -1202,7 +1205,20 @@ Let’s begin.` }
     };
 
     const practiceContent = {
+      Welcome: {
+        eyebrow: 'Before You Begin (Disclaimer)',
+        hero: 'Welcome first.<br>Then begin.',
+        subtitle: ['Arrive', 'Listen', 'Begin'],
+        note: 'Replay the welcome anytime.',
+        badge: 'Before You Begin (Disclaimer)',
+        copyLabel: 'Disclaimer Audio',
+        copyTitle: 'Before You Begin (Disclaimer)',
+        copyBody: `A short disclaimer audio explaining how to use the app, what to expect, and important safety guidance before practice.`,
+        startLabel: 'Open',
+        audio: []
+      },
       Introduction: {
+        startLabel: 'Begin Meditation',
         eyebrow: 'Introduction',
         hero: 'Arrive first.<br>Then begin.',
         subtitle: ['Settle', 'Notice', 'Prepare'],
@@ -1383,6 +1399,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     };
 
     const el = {
+      welcomeMenuBtn: document.getElementById('welcomeMenuBtn'),
       openingScene: document.getElementById('openingScene'),
       openingQuote: document.getElementById('openingQuote'),
       openingAuthor: document.getElementById('openingAuthor'),
@@ -1459,10 +1476,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let currentPlaylist = [];
     let currentTrackIndex = 0;
     let currentAudio = null;
-    let isRunning = false;
-    let sessionStarted = false;
-    let sessionCompleted = false;
-    let isGrounding = false;
+    // Unified session state
+    const SESSION_STATE = {
+      IDLE: 'idle',
+      GROUNDING: 'grounding',
+      PLAYING: 'playing',
+      PAUSED: 'paused',
+      ENDING: 'ending',
+      COMPLETE: 'complete'
+    };
+
+    let sessionState = SESSION_STATE.IDLE;
     let singleTapTimeout = null;
     let groundingTimeout = null;
     let transitionTimeout = null;
@@ -1669,12 +1693,14 @@ ${feedback}`;
     }
 
     function currentViewData() {
+      if (activePractice === 'Welcome') return practiceContent.Welcome;
       if (activePractice === 'Introduction') return practiceContent.Introduction;
       if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
       return getSubcategoryData() || practiceContent.Introduction;
     }
 
     function buildPlaylist() {
+      if (activePractice === 'Welcome') return [];
       if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
       const sub = getSubcategoryData();
       if (!sub?.audio) return [];
@@ -1732,6 +1758,7 @@ ${feedback}`;
     }
 
     function updateMenuState() {
+      el.welcomeMenuBtn.classList.toggle('active', activePractice === 'Welcome');
       el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
       el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
       el.stabilityMenuBtn.classList.toggle('active', activePractice === 'Stability' || stabilityMenuOpen);
@@ -1749,6 +1776,8 @@ ${feedback}`;
       el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
       el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
       el.startSessionBtn.style.display = activePractice === 'FoundationHome' ? 'none' : 'inline-flex';
+      const current = currentViewData();
+      el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
     }
 
     function hideLessonOverlayImmediate() {
@@ -1802,7 +1831,8 @@ ${feedback}`;
     }
 
     function updateAudioStatus() {
-      if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
+      if (activePractice === 'Welcome') el.audioText.textContent = 'Disclaimer Audio Ready';
+      else if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
       else if (activePractice === 'FoundationHome') el.audioText.textContent = 'Choose a Foundation Practice';
       else if (activePractice === 'Foundation') el.audioText.textContent = practiceContent.Foundation.readyAudioText;
       else if (activePractice === 'Stability') el.audioText.textContent = practiceContent.Stability.readyAudioText;
@@ -1916,9 +1946,13 @@ ${insights.streak} days of showing up.`;
 
     async function requestWakeLock() {
       try {
-        if (!('wakeLock' in navigator) || wakeLockHandle || !sessionStarted || sessionCompleted) return;
-        wakeLockHandle = await navigator.wakeLock.request('screen');
-        wakeLockHandle.addEventListener('release', () => {
+        if (!('wakeLock' in navigator) || wakeLockHandle || !el.sessionOverlay.classList.contains('active') || sessionState === SESSION_STATE.COMPLETE || sessionState === SESSION_STATE.IDLE) return;
+        navigator.wakeLock.request('screen').then((handle) => {
+          wakeLockHandle = handle;
+          wakeLockHandle.addEventListener('release', () => {
+            wakeLockHandle = null;
+          });
+        }).catch(() => {
           wakeLockHandle = null;
         });
       } catch {
@@ -1954,39 +1988,44 @@ ${insights.streak} days of showing up.`;
       if (!currentAudio) return;
       const modeConfig = getModeConfig();
       const sub = getSubcategoryData();
+
       currentAudio.play().then(() => {
-        isRunning = true;
-        sessionStarted = true;
+        sessionState = SESSION_STATE.PLAYING;
         el.audioStatus.classList.add('playing');
         el.volumeControl.classList.add('active');
+
         const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
         setCircleState(inEndingPhase ? 'ending' : 'playing');
-        el.sessionStateText.textContent = inEndingPhase ? (sub?.endingText || 'Closing') : (sub?.activeText || modeConfig?.activeText || 'Playing');
-        el.sessionStateLabel.textContent = inEndingPhase ? (sub?.endingLabel || 'Ending Audio') : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
-        el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-        updateSeekUI();
-        updateSessionScrollability();
+
+        el.sessionStateText.textContent = inEndingPhase
+          ? (sub?.endingText || 'Closing')
+          : (sub?.activeText || modeConfig?.activeText || 'Playing');
+
+        el.sessionStateLabel.textContent = inEndingPhase
+          ? (sub?.endingLabel || 'Ending Audio')
+          : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+
         requestWakeLock();
       }).catch(() => {
-        isRunning = false;
-        el.audioStatus.classList.remove('playing');
+        sessionState = SESSION_STATE.PAUSED;
         setCircleState('paused');
         el.sessionStateText.textContent = 'Paused';
         el.sessionStateLabel.textContent = 'Awaiting Resume';
-        el.sessionTapHint.textContent = pendingTrackAdvance ? 'Tap to continue closing audio.' : 'Tap to resume.';
       });
     }
 
     function pausePlayback() {
       if (!currentAudio) return;
       currentAudio.pause();
-      isRunning = false;
+      sessionState = SESSION_STATE.PAUSED;
+
       const modeConfig = getModeConfig();
       el.audioStatus.classList.remove('playing');
       setCircleState('paused');
+
       el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
       el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
-      el.sessionTapHint.textContent = 'Tap to Resume · Double Tap to Reset';
+
       releaseWakeLock();
     }
 
@@ -2007,41 +2046,40 @@ ${insights.streak} days of showing up.`;
     }
 
     function maybeRecoverAudioState() {
-      if (!sessionStarted || sessionCompleted || !el.sessionOverlay.classList.contains('active')) return;
+      if (sessionState === SESSION_STATE.IDLE || sessionState === SESSION_STATE.COMPLETE || !el.sessionOverlay.classList.contains('active')) return;
 
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
         const recovered = advanceToNextTrackIfNeeded();
         if (recovered) return;
       }
 
-      if (currentAudio && isRunning && currentAudio.paused && !document.hidden) {
+      if (currentAudio && sessionState === SESSION_STATE.PLAYING && currentAudio.paused && !document.hidden) {
         currentAudio.play().catch(() => {});
       }
     }
 
     function handleTrackEnd() {
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
-        isRunning = false;
-        pendingTrackAdvance = true;
+        sessionState = SESSION_STATE.ENDING;
         setCircleState('ending');
-        el.sessionStateText.textContent = 'Settling';
-        el.sessionStateLabel.textContent = 'Transition';
-        el.sessionTapHint.textContent = 'Stay with the stillness.';
+        el.sessionStateText.textContent = getSubcategoryData()?.endingText || 'Closing';
+        el.sessionStateLabel.textContent = getSubcategoryData()?.endingLabel || 'Ending Audio';
         transitionTimeout = setTimeout(() => {
           advanceToNextTrackIfNeeded(true);
         }, TRANSITION_DELAY);
         return;
       }
 
-      pendingTrackAdvance = false;
-      sessionCompleted = true;
-      isRunning = false;
+      sessionState = SESSION_STATE.COMPLETE;
       setCircleState('complete');
       el.audioStatus.classList.remove('playing');
       el.volumeControl.classList.remove('active');
+      releaseWakeLock();
 
       if (activePractice === 'Introduction') {
         setTimeout(() => {
+          detachAudio();
+          initAudio();
           exitSessionMode();
           resetVisualSessionState();
         }, 700);
@@ -2056,15 +2094,17 @@ ${insights.streak} days of showing up.`;
     }
 
     function handleCircleTap() {
-      if (!sessionStarted || !currentAudio || sessionCompleted || isGrounding) return;
+      if (!currentAudio || sessionState === SESSION_STATE.COMPLETE) return;
+
       if (singleTapTimeout) {
         clearTimeout(singleTapTimeout);
         singleTapTimeout = null;
         resetSessionFromDoubleTap();
         return;
       }
+
       singleTapTimeout = setTimeout(() => {
-        if (isRunning) pausePlayback();
+        if (sessionState === SESSION_STATE.PLAYING) pausePlayback();
         else startPlayback();
         singleTapTimeout = null;
       }, 220);
@@ -2074,35 +2114,59 @@ ${insights.streak} days of showing up.`;
       clearTimeout(transitionTimeout);
       clearTimeout(groundingTimeout);
       pendingTrackAdvance = false;
-      isGrounding = false;
-      isRunning = false;
-      sessionStarted = false;
-      sessionCompleted = false;
-      if (currentPlaylist.length) loadTrack(0);
+      sessionState = SESSION_STATE.IDLE;
+      detachAudio();
+      initAudio();
       resetVisualSessionState();
       exitSessionMode();
     }
 
     function startSessionButton() {
-      if (!currentPlaylist.length) return;
+      if (activePractice === 'Welcome') {
+        markWelcomeIntroSeen();
+        welcomeDismissed = false;
+        welcomeStarted = false;
+        el.welcomeAudio.pause();
+        el.welcomeAudio.currentTime = 0;
+        el.welcomeAudio.ontimeupdate = null;
+        el.welcomeAudio.onended = null;
+        el.welcomeCaption.textContent = '';
+        el.welcomeCaption.classList.remove('visible');
+        el.welcomeScreen.classList.remove('fade-out');
+        el.welcomeScreen.classList.add('active');
+        el.welcomeStartBtn.classList.remove('hidden');
+        el.welcomeSkipBtn.classList.remove('hidden');
+        if (!welcomeAnimationFrame) drawWelcomeRing();
+        return;
+      }
+
       initAudio();
+      if (!currentPlaylist.length || !currentAudio) return;
+
+      clearTimeout(groundingTimeout);
+      clearTimeout(transitionTimeout);
+      pendingTrackAdvance = false;
+
       enterSessionMode();
-      sessionStarted = true;
-      sessionCompleted = false;
-      isGrounding = true;
+      sessionState = SESSION_STATE.GROUNDING;
       setCircleState('grounding');
+      el.audioStatus.classList.remove('playing');
+      el.volumeControl.classList.add('active');
       el.sessionStateText.textContent = 'Settle';
       el.sessionStateLabel.textContent = 'Grounding';
-      el.sessionTapHint.textContent = getModeConfig()?.groundingText || 'Get comfortable and prepare to begin';
+      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      updateSeekUI();
+
       groundingTimeout = setTimeout(() => {
-        isGrounding = false;
-        startPlayback();
+        if (sessionState === SESSION_STATE.GROUNDING) startPlayback();
       }, 2000);
     }
     window.startSessionButton = startSessionButton;
 
     function setVolume(value) {
-      if (currentAudio) currentAudio.volume = Number(value) / 100;
+      const v = Number(value) / 100;
+      if (currentAudio) currentAudio.volume = v;
+      if (el.welcomeAudio) el.welcomeAudio.volume = v;
     }
     window.setVolume = setVolume;
 
@@ -2110,11 +2174,11 @@ ${insights.streak} days of showing up.`;
       clearTimeout(transitionTimeout);
       clearTimeout(groundingTimeout);
       pendingTrackAdvance = false;
+      sessionState = SESSION_STATE.IDLE;
       detachAudio();
-      isRunning = false;
-      sessionStarted = false;
-      sessionCompleted = false;
       initAudio();
+      el.audioStatus.classList.remove('playing');
+      el.volumeControl.classList.remove('active');
       resetVisualSessionState();
       exitSessionMode();
     }
@@ -2135,7 +2199,7 @@ ${insights.streak} days of showing up.`;
       foundationMenuOpen = false;
       stabilityMenuOpen = false;
       shownLessonKey = '';
-      if (name === 'Introduction') activeSubcategory = 'BreathAwareness';
+      if (name === 'Introduction' || name === 'Welcome') activeSubcategory = 'BreathAwareness';
       initAudio();
       syncUI();
       closeMenu();
@@ -2450,7 +2514,12 @@ ${insights.streak} days of showing up.`;
       }
       el.welcomeScreen.classList.add('fade-out');
       setTimeout(() => {
-        el.appShell.classList.add('revealed');
+        el.welcomeScreen.classList.remove('active');
+        if (activePractice === 'Welcome') {
+          syncUI();
+        } else {
+          el.appShell.classList.add('revealed');
+        }
         if (welcomeAnimationFrame) {
           cancelAnimationFrame(welcomeAnimationFrame);
           welcomeAnimationFrame = null;
@@ -2459,6 +2528,8 @@ ${insights.streak} days of showing up.`;
     }
 
     function startWelcomeFlow() {
+      welcomeDismissed = false;
+      welcomeStarted = false;
       el.welcomeScreen.classList.add('active');
       el.welcomeSkipBtn.classList.remove('hidden');
       if (!welcomeAnimationFrame) drawWelcomeRing();
@@ -2471,6 +2542,9 @@ ${insights.streak} days of showing up.`;
       setTimeout(() => {
         el.openingScene.classList.add('fade-out');
         if (hasSeenWelcomeIntro()) {
+          activePractice = 'Welcome';
+          initAudio();
+          syncUI();
           el.appShell.classList.add('revealed');
         } else {
           startWelcomeFlow();
@@ -2525,7 +2599,7 @@ ${insights.streak} days of showing up.`;
       if (!document.hidden) {
         setTimeout(() => {
           maybeRecoverAudioState();
-          if (sessionStarted && !sessionCompleted && el.sessionOverlay.classList.contains('active')) {
+          if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
             requestWakeLock();
             updateSessionScrollability();
           }
@@ -2538,7 +2612,7 @@ ${insights.streak} days of showing up.`;
     window.addEventListener('focus', () => {
       setTimeout(() => {
         maybeRecoverAudioState();
-        if (sessionStarted && !sessionCompleted && el.sessionOverlay.classList.contains('active')) {
+        if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
           requestWakeLock();
           updateSessionScrollability();
         }
@@ -2548,7 +2622,7 @@ ${insights.streak} days of showing up.`;
     window.addEventListener('pageshow', () => {
       setTimeout(() => {
         maybeRecoverAudioState();
-        if (sessionStarted && !sessionCompleted && el.sessionOverlay.classList.contains('active')) {
+        if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
           requestWakeLock();
           updateSessionScrollability();
         }
