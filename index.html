@@ -28,6 +28,10 @@
       --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.38);
     }
 
+    html, body {
+      height: 100%;
+    }
+
     html {
       min-height: 100%;
       background:
@@ -39,9 +43,7 @@
 
     body {
       min-height: 100%;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden;
       background: transparent;
       color: var(--text);
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -264,6 +266,9 @@
     .app-shell {
       position: relative;
       z-index: 2;
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.9s ease, transform 0.9s ease;
@@ -396,12 +401,16 @@
     .main-content {
       position: relative;
       z-index: 10;
-      min-height: calc(100svh - 78px);
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 24px 18px 48px;
       gap: 18px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
     }
 
     .hero {
@@ -558,7 +567,7 @@
     .journey-btn, .completion-btn { height: 48px; padding: 0 18px; }
     .journey-btn:hover, .completion-btn:hover, .foundation-card-btn:hover { background: rgba(255,255,255,0.07); border-color: var(--line-strong); }
     .journey-btn.secondary, .completion-btn.secondary { background: rgba(255,255,255,0.02); color: var(--text-dim); }
-    .journey-btn.hidden, .foundation-home-panel.hidden { display: none; }
+    .journey-btn.hidden, .foundation-home-panel.hidden, .stability-home-panel.hidden { display: none; }
 
     .primary-btn {
       min-width: 240px;
@@ -637,7 +646,8 @@
       padding-bottom: 8px;
     }
 
-    .foundation-home-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 12px; }
+    .foundation-home-panel,
+    .stability-home-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 12px; }
     .insight-card {
       width: min(620px, 100%);
       text-align: center;
@@ -1037,6 +1047,11 @@
         <div id="foundationCardsContainer"></div>
       </div>
 
+      <div class="stability-home-panel hidden" id="stabilityHomePanel">
+        <div class="foundation-home-header">Stability Practices</div>
+        <div id="stabilityCardsContainer"></div>
+      </div>
+
       <div class="insight-card" id="insightCard">
         <div class="insight-kicker">Awareness Mirror</div>
         <div class="insight-title" id="insightTitle">You are building consistency.</div>
@@ -1139,7 +1154,33 @@
     </div>
   </div>
 
- <script>
+  <script>
+
+    /*
+    🎯 ATARAXIA 7-DAY FOCUS (LOCKED)
+
+    1. STABILITY
+    - Kill all bugs
+    - Perfect session flow
+    - Audio must NEVER break (lock, background, transitions)
+
+    2. INSIGHT ENGINE V2
+    - Improve getTrainingInsights()
+    - Detect patterns (wandering, focus, emotional tone)
+    - Give clear assessment + direction
+    - Guide next best practice
+
+    3. MICRO-POLISH
+    - Smooth transitions (no hard cuts)
+    - Refine animations (breath, glow, timing)
+    - Improve overall feel (calm, cinematic, premium)
+
+    ⚠️ RULE:
+    No new features outside this scope.
+    Depth > Breadth.
+    */
+
+   <script>
     const WELCOME_SEEN_STORAGE_KEY = 'ataraxia_welcome_seen_v1';
     const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
@@ -1240,6 +1281,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
         copyLabel: 'Foundation Path',
         copyTitle: 'Beginner Practice Track',
         copyBody: 'Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.'
+      },
+      StabilityHome: {
+        eyebrow: 'Stability Path',
+        hero: 'Widen awareness.<br>Remain steady.',
+        subtitle: ['Open', 'Include', 'Remain'],
+        note: 'Use stability once the base begins to settle.',
+        badge: 'Stability',
+        copyLabel: 'Stability Path',
+        copyTitle: 'Open Awareness Track',
+        copyBody: 'Stability expands attention beyond a single anchor. Use it to remain open without losing steadiness.'
       },
       Foundation: {
         groundingText: 'Get comfortable and prepare to begin',
@@ -1430,6 +1481,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
       lessonOverlayBody: document.getElementById('lessonOverlayBody'),
       foundationHomePanel: document.getElementById('foundationHomePanel'),
       foundationCardsContainer: document.getElementById('foundationCardsContainer'),
+      stabilityHomePanel: document.getElementById('stabilityHomePanel'),
+      stabilityCardsContainer: document.getElementById('stabilityCardsContainer'),
       backToFoundationBtn: document.getElementById('backToFoundationBtn'),
       nextPracticeBtn: document.getElementById('nextPracticeBtn'),
       startSessionBtn: document.getElementById('startSessionBtn'),
@@ -1470,6 +1523,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.sessionProgressRing.style.strokeDashoffset = circumference;
 
     let activePractice = 'Introduction';
+    let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
     let stabilityMenuOpen = false;
@@ -1527,9 +1581,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function savePracticeComplete(key) {
       if (!key) return;
-      const progress = loadProgress();
-      progress[key] = true;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      try {
+        const progress = loadProgress();
+        progress[key] = true;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      } catch {}
     }
 
     function saveReflectionEntry(reflection) {
@@ -1562,7 +1618,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function saveSessionHistory(history) {
-      localStorage.setItem(SESSION_HISTORY_STORAGE_KEY, JSON.stringify(history));
+      try {
+        localStorage.setItem(SESSION_HISTORY_STORAGE_KEY, JSON.stringify(history));
+      } catch {}
     }
 
     function recordCompletedSession(reflection) {
@@ -1696,6 +1754,7 @@ ${feedback}`;
       if (activePractice === 'Welcome') return practiceContent.Welcome;
       if (activePractice === 'Introduction') return practiceContent.Introduction;
       if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
+      if (activePractice === 'StabilityHome') return practiceContent.StabilityHome;
       return getSubcategoryData() || practiceContent.Introduction;
     }
 
@@ -1761,9 +1820,9 @@ ${feedback}`;
       el.welcomeMenuBtn.classList.toggle('active', activePractice === 'Welcome');
       el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
       el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
-      el.stabilityMenuBtn.classList.toggle('active', activePractice === 'Stability' || stabilityMenuOpen);
-      el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation');
-      el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability');
+      el.stabilityMenuBtn.classList.toggle('active', activePractice === 'StabilityHome' || activePractice === 'Stability' || stabilityMenuOpen);
+      el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
+      el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability' || activePractice === 'StabilityHome');
 
       [...foundationOrder, ...stabilityOrder].forEach((key) => {
         const btn = document.getElementById(`${key}Btn`);
@@ -1773,9 +1832,10 @@ ${feedback}`;
 
     function updateJourneyButtons() {
       el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
+      el.stabilityHomePanel.classList.toggle('hidden', activePractice !== 'StabilityHome');
       el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
       el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-      el.startSessionBtn.style.display = activePractice === 'FoundationHome' ? 'none' : 'inline-flex';
+      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'StabilityHome') ? 'none' : 'inline-flex';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
     }
@@ -1835,12 +1895,13 @@ ${feedback}`;
       else if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
       else if (activePractice === 'FoundationHome') el.audioText.textContent = 'Choose a Foundation Practice';
       else if (activePractice === 'Foundation') el.audioText.textContent = practiceContent.Foundation.readyAudioText;
+      else if (activePractice === 'StabilityHome') el.audioText.textContent = 'Choose a Stability Practice';
       else if (activePractice === 'Stability') el.audioText.textContent = practiceContent.Stability.readyAudioText;
     }
 
     function updateInsightCard() {
       const insights = getTrainingInsights();
-      const showOnThisScreen = activePractice === 'FoundationHome' || activePractice === 'Foundation' || activePractice === 'Stability';
+      const showOnThisScreen = activePractice === 'FoundationHome' || activePractice === 'Foundation' || activePractice === 'StabilityHome' || activePractice === 'Stability';
       if (!insights.total || !showOnThisScreen) {
         el.insightCard.classList.remove('visible');
         return;
@@ -1866,6 +1927,32 @@ ${feedback}`;
       });
     }
 
+    function renderStabilityHomeCards() {
+      el.stabilityCardsContainer.innerHTML = '';
+      const progress = loadProgress();
+      const nextKey = stabilityOrder.find((key) => !progress[key]) || stabilityOrder[0];
+      const history = loadSessionHistory();
+      const streak = getTrainingInsights().streak;
+
+      const streakCard = document.createElement('div');
+      streakCard.className = 'practice-copy';
+      streakCard.innerHTML = `<div class="practice-copy-label">Streak Tracker</div><div class="practice-copy-title">${streak ? `${streak} days of showing up` : 'Start your Stability streak'}</div><div class="practice-copy-body">${streak ? 'Keep returning to open awareness and maintain your rhythm.' : 'Complete a Stability session and Ataraxia will begin tracking your return rhythm here.'}</div>`;
+      el.stabilityCardsContainer.appendChild(streakCard);
+
+      stabilityOrder.forEach((key) => {
+        const data = practiceContent.Stability.subcategories[key];
+        const btn = document.createElement('button');
+        btn.className = 'foundation-card-btn';
+        if (key === nextKey) btn.classList.add('next');
+        if (progress[key]) btn.classList.add('completed');
+        const sessionCount = history.filter((entry) => entry.practice === key).length;
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Stability Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}${sessionCount ? `
+Sessions completed: ${sessionCount}` : ''}</div>`;
+        btn.addEventListener('click', () => setStabilitySubcategory(key, false));
+        el.stabilityCardsContainer.appendChild(btn);
+      });
+    }
+
     function resetVisualSessionState() {
       setCircleState('idle');
       el.sessionStateText.textContent = 'Ready';
@@ -1880,6 +1967,7 @@ ${feedback}`;
       updateJourneyButtons();
       updateAudioStatus();
       renderFoundationHomeCards();
+      renderStabilityHomeCards();
       updateInsightCard();
       resetVisualSessionState();
     }
@@ -2060,6 +2148,8 @@ ${insights.streak} days of showing up.`;
 
     function handleTrackEnd() {
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
+        pendingTrackAdvance = true;
+        clearTimeout(transitionTimeout);
         sessionState = SESSION_STATE.ENDING;
         setCircleState('ending');
         el.sessionStateText.textContent = getSubcategoryData()?.endingText || 'Closing';
@@ -2086,7 +2176,7 @@ ${insights.streak} days of showing up.`;
         return;
       }
 
-      if (activePractice === 'Foundation' && activeSubcategory) {
+      if ((activePractice === 'Foundation' || activePractice === 'Stability') && activeSubcategory) {
         savePracticeComplete(activeSubcategory);
       }
 
@@ -2111,6 +2201,8 @@ ${insights.streak} days of showing up.`;
     }
 
     function resetSessionFromDoubleTap() {
+      clearTimeout(singleTapTimeout);
+      singleTapTimeout = null;
       clearTimeout(transitionTimeout);
       clearTimeout(groundingTimeout);
       pendingTrackAdvance = false;
@@ -2134,12 +2226,15 @@ ${insights.streak} days of showing up.`;
         el.welcomeCaption.classList.remove('visible');
         el.welcomeScreen.classList.remove('fade-out');
         el.welcomeScreen.classList.add('active');
-        el.welcomeStartBtn.classList.remove('hidden');
+        el.welcomeStartBtn.classList.add('hidden');
         el.welcomeSkipBtn.classList.remove('hidden');
         if (!welcomeAnimationFrame) drawWelcomeRing();
+        startWelcomePlayback();
         return;
       }
 
+      clearTimeout(singleTapTimeout);
+      singleTapTimeout = null;
       initAudio();
       if (!currentPlaylist.length || !currentAudio) return;
 
@@ -2171,6 +2266,8 @@ ${insights.streak} days of showing up.`;
     window.setVolume = setVolume;
 
     function exitSessionEarly() {
+      clearTimeout(singleTapTimeout);
+      singleTapTimeout = null;
       clearTimeout(transitionTimeout);
       clearTimeout(groundingTimeout);
       pendingTrackAdvance = false;
@@ -2233,8 +2330,8 @@ ${insights.streak} days of showing up.`;
     window.setSubcategory = setSubcategory;
 
     function toggleStabilityMenu() {
-      if (activePractice !== 'Stability') {
-        activePractice = 'Stability';
+      if (activePractice !== 'StabilityHome' && activePractice !== 'Stability') {
+        activePractice = 'StabilityHome';
         activeSubcategory = 'OpenAwareness';
         stabilityMenuOpen = true;
         foundationMenuOpen = false;
@@ -2298,7 +2395,7 @@ ${insights.streak} days of showing up.`;
       hideCompletionTakeover();
       exitSessionMode();
       if (activePractice === 'Stability') {
-        activePractice = 'Stability';
+        activePractice = 'StabilityHome';
         activeSubcategory = 'OpenAwareness';
         stabilityMenuOpen = true;
         foundationMenuOpen = false;
@@ -2511,6 +2608,7 @@ ${insights.streak} days of showing up.`;
       if (el.welcomeAudio) {
         el.welcomeAudio.pause();
         el.welcomeAudio.ontimeupdate = null;
+        el.welcomeAudio.onended = null;
       }
       el.welcomeScreen.classList.add('fade-out');
       setTimeout(() => {
@@ -2530,13 +2628,20 @@ ${insights.streak} days of showing up.`;
     function startWelcomeFlow() {
       welcomeDismissed = false;
       welcomeStarted = false;
+      el.welcomeAudio.pause();
+      el.welcomeAudio.currentTime = 0;
+      el.welcomeCaption.textContent = '';
+      el.welcomeCaption.classList.remove('visible');
+      el.welcomeScreen.classList.remove('fade-out');
       el.welcomeScreen.classList.add('active');
       el.welcomeSkipBtn.classList.remove('hidden');
+      el.welcomeStartBtn.classList.remove('hidden');
       if (!welcomeAnimationFrame) drawWelcomeRing();
     }
 
     function showOpeningQuoteScene() {
       const q = quotes[Math.floor(Math.random() * quotes.length)];
+      el.openingScene.classList.remove('fade-out');
       el.openingQuote.textContent = `“${q.text}”`;
       el.openingAuthor.textContent = q.author;
       setTimeout(() => {
@@ -2549,7 +2654,7 @@ ${insights.streak} days of showing up.`;
         } else {
           startWelcomeFlow();
         }
-      }, 1800);
+      }, APP_BOOT_DELAY);
     }
 
     el.reflectionOptionsTakeover.addEventListener('click', (event) => {
@@ -2570,6 +2675,8 @@ ${insights.streak} days of showing up.`;
     });
 
     window.addEventListener('load', () => {
+      if (appBooted) return;
+      appBooted = true;
       preloadMeditationAudio();
       initAudio();
       syncUI();
