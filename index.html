@@ -576,6 +576,49 @@
       justify-content: center;
       text-align: center;
       overflow: hidden;
+      background: #000;
+    }
+
+    .welcome-intro-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(255,170,70,0.06) 0%, rgba(255,170,70,0.02) 12%, transparent 24%),
+        radial-gradient(circle at 25% 30%, rgba(70,130,255,0.18) 0%, transparent 18%),
+        radial-gradient(circle at 72% 58%, rgba(255,70,70,0.14) 0%, transparent 16%),
+        radial-gradient(circle at 18% 78%, rgba(255,205,120,0.10) 0%, transparent 14%),
+        radial-gradient(circle at 84% 16%, rgba(255,220,180,0.13) 0%, transparent 15%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 55%),
+        linear-gradient(180deg, #050608 0%, #020202 100%);
+      overflow: hidden;
+    }
+
+    .welcome-intro-bg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,0.9) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 30% 62%, rgba(255,255,255,0.7) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 62% 24%, rgba(255,255,255,0.7) 0 1.1px, transparent 1.8px),
+        radial-gradient(circle at 78% 72%, rgba(255,255,255,0.85) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 92% 36%, rgba(255,255,255,0.6) 0 0.9px, transparent 1.5px),
+        radial-gradient(circle at 8% 84%, rgba(255,255,255,0.75) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 44% 10%, rgba(255,255,255,0.7) 0 0.9px, transparent 1.6px),
+        radial-gradient(circle at 54% 88%, rgba(255,255,255,0.65) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 68% 48%, rgba(255,255,255,0.8) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 24% 46%, rgba(255,255,255,0.55) 0 0.8px, transparent 1.5px);
+      opacity: 0.9;
+      filter: drop-shadow(0 0 3px rgba(255,255,255,0.18));
+    }
+
+    .welcome-intro-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.28) 62%, rgba(0,0,0,0.58) 100%);
     }
 
     .welcome-intro-kicker {
@@ -590,47 +633,20 @@
       color: var(--text-faint);
     }
 
-    .welcome-intro-circle {
-      position: absolute;
-      left: 50%;
-      top: 46%;
-      transform: translate(-50%, -50%) scale(calc(1 + var(--welcome-audio-reactivity, 0) * 0.04));
-      width: min(88vw, 560px);
-      aspect-ratio: 1 / 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      overflow: visible;
-      animation: welcomeCircleBreath 5.5s ease-in-out infinite;
-      filter: brightness(calc(1 + var(--welcome-audio-reactivity, 0) * 0.11));
-      transition: transform 90ms linear, filter 90ms linear;
-      pointer-events: none;
-    }
-
-    .welcome-intro-circle::before,
-    .welcome-intro-circle::after {
-      content: none;
-    }
-
     .welcome-intro-particles {
       position: absolute;
       inset: 0;
-      width: 100vw;
-      height: 100svh;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
       pointer-events: none;
-      z-index: 0;
-      mix-blend-mode: screen;
-      opacity: 1;
-      filter: drop-shadow(0 0 12px rgba(255,255,255,0.06));
+      display: block;
     }
 
     .welcome-intro-core {
       position: absolute;
       left: 50%;
-      bottom: max(112px, calc(env(safe-area-inset-bottom) + 72px));
+      bottom: max(96px, calc(env(safe-area-inset-bottom) + 56px));
       transform: translateX(-50%);
       z-index: 2;
       width: min(760px, calc(100vw - 32px));
@@ -639,7 +655,7 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      mix-blend-mode: normal;
+      text-align: center;
       pointer-events: none;
     }
 
@@ -667,17 +683,6 @@
       color: var(--text-dim);
       white-space: pre-line;
       text-wrap: balance;
-    }
-
-    @keyframes welcomeCircleBreath {
-      0%,100% {
-        transform: translate(-50%, -50%) scale(calc(0.992 + var(--welcome-audio-reactivity, 0) * 0.038));
-        filter: brightness(calc(0.99 + var(--welcome-audio-reactivity, 0) * 0.11));
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(calc(1.006 + var(--welcome-audio-reactivity, 0) * 0.05));
-        filter: brightness(calc(1.012 + var(--welcome-audio-reactivity, 0) * 0.13));
-      }
     }
 
     .session-overlay {
@@ -1083,10 +1088,9 @@
 
   <div class="welcome-intro-overlay" id="welcomeIntroOverlay">
     <div class="welcome-intro-stage">
+      <div class="welcome-intro-bg"></div>
       <canvas class="welcome-intro-particles" id="welcomeIntroParticles"></canvas>
       <div class="welcome-intro-kicker">Before You Begin</div>
-      <div class="welcome-intro-circle" id="welcomeIntroCircle">
-      </div>
       <div class="welcome-intro-core">
           <div class="welcome-intro-state" id="welcomeIntroState">Settle</div>
           <div class="welcome-intro-label" id="welcomeIntroLabel">Welcome Audio</div>
@@ -1094,7 +1098,7 @@
       </div>
       <button class="journey-btn secondary" style="position:absolute;bottom:max(28px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:2;" onclick="skipWelcomeIntro()">Skip</button>
       <audio id="welcomeIntroAudio" preload="auto">
-        <source src="audio/Brittney welcome audio.mp3" type="audio/mpeg">
+        <source src="audio/brittney_intro.mp3" type="audio/mpeg">
       </audio>
     </div>
   </div>
@@ -1191,8 +1195,7 @@
     Depth > Breadth.
     */
 
-    
-    const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
     const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
     const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
@@ -1200,7 +1203,7 @@
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
     const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
     const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
-
+    
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
@@ -1788,6 +1791,12 @@ ${feedback}`;
       syncUI();
     }
 
+    function clearSessionTimers() {
+      clearTimeout(singleTapTimeout);
+      singleTapTimeout = null;
+      
+    }
+
     function openWelcomeIntroOverlay() {
       document.body.classList.add('session-active');
       el.welcomeIntroOverlay.classList.add('active');
@@ -1804,6 +1813,30 @@ ${feedback}`;
       el.welcomeIntroCaption.textContent = DEFAULT_WELCOME_CAPTION;
       document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
     }
+
+    function ensureWelcomeIntroAudioGraph() {
+      if (!el.welcomeIntroAudio || welcomeAudioAnalyser || typeof AudioContext === 'undefined') return;
+      try {
+        welcomeAudioCtx = welcomeAudioCtx || new AudioContext();
+        if (welcomeAudioCtx.state === 'suspended') {
+          welcomeAudioCtx.resume().catch(() => {});
+        }
+        if (!welcomeAudioSource) {
+          welcomeAudioSource = welcomeAudioCtx.createMediaElementSource(el.welcomeIntroAudio);
+        }
+        welcomeAudioAnalyser = welcomeAudioCtx.createAnalyser();
+        welcomeAudioAnalyser.fftSize = 256;
+        welcomeAudioAnalyser.smoothingTimeConstant = 0.86;
+        welcomeAudioData = new Uint8Array(welcomeAudioAnalyser.frequencyBinCount);
+        welcomeAudioSource.connect(welcomeAudioAnalyser);
+        welcomeAudioAnalyser.connect(welcomeAudioCtx.destination);
+      } catch (error) {
+        console.warn('Welcome audio analyser unavailable.', error);
+        welcomeAudioAnalyser = null;
+        welcomeAudioData = null;
+      }
+    }
+    
 
     function stopWelcomeParticles() {
       if (welcomeParticlesRaf) {
@@ -1831,60 +1864,46 @@ ${feedback}`;
   if (!ctx) return;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  const cx = w / 2;
-  const cy = h * 0.46;
-  const orbRadius = Math.min(w, h) * 0.19;
-  const shellThickness = orbRadius * 0.22;
-  const outerHalo = orbRadius * 1.26;
-  const particles = [];
-  const particleCount = 2600;
+  // true visual center (accounts for canvas scaling + layout shifts)
+  const rect = canvas.getBoundingClientRect();
+  const cx = w / 2 - 8;
+  const cy = h / 2;
+  const orbRadius = Math.min(w, h) * 0.18;
 
-  for (let i = 0; i < particleCount; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const zone = Math.random();
-    let radius;
-    let alpha;
-    let lineWidth;
-    let trail;
-    let shellBias;
+  const filaments = [];
+  const motes = [];
+  const filamentCount = 260;
+  const moteCount = 520;
 
-    if (zone < 0.58) {
-      radius = orbRadius + (Math.random() - 0.5) * shellThickness;
-      alpha = 0.045 + Math.random() * 0.075;
-      lineWidth = 0.35 + Math.random() * 0.7;
-      trail = 12 + Math.random() * 26;
-      shellBias = 1;
-    } else if (zone < 0.84) {
-      radius = orbRadius * (0.7 + Math.random() * 0.3);
-      alpha = 0.02 + Math.random() * 0.045;
-      lineWidth = 0.28 + Math.random() * 0.5;
-      trail = 9 + Math.random() * 18;
-      shellBias = 0.58;
-    } else {
-      radius = Math.random() * orbRadius * 0.68;
-      alpha = 0.012 + Math.random() * 0.024;
-      lineWidth = 0.22 + Math.random() * 0.38;
-      trail = 7 + Math.random() * 13;
-      shellBias = 0.26;
-    }
-
-    particles.push({
-      angle,
-      radius,
-      baseRadius: radius,
-      alpha,
-      lineWidth,
-      drift: (Math.random() - 0.5) * 0.0024,
-      wobble: Math.random() * Math.PI * 2,
-      wobbleSpeed: 0.006 + Math.random() * 0.015,
-      wobbleAmp: 2 + Math.random() * 9,
-      asymmetry: 0.92 + Math.random() * 0.18,
-      trail,
-      grav: 0.005 + Math.random() * 0.012,
-      shellBias,
+  for (let i = 0; i < filamentCount; i++) {
+    const depth = Math.random();
+    filaments.push({
+      angle: Math.random() * Math.PI * 2,
+      baseRadius: orbRadius * (0.28 + Math.random() * 0.7),
+      radiusJitter: 3 + Math.random() * 14,
+      width: 0.45 + Math.random() * 1.15,
+      alpha: 0.02 + Math.random() * 0.08,
+      arc: 0.22 + Math.random() * 0.55,
+      drift: (Math.random() - 0.5) * 0.0036,
+      swirl: 0.004 + Math.random() * 0.012,
       phase: Math.random() * Math.PI * 2,
-      depth: Math.random(),
-      swirlBias: (Math.random() - 0.5) * 0.22
+      phaseSpeed: 0.008 + Math.random() * 0.02,
+      depth,
+      shellBias: 0.2 + Math.random() * 0.8
+    });
+  }
+
+  for (let i = 0; i < moteCount; i++) {
+    const depth = Math.random();
+    motes.push({
+      angle: Math.random() * Math.PI * 2,
+      radius: orbRadius * Math.pow(Math.random(), 0.72),
+      size: 0.4 + Math.random() * 1.35,
+      alpha: 0.03 + Math.random() * 0.16,
+      drift: (Math.random() - 0.5) * 0.0042,
+      pulse: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.014 + Math.random() * 0.022,
+      depth
     });
   }
 
@@ -1894,109 +1913,96 @@ ${feedback}`;
     const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
     const speakPush = reactivity;
     const silencePull = 1 - Math.min(1, reactivity * 1.15);
-    const breath = Math.sin(performance.now() * 0.00115) * 0.5 + 0.5;
-    const shellTargetRadius = orbRadius * (0.98 + speakPush * 0.13 - silencePull * 0.04 + breath * 0.012);
-    const smokyTurbulence = 0.45 + speakPush * 1.25;
+    const t = performance.now() * 0.001;
+    const breathing = Math.sin(t * 1.12) * 0.5 + 0.5;
+
+    const sphereScale = 0.985 + speakPush * 0.13 - silencePull * 0.045 + breathing * 0.018;
+    const shellRadius = orbRadius * sphereScale;
+    const corePresence = orbRadius * (0.72 + speakPush * 0.05);
 
     ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
 
-    const bgGlow = ctx.createRadialGradient(cx, cy, orbRadius * 0.08, cx, cy, outerHalo * (0.98 + speakPush * 0.08));
-    bgGlow.addColorStop(0, `rgba(255,255,255,${0.01 + speakPush * 0.01})`);
-    bgGlow.addColorStop(0.38, `rgba(255,255,255,${0.018 + speakPush * 0.02})`);
-    bgGlow.addColorStop(0.72, `rgba(255,255,255,${0.028 + speakPush * 0.032})`);
-    bgGlow.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = bgGlow;
+    const outerAura = ctx.createRadialGradient(cx, cy, orbRadius * 0.2, cx, cy, orbRadius * 1.95);
+    outerAura.addColorStop(0, `rgba(255,235,200,${0.018 + speakPush * 0.02})`);
+    outerAura.addColorStop(0.42, `rgba(255,175,95,${0.035 + speakPush * 0.05})`);
+    outerAura.addColorStop(0.7, `rgba(255,95,60,${0.025 + speakPush * 0.04})`);
+    outerAura.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = outerAura;
     ctx.beginPath();
-    ctx.arc(cx, cy, outerHalo * (1 + speakPush * 0.06), 0, Math.PI * 2);
+    ctx.arc(cx, cy, orbRadius * (1.9 + speakPush * 0.08), 0, Math.PI * 2);
     ctx.fill();
 
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
-      p.angle += p.drift * (1 + speakPush * 1.5) + p.swirlBias * 0.0006;
-      p.wobble += p.wobbleSpeed * (1 + speakPush * 1.8);
-      p.phase += 0.008 + speakPush * 0.02;
+    const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, corePresence);
+    coreGlow.addColorStop(0, `rgba(255,225,180,${0.028 + speakPush * 0.028})`);
+    coreGlow.addColorStop(0.36, `rgba(255,255,255,${0.018 + speakPush * 0.02})`);
+    coreGlow.addColorStop(0.74, `rgba(255,210,140,${0.008 + speakPush * 0.012})`);
+    coreGlow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = coreGlow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, corePresence, 0, Math.PI * 2);
+    ctx.fill();
 
-      const shellTarget = shellTargetRadius * p.asymmetry * p.shellBias + p.baseRadius * (1 - p.shellBias);
-      p.radius += (shellTarget - p.radius) * (p.grav * (0.9 + silencePull * 1.15));
-      p.radius += (p.baseRadius - p.radius) * (0.005 + speakPush * 0.022);
+    ctx.globalCompositeOperation = 'screen';
 
-      const smokeWave = Math.sin(p.wobble) * p.wobbleAmp * smokyTurbulence;
-      const breathingOffset = Math.sin(p.phase) * (1.5 + speakPush * 3.8);
-      const depthShift = (0.5 - p.depth) * orbRadius * 0.26;
-      const drawRadius = p.radius + smokeWave + breathingOffset + depthShift;
+    for (let i = 0; i < filaments.length; i++) {
+      const f = filaments[i];
+      f.angle += f.drift * (1 + speakPush * 1.7);
+      f.phase += f.phaseSpeed * (1 + speakPush * 1.9);
 
-      const x = cx + Math.cos(p.angle) * drawRadius;
-      const y = cy + Math.sin(p.angle) * drawRadius;
-      const tangent = p.angle + Math.PI / 2;
-      const trail = p.trail * (0.9 + speakPush * 1.45);
-      const x2 = x - Math.cos(tangent) * trail;
-      const y2 = y - Math.sin(tangent) * trail;
-
-      const controlRadius = drawRadius * (0.92 + Math.sin(p.phase * 0.9) * 0.05);
-      const cx1 = cx + Math.cos(p.angle + 0.24 + p.swirlBias) * controlRadius;
-      const cy1 = cy + Math.sin(p.angle - 0.2 - p.swirlBias) * controlRadius;
-
-      const depthFade = 0.38 + p.depth * 0.62;
-      const shellBoost = 0.78 + p.shellBias * 0.42;
-      const alpha = Math.min(0.24, (p.alpha + speakPush * 0.085 + silencePull * 0.012) * depthFade * shellBoost);
+      const depthShift = (f.depth - 0.5) * orbRadius * 0.28;
+      const radialWave = Math.sin(f.phase) * f.radiusJitter * (0.55 + speakPush * 1.25);
+      const targetRadius = shellRadius * f.shellBias + f.baseRadius * (1 - f.shellBias) + depthShift + radialWave;
+      const startAngle = f.angle;
+      const endAngle = f.angle + f.arc * (0.72 + Math.sin(f.phase * 0.7) * 0.22);
+      const localCx = cx + Math.cos(f.angle * 1.8 + t * f.swirl) * (1.8 + speakPush * 3.5);
+      const localCy = cy + Math.sin(f.angle * 1.4 - t * f.swirl) * (1.8 + speakPush * 3.5);
+      const alpha = Math.min(0.18, (f.alpha + speakPush * 0.05) * (0.5 + f.depth * 0.7));
 
       ctx.beginPath();
-      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-      ctx.lineWidth = p.lineWidth * (0.85 + speakPush * 0.7);
+      ctx.strokeStyle = `rgba(255,235,205,${alpha})`;
+      ctx.lineWidth = f.width * (0.9 + speakPush * 0.8);
       ctx.lineCap = 'round';
-      ctx.moveTo(x, y);
-      ctx.quadraticCurveTo(cx1, cy1, x2, y2);
+      ctx.arc(localCx, localCy, Math.max(6, targetRadius), startAngle, endAngle);
       ctx.stroke();
     }
 
-    const coreFog = ctx.createRadialGradient(cx, cy, 0, cx, cy, orbRadius * 0.95);
-    coreFog.addColorStop(0, `rgba(255,255,255,${0.022 + speakPush * 0.02})`);
-    coreFog.addColorStop(0.3, `rgba(255,255,255,${0.016 + speakPush * 0.016})`);
-    coreFog.addColorStop(0.7, 'rgba(255,255,255,0.006)');
-    coreFog.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = coreFog;
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbRadius * (0.88 + speakPush * 0.04), 0, Math.PI * 2);
-    ctx.fill();
+    for (let i = 0; i < motes.length; i++) {
+      const m = motes[i];
+      m.angle += m.drift * (1 + speakPush * 1.8);
+      m.pulse += m.pulseSpeed * (1 + speakPush * 1.5);
 
-    const boundaryGlow = ctx.createRadialGradient(cx, cy, shellTargetRadius * 0.72, cx, cy, shellTargetRadius * 1.2);
+      const radialBreath = Math.sin(m.pulse) * (2.5 + speakPush * 4.5);
+      const gravityPull = silencePull * (1 - m.depth) * orbRadius * 0.035;
+      const drawRadius = Math.max(0, m.radius * sphereScale + radialBreath - gravityPull);
+      const x = cx + Math.cos(m.angle) * drawRadius;
+      const y = cy + Math.sin(m.angle) * drawRadius;
+      const a = Math.min(0.32, (m.alpha + speakPush * 0.1) * (0.45 + m.depth * 0.75));
+      const size = m.size * (0.95 + speakPush * 0.55 + m.depth * 0.25);
+
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255,245,225,${a})`;
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const boundaryGlow = ctx.createRadialGradient(cx, cy, shellRadius * 0.72, cx, cy, shellRadius * 1.08);
     boundaryGlow.addColorStop(0, 'rgba(255,255,255,0)');
-    boundaryGlow.addColorStop(0.54, `rgba(255,255,255,${0.012 + speakPush * 0.02})`);
-    boundaryGlow.addColorStop(0.78, `rgba(255,255,255,${0.026 + speakPush * 0.04})`);
+    boundaryGlow.addColorStop(0.54, `rgba(255,220,150,${0.04 + speakPush * 0.055})`);
+    boundaryGlow.addColorStop(0.78, `rgba(255,115,70,${0.03 + speakPush * 0.05})`);
     boundaryGlow.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.strokeStyle = boundaryGlow;
-    ctx.lineWidth = 1.2 + speakPush * 0.9;
+    ctx.lineWidth = 2.2 + speakPush * 1.9;
     ctx.beginPath();
-    ctx.arc(cx, cy, shellTargetRadius * (0.985 + Math.sin(performance.now() * 0.0014) * 0.01), 0, Math.PI * 2);
+    ctx.arc(cx, cy, shellRadius * (0.985 + Math.sin(t * 1.45) * 0.014), 0, Math.PI * 2);
     ctx.stroke();
 
+    ctx.globalCompositeOperation = 'source-over';
     welcomeParticlesRaf = requestAnimationFrame(tick);
   };
 
   welcomeParticlesRaf = requestAnimationFrame(tick);
 }
-
-    function ensureWelcomeIntroAudioGraph() {
-      if (!el.welcomeIntroAudio || welcomeAudioAnalyser || typeof AudioContext === 'undefined') return;
-      try {
-        welcomeAudioCtx = welcomeAudioCtx || new AudioContext();
-        if (welcomeAudioCtx.state === 'suspended') {
-          welcomeAudioCtx.resume().catch(() => {});
-        }
-        if (!welcomeAudioSource) {
-          welcomeAudioSource = welcomeAudioCtx.createMediaElementSource(el.welcomeIntroAudio);
-        }
-        welcomeAudioAnalyser = welcomeAudioCtx.createAnalyser();
-        welcomeAudioAnalyser.fftSize = 256;
-        welcomeAudioAnalyser.smoothingTimeConstant = 0.86;
-        welcomeAudioData = new Uint8Array(welcomeAudioAnalyser.frequencyBinCount);
-        welcomeAudioSource.connect(welcomeAudioAnalyser);
-        welcomeAudioAnalyser.connect(welcomeAudioCtx.destination);
-      } catch (error) {
-        welcomeAudioAnalyser = null;
-        welcomeAudioData = null;
-      }
-    }
 
     function stopWelcomeReactiveTicker() {
       if (welcomeReactiveRaf) {
@@ -2448,11 +2454,7 @@ ${insights.streak} days of showing up.`;
     }
 
     function resetSessionFromDoubleTap() {
-      clearTimeout(singleTapTimeout);
-      singleTapTimeout = null;
-      clearTimeout(transitionTimeout);
-      clearTimeout(groundingTimeout);
-      pendingTrackAdvance = false;
+      clearSessionTimers();
       sessionState = SESSION_STATE.IDLE;
       detachAudio();
       initAudio();
@@ -2466,8 +2468,7 @@ ${insights.streak} days of showing up.`;
         return;
       }
 
-      clearTimeout(singleTapTimeout);
-      singleTapTimeout = null;
+      clearSessionTimers();
       initAudio();
       if (!currentPlaylist.length || !currentAudio) return;
 
@@ -2502,11 +2503,7 @@ ${insights.streak} days of showing up.`;
     window.setVolume = setVolume;
 
     function exitSessionEarly() {
-      clearTimeout(singleTapTimeout);
-      singleTapTimeout = null;
-      clearTimeout(transitionTimeout);
-      clearTimeout(groundingTimeout);
-      pendingTrackAdvance = false;
+      clearSessionTimers();
       sessionState = SESSION_STATE.IDLE;
       detachAudio();
       initAudio();
@@ -2730,6 +2727,7 @@ ${insights.streak} days of showing up.`;
 
       closeMenu();
       openWelcomeIntroOverlay();
+      resetWelcomeIntroUI();
       startWelcomeParticles();
       el.welcomeIntroState.textContent = 'Welcome';
       el.welcomeIntroLabel.textContent = 'Playing';
@@ -2782,8 +2780,7 @@ ${insights.streak} days of showing up.`;
         el.openingScene.classList.add('fade-out');
         activePractice = 'Welcome';
         try {
-          initAudio();
-          syncUI();
+          refreshCurrentMode();
         } catch (error) {
           console.error('Ataraxia boot error:', error);
         }
