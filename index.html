@@ -92,6 +92,7 @@
     .opening-scene.fade-out {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
     }
 
     .opening-inner {
@@ -130,153 +131,21 @@
       color: var(--text-faint);
     }
 
-    .welcome-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 290;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at center, rgba(255,255,255,0.02) 0%, transparent 42%),
-        #010101;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity 0.6s ease, visibility 0.6s ease;
-      overflow: hidden;
-    }
-
-    .welcome-screen.active {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-    }
-
-    .welcome-screen.fade-out {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .welcome-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .welcome-content {
-      position: relative;
-      z-index: 2;
-      width: min(1000px, 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 22px;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .welcome-ring-wrap {
-      position: relative;
-      width: min(60vmin, 660px);
-      aspect-ratio: 1 / 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .welcome-caption {
-      position: absolute;
-      left: 50%;
-      bottom: 124px;
-      transform: translateX(-50%);
-      width: min(760px, calc(100% - 48px));
-      font-size: clamp(14px, 2vw, 20px);
-      line-height: 1.75;
-      letter-spacing: 0.01em;
-      color: rgba(242,242,242,0.92);
-      text-align: center;
-      text-wrap: balance;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-      pointer-events: none;
-      z-index: 3;
-      white-space: pre-line;
-      text-shadow: 0 0 20px rgba(0,0,0,0.35);
-    }
-
-    .welcome-caption.visible {
-      opacity: 1;
-    }
-
-    .welcome-start-btn {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      padding: 12px 22px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-    }
-
-    .welcome-start-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, -46%);
-    }
-
-    .welcome-start-btn:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: var(--line-strong);
-    }
-
-    .welcome-skip-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      border: none;
-      background: transparent;
-      color: var(--text-faint);
-      font-family: inherit;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      cursor: pointer;
-      z-index: 3;
-      padding: 8px 6px;
-      transition: color 0.2s ease, opacity 0.2s ease;
-    }
-
-    .welcome-skip-btn:hover { color: var(--text-dim); }
-    .welcome-skip-btn.hidden { opacity: 0; pointer-events: none; }
-
-    .app-shell {
+        .app-shell {
       position: relative;
       z-index: 2;
       height: 100svh;
       display: flex;
       flex-direction: column;
-      opacity: 0;
-      transform: translateY(10px);
+      opacity: 1;
+      transform: none;
+      visibility: visible;
       transition: opacity 0.9s ease, transform 0.9s ease;
     }
 
     .app-shell.revealed {
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
     }
 
     .nav {
@@ -673,6 +542,144 @@
     .foundation-card-status.next { color: var(--success); }
     .foundation-card-desc { font-size: 12px; line-height: 1.65; color: var(--text-dim); letter-spacing: normal; text-transform: none; font-weight: 500; }
 
+    .welcome-intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 305;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 40%),
+        rgba(2,2,2,0.97);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    .welcome-intro-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .welcome-intro-stage {
+      position: relative;
+      width: 100vw;
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .welcome-intro-kicker {
+      position: absolute;
+      top: max(24px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .welcome-intro-circle {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -50%) scale(calc(1 + var(--welcome-audio-reactivity, 0) * 0.04));
+      width: min(88vw, 560px);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      overflow: visible;
+      animation: welcomeCircleBreath 5.5s ease-in-out infinite;
+      filter: brightness(calc(1 + var(--welcome-audio-reactivity, 0) * 0.11));
+      transition: transform 90ms linear, filter 90ms linear;
+      pointer-events: none;
+    }
+
+    .welcome-intro-circle::before,
+    .welcome-intro-circle::after {
+      content: none;
+    }
+
+    .welcome-intro-particles {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100svh;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+      opacity: 1;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.06));
+    }
+
+    .welcome-intro-core {
+      position: absolute;
+      left: 50%;
+      bottom: max(112px, calc(env(safe-area-inset-bottom) + 72px));
+      transform: translateX(-50%);
+      z-index: 2;
+      width: min(760px, calc(100vw - 32px));
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      mix-blend-mode: normal;
+      pointer-events: none;
+    }
+
+    .welcome-intro-state {
+      font-size: clamp(20px, 4vw, 30px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .welcome-intro-label {
+      font-size: 10px;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .welcome-intro-caption {
+      max-width: 700px;
+      min-height: 68px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-dim);
+      white-space: pre-line;
+      text-wrap: balance;
+    }
+
+    @keyframes welcomeCircleBreath {
+      0%,100% {
+        transform: translate(-50%, -50%) scale(calc(0.992 + var(--welcome-audio-reactivity, 0) * 0.038));
+        filter: brightness(calc(0.99 + var(--welcome-audio-reactivity, 0) * 0.11));
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(calc(1.006 + var(--welcome-audio-reactivity, 0) * 0.05));
+        filter: brightness(calc(1.012 + var(--welcome-audio-reactivity, 0) * 0.13));
+      }
+    }
+
     .session-overlay {
       position: fixed;
       inset: 0;
@@ -940,7 +947,7 @@
       .foundation-card-status { text-align: left; min-width: 0; }
     }
   </style>
-  <base target="_blank">
+  
 </head>
 <body>
   <div class="atmosphere"></div>
@@ -952,20 +959,6 @@
       <div class="opening-author" id="openingAuthor">Marcus Aurelius</div>
       <div class="opening-mark">Quote of the Day</div>
     </div>
-  </div>
-
-  <div class="welcome-screen" id="welcomeScreen">
-    <canvas class="welcome-canvas" id="welcomeCanvas"></canvas>
-    <button class="welcome-skip-btn" id="welcomeSkipBtn" type="button">Skip Intro</button>
-    <div class="welcome-content">
-      <div class="welcome-ring-wrap">
-        <button class="welcome-start-btn" id="welcomeStartBtn" type="button">Open</button>
-      </div>
-      <div class="welcome-caption" id="welcomeCaption"></div>
-    </div>
-    <audio id="welcomeAudio" preload="auto">
-      <source src="audio/Brittney welcome audio.mp3" type="audio/mpeg">
-    </audio>
   </div>
 
   <div class="app-shell" id="appShell">
@@ -988,7 +981,7 @@
 
         <button class="menu-item" id="welcomeMenuBtn" onclick="selectMainMode('Welcome')">
           <div class="menu-item-title">Before You Begin (Disclaimer)</div>
-          <div class="menu-item-desc">Access the disclaimer audio anytime before you begin.</div>
+          <div class="menu-item-desc">Read this short guidance before starting your practice.</div>
         </button>
 
         <button class="menu-item" id="introductionMenuBtn" onclick="selectMainMode('Introduction')">
@@ -1033,7 +1026,7 @@
       <div class="practice-copy">
         <div class="practice-copy-label" id="practiceCopyLabel">Session Guidance</div>
         <div class="practice-copy-title" id="practiceCopyTitle">Before You Begin (Disclaimer)</div>
-        <div class="practice-copy-body" id="practiceCopyBody">A short disclaimer audio explaining how to use the app, what to expect, and important safety guidance before practice.</div>
+        <div class="practice-copy-body" id="practiceCopyBody">A short disclaimer before practice. This app is for mindfulness and mental training. It is not a replacement for medical, psychiatric, or crisis support. If something feels overwhelming, pause, stop, and seek support if needed. Only practice in a safe place where you can fully relax and pay attention.</div>
       </div>
 
       <div class="practice-copy lesson-card" id="lessonCard" style="display:none;">
@@ -1064,19 +1057,19 @@
           <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
         </div>
         <div class="journey-row-primary">
-          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Open</button>
+          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Begin</button>
         </div>
       </div>
 
       <div class="status-row">
-        <div class="audio-status" id="audioStatus"><span class="audio-dot"></span><span id="audioText">Disclaimer Audio Ready</span></div>
+        <div class="audio-status" id="audioStatus"><span class="audio-dot"></span><span id="audioText">Before You Begin</span></div>
         <div class="volume-control" id="volumeControl">
           <div class="volume-icon">◌</div>
           <input class="volume-slider" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)">
         </div>
       </div>
 
-      <div class="bottom-note" id="bottomNote">This is your starting point.</div>
+      <div class="bottom-note" id="bottomNote">Read this first, then continue into the introduction.</div>
     </main>
   </div>
 
@@ -1085,6 +1078,24 @@
       <div class="lesson-overlay-kicker">Lesson</div>
       <div class="lesson-overlay-title" id="lessonOverlayTitle">Before you begin</div>
       <div class="lesson-overlay-body" id="lessonOverlayBody">A short lesson will appear here.</div>
+    </div>
+  </div>
+
+  <div class="welcome-intro-overlay" id="welcomeIntroOverlay">
+    <div class="welcome-intro-stage">
+      <canvas class="welcome-intro-particles" id="welcomeIntroParticles"></canvas>
+      <div class="welcome-intro-kicker">Before You Begin</div>
+      <div class="welcome-intro-circle" id="welcomeIntroCircle">
+      </div>
+      <div class="welcome-intro-core">
+          <div class="welcome-intro-state" id="welcomeIntroState">Settle</div>
+          <div class="welcome-intro-label" id="welcomeIntroLabel">Welcome Audio</div>
+        <div class="welcome-intro-caption" id="welcomeIntroCaption">Hey… welcome to Ataraxia.</div>
+      </div>
+      <button class="journey-btn secondary" style="position:absolute;bottom:max(28px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:2;" onclick="skipWelcomeIntro()">Skip</button>
+      <audio id="welcomeIntroAudio" preload="auto">
+        <source src="audio/brittney_intro.mp3" type="audio/mpeg">
+      </audio>
     </div>
   </div>
 
@@ -1180,8 +1191,7 @@
     Depth > Breadth.
     */
 
-   
-    const WELCOME_SEEN_STORAGE_KEY = 'ataraxia_welcome_seen_v1';
+    
     const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
     const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
@@ -1191,12 +1201,28 @@
     const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
     const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
 
+    const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
+    const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
+    const DEFAULT_WELCOME_STATE = 'Settle';
+    const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
+    const WELCOME_SCRIPT_CUES = [
+      { start: 0.00, end: 2.95, text: 'Hey… welcome to Ataraxia.' },
+      { start: 3.00, end: 5.28, text: 'Before we begin, just a quick note.' },
+      { start: 5.32, end: 15.12, text: 'This app is designed to help you train your mind… to build focus, awareness, and a calmer, more steady state. Think of it like going to the gym… but for your attention.' },
+      { start: 16.40, end: 31.18, text: 'Now, while these practices are based on well-known techniques in mindfulness and mental training… this isn’t a replacement for professional medical or psychological care. If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
+      { start: 31.90, end: 42.50, text: 'Also, some sessions involve closing your eyes or going into deeper focus. So just make sure you’re in a safe place… and definitely not driving or doing anything that needs your full attention.' },
+      { start: 43.55, end: 50.82, text: 'And remember… you’re always in control. If something doesn’t feel right, you can pause, adjust, or stop at any time.' },
+      { start: 51.82, end: 56.05, text: 'Take what works for you… leave what doesn’t… and move at your own pace.' },
+      { start: 56.90, end: 58.67, text: 'Alright… let’s begin.' }
+    ];
+
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const TRANSITION_DELAY = 2000;
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
     const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
+    const APP_BOOT_DELAY = 1800;
 
     const quotes = [
       { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
@@ -1205,28 +1231,7 @@
       { text: 'Return again. That is the training.', author: 'Unknown' }
     ];
 
-    const WELCOME_SCRIPT_CUES = [
-      { start: 0.0, end: 2.43, text: 'Hey… welcome to Ataraxia.' },
-      { start: 3.06, end: 4.97, text: 'Before we begin, just a quick note.' },
-      { start: 5.33, end: 7.66, text: 'This app is designed to help you train your mind…' },
-      { start: 8.16, end: 12.05, text: 'To build focus, awareness, and a calmer, more steady state.' },
-      { start: 12.53, end: 15.10, text: 'Think of it like going to the gym… but for your attention.' },
-      { start: 16.40, end: 25.10, text: `These practices are based on well-known techniques in mindfulness and mental training…
-This isn’t a replacement for professional medical or psychological care.` },
-      { start: 25.68, end: 31.16, text: 'If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
-      { start: 31.89, end: 35.97, text: 'Also, some sessions involve closing your eyes or going into deeper focus.' },
-      { start: 36.38, end: 42.48, text: `So just make sure you’re in a safe place…
-And definitely not driving or doing anything that needs your full attention.` },
-      { start: 43.55, end: 45.87, text: 'And remember… you’re always in control.' },
-      { start: 46.37, end: 50.79, text: 'If something doesn’t feel right, you can pause, adjust, or stop at any time.' },
-      { start: 51.84, end: 56.03, text: `Take what works for you…
-Leave what doesn’t…
-And move at your own pace.` },
-      { start: 56.91, end: 58.67, text: `Alright…
-Let’s begin.` }
-    ];
-
-    const REFLECTION_REINFORCEMENT = {
+        const REFLECTION_REINFORCEMENT = {
       Breath: {
         title: 'You noticed the breath.',
         body: 'That means your attention found an anchor. Each return strengthens focus.'
@@ -1249,13 +1254,13 @@ Let’s begin.` }
       Welcome: {
         eyebrow: 'Before You Begin (Disclaimer)',
         hero: 'Welcome first.<br>Then begin.',
-        subtitle: ['Arrive', 'Listen', 'Begin'],
-        note: 'Replay the welcome anytime.',
+        subtitle: ['Arrive', 'Read', 'Begin'],
+        note: 'Read this first, then continue into the introduction.',
         badge: 'Before You Begin (Disclaimer)',
-        copyLabel: 'Disclaimer Audio',
+        copyLabel: 'Session Guidance',
         copyTitle: 'Before You Begin (Disclaimer)',
-        copyBody: `A short disclaimer audio explaining how to use the app, what to expect, and important safety guidance before practice.`,
-        startLabel: 'Open',
+        copyBody: `A short disclaimer before practice. This app is for mindfulness and mental training. It is not a replacement for medical, psychiatric, or crisis support. If something feels overwhelming, pause, stop, and seek support if needed. Only practice in a safe place where you can fully relax and pay attention.`,
+        startLabel: 'Begin',
         audio: []
       },
       Introduction: {
@@ -1450,16 +1455,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
     };
 
     const el = {
+      welcomeIntroOverlay: document.getElementById('welcomeIntroOverlay'),
+      welcomeIntroState: document.getElementById('welcomeIntroState'),
+      welcomeIntroParticles: document.getElementById('welcomeIntroParticles'),
+      welcomeIntroLabel: document.getElementById('welcomeIntroLabel'),
+      welcomeIntroCaption: document.getElementById('welcomeIntroCaption'),
+      welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
       welcomeMenuBtn: document.getElementById('welcomeMenuBtn'),
       openingScene: document.getElementById('openingScene'),
       openingQuote: document.getElementById('openingQuote'),
       openingAuthor: document.getElementById('openingAuthor'),
-      welcomeScreen: document.getElementById('welcomeScreen'),
-      welcomeCanvas: document.getElementById('welcomeCanvas'),
-      welcomeStartBtn: document.getElementById('welcomeStartBtn'),
-      welcomeSkipBtn: document.getElementById('welcomeSkipBtn'),
-      welcomeCaption: document.getElementById('welcomeCaption'),
-      welcomeAudio: document.getElementById('welcomeAudio'),
       appShell: document.getElementById('appShell'),
       menuOverlay: document.getElementById('menuOverlay'),
       introductionMenuBtn: document.getElementById('introductionMenuBtn'),
@@ -1489,6 +1494,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       audioStatus: document.getElementById('audioStatus'),
       audioText: document.getElementById('audioText'),
       volumeControl: document.getElementById('volumeControl'),
+      volumeSlider: document.querySelector('.volume-slider'),
       bottomNote: document.getElementById('bottomNote'),
       sessionOverlay: document.getElementById('sessionOverlay'),
       sessionStage: document.querySelector('.session-stage'),
@@ -1522,7 +1528,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.sessionProgressRing.style.strokeDasharray = circumference;
     el.sessionProgressRing.style.strokeDashoffset = circumference;
 
-    let activePractice = 'Introduction';
+    let activePractice = 'Welcome';
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
@@ -1548,30 +1554,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let lessonOverlayTimeout = null;
     let lessonOverlayExitTimeout = null;
     let shownLessonKey = '';
-    let welcomeAnimationFrame = null;
-    let welcomeDismissed = false;
-    let welcomeStarted = false;
-    let welcomeAudioCtx = null;
-    let welcomeAnalyser = null;
-    let welcomeSource = null;
-    let welcomeData = null;
     let wakeLockHandle = null;
+    let welcomeIntroTickRaf = null;
+    let welcomeIntroTextTrack = null;
+    let welcomeReactiveRaf = null;
+    let welcomeParticlesRaf = null;
+    let welcomeAudioCtx = null;
+    let welcomeAudioAnalyser = null;
+    let welcomeAudioSource = null;
+    let welcomeAudioData = null;
 
-    function hasSeenWelcomeIntro() {
-      try {
-        return localStorage.getItem(WELCOME_SEEN_STORAGE_KEY) === '1';
-      } catch {
-        return false;
-      }
-    }
-
-    function markWelcomeIntroSeen() {
-      try {
-        localStorage.setItem(WELCOME_SEEN_STORAGE_KEY, '1');
-      } catch {}
-    }
-
-    function loadProgress() {
+        function loadProgress() {
       try {
         return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       } catch {
@@ -1647,6 +1640,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           streak: 0,
           topReflection: '',
           lastReflection: '',
+          topPractice: '',
           assessment: '',
           feedback: '',
           title: 'You are building consistency.',
@@ -1682,6 +1676,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const topReflection = Object.entries(reflectionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
       const lastReflection = history[history.length - 1]?.reflection || '';
       const topPractice = Object.entries(practiceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const topPracticeLabel = topPractice ? topPractice.replace(/([A-Z])/g, ' $1').trim() : '';
       const dominantMode = Object.entries(modeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
 
       let assessment = 'Your awareness is still taking shape.';
@@ -1729,13 +1724,13 @@ Recommendation: stay with Breath Awareness a little longer before moving on. You
       const body = `What Ataraxia is noticing:
 ${assessment}
 
-Pattern emerging: ${topReflection || 'Still emerging'}${topPractice ? ` • Most used practice: ${topPractice}` : ''}
+Pattern emerging: ${topReflection || 'Still emerging'}${topPracticeLabel ? ` • Most used practice: ${topPracticeLabel}` : ''}
 Last session: ${lastReflection || 'No reflection saved'}
 
 Suggested direction:
 ${feedback}`;
 
-      return { total, streak, topReflection, lastReflection, assessment, feedback, title, body };
+      return { total, streak, topReflection, lastReflection, topPractice: topPracticeLabel, assessment, feedback, title, body };
     }
 
     function getModeConfig() {
@@ -1776,6 +1771,260 @@ ${feedback}`;
       const mins = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
       return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function getCurrentVolume() {
+      return Number(el.volumeSlider?.value || 70) / 100;
+    }
+
+    function setAudioStatus(text, isPlaying = false) {
+      if (!el.audioText || !el.audioStatus) return;
+      el.audioText.textContent = text;
+      el.audioStatus.classList.toggle('playing', isPlaying);
+    }
+
+    function refreshCurrentMode() {
+      initAudio();
+      syncUI();
+    }
+
+    function openWelcomeIntroOverlay() {
+      document.body.classList.add('session-active');
+      el.welcomeIntroOverlay.classList.add('active');
+    }
+
+    function closeWelcomeIntroOverlay() {
+      el.welcomeIntroOverlay.classList.remove('active');
+      document.body.classList.remove('session-active');
+    }
+
+    function resetWelcomeIntroUI() {
+      el.welcomeIntroState.textContent = DEFAULT_WELCOME_STATE;
+      el.welcomeIntroLabel.textContent = DEFAULT_WELCOME_LABEL;
+      el.welcomeIntroCaption.textContent = DEFAULT_WELCOME_CAPTION;
+      document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
+    }
+
+    function stopWelcomeParticles() {
+      if (welcomeParticlesRaf) {
+        cancelAnimationFrame(welcomeParticlesRaf);
+        welcomeParticlesRaf = null;
+      }
+      const canvas = el.welcomeIntroParticles;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function startWelcomeParticles() {
+  const canvas = el.welcomeIntroParticles;
+  if (!canvas) return;
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.max(1, Math.floor(w * dpr));
+  canvas.height = Math.max(1, Math.floor(h * dpr));
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const cx = w / 2;
+  const cy = h * 0.46;
+  const orbRadius = Math.min(w, h) * 0.19;
+  const shellThickness = orbRadius * 0.22;
+  const outerHalo = orbRadius * 1.26;
+  const particles = [];
+  const particleCount = 2600;
+
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const zone = Math.random();
+    let radius;
+    let alpha;
+    let lineWidth;
+    let trail;
+    let shellBias;
+
+    if (zone < 0.58) {
+      radius = orbRadius + (Math.random() - 0.5) * shellThickness;
+      alpha = 0.045 + Math.random() * 0.075;
+      lineWidth = 0.35 + Math.random() * 0.7;
+      trail = 12 + Math.random() * 26;
+      shellBias = 1;
+    } else if (zone < 0.84) {
+      radius = orbRadius * (0.7 + Math.random() * 0.3);
+      alpha = 0.02 + Math.random() * 0.045;
+      lineWidth = 0.28 + Math.random() * 0.5;
+      trail = 9 + Math.random() * 18;
+      shellBias = 0.58;
+    } else {
+      radius = Math.random() * orbRadius * 0.68;
+      alpha = 0.012 + Math.random() * 0.024;
+      lineWidth = 0.22 + Math.random() * 0.38;
+      trail = 7 + Math.random() * 13;
+      shellBias = 0.26;
+    }
+
+    particles.push({
+      angle,
+      radius,
+      baseRadius: radius,
+      alpha,
+      lineWidth,
+      drift: (Math.random() - 0.5) * 0.0024,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.006 + Math.random() * 0.015,
+      wobbleAmp: 2 + Math.random() * 9,
+      asymmetry: 0.92 + Math.random() * 0.18,
+      trail,
+      grav: 0.005 + Math.random() * 0.012,
+      shellBias,
+      phase: Math.random() * Math.PI * 2,
+      depth: Math.random(),
+      swirlBias: (Math.random() - 0.5) * 0.22
+    });
+  }
+
+  stopWelcomeParticles();
+
+  const tick = () => {
+    const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
+    const speakPush = reactivity;
+    const silencePull = 1 - Math.min(1, reactivity * 1.15);
+    const breath = Math.sin(performance.now() * 0.00115) * 0.5 + 0.5;
+    const shellTargetRadius = orbRadius * (0.98 + speakPush * 0.13 - silencePull * 0.04 + breath * 0.012);
+    const smokyTurbulence = 0.45 + speakPush * 1.25;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const bgGlow = ctx.createRadialGradient(cx, cy, orbRadius * 0.08, cx, cy, outerHalo * (0.98 + speakPush * 0.08));
+    bgGlow.addColorStop(0, `rgba(255,255,255,${0.01 + speakPush * 0.01})`);
+    bgGlow.addColorStop(0.38, `rgba(255,255,255,${0.018 + speakPush * 0.02})`);
+    bgGlow.addColorStop(0.72, `rgba(255,255,255,${0.028 + speakPush * 0.032})`);
+    bgGlow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = bgGlow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerHalo * (1 + speakPush * 0.06), 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.angle += p.drift * (1 + speakPush * 1.5) + p.swirlBias * 0.0006;
+      p.wobble += p.wobbleSpeed * (1 + speakPush * 1.8);
+      p.phase += 0.008 + speakPush * 0.02;
+
+      const shellTarget = shellTargetRadius * p.asymmetry * p.shellBias + p.baseRadius * (1 - p.shellBias);
+      p.radius += (shellTarget - p.radius) * (p.grav * (0.9 + silencePull * 1.15));
+      p.radius += (p.baseRadius - p.radius) * (0.005 + speakPush * 0.022);
+
+      const smokeWave = Math.sin(p.wobble) * p.wobbleAmp * smokyTurbulence;
+      const breathingOffset = Math.sin(p.phase) * (1.5 + speakPush * 3.8);
+      const depthShift = (0.5 - p.depth) * orbRadius * 0.26;
+      const drawRadius = p.radius + smokeWave + breathingOffset + depthShift;
+
+      const x = cx + Math.cos(p.angle) * drawRadius;
+      const y = cy + Math.sin(p.angle) * drawRadius;
+      const tangent = p.angle + Math.PI / 2;
+      const trail = p.trail * (0.9 + speakPush * 1.45);
+      const x2 = x - Math.cos(tangent) * trail;
+      const y2 = y - Math.sin(tangent) * trail;
+
+      const controlRadius = drawRadius * (0.92 + Math.sin(p.phase * 0.9) * 0.05);
+      const cx1 = cx + Math.cos(p.angle + 0.24 + p.swirlBias) * controlRadius;
+      const cy1 = cy + Math.sin(p.angle - 0.2 - p.swirlBias) * controlRadius;
+
+      const depthFade = 0.38 + p.depth * 0.62;
+      const shellBoost = 0.78 + p.shellBias * 0.42;
+      const alpha = Math.min(0.24, (p.alpha + speakPush * 0.085 + silencePull * 0.012) * depthFade * shellBoost);
+
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+      ctx.lineWidth = p.lineWidth * (0.85 + speakPush * 0.7);
+      ctx.lineCap = 'round';
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(cx1, cy1, x2, y2);
+      ctx.stroke();
+    }
+
+    const coreFog = ctx.createRadialGradient(cx, cy, 0, cx, cy, orbRadius * 0.95);
+    coreFog.addColorStop(0, `rgba(255,255,255,${0.022 + speakPush * 0.02})`);
+    coreFog.addColorStop(0.3, `rgba(255,255,255,${0.016 + speakPush * 0.016})`);
+    coreFog.addColorStop(0.7, 'rgba(255,255,255,0.006)');
+    coreFog.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = coreFog;
+    ctx.beginPath();
+    ctx.arc(cx, cy, orbRadius * (0.88 + speakPush * 0.04), 0, Math.PI * 2);
+    ctx.fill();
+
+    const boundaryGlow = ctx.createRadialGradient(cx, cy, shellTargetRadius * 0.72, cx, cy, shellTargetRadius * 1.2);
+    boundaryGlow.addColorStop(0, 'rgba(255,255,255,0)');
+    boundaryGlow.addColorStop(0.54, `rgba(255,255,255,${0.012 + speakPush * 0.02})`);
+    boundaryGlow.addColorStop(0.78, `rgba(255,255,255,${0.026 + speakPush * 0.04})`);
+    boundaryGlow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.strokeStyle = boundaryGlow;
+    ctx.lineWidth = 1.2 + speakPush * 0.9;
+    ctx.beginPath();
+    ctx.arc(cx, cy, shellTargetRadius * (0.985 + Math.sin(performance.now() * 0.0014) * 0.01), 0, Math.PI * 2);
+    ctx.stroke();
+
+    welcomeParticlesRaf = requestAnimationFrame(tick);
+  };
+
+  welcomeParticlesRaf = requestAnimationFrame(tick);
+}
+
+    function ensureWelcomeIntroAudioGraph() {
+      if (!el.welcomeIntroAudio || welcomeAudioAnalyser || typeof AudioContext === 'undefined') return;
+      try {
+        welcomeAudioCtx = welcomeAudioCtx || new AudioContext();
+        if (welcomeAudioCtx.state === 'suspended') {
+          welcomeAudioCtx.resume().catch(() => {});
+        }
+        if (!welcomeAudioSource) {
+          welcomeAudioSource = welcomeAudioCtx.createMediaElementSource(el.welcomeIntroAudio);
+        }
+        welcomeAudioAnalyser = welcomeAudioCtx.createAnalyser();
+        welcomeAudioAnalyser.fftSize = 256;
+        welcomeAudioAnalyser.smoothingTimeConstant = 0.86;
+        welcomeAudioData = new Uint8Array(welcomeAudioAnalyser.frequencyBinCount);
+        welcomeAudioSource.connect(welcomeAudioAnalyser);
+        welcomeAudioAnalyser.connect(welcomeAudioCtx.destination);
+      } catch (error) {
+        welcomeAudioAnalyser = null;
+        welcomeAudioData = null;
+      }
+    }
+
+    function stopWelcomeReactiveTicker() {
+      if (welcomeReactiveRaf) {
+        cancelAnimationFrame(welcomeReactiveRaf);
+        welcomeReactiveRaf = null;
+      }
+      document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
+    }
+
+    function startWelcomeReactiveTicker() {
+      if (!welcomeAudioAnalyser || !welcomeAudioData) return;
+      stopWelcomeReactiveTicker();
+      const tick = () => {
+        if (!el.welcomeIntroAudio || el.welcomeIntroAudio.paused || el.welcomeIntroAudio.ended) {
+          welcomeReactiveRaf = null;
+          document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
+          return;
+        }
+        welcomeAudioAnalyser.getByteFrequencyData(welcomeAudioData);
+        let sum = 0;
+        const sampleSize = Math.min(48, welcomeAudioData.length);
+        for (let i = 0; i < sampleSize; i++) sum += welcomeAudioData[i];
+        const avg = sampleSize ? sum / sampleSize : 0;
+        const normalized = Math.min(1, Math.max(0, (avg / 255) * 1.85));
+        document.documentElement.style.setProperty('--welcome-audio-reactivity', normalized.toFixed(3));
+        welcomeReactiveRaf = requestAnimationFrame(tick);
+      };
+      welcomeReactiveRaf = requestAnimationFrame(tick);
     }
 
     function updateSeekUI() {
@@ -1873,9 +2122,11 @@ ${feedback}`;
       el.sessionModeBadge.textContent = data.badge || data.eyebrow;
       el.sessionTitle.innerHTML = data.hero;
       el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-      el.bottomNote.textContent = data.note;
+      el.bottomNote.textContent = activePractice === 'Welcome'
+        ? 'Read this first, then continue into the introduction.'
+        : data.note;
 
-      if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome') {
+      if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'StabilityHome' && activePractice !== 'Welcome') {
         el.lessonCard.style.display = 'block';
         el.lessonTitle.textContent = data.copyTitle || 'Before you begin';
         el.lessonBody.textContent = data.lesson;
@@ -1891,12 +2142,12 @@ ${feedback}`;
     }
 
     function updateAudioStatus() {
-      if (activePractice === 'Welcome') el.audioText.textContent = 'Disclaimer Audio Ready';
-      else if (activePractice === 'Introduction') el.audioText.textContent = 'Introduction Ready';
-      else if (activePractice === 'FoundationHome') el.audioText.textContent = 'Choose a Foundation Practice';
-      else if (activePractice === 'Foundation') el.audioText.textContent = practiceContent.Foundation.readyAudioText;
-      else if (activePractice === 'StabilityHome') el.audioText.textContent = 'Choose a Stability Practice';
-      else if (activePractice === 'Stability') el.audioText.textContent = practiceContent.Stability.readyAudioText;
+      if (activePractice === 'Welcome') setAudioStatus('Before You Begin');
+      else if (activePractice === 'Introduction') setAudioStatus('Introduction Ready');
+      else if (activePractice === 'FoundationHome') setAudioStatus('Choose a Foundation Practice');
+      else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
+      else if (activePractice === 'StabilityHome') setAudioStatus('Choose a Stability Practice');
+      else if (activePractice === 'Stability') setAudioStatus(practiceContent.Stability.readyAudioText);
     }
 
     function updateInsightCard() {
@@ -1932,12 +2183,6 @@ ${feedback}`;
       const progress = loadProgress();
       const nextKey = stabilityOrder.find((key) => !progress[key]) || stabilityOrder[0];
       const history = loadSessionHistory();
-      const streak = getTrainingInsights().streak;
-
-      const streakCard = document.createElement('div');
-      streakCard.className = 'practice-copy';
-      streakCard.innerHTML = `<div class="practice-copy-label">Streak Tracker</div><div class="practice-copy-title">${streak ? `${streak} days of showing up` : 'Start your Stability streak'}</div><div class="practice-copy-body">${streak ? 'Keep returning to open awareness and maintain your rhythm.' : 'Complete a Stability session and Ataraxia will begin tracking your return rhythm here.'}</div>`;
-      el.stabilityCardsContainer.appendChild(streakCard);
 
       stabilityOrder.forEach((key) => {
         const data = practiceContent.Stability.subcategories[key];
@@ -1969,7 +2214,9 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       renderFoundationHomeCards();
       renderStabilityHomeCards();
       updateInsightCard();
-      resetVisualSessionState();
+      if (!el.sessionOverlay.classList.contains('active')) {
+        resetVisualSessionState();
+      }
     }
 
     function loadTrack(index) {
@@ -1978,7 +2225,7 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       currentTrackIndex = index;
       currentAudio = new Audio(currentPlaylist[index]);
       currentAudio.preload = 'auto';
-      currentAudio.volume = Number(document.querySelector('.volume-slider')?.value || 70) / 100;
+      currentAudio.volume = getCurrentVolume();
       currentAudio.ontimeupdate = updateSeekUI;
       currentAudio.onended = handleTrackEnd;
       currentAudio.onpause = () => {
@@ -2079,7 +2326,7 @@ ${insights.streak} days of showing up.`;
 
       currentAudio.play().then(() => {
         sessionState = SESSION_STATE.PLAYING;
-        el.audioStatus.classList.add('playing');
+        setAudioStatus(el.audioText.textContent, true);
         el.volumeControl.classList.add('active');
 
         const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
@@ -2108,7 +2355,7 @@ ${insights.streak} days of showing up.`;
       sessionState = SESSION_STATE.PAUSED;
 
       const modeConfig = getModeConfig();
-      el.audioStatus.classList.remove('playing');
+      setAudioStatus(el.audioText.textContent, false);
       setCircleState('paused');
 
       el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
@@ -2162,7 +2409,7 @@ ${insights.streak} days of showing up.`;
 
       sessionState = SESSION_STATE.COMPLETE;
       setCircleState('complete');
-      el.audioStatus.classList.remove('playing');
+      setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.remove('active');
       releaseWakeLock();
 
@@ -2215,21 +2462,7 @@ ${insights.streak} days of showing up.`;
 
     function startSessionButton() {
       if (activePractice === 'Welcome') {
-        markWelcomeIntroSeen();
-        welcomeDismissed = false;
-        welcomeStarted = false;
-        el.welcomeAudio.pause();
-        el.welcomeAudio.currentTime = 0;
-        el.welcomeAudio.ontimeupdate = null;
-        el.welcomeAudio.onended = null;
-        el.welcomeCaption.textContent = '';
-        el.welcomeCaption.classList.remove('visible');
-        el.welcomeScreen.classList.remove('fade-out');
-        el.welcomeScreen.classList.add('active');
-        el.welcomeStartBtn.classList.add('hidden');
-        el.welcomeSkipBtn.classList.remove('hidden');
-        if (!welcomeAnimationFrame) drawWelcomeRing();
-        startWelcomePlayback();
+        startWelcomeIntro();
         return;
       }
 
@@ -2245,7 +2478,7 @@ ${insights.streak} days of showing up.`;
       enterSessionMode();
       sessionState = SESSION_STATE.GROUNDING;
       setCircleState('grounding');
-      el.audioStatus.classList.remove('playing');
+      setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.add('active');
       el.sessionStateText.textContent = 'Settle';
       el.sessionStateLabel.textContent = 'Grounding';
@@ -2260,8 +2493,11 @@ ${insights.streak} days of showing up.`;
 
     function setVolume(value) {
       const v = Number(value) / 100;
+      if (el.volumeSlider && String(el.volumeSlider.value) !== String(value)) {
+        el.volumeSlider.value = value;
+      }
       if (currentAudio) currentAudio.volume = v;
-      if (el.welcomeAudio) el.welcomeAudio.volume = v;
+      if (el.welcomeIntroAudio) el.welcomeIntroAudio.volume = v;
     }
     window.setVolume = setVolume;
 
@@ -2274,7 +2510,7 @@ ${insights.streak} days of showing up.`;
       sessionState = SESSION_STATE.IDLE;
       detachAudio();
       initAudio();
-      el.audioStatus.classList.remove('playing');
+      setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.remove('active');
       resetVisualSessionState();
       exitSessionMode();
@@ -2297,8 +2533,7 @@ ${insights.streak} days of showing up.`;
       stabilityMenuOpen = false;
       shownLessonKey = '';
       if (name === 'Introduction' || name === 'Welcome') activeSubcategory = 'BreathAwareness';
-      initAudio();
-      syncUI();
+      refreshCurrentMode();
       closeMenu();
     }
     window.selectMainMode = selectMainMode;
@@ -2311,8 +2546,7 @@ ${insights.streak} days of showing up.`;
       } else {
         foundationMenuOpen = !foundationMenuOpen;
       }
-      initAudio();
-      syncUI();
+      refreshCurrentMode();
     }
     window.toggleFoundationMenu = toggleFoundationMenu;
 
@@ -2323,8 +2557,7 @@ ${insights.streak} days of showing up.`;
       foundationMenuOpen = true;
       stabilityMenuOpen = false;
       shownLessonKey = '';
-      initAudio();
-      syncUI();
+      refreshCurrentMode();
       if (fromMenu) closeMenu();
     }
     window.setSubcategory = setSubcategory;
@@ -2338,8 +2571,7 @@ ${insights.streak} days of showing up.`;
       } else {
         stabilityMenuOpen = !stabilityMenuOpen;
       }
-      initAudio();
-      syncUI();
+      refreshCurrentMode();
     }
     window.toggleStabilityMenu = toggleStabilityMenu;
 
@@ -2350,8 +2582,7 @@ ${insights.streak} days of showing up.`;
       stabilityMenuOpen = true;
       foundationMenuOpen = false;
       shownLessonKey = '';
-      initAudio();
-      syncUI();
+      refreshCurrentMode();
       if (fromMenu) closeMenu();
     }
     window.setStabilitySubcategory = setStabilitySubcategory;
@@ -2360,8 +2591,7 @@ ${insights.streak} days of showing up.`;
       activePractice = 'FoundationHome';
       foundationMenuOpen = true;
       shownLessonKey = '';
-      initAudio();
-      syncUI();
+      refreshCurrentMode();
     }
     window.goToFoundationHome = goToFoundationHome;
 
@@ -2400,8 +2630,7 @@ ${insights.streak} days of showing up.`;
         stabilityMenuOpen = true;
         foundationMenuOpen = false;
         shownLessonKey = '';
-        initAudio();
-        syncUI();
+        refreshCurrentMode();
       } else {
         goToFoundationHome();
       }
@@ -2415,12 +2644,118 @@ ${insights.streak} days of showing up.`;
       saveReflectionEntry(reflection);
       recordCompletedSession(reflection);
       hideReflectionTakeover();
-      updateInsightCard();
+      syncUI();
       showCompletionTakeover(reflection);
+    }
+
+    function stopWelcomeIntroAudio() {
+  if (welcomeIntroTickRaf) {
+    cancelAnimationFrame(welcomeIntroTickRaf);
+    welcomeIntroTickRaf = null;
+  }
+  stopWelcomeReactiveTicker();
+  stopWelcomeParticles();
+  if (!el.welcomeIntroAudio) return;
+  el.welcomeIntroAudio.pause();
+  el.welcomeIntroAudio.currentTime = 0;
+  el.welcomeIntroAudio.ontimeupdate = null;
+  el.welcomeIntroAudio.onended = null;
+  el.welcomeIntroAudio.onloadedmetadata = null;
+}
+
+    function ensureWelcomeIntroTextTrack() {
+      if (!el.welcomeIntroAudio || welcomeIntroTextTrack || typeof VTTCue === 'undefined') return null;
+      const track = el.welcomeIntroAudio.addTextTrack('captions', 'Welcome Script', 'en');
+      track.mode = 'hidden';
+      WELCOME_SCRIPT_CUES.forEach((cue) => {
+        track.addCue(new VTTCue(cue.start, cue.end, cue.text));
+      });
+      track.oncuechange = () => {
+        const activeCue = track.activeCues && track.activeCues.length ? track.activeCues[0] : null;
+        if (activeCue && el.welcomeIntroCaption) {
+          el.welcomeIntroCaption.textContent = activeCue.text;
+        }
+      };
+      welcomeIntroTextTrack = track;
+      return track;
+    }
+
+    function renderWelcomeIntroCue(time = 0) {
+      if (!el.welcomeIntroCaption) return;
+      let activeText = WELCOME_SCRIPT_CUES[0]?.text || 'Welcome to Ataraxia.';
+      for (let i = 0; i < WELCOME_SCRIPT_CUES.length; i++) {
+        if (time >= WELCOME_SCRIPT_CUES[i].start) {
+          activeText = WELCOME_SCRIPT_CUES[i].text;
+        }
+      }
+      if (el.welcomeIntroCaption.textContent !== activeText) {
+        el.welcomeIntroCaption.textContent = activeText;
+      }
+    }
+
+    function startWelcomeIntroTicker() {
+      if (welcomeIntroTextTrack) return;
+      if (welcomeIntroTickRaf) cancelAnimationFrame(welcomeIntroTickRaf);
+      const tick = () => {
+        if (!el.welcomeIntroAudio || el.welcomeIntroAudio.paused || el.welcomeIntroAudio.ended) {
+          welcomeIntroTickRaf = null;
+          return;
+        }
+        renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
+        welcomeIntroTickRaf = requestAnimationFrame(tick);
+      };
+      welcomeIntroTickRaf = requestAnimationFrame(tick);
+    }
+
+    function endWelcomeIntro(goToIntro = true) {
+      stopWelcomeIntroAudio();
+      closeWelcomeIntroOverlay();
+      resetWelcomeIntroUI();
+      if (goToIntro) {
+        activePractice = 'Introduction';
+        refreshCurrentMode();
+      }
+    }
+
+    function skipWelcomeIntro() {
+      endWelcomeIntro(true);
+    }
+    window.skipWelcomeIntro = skipWelcomeIntro;
+
+    function startWelcomeIntro() {
+      if (!el.welcomeIntroOverlay || !el.welcomeIntroAudio) {
+        selectMainMode('Introduction');
+        return;
+      }
+
+      closeMenu();
+      openWelcomeIntroOverlay();
+      startWelcomeParticles();
+      el.welcomeIntroState.textContent = 'Welcome';
+      el.welcomeIntroLabel.textContent = 'Playing';
+      el.welcomeIntroCaption.textContent = WELCOME_SCRIPT_CUES[0]?.text || DEFAULT_WELCOME_CAPTION;
+      el.welcomeIntroAudio.volume = getCurrentVolume();
+      el.welcomeIntroAudio.currentTime = 0;
+      const cueTrack = ensureWelcomeIntroTextTrack();
+      ensureWelcomeIntroAudioGraph();
+      el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
+      el.welcomeIntroAudio.ontimeupdate = cueTrack ? null : () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
+      el.welcomeIntroAudio.onended = () => endWelcomeIntro(true);
+      const playPromise = el.welcomeIntroAudio.play();
+      if (!cueTrack) startWelcomeIntroTicker();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          el.welcomeIntroLabel.textContent = 'Playing';
+          startWelcomeReactiveTicker();
+        }).catch(() => {
+          el.welcomeIntroLabel.textContent = 'Tap Begin Again';
+        });
+      }
     }
 
     function preloadMeditationAudio() {
       const audioFiles = [
+        WELCOME_AUDIO,
         INTRODUCTION_AUDIO,
         ...FOUNDATION_BREATH_AWARENESS_AUDIO,
         ...FOUNDATION_BODY_AWARENESS_AUDIO,
@@ -2437,224 +2772,41 @@ ${insights.streak} days of showing up.`;
       });
     }
 
-    function ensureWelcomeAudioGraph() {
-      if (welcomeAudioCtx) return;
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx || !el.welcomeAudio) return;
-      welcomeAudioCtx = new AudioCtx();
-      welcomeAnalyser = welcomeAudioCtx.createAnalyser();
-      welcomeAnalyser.fftSize = 256;
-      welcomeData = new Uint8Array(welcomeAnalyser.frequencyBinCount);
-      welcomeSource = welcomeAudioCtx.createMediaElementSource(el.welcomeAudio);
-      welcomeSource.connect(welcomeAnalyser);
-      welcomeAnalyser.connect(welcomeAudioCtx.destination);
-    }
-
-    function getWelcomeAudioLevel() {
-      if (!welcomeAnalyser || !welcomeData) return 0.2;
-      welcomeAnalyser.getByteFrequencyData(welcomeData);
-      let sum = 0;
-      for (let i = 0; i < welcomeData.length; i++) sum += welcomeData[i];
-      return Math.max(0.05, Math.min(1, (sum / welcomeData.length) / 140));
-    }
-
-    function drawWelcomeRing() {
-      const canvas = el.welcomeCanvas;
-      const ctx = canvas.getContext('2d');
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const w = rect.width;
-      const h = rect.height;
-      const cx = w / 2;
-      const cy = h * 0.42;
-      const outerBase = Math.min(w, h) * 0.30;
-      const innerBase = outerBase * 0.58;
-      const particleCount = Math.max(24000, Math.floor(w * 22));
-
-      const render = () => {
-        welcomeAnimationFrame = requestAnimationFrame(render);
-        ctx.clearRect(0, 0, w, h);
-
-        const amp = getWelcomeAudioLevel();
-        const speakScale = 1 + amp * 0.35;
-        const outerR = outerBase * speakScale;
-        const innerR = innerBase * (1 + amp * 0.15);
-        const haloR = outerR * 1.03;
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'screen';
-
-        for (let i = 0; i < particleCount; i++) {
-          const theta = Math.random() * Math.PI * 2;
-          const radialMix = Math.random();
-          const bias = Math.pow(radialMix, 0.24);
-          const r = innerR + (outerR - innerR) * bias;
-          const jitter = (Math.random() - 0.5) * (5.2 + amp * 4.2);
-          const x = cx + Math.cos(theta) * (r + jitter);
-          const y = cy + Math.sin(theta) * (r + jitter * 0.72);
-          const size = Math.random() < 0.94 ? 1 : 1.35;
-          const alphaCore = 0.11 + bias * 0.2 + amp * 0.08;
-          ctx.fillStyle = `rgba(255,255,255,${Math.min(0.28, alphaCore)})`;
-          ctx.fillRect(x, y, size, size);
-        }
-
-        for (let i = 0; i < particleCount * 1.45; i++) {
-          const theta = Math.random() * Math.PI * 2;
-          const t = Math.random();
-          const r = innerR + (outerR - innerR) * Math.pow(t, 0.18);
-          const x = cx + Math.cos(theta) * r;
-          const y = cy + Math.sin(theta) * r;
-          ctx.fillStyle = 'rgba(255,255,255,0.028)';
-          ctx.fillRect(x, y, 1, 1);
-        }
-
-        for (let i = 0; i < particleCount * 2.1; i++) {
-          const theta = Math.random() * Math.PI * 2;
-          const r = innerR + Math.random() * (outerR - innerR);
-          const x = cx + Math.cos(theta) * r;
-          const y = cy + Math.sin(theta) * r;
-          ctx.fillStyle = 'rgba(255,255,255,0.012)';
-          ctx.fillRect(x, y, 1, 1);
-        }
-
-        for (let i = 0; i < particleCount * 0.16; i++) {
-          const theta = Math.random() * Math.PI * 2;
-          const spread = haloR + Math.random() * (25 + amp * 10);
-          const x = cx + Math.cos(theta) * spread;
-          const y = cy + Math.sin(theta) * spread;
-          const alpha = 0.015 + Math.random() * 0.03 + amp * 0.015;
-          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          ctx.fillRect(x, y, 1, 1);
-        }
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-out';
-        const cut = ctx.createRadialGradient(cx, cy, innerR * 0.9, cx, cy, innerR * 1.1);
-        cut.addColorStop(0, 'rgba(0,0,0,1)');
-        cut.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = cut;
-        ctx.beginPath();
-        ctx.arc(cx, cy, innerR * 1.1, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        const glow = ctx.createRadialGradient(cx, cy, innerR * 0.28, cx, cy, outerR * 1.28);
-        glow.addColorStop(0, `rgba(255,255,255,${0.055 + amp * 0.04})`);
-        glow.addColorStop(0.6, 'rgba(255,255,255,0.02)');
-        glow.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(cx, cy, outerR * 1.22, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-      };
-
-      render();
-    }
-
-    function updateWelcomeCaption() {
-      const t = el.welcomeAudio.currentTime || 0;
-      const cue = WELCOME_SCRIPT_CUES.find((item) => t >= item.start && t < item.end);
-      if (cue) {
-        if (el.welcomeCaption.textContent !== cue.text) el.welcomeCaption.textContent = cue.text;
-        el.welcomeCaption.classList.add('visible');
-        return;
-      }
-      const previousCue = [...WELCOME_SCRIPT_CUES].reverse().find((item) => t >= item.end && t < item.end + 0.45);
-      if (previousCue) {
-        if (el.welcomeCaption.textContent !== previousCue.text) el.welcomeCaption.textContent = previousCue.text;
-        el.welcomeCaption.classList.add('visible');
-        return;
-      }
-      el.welcomeCaption.textContent = '';
-      el.welcomeCaption.classList.remove('visible');
-    }
-
-    async function startWelcomePlayback() {
-      if (welcomeStarted || !el.welcomeAudio) return false;
-      welcomeStarted = true;
-      ensureWelcomeAudioGraph();
-      el.welcomeStartBtn.classList.add('hidden');
-      try {
-        if (welcomeAudioCtx && welcomeAudioCtx.state === 'suspended') await welcomeAudioCtx.resume();
-        el.welcomeAudio.currentTime = 0;
-        await el.welcomeAudio.play();
-        updateWelcomeCaption();
-      } catch {
-        welcomeStarted = false;
-        el.welcomeStartBtn.classList.remove('hidden');
-        return false;
-      }
-      el.welcomeAudio.ontimeupdate = updateWelcomeCaption;
-      el.welcomeAudio.onended = () => {
-        el.welcomeCaption.classList.remove('visible');
-        markWelcomeIntroSeen();
-        setTimeout(endWelcomeFlow, 350);
-      };
-      return true;
-    }
-
-    function endWelcomeFlow() {
-      if (welcomeDismissed) return;
-      welcomeDismissed = true;
-      el.welcomeStartBtn.classList.add('hidden');
-      el.welcomeSkipBtn.classList.add('hidden');
-      el.welcomeCaption.classList.remove('visible');
-      if (el.welcomeAudio) {
-        el.welcomeAudio.pause();
-        el.welcomeAudio.ontimeupdate = null;
-        el.welcomeAudio.onended = null;
-      }
-      el.welcomeScreen.classList.add('fade-out');
-      setTimeout(() => {
-        el.welcomeScreen.classList.remove('active');
-        if (activePractice === 'Welcome') {
-          syncUI();
-        } else {
-          el.appShell.classList.add('revealed');
-        }
-        if (welcomeAnimationFrame) {
-          cancelAnimationFrame(welcomeAnimationFrame);
-          welcomeAnimationFrame = null;
-        }
-      }, 700);
-    }
-
-    function startWelcomeFlow() {
-      welcomeDismissed = false;
-      welcomeStarted = false;
-      el.welcomeAudio.pause();
-      el.welcomeAudio.currentTime = 0;
-      el.welcomeCaption.textContent = '';
-      el.welcomeCaption.classList.remove('visible');
-      el.welcomeScreen.classList.remove('fade-out');
-      el.welcomeScreen.classList.add('active');
-      el.welcomeSkipBtn.classList.remove('hidden');
-      el.welcomeStartBtn.classList.remove('hidden');
-      if (!welcomeAnimationFrame) drawWelcomeRing();
-    }
-
     function showOpeningQuoteScene() {
       const q = quotes[Math.floor(Math.random() * quotes.length)];
+      el.appShell.classList.add('revealed');
       el.openingScene.classList.remove('fade-out');
       el.openingQuote.textContent = `“${q.text}”`;
       el.openingAuthor.textContent = q.author;
       setTimeout(() => {
         el.openingScene.classList.add('fade-out');
-        if (hasSeenWelcomeIntro()) {
-          activePractice = 'Welcome';
+        activePractice = 'Welcome';
+        try {
           initAudio();
           syncUI();
-          el.appShell.classList.add('revealed');
-        } else {
-          startWelcomeFlow();
+        } catch (error) {
+          console.error('Ataraxia boot error:', error);
         }
       }, APP_BOOT_DELAY);
+    }
+
+    function bootstrapApp() {
+      if (appBooted) return;
+      appBooted = true;
+      try {
+        initAudio();
+        syncUI();
+      } catch (error) {
+        console.error('Ataraxia initial sync error:', error);
+      }
+      showOpeningQuoteScene();
+      setTimeout(() => {
+        try {
+          preloadMeditationAudio();
+        } catch (error) {
+          console.error('Ataraxia preload error:', error);
+        }
+      }, 0);
     }
 
     el.reflectionOptionsTakeover.addEventListener('click', (event) => {
@@ -2664,32 +2816,18 @@ ${insights.streak} days of showing up.`;
 
     el.sessionCircleShell.addEventListener('click', handleCircleTap);
     el.sessionSeekBar.addEventListener('input', (event) => seekToPercent(Number(event.target.value)));
-    el.welcomeStartBtn.addEventListener('click', async (event) => {
-      event.stopPropagation();
-      await startWelcomePlayback();
-    });
-    el.welcomeSkipBtn.addEventListener('click', (event) => {
-      event.stopPropagation();
-      markWelcomeIntroSeen();
-      endWelcomeFlow();
-    });
 
-    window.addEventListener('load', () => {
-      if (appBooted) return;
-      appBooted = true;
-      preloadMeditationAudio();
-      initAudio();
-      syncUI();
-      showOpeningQuoteScene();
-    });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootstrapApp);
+    } else {
+      setTimeout(bootstrapApp, 0);
+    }
+
+    window.addEventListener('load', bootstrapApp);
 
     window.addEventListener('resize', () => {
-      if (el.welcomeScreen.classList.contains('active') && !welcomeDismissed) {
-        if (welcomeAnimationFrame) {
-          cancelAnimationFrame(welcomeAnimationFrame);
-          welcomeAnimationFrame = null;
-        }
-        drawWelcomeRing();
+      if (el.welcomeIntroOverlay.classList.contains('active')) {
+        startWelcomeParticles();
       }
       if (el.sessionOverlay.classList.contains('active')) {
         updateSessionScrollability();
@@ -2698,11 +2836,19 @@ ${insights.streak} days of showing up.`;
 
     window.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
+        if (el.welcomeIntroOverlay.classList.contains('active')) {
+          skipWelcomeIntro();
+          return;
+        }
         closeMenu();
       }
     });
 
     document.addEventListener('visibilitychange', () => {
+      if (document.hidden && el.welcomeIntroOverlay.classList.contains('active') && el.welcomeIntroAudio && !el.welcomeIntroAudio.paused) {
+        el.welcomeIntroAudio.pause();
+        el.welcomeIntroLabel.textContent = 'Paused';
+      }
       if (!document.hidden) {
         setTimeout(() => {
           maybeRecoverAudioState();
@@ -2716,7 +2862,14 @@ ${insights.streak} days of showing up.`;
       }
     });
 
-    window.addEventListener('focus', () => {
+    function recoverSessionAfterReturn() {
+      if (el.welcomeIntroOverlay.classList.contains('active') && el.welcomeIntroAudio && el.welcomeIntroAudio.paused && el.welcomeIntroAudio.currentTime > 0) {
+        el.welcomeIntroAudio.play().then(() => {
+          el.welcomeIntroLabel.textContent = 'Playing';
+          startWelcomeIntroTicker();
+          startWelcomeReactiveTicker();
+        }).catch(() => {});
+      }
       setTimeout(() => {
         maybeRecoverAudioState();
         if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
@@ -2724,17 +2877,10 @@ ${insights.streak} days of showing up.`;
           updateSessionScrollability();
         }
       }, 250);
-    });
+    }
 
-    window.addEventListener('pageshow', () => {
-      setTimeout(() => {
-        maybeRecoverAudioState();
-        if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
-          requestWakeLock();
-          updateSessionScrollability();
-        }
-      }, 250);
-    });
+    window.addEventListener('focus', recoverSessionAfterReturn);
+    window.addEventListener('pageshow', recoverSessionAfterReturn);
   </script>
 </body>
 </html>
