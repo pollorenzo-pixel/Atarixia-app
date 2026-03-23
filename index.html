@@ -724,42 +724,7 @@
       position: absolute;
       inset: 0;
       z-index: 0;
-      background:
-        radial-gradient(circle at 50% 46%, rgba(255,170,70,0.06) 0%, rgba(255,170,70,0.02) 12%, transparent 24%),
-        radial-gradient(circle at 25% 30%, rgba(70,130,255,0.18) 0%, transparent 18%),
-        radial-gradient(circle at 72% 58%, rgba(255,70,70,0.14) 0%, transparent 16%),
-        radial-gradient(circle at 18% 78%, rgba(255,205,120,0.10) 0%, transparent 14%),
-        radial-gradient(circle at 84% 16%, rgba(255,220,180,0.13) 0%, transparent 15%),
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.04) 0%, transparent 55%),
-        linear-gradient(180deg, #050608 0%, #020202 100%);
-      overflow: hidden;
-    }
-
-    .welcome-intro-bg::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 12% 18%, rgba(255,255,255,0.9) 0 1px, transparent 1.6px),
-        radial-gradient(circle at 30% 62%, rgba(255,255,255,0.7) 0 1px, transparent 1.7px),
-        radial-gradient(circle at 62% 24%, rgba(255,255,255,0.7) 0 1.1px, transparent 1.8px),
-        radial-gradient(circle at 78% 72%, rgba(255,255,255,0.85) 0 1px, transparent 1.7px),
-        radial-gradient(circle at 92% 36%, rgba(255,255,255,0.6) 0 0.9px, transparent 1.5px),
-        radial-gradient(circle at 8% 84%, rgba(255,255,255,0.75) 0 1px, transparent 1.7px),
-        radial-gradient(circle at 44% 10%, rgba(255,255,255,0.7) 0 0.9px, transparent 1.6px),
-        radial-gradient(circle at 54% 88%, rgba(255,255,255,0.65) 0 1px, transparent 1.6px),
-        radial-gradient(circle at 68% 48%, rgba(255,255,255,0.8) 0 1px, transparent 1.6px),
-        radial-gradient(circle at 24% 46%, rgba(255,255,255,0.55) 0 0.8px, transparent 1.5px);
-      opacity: 0.9;
-      filter: drop-shadow(0 0 3px rgba(255,255,255,0.18));
-    }
-
-    .welcome-intro-bg::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at center, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.28) 62%, rgba(0,0,0,0.58) 100%);
+      background: #000;
     }
 
     .welcome-intro-kicker {
@@ -771,7 +736,7 @@
       font-size: 10px;
       letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: var(--text-faint);
+      color: rgba(255,255,255,0.38);
     }
 
     .welcome-intro-particles {
@@ -787,7 +752,7 @@
     .welcome-intro-core {
       position: absolute;
       left: 50%;
-      bottom: max(96px, calc(env(safe-area-inset-bottom) + 56px));
+      bottom: max(88px, calc(env(safe-area-inset-bottom) + 52px));
       transform: translateX(-50%);
       z-index: 2;
       width: min(760px, calc(100vw - 32px));
@@ -813,7 +778,7 @@
       font-size: 10px;
       letter-spacing: 0.26em;
       text-transform: uppercase;
-      color: var(--text-faint);
+      color: rgba(255,255,255,0.42);
     }
 
     .welcome-intro-caption {
@@ -821,7 +786,7 @@
       min-height: 68px;
       font-size: 15px;
       line-height: 1.8;
-      color: var(--text-dim);
+      color: rgba(255,255,255,0.7);
       white-space: pre-line;
       text-wrap: balance;
     }
@@ -1438,15 +1403,15 @@
 
     
 
-         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
-    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/foundation meditation/Breath only meditation foundation meditation.mp3', 'audio/foundation meditation/ending audio foundation.mp3'];
-    const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/foundation meditation/body awareness meditation.mp3', 'audio/foundation meditation/foundation audio endings/body awareness ending audio.mp3'];
-    const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/foundation meditation/Thought awareness meditation.mp3', 'audio/foundation meditation/foundation audio endings/thought awareness ending audio.mp3'];
-    const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/foundation meditation/Emotional Awareness meditations.mp3', 'audio/foundation meditation/foundation audio endings/emotional awareness ending audio.mp3'];
-    const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/foundation meditation/deep focus meditation.mp3', 'audio/foundation meditation/foundation audio endings/deep focus ending audio.mp3'];
-    const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/Stability meditation/open awareness meditation.mp3';
-    const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/Stability meditation/sensory awareness meditation.mp3';
-
+        const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
+    const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
+    const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
+    const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
+    const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
+    const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
+    
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
@@ -2338,158 +2303,84 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function startWelcomeParticles() {
-  const canvas = el.welcomeIntroParticles;
-  if (!canvas) return;
+      const canvas = el.welcomeIntroParticles;
+      if (!canvas) return;
 
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.max(1, Math.floor(w * dpr));
-  canvas.height = Math.max(1, Math.floor(h * dpr));
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(w * dpr));
+      canvas.height = Math.max(1, Math.floor(h * dpr));
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  // true visual center (accounts for canvas scaling + layout shifts)
-  const rect = canvas.getBoundingClientRect();
-  const cx = w / 2 - 8;
-  const cy = h / 2;
-  const orbRadius = Math.min(w, h) * 0.18;
+      const cx = w / 2;
+      const cy = h / 2 - Math.min(h * 0.03, 18);
+      const baseRadius = Math.min(w, h) * 0.165;
+      const innerRadius = baseRadius * 0.34;
+      const lineCount = 34;
+      const pointsPerLine = 520;
 
-  const filaments = [];
-  const motes = [];
-  const filamentCount = 260;
-  const moteCount = 520;
+      const lineOffsets = Array.from({ length: lineCount }, (_, i) => ({
+        radius: innerRadius + ((baseRadius - innerRadius) * i / (lineCount - 1)),
+        wobble: 1.2 + i * 0.05,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.00028 + i * 0.000018,
+        weight: 0.9 + (i / lineCount) * 0.18,
+        alpha: 0.72 + (i / lineCount) * 0.16,
+        twist: Math.random() * Math.PI * 2
+      }));
 
-  for (let i = 0; i < filamentCount; i++) {
-    const depth = Math.random();
-    filaments.push({
-      angle: Math.random() * Math.PI * 2,
-      baseRadius: orbRadius * (0.28 + Math.random() * 0.7),
-      radiusJitter: 3 + Math.random() * 14,
-      width: 0.45 + Math.random() * 1.15,
-      alpha: 0.02 + Math.random() * 0.08,
-      arc: 0.22 + Math.random() * 0.55,
-      drift: (Math.random() - 0.5) * 0.0036,
-      swirl: 0.004 + Math.random() * 0.012,
-      phase: Math.random() * Math.PI * 2,
-      phaseSpeed: 0.008 + Math.random() * 0.02,
-      depth,
-      shellBias: 0.2 + Math.random() * 0.8
-    });
-  }
+      stopWelcomeParticles();
 
-  for (let i = 0; i < moteCount; i++) {
-    const depth = Math.random();
-    motes.push({
-      angle: Math.random() * Math.PI * 2,
-      radius: orbRadius * Math.pow(Math.random(), 0.72),
-      size: 0.4 + Math.random() * 1.35,
-      alpha: 0.03 + Math.random() * 0.16,
-      drift: (Math.random() - 0.5) * 0.0042,
-      pulse: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.014 + Math.random() * 0.022,
-      depth
-    });
-  }
+      const tick = () => {
+        const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
+        const t = performance.now();
+        const globalBreath = 1 + reactivity * 0.045;
+        const rippleAmount = 0.55 + reactivity * 4.8;
+        const fullWave = reactivity * 5.5;
 
-  stopWelcomeParticles();
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
-  const tick = () => {
-    const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
-    const speakPush = reactivity;
-    const silencePull = 1 - Math.min(1, reactivity * 1.15);
-    const t = performance.now() * 0.001;
-    const breathing = Math.sin(t * 1.12) * 0.5 + 0.5;
+        for (let i = 0; i < lineOffsets.length; i++) {
+          const ring = lineOffsets[i];
+          ctx.beginPath();
+          for (let p = 0; p <= pointsPerLine; p++) {
+            const a = (p / pointsPerLine) * Math.PI * 2;
+            const radiusBreath = ring.radius * globalBreath;
+            const wave1 = Math.sin(a * 2.0 + ring.phase + t * ring.speed) * ring.wobble;
+            const wave2 = Math.sin(a * 5.2 - ring.phase * 0.7 + t * (ring.speed * 1.8)) * (rippleAmount * 0.42);
+            const wave3 = Math.cos(a * 9.5 + ring.twist + t * 0.0012) * (rippleAmount * 0.18);
+            const fullOrbitPulse = Math.sin(a + t * 0.001 + ring.phase) * fullWave;
+            const densityWeight = Math.sin(a * 3.0 + t * 0.0009 + ring.twist) * (reactivity * 1.15);
+            const r = radiusBreath + wave1 + wave2 + wave3 + fullOrbitPulse + densityWeight;
+            const x = cx + Math.cos(a) * r;
+            const y = cy + Math.sin(a) * r;
+            if (p === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+          ctx.strokeStyle = `rgba(255,255,255,${ring.alpha})`;
+          ctx.lineWidth = ring.weight + reactivity * 0.08;
+          ctx.stroke();
+        }
 
-    const sphereScale = 0.985 + speakPush * 0.13 - silencePull * 0.045 + breathing * 0.018;
-    const shellRadius = orbRadius * sphereScale;
-    const corePresence = orbRadius * (0.72 + speakPush * 0.05);
+        ctx.beginPath();
+        ctx.fillStyle = '#000';
+        ctx.arc(cx, cy, innerRadius * globalBreath - 2, 0, Math.PI * 2);
+        ctx.fill();
 
-    ctx.clearRect(0, 0, w, h);
-    ctx.globalCompositeOperation = 'source-over';
+        welcomeParticlesRaf = requestAnimationFrame(tick);
+      };
 
-    const outerAura = ctx.createRadialGradient(cx, cy, orbRadius * 0.2, cx, cy, orbRadius * 1.95);
-    outerAura.addColorStop(0, `rgba(255,235,200,${0.018 + speakPush * 0.02})`);
-    outerAura.addColorStop(0.42, `rgba(255,175,95,${0.035 + speakPush * 0.05})`);
-    outerAura.addColorStop(0.7, `rgba(255,95,60,${0.025 + speakPush * 0.04})`);
-    outerAura.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = outerAura;
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbRadius * (1.9 + speakPush * 0.08), 0, Math.PI * 2);
-    ctx.fill();
-
-    const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, corePresence);
-    coreGlow.addColorStop(0, `rgba(255,225,180,${0.028 + speakPush * 0.028})`);
-    coreGlow.addColorStop(0.36, `rgba(255,255,255,${0.018 + speakPush * 0.02})`);
-    coreGlow.addColorStop(0.74, `rgba(255,210,140,${0.008 + speakPush * 0.012})`);
-    coreGlow.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = coreGlow;
-    ctx.beginPath();
-    ctx.arc(cx, cy, corePresence, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.globalCompositeOperation = 'screen';
-
-    for (let i = 0; i < filaments.length; i++) {
-      const f = filaments[i];
-      f.angle += f.drift * (1 + speakPush * 1.7);
-      f.phase += f.phaseSpeed * (1 + speakPush * 1.9);
-
-      const depthShift = (f.depth - 0.5) * orbRadius * 0.28;
-      const radialWave = Math.sin(f.phase) * f.radiusJitter * (0.55 + speakPush * 1.25);
-      const targetRadius = shellRadius * f.shellBias + f.baseRadius * (1 - f.shellBias) + depthShift + radialWave;
-      const startAngle = f.angle;
-      const endAngle = f.angle + f.arc * (0.72 + Math.sin(f.phase * 0.7) * 0.22);
-      const localCx = cx + Math.cos(f.angle * 1.8 + t * f.swirl) * (1.8 + speakPush * 3.5);
-      const localCy = cy + Math.sin(f.angle * 1.4 - t * f.swirl) * (1.8 + speakPush * 3.5);
-      const alpha = Math.min(0.18, (f.alpha + speakPush * 0.05) * (0.5 + f.depth * 0.7));
-
-      ctx.beginPath();
-      ctx.strokeStyle = `rgba(255,235,205,${alpha})`;
-      ctx.lineWidth = f.width * (0.9 + speakPush * 0.8);
-      ctx.lineCap = 'round';
-      ctx.arc(localCx, localCy, Math.max(6, targetRadius), startAngle, endAngle);
-      ctx.stroke();
+      welcomeParticlesRaf = requestAnimationFrame(tick);
     }
-
-    for (let i = 0; i < motes.length; i++) {
-      const m = motes[i];
-      m.angle += m.drift * (1 + speakPush * 1.8);
-      m.pulse += m.pulseSpeed * (1 + speakPush * 1.5);
-
-      const radialBreath = Math.sin(m.pulse) * (2.5 + speakPush * 4.5);
-      const gravityPull = silencePull * (1 - m.depth) * orbRadius * 0.035;
-      const drawRadius = Math.max(0, m.radius * sphereScale + radialBreath - gravityPull);
-      const x = cx + Math.cos(m.angle) * drawRadius;
-      const y = cy + Math.sin(m.angle) * drawRadius;
-      const a = Math.min(0.32, (m.alpha + speakPush * 0.1) * (0.45 + m.depth * 0.75));
-      const size = m.size * (0.95 + speakPush * 0.55 + m.depth * 0.25);
-
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(255,245,225,${a})`;
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    const boundaryGlow = ctx.createRadialGradient(cx, cy, shellRadius * 0.72, cx, cy, shellRadius * 1.08);
-    boundaryGlow.addColorStop(0, 'rgba(255,255,255,0)');
-    boundaryGlow.addColorStop(0.54, `rgba(255,220,150,${0.04 + speakPush * 0.055})`);
-    boundaryGlow.addColorStop(0.78, `rgba(255,115,70,${0.03 + speakPush * 0.05})`);
-    boundaryGlow.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.strokeStyle = boundaryGlow;
-    ctx.lineWidth = 2.2 + speakPush * 1.9;
-    ctx.beginPath();
-    ctx.arc(cx, cy, shellRadius * (0.985 + Math.sin(t * 1.45) * 0.014), 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.globalCompositeOperation = 'source-over';
-    welcomeParticlesRaf = requestAnimationFrame(tick);
-  };
-
-  welcomeParticlesRaf = requestAnimationFrame(tick);
-}
 
     function stopWelcomeReactiveTicker() {
       if (welcomeReactiveRaf) {
@@ -2867,44 +2758,28 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
         body = 'Awareness is widening.';
       }
 
-      // Micro-delta intelligence
       if (prev) {
         if (prev.reflection === 'Mind wandering' && last.reflection !== 'Mind wandering') {
-          body += '
-
-You improved from last session — less distraction.';
+          body += '\n\nYou improved from last session — less distraction.';
         } else if (prev.reflection !== 'Mind wandering' && last.reflection === 'Mind wandering') {
-          body += '
-
-More distraction than last time. Still part of the process.';
+          body += '\n\nMore distraction than last time. Still part of the process.';
         }
       }
 
-      // Session quality signal
       if (last.reflection === 'Mind wandering') {
-        body += '
-
-This was a training session. This builds awareness.';
+        body += '\n\nThis was a training session. This builds awareness.';
       } else {
-        body += '
-
-This was a clean session. Focus is sharpening.';
+        body += '\n\nThis was a clean session. Focus is sharpening.';
       }
 
       if (insights.recentTrend === 'improving') {
-        body += '
-
-You are trending upward. Stay consistent.';
+        body += '\n\nYou are trending upward. Stay consistent.';
       } else if (insights.recentTrend === 'noisy') {
-        body += '
-
-Mind is more restless lately. Simplify the next session.';
+        body += '\n\nMind is more restless lately. Simplify the next session.';
       }
 
       if (insights.streak >= 3) {
-        body += '
-
-Consistency is compounding now.';
+        body += '\n\nConsistency is compounding now.';
       }
 
       return { title, body };
