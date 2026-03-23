@@ -516,7 +516,148 @@
     }
 
     .foundation-home-panel,
-    .stability-home-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 12px; }
+    .stability-home-panel,
+    .profile-page-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 12px; }
+    .profile-page-panel.hidden { display: none; }
+    .profile-card,
+    .profile-stat-grid,
+    .profile-history-card {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow-md);
+      border-radius: 22px;
+    }
+    .profile-card,
+    .profile-history-card { padding: 18px; }
+    .profile-card-kicker {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+    .profile-card-title {
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .profile-card-body {
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text-dim);
+      white-space: pre-line;
+    }
+    .profile-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.04);
+    }
+    .profile-stat {
+      padding: 18px 16px;
+      background: rgba(255,255,255,0.02);
+      min-height: 98px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+    .profile-stat-label {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .profile-stat-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+    .profile-stat-sub {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+    .profile-history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .profile-history-item {
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .profile-history-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .profile-history-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .profile-history-meta,
+    .profile-history-reflection {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .profile-history-empty {
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 8px 0 2px;
+    }
+    .profile-score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .profile-score-card {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      border-radius: 18px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 126px;
+    }
+    .profile-score-label {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .profile-score-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: var(--text);
+      line-height: 1;
+    }
+    .profile-score-caption {
+      font-size: 11px;
+      line-height: 1.55;
+      color: var(--text-dim);
+    }
     .insight-card {
       width: min(620px, 100%);
       text-align: center;
@@ -935,6 +1076,50 @@
     .reflection-option-btn:hover,
     .reflection-option-btn.active { background: rgba(255,255,255,0.07); border-color: var(--line-strong); color: var(--text); }
 
+    .session-feedback-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 330;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: scale(0.96);
+      transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+    }
+
+    .session-feedback-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .session-feedback-overlay.hidden {
+      display: none;
+    }
+
+    .session-feedback-overlay .profile-card {
+      width: min(640px, 100%);
+      animation: feedbackPop 0.6s ease;
+    }
+
+    @keyframes feedbackPop {
+      0% {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     @media (max-width: 480px) {
       .main-content { padding: 20px 14px 42px; gap: 16px; }
       .hero-title { font-size: 30px; }
@@ -1018,6 +1203,11 @@
           <button class="menu-subcat-btn" id="OpenAwarenessBtn" onclick="setStabilitySubcategory('OpenAwareness', true, event)">Open Awareness</button>
           <button class="menu-subcat-btn" id="SensoryAwarenessBtn" onclick="setStabilitySubcategory('SensoryAwareness', true, event)">Sensory Awareness</button>
         </div>
+
+        <button class="menu-item" id="profileMenuBtn" onclick="selectMainMode('Profile')">
+          <div class="menu-item-title">Profile</div>
+          <div class="menu-item-desc">Insights, stats, history, and coach recommendations.</div>
+        </button>
       </div>
     </div>
 
@@ -1048,6 +1238,80 @@
       <div class="stability-home-panel hidden" id="stabilityHomePanel">
         <div class="foundation-home-header">Stability Practices</div>
         <div id="stabilityCardsContainer"></div>
+      </div>
+
+      <div class="profile-page-panel hidden" id="profilePagePanel">
+        <div class="profile-card">
+          <div class="profile-card-kicker">AI Coach</div>
+          <div class="profile-card-title" id="profileCoachTitle">Your training pattern is still forming.</div>
+          <div class="profile-card-body" id="profileCoachBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
+        </div>
+
+        <div class="profile-stat-grid">
+          <div class="profile-stat">
+            <div class="profile-stat-label">Total Sessions</div>
+            <div class="profile-stat-value" id="profileTotalSessions">0</div>
+            <div class="profile-stat-sub">Completed meditation sessions</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-label">Current Streak</div>
+            <div class="profile-stat-value" id="profileStreak">0</div>
+            <div class="profile-stat-sub">Consecutive practice days</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-label">Top Reflection</div>
+            <div class="profile-stat-value" id="profileTopReflection">—</div>
+            <div class="profile-stat-sub">What you notice most</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-label">Main Practice</div>
+            <div class="profile-stat-value" id="profileTopPractice">—</div>
+            <div class="profile-stat-sub">Most repeated practice</div>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-kicker">Scoring Layer</div>
+          <div class="profile-card-title">Mental training scores</div>
+          <div class="profile-score-grid">
+            <div class="profile-score-card">
+              <div class="profile-score-label">Consistency</div>
+              <div class="profile-score-value" id="profileConsistencyScore">0</div>
+              <div class="profile-score-caption" id="profileConsistencyCaption">Built from streak and recent session frequency.</div>
+            </div>
+            <div class="profile-score-card">
+              <div class="profile-score-label">Stability</div>
+              <div class="profile-score-value" id="profileStabilityScore">0</div>
+              <div class="profile-score-caption" id="profileStabilityCaption">Built from lower wandering and cleaner returns.</div>
+            </div>
+            <div class="profile-score-card">
+              <div class="profile-score-label">Depth</div>
+              <div class="profile-score-value" id="profileDepthScore">0</div>
+              <div class="profile-score-caption" id="profileDepthCaption">Built from readiness to move beyond basic anchoring.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-kicker">Next Best Move</div>
+          <div class="profile-card-title" id="profileRecommendationTitle">Recommended direction</div>
+          <div class="profile-card-body" id="profileRecommendationBody">Your next recommendation will appear here.</div>
+        </div>
+
+        <div class="session-feedback-overlay hidden" id="sessionFeedbackOverlay">
+        <div class="profile-card">
+          <div class="profile-card-kicker">Session Insight</div>
+          <div class="profile-card-title" id="sessionFeedbackTitle">Good work.</div>
+          <div class="profile-card-body" id="sessionFeedbackBody">You showed up. That matters more than how the session felt.</div>
+          <button class="primary-btn" id="sessionFeedbackContinueBtn">Continue</button>
+        </div>
+      </div>
+
+      <div class="profile-history-card">
+          <div class="profile-card-kicker">Recent History</div>
+          <div class="profile-card-title">Last sessions</div>
+          <div class="profile-history-list" id="profileHistoryList"></div>
+        </div>
       </div>
 
       <div class="insight-card" id="insightCard">
@@ -1097,9 +1361,10 @@
         <div class="welcome-intro-caption" id="welcomeIntroCaption">Hey… welcome to Ataraxia.</div>
       </div>
       <button class="journey-btn secondary" style="position:absolute;bottom:max(28px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:2;" onclick="skipWelcomeIntro()">Skip</button>
-      <audio id="welcomeIntroAudio" preload="auto">
+      <audio id="welcomeIntroAudio" preload="auto" playsinline webkit-playsinline>
         <source src="audio/Brittney welcome audio.mp3" type="audio/mpeg">
       </audio>
+      <audio id="sessionAudio" preload="auto" playsinline webkit-playsinline></audio>
     </div>
   </div>
 
@@ -1171,29 +1436,7 @@
 
   <script>
 
-    /*
-    🎯 ATARAXIA 7-DAY FOCUS (LOCKED)
-
-    1. STABILITY
-    - Kill all bugs
-    - Perfect session flow
-    - Audio must NEVER break (lock, background, transitions)
-
-    2. INSIGHT ENGINE V2
-    - Improve getTrainingInsights()
-    - Detect patterns (wandering, focus, emotional tone)
-    - Give clear assessment + direction
-    - Guide next best practice
-
-    3. MICRO-POLISH
-    - Smooth transitions (no hard cuts)
-    - Refine animations (breath, glow, timing)
-    - Improve overall feel (calm, cinematic, premium)
-
-    ⚠️ RULE:
-    No new features outside this scope.
-    Depth > Breadth.
-    */
+    
 
          const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
@@ -1203,7 +1446,7 @@
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
     const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
     const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
-    
+
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
@@ -1253,6 +1496,44 @@
       }
     };
 
+    const PRACTICE_GUIDANCE = {
+      BreathAwareness: {
+        label: 'Breath Awareness',
+        stabilise: 'Stay here and shorten the goal. Win by returning once more than yesterday.',
+        deepen: 'Keep this as your base anchor before branching wider.'
+      },
+      BodyAwareness: {
+        label: 'Body Awareness',
+        stabilise: 'Slow down and feel larger body regions instead of chasing subtle detail.',
+        deepen: 'Use this to ground before thought or emotional work.'
+      },
+      ThoughtAwareness: {
+        label: 'Thought Awareness',
+        stabilise: 'Do less. See the thought, name it lightly, and return.',
+        deepen: 'This is building separation between awareness and mental noise.'
+      },
+      EmotionalAwareness: {
+        label: 'Emotional Awareness',
+        stabilise: 'Reduce effort. Feel the tone of the emotion without trying to solve it.',
+        deepen: 'This is where steadiness becomes maturity.'
+      },
+      DeepFocus: {
+        label: 'Deep Focus',
+        stabilise: 'Tighten the session. Shorter, cleaner repetitions beat forcing intensity.',
+        deepen: 'Good sign. Keep strengthening one-pointed attention.'
+      },
+      OpenAwareness: {
+        label: 'Open Awareness',
+        stabilise: 'Return briefly to one anchor, then reopen the field.',
+        deepen: 'You are learning to remain open without losing stability.'
+      },
+      SensoryAwareness: {
+        label: 'Sensory Awareness',
+        stabilise: 'Let sensation come to you instead of searching for it.',
+        deepen: 'This builds a calm, wide, embodied awareness.'
+      }
+    };
+
     const practiceContent = {
       Welcome: {
         eyebrow: 'Before You Begin (Disclaimer)',
@@ -1299,6 +1580,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
         copyLabel: 'Stability Path',
         copyTitle: 'Open Awareness Track',
         copyBody: 'Stability expands attention beyond a single anchor. Use it to remain open without losing steadiness.'
+      },
+      Profile: {
+        eyebrow: 'Profile',
+        hero: 'Your training.<br>Your pattern.',
+        subtitle: ['Insights', 'Stats', 'Coach'],
+        note: 'Track how your awareness is developing over time.',
+        badge: 'Profile',
+        copyLabel: 'Profile Overview',
+        copyTitle: 'Training Summary',
+        copyBody: 'All your reflection patterns, practice history, and current guidance live here.'
       },
       Foundation: {
         groundingText: 'Get comfortable and prepare to begin',
@@ -1464,7 +1755,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
       welcomeIntroLabel: document.getElementById('welcomeIntroLabel'),
       welcomeIntroCaption: document.getElementById('welcomeIntroCaption'),
       welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
+      sessionAudio: document.getElementById('sessionAudio'),
       welcomeMenuBtn: document.getElementById('welcomeMenuBtn'),
+      profileMenuBtn: document.getElementById('profileMenuBtn'),
       openingScene: document.getElementById('openingScene'),
       openingQuote: document.getElementById('openingQuote'),
       openingAuthor: document.getElementById('openingAuthor'),
@@ -1491,6 +1784,26 @@ You do not need to clear your mind. You do not need to perform. You only need to
       foundationCardsContainer: document.getElementById('foundationCardsContainer'),
       stabilityHomePanel: document.getElementById('stabilityHomePanel'),
       stabilityCardsContainer: document.getElementById('stabilityCardsContainer'),
+      profilePagePanel: document.getElementById('profilePagePanel'),
+      profileCoachTitle: document.getElementById('profileCoachTitle'),
+      profileCoachBody: document.getElementById('profileCoachBody'),
+      profileTotalSessions: document.getElementById('profileTotalSessions'),
+      profileStreak: document.getElementById('profileStreak'),
+      profileTopReflection: document.getElementById('profileTopReflection'),
+      profileTopPractice: document.getElementById('profileTopPractice'),
+      profileRecommendationTitle: document.getElementById('profileRecommendationTitle'),
+      profileRecommendationBody: document.getElementById('profileRecommendationBody'),
+      profileHistoryList: document.getElementById('profileHistoryList'),
+      sessionFeedbackOverlay: document.getElementById('sessionFeedbackOverlay'),
+      sessionFeedbackTitle: document.getElementById('sessionFeedbackTitle'),
+      sessionFeedbackBody: document.getElementById('sessionFeedbackBody'),
+      sessionFeedbackContinueBtn: document.getElementById('sessionFeedbackContinueBtn'),
+      profileConsistencyScore: document.getElementById('profileConsistencyScore'),
+      profileStabilityScore: document.getElementById('profileStabilityScore'),
+      profileDepthScore: document.getElementById('profileDepthScore'),
+      profileConsistencyCaption: document.getElementById('profileConsistencyCaption'),
+      profileStabilityCaption: document.getElementById('profileStabilityCaption'),
+      profileDepthCaption: document.getElementById('profileDepthCaption'),
       backToFoundationBtn: document.getElementById('backToFoundationBtn'),
       nextPracticeBtn: document.getElementById('nextPracticeBtn'),
       startSessionBtn: document.getElementById('startSessionBtn'),
@@ -1634,37 +1947,49 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function getTrainingInsights() {
-      // Only analyse real meditation practices (exclude Introduction automatically via storage layer)
       const history = loadSessionHistory();
       const total = history.length;
-      if (!total) {
-        return {
-          total: 0,
-          streak: 0,
-          topReflection: '',
-          lastReflection: '',
-          topPractice: '',
-          assessment: '',
-          feedback: '',
-          title: 'You are building consistency.',
-          body: 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.'
-        };
-      }
 
-      const days = [...new Set(history.map((entry) => entry.timestamp.slice(0, 10)))].sort().reverse();
-      let streak = 0;
-      if (days.length) {
-        const today = new Date();
-        let cursor = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-        for (let i = 0; i < days.length; i++) {
-          const key = cursor.toISOString().slice(0, 10);
-          if (days.includes(key)) {
-            streak += 1;
-            cursor.setUTCDate(cursor.getUTCDate() - 1);
-          } else {
-            break;
-          }
+      const empty = {
+        total: 0,
+        streak: 0,
+        topReflection: '',
+        lastReflection: '',
+        topPractice: '',
+        assessment: '',
+        feedback: '',
+        title: 'You are building consistency.',
+        body: 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.',
+        recommendationLabel: 'Breath Awareness',
+        recommendationReason: 'Start with one clear anchor and repeat it.',
+        readiness: 'starting',
+        recentTrend: 'forming',
+        nextThreeSessions: [
+          'Repeat Breath Awareness.',
+          'Keep the session short and clean.',
+          'Notice one thing clearly and return.'
+        ],
+        coachState: 'starting',
+        scores: {
+          consistency: 0,
+          stability: 0,
+          depth: 0,
+          consistencyLabel: 'Still building regularity.',
+          stabilityLabel: 'Needs more clean returns.',
+          depthLabel: 'Early-stage depth.'
         }
+      };
+
+      if (!total) return empty;
+
+      const dayKey = (iso) => String(iso || '').slice(0, 10);
+      const daySet = new Set(history.map((entry) => dayKey(entry.timestamp)).filter(Boolean));
+      let streak = 0;
+      let cursor = new Date();
+      cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate()));
+      while (daySet.has(cursor.toISOString().slice(0, 10))) {
+        streak += 1;
+        cursor.setUTCDate(cursor.getUTCDate() - 1);
       }
 
       const reflectionCounts = {};
@@ -1676,64 +2001,217 @@ You do not need to clear your mind. You do not need to perform. You only need to
         if (entry.mode) modeCounts[entry.mode] = (modeCounts[entry.mode] || 0) + 1;
       });
 
-      const topReflection = Object.entries(reflectionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const recent = history.slice(-8);
+      const recentReflectionCounts = {};
+      const recentPracticeCounts = {};
+      recent.forEach((entry) => {
+        if (entry.reflection) recentReflectionCounts[entry.reflection] = (recentReflectionCounts[entry.reflection] || 0) + 1;
+        if (entry.practice) recentPracticeCounts[entry.practice] = (recentPracticeCounts[entry.practice] || 0) + 1;
+      });
+
+      const sortTop = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const topReflection = sortTop(reflectionCounts);
       const lastReflection = history[history.length - 1]?.reflection || '';
-      const topPractice = Object.entries(practiceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
-      const topPracticeLabel = topPractice ? topPractice.replace(/([A-Z])/g, ' $1').trim() : '';
-      const dominantMode = Object.entries(modeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const topPracticeKey = sortTop(practiceCounts);
+      const recentPracticeKey = sortTop(recentPracticeCounts) || topPracticeKey;
+      const dominantMode = sortTop(modeCounts);
+      const topPracticeLabel = PRACTICE_GUIDANCE[topPracticeKey]?.label || (topPracticeKey ? topPracticeKey.replace(/([A-Z])/g, ' $1').trim() : '');
+
+      const wanderingRate = total ? ((reflectionCounts['Mind wandering'] || 0) / total) : 0;
+      const breathRate = total ? ((reflectionCounts['Breath'] || 0) / total) : 0;
+      const sensationRate = total ? ((reflectionCounts['Sensations'] || 0) / total) : 0;
+      const soundRate = total ? ((reflectionCounts['Sounds'] || 0) / total) : 0;
+      const recentWanderingRate = recent.length ? ((recentReflectionCounts['Mind wandering'] || 0) / recent.length) : 0;
+      const recentBreathRate = recent.length ? ((recentReflectionCounts['Breath'] || 0) / recent.length) : 0;
+      const varietyScore = Object.keys(practiceCounts).length;
+
+      let recentTrend = 'forming';
+      if (recent.length >= 4) {
+        if (recentBreathRate > breathRate || recentWanderingRate < wanderingRate * 0.8) recentTrend = 'improving';
+        else if (recentWanderingRate > wanderingRate * 1.15) recentTrend = 'noisy';
+        else recentTrend = 'steady';
+      }
 
       let assessment = 'Your awareness is still taking shape.';
-      let feedback = 'Keep repeating the same practice until the return feels more natural.';
+      let readiness = 'starting';
+      let coachState = 'starting';
+      let recommendationKey = recentPracticeKey || topPracticeKey || 'BreathAwareness';
+      let recommendationReason = 'Start with one clear anchor and repeat it.';
+
+      if (wanderingRate >= 0.5 || recentWanderingRate >= 0.55) {
+        assessment = 'Attention is still scattering quickly, but your awareness is catching it more often.';
+        readiness = 'stabilising';
+        coachState = 'unsettled';
+        recommendationKey = breathRate >= sensationRate ? 'BreathAwareness' : 'BodyAwareness';
+        recommendationReason = 'Right now the priority is reducing noise and strengthening one reliable anchor.';
+      } else if (breathRate >= 0.34 || recentBreathRate >= 0.34) {
+        assessment = 'Your attention is beginning to stabilise around an anchor.';
+        readiness = 'settling';
+        coachState = 'anchoring';
+        recommendationKey = topPracticeKey || 'BreathAwareness';
+        recommendationReason = 'Your returns are getting cleaner. This is the phase where repetition creates depth.';
+      } else if (sensationRate >= 0.3) {
+        assessment = 'Your awareness is becoming more embodied and grounded.';
+        readiness = 'grounded';
+        coachState = 'grounding';
+        recommendationKey = topPracticeKey || 'BodyAwareness';
+        recommendationReason = 'Presence is landing in the body. That makes emotional and mental work steadier.';
+      } else if (soundRate >= 0.26 || dominantMode === 'Stability') {
+        assessment = 'Your awareness is widening beyond one object without fully collapsing.';
+        readiness = 'opening';
+        coachState = 'opening';
+        recommendationKey = recentPracticeKey || 'OpenAwareness';
+        recommendationReason = 'You are ready to widen the field, but you should still keep one anchor in reserve.';
+      }
+
+      if (total >= 12 && wanderingRate < 0.24 && breathRate >= 0.28) {
+        coachState = 'deepening';
+        readiness = 'settling';
+        recommendationKey = varietyScore >= 4 ? 'DeepFocus' : (recentPracticeKey || 'DeepFocus');
+        recommendationReason = 'You have enough repetition now to turn steadiness into depth.';
+        assessment = 'The baseline is becoming more stable. You are ready to deepen rather than only stabilise.';
+      }
+
+      if (recentTrend === 'noisy' && total >= 6) {
+        coachState = 'overreaching';
+        recommendationKey = breathRate >= sensationRate ? 'BreathAwareness' : 'BodyAwareness';
+        recommendationReason = 'Recent sessions are noisier than your baseline. Step back into a simpler practice before pushing wider or harder.';
+      }
+
+      const guide = PRACTICE_GUIDANCE[recommendationKey] || PRACTICE_GUIDANCE.BreathAwareness;
+      const feedbackParts = [];
 
       if (topReflection === 'Mind wandering') {
-        assessment = 'Your mind often moves quickly before it settles.';
-        feedback = 'That is not failure. Notice the drift, return once, and count that return as the win.';
+        feedbackParts.push('Catching distraction is progress, not failure. Awareness is showing up in the exact moment you notice drift.');
       } else if (topReflection === 'Breath') {
-        assessment = 'Your attention is learning to stabilise around an anchor.';
-        feedback = 'Stay with breath-based practice and let each return deepen concentration rather than chasing novelty.';
+        feedbackParts.push('Your system is learning to trust one anchor instead of chasing every impulse.');
       } else if (topReflection === 'Sensations') {
-        assessment = 'Your awareness is becoming more embodied and immediate.';
-        feedback = 'Use body and sensory practices to strengthen presence. Feel, stay, soften, remain.';
+        feedbackParts.push('Embodied awareness is growing. That usually means presence is becoming more immediate and less conceptual.');
       } else if (topReflection === 'Sounds') {
-        assessment = 'Your awareness is opening beyond a single object.';
-        feedback = 'This suggests wider field awareness is growing. Notice, include, do not chase, stay open.';
+        feedbackParts.push('Awareness is learning to stay open without needing to control what appears.');
       }
 
       if (streak >= 3) {
-        feedback += `
-
-You have shown up for ${streak} days in a row. Consistency is now part of the training, not just the outcome.`;
+        feedbackParts.push('You have shown up for ' + streak + ' days in a row. Consistency is no longer separate from the training — it is the training.');
       }
 
-      if (dominantMode === 'Foundation' && total >= 5) {
-        feedback += `
-
-You are still building the base layer of attention. Repetition matters more than variety right now.`;
+      if (recentTrend === 'improving') {
+        feedbackParts.push('Recent sessions suggest cleaner returns and better settling than your baseline.');
+      } else if (recentTrend === 'noisy') {
+        feedbackParts.push('Recent sessions look more restless than your normal pattern. Reduce complexity and make the next few sessions simpler.');
+      } else if (recentTrend === 'steady') {
+        feedbackParts.push('Your recent pattern is steady. This is the right time to keep the method stable and let depth accumulate.');
       }
 
-      if (dominantMode === 'Stability' && total >= 5) {
-        feedback += `
+      feedbackParts.push('Recommended next practice: ' + guide.label + '. ' + ((readiness === 'stabilising' || readiness === 'starting') ? guide.stabilise : guide.deepen));
 
-You are spending more time in open awareness. Keep balancing openness with one anchored practice so clarity stays strong.`;
+      let nextThreeSessions;
+      if (coachState === 'unsettled' || coachState === 'overreaching') {
+        nextThreeSessions = [
+          'Repeat ' + guide.label + '.',
+          'Keep the session shorter and cleaner than usual.',
+          'Judge the session by how often you returned, not how calm it felt.'
+        ];
+      } else if (coachState === 'anchoring' || coachState === 'grounding') {
+        nextThreeSessions = [
+          'Stay with ' + guide.label + '.',
+          'Let the method stay simple and repeatable.',
+          'Notice whether returning is becoming easier by the third session.'
+        ];
+      } else if (coachState === 'opening' || coachState === 'deepening') {
+        nextThreeSessions = [
+          'Begin with ' + (topPracticeLabel || 'your anchor') + ' for a moment.',
+          'Then continue into ' + guide.label + '.',
+          'End each session by noticing whether awareness stayed open without losing steadiness.'
+        ];
+      } else {
+        nextThreeSessions = [
+          'Repeat ' + guide.label + '.',
+          'Keep the next session simple.',
+          'Notice one thing clearly and return.'
+        ];
       }
 
-      if (topPractice === 'BreathAwareness' && topReflection === 'Mind wandering') {
-        feedback += `
+      const clampScore = (value) => Math.max(0, Math.min(100, Math.round(value)));
+      const recentSessionCount = recent.length;
+      const consistencyScore = clampScore((Math.min(streak, 7) / 7) * 55 + (Math.min(recentSessionCount, 8) / 8) * 45);
+      const stabilityRaw = ((1 - wanderingRate) * 55) + (breathRate * 25) + (sensationRate * 12) + (soundRate * 8);
+      const trendBonus = recentTrend === 'improving' ? 10 : recentTrend === 'noisy' ? -10 : recentTrend === 'steady' ? 4 : 0;
+      const stabilityScore = clampScore(stabilityRaw + trendBonus);
+      const readinessDepthMap = { starting: 18, stabilising: 28, settling: 52, grounded: 64, opening: 78 };
+      const coachDepthBonus = { starting: 0, unsettled: -6, anchoring: 4, grounding: 8, opening: 10, deepening: 18, overreaching: -8 };
+      const depthScore = clampScore((readinessDepthMap[readiness] || 20) + (varietyScore * 4) + (total >= 12 ? 8 : total >= 6 ? 4 : 0) + (coachDepthBonus[coachState] || 0));
 
-Recommendation: stay with Breath Awareness a little longer before moving on. Your brain is still learning the return.`;
-      }
+      const consistencyLabel = consistencyScore >= 80
+        ? 'Your practice rhythm is becoming dependable.'
+        : consistencyScore >= 55
+          ? 'You are building a usable rhythm.'
+          : 'Still building regularity.';
+      const stabilityLabel = stabilityScore >= 80
+        ? 'Attention is returning cleanly and steadily.'
+        : stabilityScore >= 55
+          ? 'Stability is building, but still fluctuates.'
+          : 'Needs more clean returns and simpler anchors.';
+      const depthLabel = depthScore >= 80
+        ? 'You are ready for deeper or wider work.'
+        : depthScore >= 55
+          ? 'Depth is forming on top of your base.'
+          : 'Early-stage depth. Keep strengthening the base.';
 
-      const title = streak >= 2 ? `${streak} days of showing up.` : `You've completed ${total} session${total === 1 ? '' : 's'}.`;
-      const body = `What Ataraxia is noticing:
-${assessment}
+      const title = streak >= 2
+        ? (streak + ' days of showing up.')
+        : total >= 10
+          ? 'Your pattern is becoming clearer.'
+          : ('You\'ve completed ' + total + ' session' + (total === 1 ? '' : 's') + '.');
 
-Pattern emerging: ${topReflection || 'Still emerging'}${topPracticeLabel ? ` • Most used practice: ${topPracticeLabel}` : ''}
-Last session: ${lastReflection || 'No reflection saved'}
+      const trendLabel = recentTrend === 'improving'
+        ? 'Improving'
+        : recentTrend === 'noisy'
+          ? 'More restless lately'
+          : recentTrend === 'steady'
+            ? 'Steady'
+            : 'Still forming';
 
-Suggested direction:
-${feedback}`;
+      const feedback = feedbackParts.join(' ');
+      const bodyParts = [
+        'What Ataraxia is noticing:',
+        assessment,
+        '',
+        'Pattern emerging: ' + (topReflection || 'Still emerging') + (topPracticeLabel ? ' • Most used practice: ' + topPracticeLabel : ''),
+        'Recent direction: ' + trendLabel,
+        'Coach state: ' + coachState,
+        'Scores — Consistency: ' + consistencyScore + ' • Stability: ' + stabilityScore + ' • Depth: ' + depthScore,
+        'Last session: ' + (lastReflection || 'No reflection saved'),
+        '',
+        'Suggested direction:',
+        feedbackParts.join('\n\n')
+      ];
 
-      return { total, streak, topReflection, lastReflection, topPractice: topPracticeLabel, assessment, feedback, title, body };
+      return {
+        total,
+        streak,
+        topReflection,
+        lastReflection,
+        topPractice: topPracticeLabel,
+        assessment,
+        feedback,
+        title,
+        body: bodyParts.join('\n'),
+        recommendationLabel: guide.label,
+        recommendationReason,
+        readiness,
+        recentTrend,
+        nextThreeSessions,
+        coachState,
+        scores: {
+          consistency: consistencyScore,
+          stability: stabilityScore,
+          depth: depthScore,
+          consistencyLabel,
+          stabilityLabel,
+          depthLabel
+        }
+      };
     }
 
     function getModeConfig() {
@@ -1753,6 +2231,7 @@ ${feedback}`;
       if (activePractice === 'Introduction') return practiceContent.Introduction;
       if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
       if (activePractice === 'StabilityHome') return practiceContent.StabilityHome;
+      if (activePractice === 'Profile') return practiceContent.Profile;
       return getSubcategoryData() || practiceContent.Introduction;
     }
 
@@ -1788,13 +2267,21 @@ ${feedback}`;
 
     function refreshCurrentMode() {
       initAudio();
+
+    if (el.sessionFeedbackContinueBtn) {
+      el.sessionFeedbackContinueBtn.addEventListener('click', () => {
+        hideSessionFeedback();
+      });
+    }
       syncUI();
     }
 
     function clearSessionTimers() {
       clearTimeout(singleTapTimeout);
       singleTapTimeout = null;
-      
+      clearTimeout(groundingTimeout);
+      clearTimeout(transitionTimeout);
+      pendingTrackAdvance = false;
     }
 
     function openWelcomeIntroOverlay() {
@@ -2061,7 +2548,19 @@ ${feedback}`;
       currentAudio.pause();
       currentAudio.ontimeupdate = null;
       currentAudio.onended = null;
+      currentAudio.onpause = null;
+      currentAudio.onloadedmetadata = null;
+      currentAudio.removeAttribute('src');
+      currentAudio.load();
       currentAudio = null;
+    }
+
+    function preloadNextTrack() {
+      const nextSrc = currentPlaylist[currentTrackIndex + 1];
+      if (!nextSrc) return;
+      const preloader = new Audio();
+      preloader.preload = 'auto';
+      preloader.src = nextSrc;
     }
 
     function setCircleState(state) {
@@ -2076,6 +2575,7 @@ ${feedback}`;
       el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
       el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
       el.stabilityMenuBtn.classList.toggle('active', activePractice === 'StabilityHome' || activePractice === 'Stability' || stabilityMenuOpen);
+      if (el.profileMenuBtn) el.profileMenuBtn.classList.toggle('active', activePractice === 'Profile');
       el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
       el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability' || activePractice === 'StabilityHome');
 
@@ -2088,9 +2588,10 @@ ${feedback}`;
     function updateJourneyButtons() {
       el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
       el.stabilityHomePanel.classList.toggle('hidden', activePractice !== 'StabilityHome');
+      if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activePractice !== 'Profile');
       el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
       el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'StabilityHome') ? 'none' : 'inline-flex';
+      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'StabilityHome' || activePractice === 'Profile') ? 'none' : 'inline-flex';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
     }
@@ -2204,6 +2705,75 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       });
     }
 
+    function formatHistoryDate(iso) {
+      if (!iso) return 'Unknown date';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return 'Unknown date';
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    }
+
+    function formatPracticeLabel(key) {
+      if (!key) return 'Unknown Practice';
+      return key.replace(/([A-Z])/g, ' $1').trim();
+    }
+
+    function renderProfilePage() {
+      if (!el.profilePagePanel) return;
+      const insights = getTrainingInsights();
+      const history = loadSessionHistory().slice(-8).reverse();
+
+      el.profileCoachTitle.textContent = insights.title;
+      el.profileCoachBody.textContent = insights.body;
+      el.profileTotalSessions.textContent = String(insights.total || 0);
+      el.profileStreak.textContent = String(insights.streak || 0);
+      el.profileTopReflection.textContent = insights.topReflection || '—';
+      el.profileTopPractice.textContent = insights.topPractice || '—';
+      el.profileRecommendationTitle.textContent = insights.recommendationLabel ? ('Recommended: ' + insights.recommendationLabel) : 'Recommended direction';
+      if (el.profileConsistencyScore) el.profileConsistencyScore.textContent = String(insights.scores?.consistency || 0);
+      if (el.profileStabilityScore) el.profileStabilityScore.textContent = String(insights.scores?.stability || 0);
+      if (el.profileDepthScore) el.profileDepthScore.textContent = String(insights.scores?.depth || 0);
+      if (el.profileConsistencyCaption) el.profileConsistencyCaption.textContent = insights.scores?.consistencyLabel || 'Still building regularity.';
+      if (el.profileStabilityCaption) el.profileStabilityCaption.textContent = insights.scores?.stabilityLabel || 'Needs more clean returns and simpler anchors.';
+      if (el.profileDepthCaption) el.profileDepthCaption.textContent = insights.scores?.depthLabel || 'Early-stage depth. Keep strengthening the base.';
+
+      let trendText = 'Recent trend: still forming.';
+      if (insights.recentTrend === 'improving') trendText = 'Recent trend: improving.';
+      else if (insights.recentTrend === 'noisy') trendText = 'Recent trend: more restless lately.';
+      else if (insights.recentTrend === 'steady') trendText = 'Recent trend: steady.';
+
+      const nextStepsText = (insights.nextThreeSessions || []).map((step, index) => (index + 1) + '. ' + step).join('\n');
+
+      el.profileRecommendationBody.textContent = (insights.recommendationReason || 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.') + '\n\n' + trendText + '\nCoach state: ' + (insights.coachState || 'starting') + '\n\nNext 3 sessions:\n' + nextStepsText + '\n\nCoach note: ' + (insights.feedback || 'Keep showing up and the pattern will become clearer.');
+
+      el.profileHistoryList.innerHTML = '';
+      if (!history.length) {
+        const empty = document.createElement('div');
+        empty.className = 'profile-history-empty';
+        empty.textContent = 'Your recent sessions will appear here once you begin practicing.';
+        el.profileHistoryList.appendChild(empty);
+        return;
+      }
+
+      history.forEach((entry) => {
+        const item = document.createElement('div');
+        item.className = 'profile-history-item';
+
+        const title = formatPracticeLabel(entry.practice);
+        const date = formatHistoryDate(entry.timestamp);
+        const meta = (entry.mode || 'Practice') + ' session';
+        const reflection = entry.reflection ? ('Reflection: ' + entry.reflection) : 'No reflection saved';
+
+        item.innerHTML = '<div class="profile-history-top">' +
+          '<div class="profile-history-title">' + title + '</div>' +
+          '<div class="profile-history-meta">' + date + '</div>' +
+          '</div>' +
+          '<div class="profile-history-meta">' + meta + '</div>' +
+          '<div class="profile-history-reflection">' + reflection + '</div>';
+
+        el.profileHistoryList.appendChild(item);
+      });
+    }
+
     function resetVisualSessionState() {
       setCircleState('idle');
       el.sessionStateText.textContent = 'Ready';
@@ -2219,6 +2789,7 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       updateAudioStatus();
       renderFoundationHomeCards();
       renderStabilityHomeCards();
+      renderProfilePage();
       updateInsightCard();
       if (!el.sessionOverlay.classList.contains('active')) {
         resetVisualSessionState();
@@ -2226,17 +2797,28 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
     }
 
     function loadTrack(index) {
-      if (!currentPlaylist[index]) return false;
-      detachAudio();
+      const src = currentPlaylist[index];
+      if (!src || !el.sessionAudio) return false;
+
       currentTrackIndex = index;
-      currentAudio = new Audio(currentPlaylist[index]);
+      currentAudio = el.sessionAudio;
+      currentAudio.pause();
+      currentAudio.ontimeupdate = null;
+      currentAudio.onended = null;
+      currentAudio.onpause = null;
+      currentAudio.onloadedmetadata = null;
+      currentAudio.src = src;
       currentAudio.preload = 'auto';
       currentAudio.volume = getCurrentVolume();
+      currentAudio.currentTime = 0;
       currentAudio.ontimeupdate = updateSeekUI;
       currentAudio.onended = handleTrackEnd;
       currentAudio.onpause = () => {
         updateSeekUI();
       };
+      currentAudio.onloadedmetadata = updateSeekUI;
+      currentAudio.load();
+      preloadNextTrack();
       updateSeekUI();
       return true;
     }
@@ -2253,6 +2835,103 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
     function hideReflectionTakeover() {
       el.reflectionScreen.classList.remove('active');
       el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
+    }
+
+    function generateSessionFeedback() {
+      const history = loadSessionHistory();
+      const last = history[history.length - 1];
+      const prev = history[history.length - 2];
+      const insights = getTrainingInsights();
+
+      if (!last) {
+        return {
+          title: 'You showed up.',
+          body: 'Consistency is the foundation. Keep going.'
+        };
+      }
+
+      let title = 'Good work.';
+      let body = '';
+
+      if (last.reflection === 'Mind wandering') {
+        title = 'You caught distraction.';
+        body = 'That moment of noticing is the training.';
+      } else if (last.reflection === 'Breath') {
+        title = 'You stayed with the breath.';
+        body = 'Your attention is stabilising.';
+      } else if (last.reflection === 'Sensations') {
+        title = 'You felt the body clearly.';
+        body = 'Presence is becoming grounded.';
+      } else if (last.reflection === 'Sounds') {
+        title = 'You stayed open.';
+        body = 'Awareness is widening.';
+      }
+
+      // Micro-delta intelligence
+      if (prev) {
+        if (prev.reflection === 'Mind wandering' && last.reflection !== 'Mind wandering') {
+          body += '
+
+You improved from last session — less distraction.';
+        } else if (prev.reflection !== 'Mind wandering' && last.reflection === 'Mind wandering') {
+          body += '
+
+More distraction than last time. Still part of the process.';
+        }
+      }
+
+      // Session quality signal
+      if (last.reflection === 'Mind wandering') {
+        body += '
+
+This was a training session. This builds awareness.';
+      } else {
+        body += '
+
+This was a clean session. Focus is sharpening.';
+      }
+
+      if (insights.recentTrend === 'improving') {
+        body += '
+
+You are trending upward. Stay consistent.';
+      } else if (insights.recentTrend === 'noisy') {
+        body += '
+
+Mind is more restless lately. Simplify the next session.';
+      }
+
+      if (insights.streak >= 3) {
+        body += '
+
+Consistency is compounding now.';
+      }
+
+      return { title, body };
+    }
+
+    function showSessionFeedback() {
+      if (!el.sessionFeedbackOverlay) return;
+
+      const feedback = generateSessionFeedback();
+
+      el.sessionFeedbackTitle.textContent = feedback.title;
+      el.sessionFeedbackBody.textContent = feedback.body;
+      el.sessionFeedbackOverlay.classList.remove('hidden');
+
+      requestAnimationFrame(() => {
+        el.sessionFeedbackOverlay.classList.add('active');
+      });
+    }
+
+    function hideSessionFeedback() {
+      if (!el.sessionFeedbackOverlay) return;
+
+      el.sessionFeedbackOverlay.classList.remove('active');
+
+      setTimeout(() => {
+        el.sessionFeedbackOverlay.classList.add('hidden');
+      }, 400);
     }
 
     function showReflectionTakeover() {
@@ -2407,6 +3086,13 @@ ${insights.streak} days of showing up.`;
         setCircleState('ending');
         el.sessionStateText.textContent = getSubcategoryData()?.endingText || 'Closing';
         el.sessionStateLabel.textContent = getSubcategoryData()?.endingLabel || 'Ending Audio';
+
+        const continueNow = document.hidden || document.visibilityState === 'hidden';
+        if (continueNow) {
+          advanceToNextTrackIfNeeded(true);
+          return;
+        }
+
         transitionTimeout = setTimeout(() => {
           advanceToNextTrackIfNeeded(true);
         }, TRANSITION_DELAY);
@@ -2433,7 +3119,10 @@ ${insights.streak} days of showing up.`;
         savePracticeComplete(activeSubcategory);
       }
 
-      setTimeout(showReflectionTakeover, 900);
+      setTimeout(() => {
+          showSessionFeedback();
+          setTimeout(showReflectionTakeover, 1200);
+        }, 900);
     }
 
     function handleCircleTap() {
@@ -2498,6 +3187,7 @@ ${insights.streak} days of showing up.`;
         el.volumeSlider.value = value;
       }
       if (currentAudio) currentAudio.volume = v;
+      if (el.sessionAudio) el.sessionAudio.volume = v;
       if (el.welcomeIntroAudio) el.welcomeIntroAudio.volume = v;
     }
     window.setVolume = setVolume;
@@ -2842,21 +3532,20 @@ ${insights.streak} days of showing up.`;
     });
 
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && el.welcomeIntroOverlay.classList.contains('active') && el.welcomeIntroAudio && !el.welcomeIntroAudio.paused) {
-        el.welcomeIntroAudio.pause();
-        el.welcomeIntroLabel.textContent = 'Paused';
+      if (document.hidden) {
+        if (wakeLockHandle) {
+          releaseWakeLock();
+        }
+        return;
       }
-      if (!document.hidden) {
-        setTimeout(() => {
-          maybeRecoverAudioState();
-          if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
-            requestWakeLock();
-            updateSessionScrollability();
-          }
-        }, 250);
-      } else if (wakeLockHandle) {
-        releaseWakeLock();
-      }
+
+      setTimeout(() => {
+        maybeRecoverAudioState();
+        if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
+          requestWakeLock();
+          updateSessionScrollability();
+        }
+      }, 250);
     });
 
     function recoverSessionAfterReturn() {
