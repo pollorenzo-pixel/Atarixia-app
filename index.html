@@ -1435,6 +1435,16 @@
     const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
     const APP_BOOT_DELAY = 1800;
 
+    function resolveAssetPath(path) {
+      if (!path) return '';
+      try {
+        return new URL(path, document.baseURI).href;
+      } catch (error) {
+        console.warn('Unable to resolve audio path.', error);
+        return path;
+      }
+    }
+
     const quotes = [
       { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
       { text: 'He who conquers himself is the mightiest warrior.', author: 'Confucius' },
@@ -2451,7 +2461,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (!nextSrc) return;
       const preloader = new Audio();
       preloader.preload = 'auto';
-      preloader.src = nextSrc;
+      preloader.src = resolveAssetPath(nextSrc);
     }
 
     function setCircleState(state) {
@@ -2698,7 +2708,7 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       currentAudio.onended = null;
       currentAudio.onpause = null;
       currentAudio.onloadedmetadata = null;
-      currentAudio.src = src;
+      currentAudio.src = resolveAssetPath(src);
       currentAudio.preload = 'auto';
       currentAudio.volume = getCurrentVolume();
       currentAudio.currentTime = 0;
@@ -3297,6 +3307,8 @@ ${insights.streak} days of showing up.`;
       el.welcomeIntroState.textContent = 'Welcome';
       el.welcomeIntroLabel.textContent = 'Playing';
       el.welcomeIntroCaption.textContent = WELCOME_SCRIPT_CUES[0]?.text || DEFAULT_WELCOME_CAPTION;
+      el.welcomeIntroAudio.src = resolveAssetPath(WELCOME_AUDIO);
+      el.welcomeIntroAudio.load();
       el.welcomeIntroAudio.volume = getCurrentVolume();
       el.welcomeIntroAudio.currentTime = 0;
       const cueTrack = ensureWelcomeIntroTextTrack();
@@ -3331,7 +3343,7 @@ ${insights.streak} days of showing up.`;
       audioFiles.forEach((src) => {
         const audio = new Audio();
         audio.preload = 'auto';
-        audio.src = src;
+        audio.src = resolveAssetPath(src);
       });
     }
 
