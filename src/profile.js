@@ -1,4 +1,6 @@
-export function formatHistoryDate(iso) { return window.__ataraxia?.formatHistoryDate?.(iso) ?? ''; }
-export function formatPracticeLabel(key) { return window.__ataraxia?.formatPracticeLabel?.(key) ?? ''; }
-export function renderProfilePage() { return window.__ataraxia?.renderProfilePage?.(); }
-export function updateInsightCard() { return window.__ataraxia?.updateInsightCard?.(); }
+import { callBridge } from './bridge.js';
+
+export function formatHistoryDate(iso) { return callBridge('formatHistoryDate', [iso], ''); }
+export function formatPracticeLabel(key) { return callBridge('formatPracticeLabel', [key], ''); }
+export function renderProfilePage() { return callBridge('renderProfilePage'); }
+export function updateInsightCard() { return callBridge('updateInsightCard'); }

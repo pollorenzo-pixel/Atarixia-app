@@ -1,0 +1,23 @@
+name: lightweight-ci
+
+on:
+  pull_request:
+    branches: [preview, main]
+  push:
+    branches: [preview, main]
+
+jobs:
+  syntax-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check service-worker.js
+          node --check src/main.js
+          for file in src/*.js; do
+            node --check "$file"
+          done
