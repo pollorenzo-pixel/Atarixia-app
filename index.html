@@ -661,6 +661,161 @@
       text-align: center;
       padding: 8px 0 2px;
     }
+    .journal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .journal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .journal-btn {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 999px;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .journal-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.24); }
+    .journal-btn.primary {
+      border-color: rgba(88,209,143,0.3);
+      background: rgba(88,209,143,0.09);
+      color: rgba(215,255,231,0.96);
+    }
+    .journal-editor {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .journal-editor.hidden { display: none; }
+    .journal-input,
+    .journal-textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.38);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+      font-family: inherit;
+      line-height: 1.6;
+      outline: none;
+    }
+    .journal-input::placeholder,
+    .journal-textarea::placeholder { color: var(--text-faint); }
+    .journal-textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+    .journal-editor-meta {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      white-space: pre-line;
+    }
+    .journal-editor-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .journal-prompt-panel {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: 4px;
+      padding-top: 10px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .journal-prompt-panel.visible { display: flex; }
+    .journal-prompt-chip {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-dim);
+      border-radius: 999px;
+      font-size: 10px;
+      line-height: 1.4;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .journal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .journal-item {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
+    }
+    .journal-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 7px;
+      align-items: flex-start;
+    }
+    .journal-item-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.03em;
+    }
+    .journal-item-date {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .journal-item-preview {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+    .journal-empty {
+      text-align: center;
+      padding: 12px 8px 10px;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    .journal-empty-title {
+      color: var(--text);
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+    .journal-note {
+      margin-top: 10px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      line-height: 1.8;
+    }
     .profile-score-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1309,6 +1464,39 @@
           <div class="profile-card-kicker">Recent History</div>
           <div class="profile-card-title">Latest sessions</div>
           <div class="profile-history-list" id="profileHistoryList"></div>
+        </div>
+
+        <div class="profile-history-card">
+          <div class="journal-header">
+            <div>
+              <div class="profile-card-kicker">Personal Journal</div>
+              <div class="profile-card-title">Private reflections</div>
+            </div>
+            <div class="journal-header-actions">
+              <button class="journal-btn primary" id="journalNewEntryBtn" onclick="startNewJournalEntry()">New Entry</button>
+            </div>
+          </div>
+
+          <div class="journal-editor hidden" id="journalEditorPanel">
+            <div class="journal-editor-meta" id="journalEditorMeta"></div>
+            <input class="journal-input" id="journalTitleInput" type="text" maxlength="120" placeholder="Optional title">
+            <textarea class="journal-textarea" id="journalBodyInput" placeholder="Write what you noticed in practice..."></textarea>
+            <div class="journal-editor-actions">
+              <div class="journal-header-actions">
+                <button class="journal-btn" id="journalPromptToggleBtn" onclick="toggleJournalPromptPanel()">Need a prompt?</button>
+              </div>
+              <div class="journal-header-actions">
+                <button class="journal-btn" id="journalDeleteBtn" onclick="deleteCurrentJournalEntry()">Delete</button>
+                <button class="journal-btn" id="journalCancelBtn" onclick="cancelJournalEditor()">Close</button>
+                <button class="journal-btn primary" id="journalSaveBtn" onclick="saveJournalEntry()">Save Entry</button>
+              </div>
+            </div>
+            <div class="journal-prompt-panel" id="journalPromptPanel"></div>
+          </div>
+
+          <div class="journal-list" id="journalList"></div>
+
+          <div class="journal-note">Your journal stays on this device. Clearing browser data may remove entries.</div>
         </div>
       </div>
 
