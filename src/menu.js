@@ -1,0 +1,9 @@
+export const toggleMenu = (...a) => window.__ataraxia?.toggleMenu?.(...a);
+export const closeMenu = (...a) => window.__ataraxia?.closeMenu?.(...a);
+export const selectMainMode = (...a) => window.__ataraxia?.selectMainMode?.(...a);
+export const toggleFoundationMenu = (...a) => window.__ataraxia?.toggleFoundationMenu?.(...a);
+export const setSubcategory = (...a) => window.__ataraxia?.setSubcategory?.(...a);
+export const toggleStabilityMenu = (...a) => window.__ataraxia?.toggleStabilityMenu?.(...a);
+export const setStabilitySubcategory = (...a) => window.__ataraxia?.setStabilitySubcategory?.(...a);
+export const goToFoundationHome = (...a) => window.__ataraxia?.goToFoundationHome?.(...a);
+export const goToNextPractice = (...a) => window.__ataraxia?.goToNextPractice?.(...a);
