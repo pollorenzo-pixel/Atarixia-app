@@ -29,6 +29,16 @@
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
+    const JOURNAL_STORAGE_KEY = 'ataraxia_journal_entries_v1';
+    const JOURNAL_PROMPTS = [
+      'What did I notice in my mind today?',
+      'What emotion stayed with me the longest today?',
+      'What distracted me most during practice?',
+      'What helped me return to the present?',
+      'What feels clearer today than before?',
+      'What am I avoiding looking at honestly?',
+      'What did I learn about myself today?'
+    ];
     const TRANSITION_DELAY = 2000;
     const foundationOrder = ['Introduction', 'BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness'];
     const foundationGroups = {
@@ -386,6 +396,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
       profileConsistencyCaption: document.getElementById('profileConsistencyCaption'),
       profileStabilityCaption: document.getElementById('profileStabilityCaption'),
       profileDepthCaption: document.getElementById('profileDepthCaption'),
+      journalEditorPanel: document.getElementById('journalEditorPanel'),
+      journalEditorMeta: document.getElementById('journalEditorMeta'),
+      journalTitleInput: document.getElementById('journalTitleInput'),
+      journalBodyInput: document.getElementById('journalBodyInput'),
+      journalPromptPanel: document.getElementById('journalPromptPanel'),
+      journalPromptToggleBtn: document.getElementById('journalPromptToggleBtn'),
+      journalSaveBtn: document.getElementById('journalSaveBtn'),
+      journalDeleteBtn: document.getElementById('journalDeleteBtn'),
+      journalCancelBtn: document.getElementById('journalCancelBtn'),
+      journalList: document.getElementById('journalList'),
       backToFoundationBtn: document.getElementById('backToFoundationBtn'),
       nextPracticeBtn: document.getElementById('nextPracticeBtn'),
       startSessionBtn: document.getElementById('startSessionBtn'),
@@ -462,6 +482,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let welcomeAudioAnalyser = null;
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
+    let journalDraftId = '';
+    let journalEditorMode = 'create';
+    let journalPromptPanelOpen = false;
 
         function loadProgress() {
       try {
@@ -528,6 +551,227 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
       saveSessionHistory(history.slice(-120));
     }
+
+    function loadJournalEntries() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(JOURNAL_STORAGE_KEY) || '[]');
+        if (!Array.isArray(raw)) return [];
+        return raw.filter((entry) => entry && entry.id && typeof entry.body === 'string');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveJournalEntries(entries) {
+      try {
+        localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(entries));
+      } catch {}
+    }
+
+    function formatJournalDate(iso, withTime = false) {
+      if (!iso) return 'Unknown';
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) return 'Unknown';
+      return date.toLocaleString(undefined, withTime
+        ? { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }
+        : { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function journalPreviewText(body) {
+      if (!body) return 'No reflection yet.';
+      const compact = body.replace(/\s+/g, ' ').trim();
+      if (compact.length <= 120) return compact;
+      return compact.slice(0, 120).trimEnd() + '…';
+    }
+
+    function findJournalEntryById(id) {
+      if (!id) return null;
+      return loadJournalEntries().find((entry) => entry.id === id) || null;
+    }
+
+    function closeJournalEditor() {
+      journalDraftId = '';
+      journalEditorMode = 'create';
+      journalPromptPanelOpen = false;
+      if (!el.journalEditorPanel) return;
+      el.journalEditorPanel.classList.add('hidden');
+      el.journalPromptPanel.classList.remove('visible');
+    }
+
+    function openJournalEditor(mode = 'create', entry = null) {
+      if (!el.journalEditorPanel) return;
+      journalEditorMode = mode;
+      journalDraftId = entry?.id || '';
+      journalPromptPanelOpen = false;
+      el.journalEditorPanel.classList.remove('hidden');
+      el.journalPromptPanel.classList.remove('visible');
+      el.journalPromptToggleBtn.textContent = 'Need a prompt?';
+
+      const createdAt = entry?.createdAt ? formatJournalDate(entry.createdAt, true) : '';
+      const updatedAt = entry?.updatedAt ? formatJournalDate(entry.updatedAt, true) : '';
+      if (mode === 'view' && entry) {
+        el.journalEditorMeta.textContent = 'Created: ' + createdAt + (updatedAt && updatedAt !== createdAt ? '\nLast edited: ' + updatedAt : '');
+        el.journalTitleInput.value = entry.title || '';
+        el.journalBodyInput.value = entry.body || '';
+        el.journalTitleInput.readOnly = true;
+        el.journalBodyInput.readOnly = true;
+        el.journalSaveBtn.textContent = 'Edit Entry';
+        el.journalDeleteBtn.style.display = 'inline-flex';
+      } else {
+        el.journalEditorMeta.textContent = mode === 'edit'
+          ? ('Editing entry' + (updatedAt ? '\nLast edited: ' + updatedAt : ''))
+          : 'New private reflection';
+        el.journalTitleInput.value = entry?.title || '';
+        el.journalBodyInput.value = entry?.body || '';
+        el.journalTitleInput.readOnly = false;
+        el.journalBodyInput.readOnly = false;
+        el.journalSaveBtn.textContent = 'Save Entry';
+        el.journalDeleteBtn.style.display = mode === 'edit' ? 'inline-flex' : 'none';
+        setTimeout(() => el.journalBodyInput.focus(), 0);
+      }
+    }
+
+    function renderJournalPromptPanel() {
+      if (!el.journalPromptPanel) return;
+      el.journalPromptPanel.innerHTML = '';
+      JOURNAL_PROMPTS.forEach((prompt) => {
+        const chip = document.createElement('button');
+        chip.className = 'journal-prompt-chip';
+        chip.type = 'button';
+        chip.textContent = prompt;
+        chip.addEventListener('click', () => insertJournalPrompt(prompt));
+        el.journalPromptPanel.appendChild(chip);
+      });
+    }
+
+    function renderJournalList() {
+      if (!el.journalList) return;
+      const entries = loadJournalEntries().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      el.journalList.innerHTML = '';
+
+      if (!entries.length) {
+        const empty = document.createElement('div');
+        empty.className = 'journal-empty';
+        empty.innerHTML = '<div class="journal-empty-title">No entries yet.</div><div>Use this space to reflect after practice.</div>';
+        const startBtn = document.createElement('button');
+        startBtn.className = 'journal-btn';
+        startBtn.textContent = 'Start your first entry';
+        startBtn.addEventListener('click', startNewJournalEntry);
+        empty.appendChild(startBtn);
+        el.journalList.appendChild(empty);
+        return;
+      }
+
+      entries.forEach((entry) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'journal-item';
+        item.dataset.journalId = entry.id;
+        const title = entry.title && entry.title.trim() ? entry.title.trim() : 'Untitled Entry';
+        const top = document.createElement('div');
+        top.className = 'journal-item-top';
+        const titleNode = document.createElement('div');
+        titleNode.className = 'journal-item-title';
+        titleNode.textContent = title;
+        const dateNode = document.createElement('div');
+        dateNode.className = 'journal-item-date';
+        dateNode.textContent = formatJournalDate(entry.createdAt);
+        top.appendChild(titleNode);
+        top.appendChild(dateNode);
+        const preview = document.createElement('div');
+        preview.className = 'journal-item-preview';
+        preview.textContent = journalPreviewText(entry.body);
+        item.appendChild(top);
+        item.appendChild(preview);
+        item.addEventListener('click', () => viewJournalEntry(entry.id));
+        el.journalList.appendChild(item);
+      });
+    }
+
+    function startNewJournalEntry() {
+      openJournalEditor('create');
+    }
+    window.startNewJournalEntry = startNewJournalEntry;
+
+    function cancelJournalEditor() {
+      closeJournalEditor();
+    }
+    window.cancelJournalEditor = cancelJournalEditor;
+
+    function viewJournalEntry(entryId) {
+      const entry = findJournalEntryById(entryId);
+      if (!entry) return;
+      openJournalEditor('view', entry);
+    }
+
+    function toggleJournalPromptPanel() {
+      if (!el.journalPromptPanel || journalEditorMode === 'view') return;
+      journalPromptPanelOpen = !journalPromptPanelOpen;
+      el.journalPromptPanel.classList.toggle('visible', journalPromptPanelOpen);
+      el.journalPromptToggleBtn.textContent = journalPromptPanelOpen ? 'Hide prompts' : 'Need a prompt?';
+    }
+    window.toggleJournalPromptPanel = toggleJournalPromptPanel;
+
+    function insertJournalPrompt(prompt) {
+      if (!el.journalBodyInput || !prompt || el.journalBodyInput.readOnly) return;
+      const current = el.journalBodyInput.value.trim();
+      el.journalBodyInput.value = current ? (current + '\n\n' + prompt + '\n') : (prompt + '\n');
+      el.journalBodyInput.focus();
+    }
+
+    function saveJournalEntry() {
+      if (!el.journalBodyInput || !el.journalTitleInput) return;
+      if (journalEditorMode === 'view') {
+        const entry = findJournalEntryById(journalDraftId);
+        if (!entry) return;
+        openJournalEditor('edit', entry);
+        return;
+      }
+
+      const body = el.journalBodyInput.value.trim();
+      const title = el.journalTitleInput.value.trim();
+      if (!body) {
+        el.journalBodyInput.focus();
+        return;
+      }
+
+      const entries = loadJournalEntries();
+      const now = new Date().toISOString();
+      if (journalEditorMode === 'edit' && journalDraftId) {
+        const index = entries.findIndex((entry) => entry.id === journalDraftId);
+        if (index >= 0) {
+          entries[index] = {
+            ...entries[index],
+            title,
+            body,
+            updatedAt: now
+          };
+        }
+      } else {
+        entries.push({
+          id: 'jrnl_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7),
+          title,
+          body,
+          createdAt: now,
+          updatedAt: now
+        });
+      }
+
+      saveJournalEntries(entries);
+      closeJournalEditor();
+      renderJournalList();
+    }
+    window.saveJournalEntry = saveJournalEntry;
+
+    function deleteCurrentJournalEntry() {
+      if (!journalDraftId) return;
+      if (!window.confirm('Delete this journal entry? This cannot be undone.')) return;
+      const entries = loadJournalEntries().filter((entry) => entry.id !== journalDraftId);
+      saveJournalEntries(entries);
+      closeJournalEditor();
+      renderJournalList();
+    }
+    window.deleteCurrentJournalEntry = deleteCurrentJournalEntry;
 
     function getTrainingInsights() {
       const history = loadSessionHistory();
@@ -1210,6 +1454,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function renderProfilePage() {
       if (!el.profilePagePanel) return;
+      renderJournalPromptPanel();
       const insights = getTrainingInsights();
       const history = loadSessionHistory().slice(-8).reverse();
 
@@ -1242,6 +1487,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         empty.className = 'profile-history-empty';
         empty.textContent = 'Your recent sessions will appear here once you begin practicing.';
         el.profileHistoryList.appendChild(empty);
+        renderJournalList();
         return;
       }
 
@@ -1263,6 +1509,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
         el.profileHistoryList.appendChild(item);
       });
+      renderJournalList();
     }
 
     function resetVisualSessionState() {
