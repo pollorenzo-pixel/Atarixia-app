@@ -13,7 +13,7 @@ const urlsToCache = [
   "./audio/body awareness meditation.mp3",
   "./audio/Thought awareness meditation.mp3",
   "./audio/Emotional Awareness meditations.mp3",
-  "./audio/deep focus meditation.mp3"
+  "./audio/deep focus meditation.mp3",
   "./audio/ending audio foundation.mp3"
 ];
 
