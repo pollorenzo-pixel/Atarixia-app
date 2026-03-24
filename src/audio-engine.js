@@ -1,16 +1,18 @@
-export function formatTimeDisplay(seconds) { return window.__ataraxia?.formatTimeDisplay?.(seconds) ?? '0:00'; }
-export function getCurrentVolume() { return window.__ataraxia?.getCurrentVolume?.() ?? 0.7; }
-export function setAudioStatus(text, isPlaying = false) { return window.__ataraxia?.setAudioStatus?.(text, isPlaying); }
-export function updateSeekUI() { return window.__ataraxia?.updateSeekUI?.(); }
-export function seekToPercent(percent) { return window.__ataraxia?.seekToPercent?.(percent); }
-export function detachAudio() { return window.__ataraxia?.detachAudio?.(); }
-export function preloadNextTrack() { return window.__ataraxia?.preloadNextTrack?.(); }
-export function loadTrack(index) { return window.__ataraxia?.loadTrack?.(index); }
-export function initAudio() { return window.__ataraxia?.initAudio?.(); }
-export function startPlayback() { return window.__ataraxia?.startPlayback?.(); }
-export function pausePlayback() { return window.__ataraxia?.pausePlayback?.(); }
-export function advanceToNextTrackIfNeeded(force = false) { return window.__ataraxia?.advanceToNextTrackIfNeeded?.(force); }
-export function maybeRecoverAudioState() { return window.__ataraxia?.maybeRecoverAudioState?.(); }
-export function handleTrackEnd() { return window.__ataraxia?.handleTrackEnd?.(); }
-export function setVolume(value) { return window.__ataraxia?.setVolume?.(value); }
-export function preloadMeditationAudio() { return window.__ataraxia?.preloadMeditationAudio?.(); }
+import { callBridge } from './bridge.js';
+
+export function formatTimeDisplay(seconds) { return callBridge('formatTimeDisplay', [seconds], '0:00'); }
+export function getCurrentVolume() { return callBridge('getCurrentVolume', [], 0.7); }
+export function setAudioStatus(text, isPlaying = false) { return callBridge('setAudioStatus', [text, isPlaying]); }
+export function updateSeekUI() { return callBridge('updateSeekUI'); }
+export function seekToPercent(percent) { return callBridge('seekToPercent', [percent]); }
+export function detachAudio() { return callBridge('detachAudio'); }
+export function preloadNextTrack() { return callBridge('preloadNextTrack'); }
+export function loadTrack(index) { return callBridge('loadTrack', [index]); }
+export function initAudio() { return callBridge('initAudio'); }
+export function startPlayback() { return callBridge('startPlayback'); }
+export function pausePlayback() { return callBridge('pausePlayback'); }
+export function advanceToNextTrackIfNeeded(force = false) { return callBridge('advanceToNextTrackIfNeeded', [force]); }
+export function maybeRecoverAudioState() { return callBridge('maybeRecoverAudioState'); }
+export function handleTrackEnd() { return callBridge('handleTrackEnd'); }
+export function setVolume(value) { return callBridge('setVolume', [value]); }
+export function preloadMeditationAudio() { return callBridge('preloadMeditationAudio'); }
