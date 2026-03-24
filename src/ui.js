@@ -1,0 +1,14 @@
+export const getModeConfig = (...a) => window.__ataraxia?.getModeConfig?.(...a);
+export const getSubcategoryData = (...a) => window.__ataraxia?.getSubcategoryData?.(...a);
+export const currentViewData = (...a) => window.__ataraxia?.currentViewData?.(...a);
+export const updateMenuState = (...a) => window.__ataraxia?.updateMenuState?.(...a);
+export const hideLessonOverlayImmediate = (...a) => window.__ataraxia?.hideLessonOverlayImmediate?.(...a);
+export const maybeShowLessonOverlay = (...a) => window.__ataraxia?.maybeShowLessonOverlay?.(...a);
+export const updateContentUI = (...a) => window.__ataraxia?.updateContentUI?.(...a);
+export const updateAudioStatus = (...a) => window.__ataraxia?.updateAudioStatus?.(...a);
+export const updateJourneyButtons = (...a) => window.__ataraxia?.updateJourneyButtons?.(...a);
+export const renderFoundationHomeCards = (...a) => window.__ataraxia?.renderFoundationHomeCards?.(...a);
+export const renderStabilityHomeCards = (...a) => window.__ataraxia?.renderStabilityHomeCards?.(...a);
+export const refreshCurrentMode = (...a) => window.__ataraxia?.refreshCurrentMode?.(...a);
+export const syncUI = (...a) => window.__ataraxia?.syncUI?.(...a);
+export const bootstrapApp = (...a) => window.__ataraxia?.bootstrapApp?.(...a);

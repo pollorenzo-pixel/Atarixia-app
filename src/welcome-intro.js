@@ -1,0 +1,15 @@
+export const openWelcomeIntroOverlay = (...a) => window.__ataraxia?.openWelcomeIntroOverlay?.(...a);
+export const closeWelcomeIntroOverlay = (...a) => window.__ataraxia?.closeWelcomeIntroOverlay?.(...a);
+export const resetWelcomeIntroUI = (...a) => window.__ataraxia?.resetWelcomeIntroUI?.(...a);
+export const ensureWelcomeIntroAudioGraph = (...a) => window.__ataraxia?.ensureWelcomeIntroAudioGraph?.(...a);
+export const stopWelcomeParticles = (...a) => window.__ataraxia?.stopWelcomeParticles?.(...a);
+export const startWelcomeParticles = (...a) => window.__ataraxia?.startWelcomeParticles?.(...a);
+export const stopWelcomeReactiveTicker = (...a) => window.__ataraxia?.stopWelcomeReactiveTicker?.(...a);
+export const startWelcomeReactiveTicker = (...a) => window.__ataraxia?.startWelcomeReactiveTicker?.(...a);
+export const stopWelcomeIntroAudio = (...a) => window.__ataraxia?.stopWelcomeIntroAudio?.(...a);
+export const ensureWelcomeIntroTextTrack = (...a) => window.__ataraxia?.ensureWelcomeIntroTextTrack?.(...a);
+export const renderWelcomeIntroCue = (...a) => window.__ataraxia?.renderWelcomeIntroCue?.(...a);
+export const startWelcomeIntroTicker = (...a) => window.__ataraxia?.startWelcomeIntroTicker?.(...a);
+export const endWelcomeIntro = (...a) => window.__ataraxia?.endWelcomeIntro?.(...a);
+export const skipWelcomeIntro = (...a) => window.__ataraxia?.skipWelcomeIntro?.(...a);
+export const startWelcomeIntro = (...a) => window.__ataraxia?.startWelcomeIntro?.(...a);
