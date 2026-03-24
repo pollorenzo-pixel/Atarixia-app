@@ -1430,7 +1430,6 @@
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
-    const TRANSITION_DELAY = 2000;
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
     const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
     const APP_BOOT_DELAY = 1800;
@@ -1832,6 +1831,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let groundingTimeout = null;
     let transitionTimeout = null;
     let pendingTrackAdvance = false;
+    let isTrackTransitioning = false;
+    let playbackRequestId = 0;
     let lessonOverlayTimeout = null;
     let lessonOverlayExitTimeout = null;
     let shownLessonKey = '';
@@ -2230,6 +2231,33 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.audioStatus.classList.toggle('playing', isPlaying);
     }
 
+    function updateMediaSessionPlaybackState(state = 'none') {
+      if (!('mediaSession' in navigator)) return;
+      navigator.mediaSession.playbackState = state;
+    }
+
+    function updateMediaSessionMetadata() {
+      if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return;
+      const modeConfig = getModeConfig();
+      const sub = getSubcategoryData();
+      const title = sub?.copyTitle || modeConfig?.copyTitle || currentViewData()?.copyTitle || 'Meditation Session';
+      const artist = 'Ataraxia';
+      navigator.mediaSession.metadata = new MediaMetadata({ title, artist });
+      navigator.mediaSession.setActionHandler('play', () => startPlayback());
+      navigator.mediaSession.setActionHandler('pause', () => pausePlayback());
+      navigator.mediaSession.setActionHandler('seekbackward', () => {
+        if (!currentAudio) return;
+        currentAudio.currentTime = Math.max(0, (currentAudio.currentTime || 0) - 10);
+        updateSeekUI();
+      });
+      navigator.mediaSession.setActionHandler('seekforward', () => {
+        if (!currentAudio) return;
+        const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : Number.MAX_SAFE_INTEGER;
+        currentAudio.currentTime = Math.min(duration, (currentAudio.currentTime || 0) + 10);
+        updateSeekUI();
+      });
+    }
+
     function refreshCurrentMode() {
       initAudio();
 
@@ -2247,6 +2275,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       clearTimeout(groundingTimeout);
       clearTimeout(transitionTimeout);
       pendingTrackAdvance = false;
+      isTrackTransitioning = false;
     }
 
     function openWelcomeIntroOverlay() {
@@ -2435,6 +2464,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function detachAudio() {
+      playbackRequestId += 1;
+      isTrackTransitioning = false;
+      updateMediaSessionPlaybackState('none');
       if (!currentAudio) return;
       currentAudio.pause();
       currentAudio.ontimeupdate = null;
@@ -2710,6 +2742,7 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       currentAudio.onloadedmetadata = updateSeekUI;
       currentAudio.load();
       preloadNextTrack();
+      updateMediaSessionMetadata();
       updateSeekUI();
       return true;
     }
@@ -2881,11 +2914,19 @@ ${insights.streak} days of showing up.`;
 
     function startPlayback() {
       if (!currentAudio) return;
+      if (!el.welcomeIntroAudio.paused) {
+        stopWelcomeIntroAudio();
+      }
+      if (!currentAudio.paused && !currentAudio.ended) return;
+      const requestId = ++playbackRequestId;
       const modeConfig = getModeConfig();
       const sub = getSubcategoryData();
 
       currentAudio.play().then(() => {
+        if (requestId !== playbackRequestId) return;
+        isTrackTransitioning = false;
         sessionState = SESSION_STATE.PLAYING;
+        updateMediaSessionPlaybackState('playing');
         setAudioStatus(el.audioText.textContent, true);
         el.volumeControl.classList.add('active');
 
@@ -2902,7 +2943,10 @@ ${insights.streak} days of showing up.`;
 
         requestWakeLock();
       }).catch(() => {
+        if (requestId !== playbackRequestId) return;
+        isTrackTransitioning = false;
         sessionState = SESSION_STATE.PAUSED;
+        updateMediaSessionPlaybackState('paused');
         setCircleState('paused');
         el.sessionStateText.textContent = 'Paused';
         el.sessionStateLabel.textContent = 'Awaiting Resume';
@@ -2913,6 +2957,7 @@ ${insights.streak} days of showing up.`;
       if (!currentAudio) return;
       currentAudio.pause();
       sessionState = SESSION_STATE.PAUSED;
+      updateMediaSessionPlaybackState('paused');
 
       const modeConfig = getModeConfig();
       setAudioStatus(el.audioText.textContent, false);
@@ -2928,11 +2973,13 @@ ${insights.streak} days of showing up.`;
       if (!isLegacyMultiTrackSession()) return false;
       if (currentTrackIndex >= currentPlaylist.length - 1) return false;
       if (!currentAudio) return false;
+      if (isTrackTransitioning) return true;
 
       const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : 0;
       const reachedEnd = currentAudio.ended || (duration > 0 && currentAudio.currentTime >= Math.max(0, duration - 0.25));
       if (!force && !pendingTrackAdvance && !reachedEnd) return false;
 
+      isTrackTransitioning = true;
       pendingTrackAdvance = false;
       clearTimeout(transitionTimeout);
       loadTrack(currentTrackIndex + 1);
@@ -2962,19 +3009,12 @@ ${insights.streak} days of showing up.`;
         el.sessionStateText.textContent = getSubcategoryData()?.endingText || 'Closing';
         el.sessionStateLabel.textContent = getSubcategoryData()?.endingLabel || 'Ending Audio';
 
-        const continueNow = document.hidden || document.visibilityState === 'hidden';
-        if (continueNow) {
-          advanceToNextTrackIfNeeded(true);
-          return;
-        }
-
-        transitionTimeout = setTimeout(() => {
-          advanceToNextTrackIfNeeded(true);
-        }, TRANSITION_DELAY);
+        advanceToNextTrackIfNeeded(true);
         return;
       }
 
       sessionState = SESSION_STATE.COMPLETE;
+      updateMediaSessionPlaybackState('none');
       setCircleState('complete');
       setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.remove('active');
