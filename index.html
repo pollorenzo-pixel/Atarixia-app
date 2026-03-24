@@ -853,8 +853,9 @@
     .session-overlay.active .session-stage { transform: scale(1) translateY(0); }
 
     .session-circle-shell {
+      --circle-size-scale: 1;
       position: relative;
-      width: min(72vw, 520px);
+      width: min(calc(72vw * var(--circle-size-scale)), calc(520px * var(--circle-size-scale)));
       aspect-ratio: 1 / 1;
       border-radius: 50%;
       display: flex;
@@ -866,6 +867,9 @@
       flex-shrink: 0;
       transform: scale(1);
       filter: brightness(1);
+    }
+    .session-circle-shell.welcome-disclaimer {
+      --circle-size-scale: 1.2;
     }
 
     .session-circle-shell.running { box-shadow: 0 32px 150px rgba(0,0,0,0.9); }
@@ -1093,7 +1097,7 @@
       .practice-copy-body { font-size: 12px; }
       .journey-btn, .completion-btn, .foundation-card-btn { width: 100%; }
       .session-stage { gap: 18px; padding: 8px 16px 32px; }
-      .session-circle-shell { width: min(84vw, 420px); }
+      .session-circle-shell { width: min(calc(84vw * var(--circle-size-scale)), calc(420px * var(--circle-size-scale))); }
       .session-inner-core { inset: 34px; }
       .session-state-text { font-size: 20px; }
       .session-title { font-size: 28px; }
@@ -2521,6 +2525,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function updateContentUI() {
       const data = currentViewData();
+      el.sessionCircleShell.classList.toggle('welcome-disclaimer', activePractice === 'Welcome');
       el.eyebrowText.textContent = data.eyebrow;
       el.heroTitle.innerHTML = data.hero;
       el.heroSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
