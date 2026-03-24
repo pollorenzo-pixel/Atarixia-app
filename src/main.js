@@ -30,8 +30,11 @@
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const TRANSITION_DELAY = 2000;
-    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
-    const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
+    const foundationOrder = ['Introduction', 'BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness'];
+    const foundationGroups = {
+      CoreStability: ['Introduction', 'BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
+      AppliedAwareness: ['OpenAwareness', 'SensoryAwareness']
+    };
     const APP_BOOT_DELAY = 1800;
 
     function resolveAssetPath(path) {
@@ -137,23 +140,13 @@ You do not need to clear your mind. You do not need to perform. You only need to
       },
       FoundationHome: {
         eyebrow: 'Meditation Foundations',
-        hero: 'Choose one practice.<br>Stay with it.',
-        subtitle: ['Simple', 'Steady', 'Repeatable'],
-        note: 'Start with one practice. Return often.',
+        hero: 'Choose a track.<br>Then a practice.',
+        subtitle: ['Core Stability', 'Applied Awareness', 'Repeatable'],
+        note: 'Start with Core Stability, then expand into Applied Awareness.',
         badge: 'Foundation',
         copyLabel: 'Foundation Path',
-        copyTitle: 'Beginner Practice Track',
-        copyBody: 'Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.'
-      },
-      StabilityHome: {
-        eyebrow: 'Stability Path',
-        hero: 'Widen awareness.<br>Remain steady.',
-        subtitle: ['Open', 'Include', 'Remain'],
-        note: 'Use stability once the base begins to settle.',
-        badge: 'Stability',
-        copyLabel: 'Stability Path',
-        copyTitle: 'Open Awareness Track',
-        copyBody: 'Stability expands attention beyond a single anchor. Use it to remain open without losing steadiness.'
+        copyTitle: 'Foundation Phase',
+        copyBody: 'Foundation includes Core Stability and Applied Awareness. Choose one practice and stay consistent.'
       },
       Profile: {
         eyebrow: 'Profile',
@@ -257,7 +250,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
             hero: 'Hold one point.<br>Strengthen attention.',
             subtitle: ['Aim', 'Hold', 'Return'],
             note: 'Attention becomes stronger through repetition.',
-            badge: 'Foundation · Deep Focus',
+            badge: 'Foundation · Core Stability · Deep Focus',
             copyLabel: 'Current Foundation Practice',
             copyTitle: 'Deep Focus Meditation',
             copyBody: 'In this practice, hold attention on one chosen anchor and return with calm discipline.',
@@ -268,33 +261,22 @@ You do not need to clear your mind. You do not need to perform. You only need to
             activeLabel: 'Deep Focus',
             endingText: 'Closing',
             endingLabel: 'Ending Audio'
-          }
-        }
-      },
-      Stability: {
-        groundingText: 'Let everything settle.',
-        completionMessage: 'There was nothing to achieve. Just notice what is already here.',
-        readyAudioText: 'Ready to Begin Stability Practice',
-        pausedText: 'Still',
-        pausedLabel: 'Awareness Paused',
-        activeText: 'Aware',
-        activeLabel: 'Open Awareness',
-        subcategories: {
+          },
           OpenAwareness: {
             title: 'Open Awareness Meditation',
             shortPurpose: 'Let awareness open to everything at once.',
-            eyebrow: 'Stability · Expanding Awareness',
+            eyebrow: 'Foundation · Applied Awareness',
             hero: 'Open the field.<br>Let everything appear.',
             subtitle: ['Open', 'Notice', 'Remain'],
             note: 'There is nothing to hold. Let awareness stay wide.',
-            badge: 'Stability · Open Awareness',
-            copyLabel: 'Current Stability Practice',
+            badge: 'Foundation · Applied Awareness · Open Awareness',
+            copyLabel: 'Current Foundation Practice',
             copyTitle: 'Open Awareness',
             copyBody: 'There is nothing to focus on. Simply notice whatever is present.',
             audio: [STABILITY_OPEN_AWARENESS_AUDIO],
             lesson: 'Nothing needs to be chosen. Let the whole field be included.',
             reinforcement: 'Resting in openness trains stable awareness without force.',
-            activeText: 'Aware',
+            activeText: 'Playing',
             activeLabel: 'Open Awareness',
             endingText: 'Open',
             endingLabel: 'Complete'
@@ -302,18 +284,18 @@ You do not need to clear your mind. You do not need to perform. You only need to
           SensoryAwareness: {
             title: 'Sensory Awareness Meditation',
             shortPurpose: 'Rest in the full field of sensation.',
-            eyebrow: 'Stability · Expanding Awareness',
+            eyebrow: 'Foundation · Applied Awareness',
             hero: 'Feel the full field.<br>Include sensation.',
             subtitle: ['Sense', 'Include', 'Remain'],
             note: 'Nothing needs to be chosen. Let sensation be known.',
-            badge: 'Stability · Sensory Awareness',
-            copyLabel: 'Current Stability Practice',
+            badge: 'Foundation · Applied Awareness · Sensory Awareness',
+            copyLabel: 'Current Foundation Practice',
             copyTitle: 'Sensory Awareness',
             copyBody: 'Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.',
             audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
             lesson: 'Let sensation come to you. Do not narrow attention.',
             reinforcement: 'Including the full sensory field widens and steadies awareness.',
-            activeText: 'Sensing',
+            activeText: 'Playing',
             activeLabel: 'Sensory Awareness',
             endingText: 'Settling',
             endingLabel: 'Complete'
@@ -342,6 +324,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
       stabilityMenuBtn: document.getElementById('stabilityMenuBtn'),
       foundationSubsection: document.getElementById('foundationSubsection'),
       stabilitySubsection: document.getElementById('stabilitySubsection'),
+      coreStabilityBtn: document.getElementById('coreStabilityBtn'),
+      appliedAwarenessBtn: document.getElementById('appliedAwarenessBtn'),
+      coreStabilityList: document.getElementById('coreStabilityList'),
+      appliedAwarenessList: document.getElementById('appliedAwarenessList'),
       eyebrowText: document.getElementById('eyebrowText'),
       heroTitle: document.getElementById('heroTitle'),
       heroSubtitle: document.getElementById('heroSubtitle'),
@@ -423,6 +409,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
     let stabilityMenuOpen = false;
+    let openFoundationGroup = 'CoreStability';
     let currentPlaylist = [];
     let currentTrackIndex = 0;
     let currentAudio = null;
@@ -790,13 +777,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function getModeConfig() {
       if (activePractice === 'Foundation') return practiceContent.Foundation;
-      if (activePractice === 'Stability') return practiceContent.Stability;
       return null;
     }
 
     function getSubcategoryData() {
       if (activePractice === 'Foundation') return practiceContent.Foundation.subcategories[activeSubcategory] || null;
-      if (activePractice === 'Stability') return practiceContent.Stability.subcategories[activeSubcategory] || null;
       return null;
     }
 
@@ -804,7 +789,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (activePractice === 'Welcome') return practiceContent.Welcome;
       if (activePractice === 'Introduction') return practiceContent.Introduction;
       if (activePractice === 'FoundationHome') return practiceContent.FoundationHome;
-      if (activePractice === 'StabilityHome') return practiceContent.StabilityHome;
       if (activePractice === 'Profile') return practiceContent.Profile;
       return getSubcategoryData() || practiceContent.Introduction;
     }
@@ -814,12 +798,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (activePractice === 'Introduction') return practiceContent.Introduction.audio;
       const sub = getSubcategoryData();
       if (!sub?.audio) return [];
-      if (activePractice === 'Foundation') return Array.isArray(sub.audio) ? sub.audio : [sub.audio];
-      return [Array.isArray(sub.audio) ? sub.audio[0] : sub.audio].filter(Boolean);
+      return Array.isArray(sub.audio) ? sub.audio : [sub.audio];
     }
 
     function isLegacyMultiTrackSession() {
-      return activePractice === 'Foundation' && currentPlaylist.length > 1;
+      return currentPlaylist.length > 1;
     }
 
     function formatTimeDisplay(seconds) {
@@ -1059,7 +1042,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function setCircleState(state) {
       el.sessionCircleShell.classList.remove('state-idle', 'state-grounding', 'state-playing', 'state-paused', 'state-ending', 'state-complete', 'stability-mode', 'running');
-      if (activePractice === 'Stability') el.sessionCircleShell.classList.add('stability-mode');
+      if (foundationGroups.AppliedAwareness.includes(activeSubcategory)) el.sessionCircleShell.classList.add('stability-mode');
       if (state) el.sessionCircleShell.classList.add(`state-${state}`);
       if (state === 'playing' || state === 'ending') el.sessionCircleShell.classList.add('running');
     }
@@ -1068,12 +1051,22 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.welcomeMenuBtn.classList.toggle('active', activePractice === 'Welcome');
       el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
       el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
-      el.stabilityMenuBtn.classList.toggle('active', activePractice === 'StabilityHome' || activePractice === 'Stability' || stabilityMenuOpen);
+      if (el.stabilityMenuBtn) el.stabilityMenuBtn.classList.toggle('active', false);
       if (el.profileMenuBtn) el.profileMenuBtn.classList.toggle('active', activePractice === 'Profile');
       el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
-      el.stabilitySubsection.classList.toggle('visible', stabilityMenuOpen || activePractice === 'Stability' || activePractice === 'StabilityHome');
+      if (el.stabilitySubsection) el.stabilitySubsection.classList.toggle('visible', false);
+      if (activePractice === 'Foundation' && foundationGroups.AppliedAwareness.includes(activeSubcategory)) {
+        openFoundationGroup = 'AppliedAwareness';
+      }
+      if (activePractice === 'Foundation' && foundationGroups.CoreStability.includes(activeSubcategory)) {
+        openFoundationGroup = 'CoreStability';
+      }
+      if (el.coreStabilityBtn) el.coreStabilityBtn.classList.toggle('active', openFoundationGroup === 'CoreStability');
+      if (el.appliedAwarenessBtn) el.appliedAwarenessBtn.classList.toggle('active', openFoundationGroup === 'AppliedAwareness');
+      if (el.coreStabilityList) el.coreStabilityList.classList.toggle('visible', foundationMenuOpen && openFoundationGroup === 'CoreStability');
+      if (el.appliedAwarenessList) el.appliedAwarenessList.classList.toggle('visible', foundationMenuOpen && openFoundationGroup === 'AppliedAwareness');
 
-      [...foundationOrder, ...stabilityOrder].forEach((key) => {
+      foundationOrder.forEach((key) => {
         const btn = document.getElementById(`${key}Btn`);
         if (btn) btn.classList.toggle('active', activeSubcategory === key);
       });
@@ -1081,11 +1074,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function updateJourneyButtons() {
       el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
-      el.stabilityHomePanel.classList.toggle('hidden', activePractice !== 'StabilityHome');
+      el.stabilityHomePanel.classList.add('hidden');
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activePractice !== 'Profile');
       el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
       el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'StabilityHome' || activePractice === 'Profile') ? 'none' : 'inline-flex';
+      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'Profile') ? 'none' : 'inline-flex';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
     }
@@ -1128,7 +1121,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         ? 'Read this first, then continue into the introduction.'
         : data.note;
 
-      if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'StabilityHome' && activePractice !== 'Welcome') {
+      if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'Welcome') {
         el.lessonCard.style.display = 'block';
         el.lessonTitle.textContent = data.copyTitle || 'Before you begin';
         el.lessonBody.textContent = data.lesson;
@@ -1148,13 +1141,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
       else if (activePractice === 'Introduction') setAudioStatus('Introduction Ready');
       else if (activePractice === 'FoundationHome') setAudioStatus('Choose a Foundation Practice');
       else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
-      else if (activePractice === 'StabilityHome') setAudioStatus('Choose a Stability Practice');
-      else if (activePractice === 'Stability') setAudioStatus(practiceContent.Stability.readyAudioText);
     }
 
     function updateInsightCard() {
       const insights = getTrainingInsights();
-      const showOnThisScreen = activePractice === 'FoundationHome' || activePractice === 'Foundation' || activePractice === 'StabilityHome' || activePractice === 'Stability';
+      const showOnThisScreen = activePractice === 'FoundationHome' || activePractice === 'Foundation';
       if (!insights.total || !showOnThisScreen) {
         el.insightCard.classList.remove('visible');
         return;
@@ -1169,36 +1160,19 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const progress = loadProgress();
       const nextKey = foundationOrder.find((key) => !progress[key]) || foundationOrder[0];
       foundationOrder.forEach((key) => {
-        const data = practiceContent.Foundation.subcategories[key];
+        const data = key === 'Introduction' ? practiceContent.Introduction : practiceContent.Foundation.subcategories[key];
+        const groupLabel = foundationGroups.AppliedAwareness.includes(key) ? 'Applied Awareness' : 'Core Stability';
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
         if (key === nextKey) btn.classList.add('next');
         if (progress[key]) btn.classList.add('completed');
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Foundation Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}</div>`;
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
         btn.addEventListener('click', () => setSubcategory(key, false));
         el.foundationCardsContainer.appendChild(btn);
       });
     }
 
-    function renderStabilityHomeCards() {
-      el.stabilityCardsContainer.innerHTML = '';
-      const progress = loadProgress();
-      const nextKey = stabilityOrder.find((key) => !progress[key]) || stabilityOrder[0];
-      const history = loadSessionHistory();
-
-      stabilityOrder.forEach((key) => {
-        const data = practiceContent.Stability.subcategories[key];
-        const btn = document.createElement('button');
-        btn.className = 'foundation-card-btn';
-        if (key === nextKey) btn.classList.add('next');
-        if (progress[key]) btn.classList.add('completed');
-        const sessionCount = history.filter((entry) => entry.practice === key).length;
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Stability Practice</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose}${sessionCount ? `
-Sessions completed: ${sessionCount}` : ''}</div>`;
-        btn.addEventListener('click', () => setStabilitySubcategory(key, false));
-        el.stabilityCardsContainer.appendChild(btn);
-      });
-    }
+    function renderStabilityHomeCards() {}
 
     function formatHistoryDate(iso) {
       if (!iso) return 'Unknown date';
@@ -1632,7 +1606,7 @@ ${insights.streak} days of showing up.`;
         return;
       }
 
-      if ((activePractice === 'Foundation' || activePractice === 'Stability') && activeSubcategory) {
+      if (activePractice === 'Foundation' && activeSubcategory) {
         savePracticeComplete(activeSubcategory);
       }
 
@@ -1757,12 +1731,26 @@ ${insights.streak} days of showing up.`;
     }
     window.toggleFoundationMenu = toggleFoundationMenu;
 
+    function toggleFoundationGroup(name, event = null) {
+      if (event) event.stopPropagation();
+      openFoundationGroup = openFoundationGroup === name ? '' : name;
+      foundationMenuOpen = true;
+      refreshCurrentMode();
+    }
+    window.toggleFoundationGroup = toggleFoundationGroup;
+
     function setSubcategory(name, fromMenu = false, event = null) {
       if (event) event.stopPropagation();
+      if (name === 'Introduction') {
+        selectMainMode('Introduction');
+        if (fromMenu) closeMenu();
+        return;
+      }
       activePractice = 'Foundation';
       activeSubcategory = name;
       foundationMenuOpen = true;
       stabilityMenuOpen = false;
+      openFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
       shownLessonKey = '';
       refreshCurrentMode();
       if (fromMenu) closeMenu();
@@ -1770,27 +1758,13 @@ ${insights.streak} days of showing up.`;
     window.setSubcategory = setSubcategory;
 
     function toggleStabilityMenu() {
-      if (activePractice !== 'StabilityHome' && activePractice !== 'Stability') {
-        activePractice = 'StabilityHome';
-        activeSubcategory = 'OpenAwareness';
-        stabilityMenuOpen = true;
-        foundationMenuOpen = false;
-      } else {
-        stabilityMenuOpen = !stabilityMenuOpen;
-      }
-      refreshCurrentMode();
+      openFoundationGroup = 'AppliedAwareness';
+      toggleFoundationMenu();
     }
     window.toggleStabilityMenu = toggleStabilityMenu;
 
     function setStabilitySubcategory(name, fromMenu = false, event = null) {
-      if (event) event.stopPropagation();
-      activePractice = 'Stability';
-      activeSubcategory = name;
-      stabilityMenuOpen = true;
-      foundationMenuOpen = false;
-      shownLessonKey = '';
-      refreshCurrentMode();
-      if (fromMenu) closeMenu();
+      setSubcategory(name, fromMenu, event);
     }
     window.setStabilitySubcategory = setStabilitySubcategory;
 
@@ -1818,29 +1792,14 @@ ${insights.streak} days of showing up.`;
     function goToNextPracticeFromCompletion() {
       hideCompletionTakeover();
       exitSessionMode();
-      if (activePractice === 'Stability') {
-        const index = stabilityOrder.indexOf(activeSubcategory);
-        const next = index >= 0 && index < stabilityOrder.length - 1 ? stabilityOrder[index + 1] : stabilityOrder[0];
-        setStabilitySubcategory(next, false);
-      } else {
-        goToNextPractice();
-      }
+      goToNextPractice();
     }
     window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
 
     function goToFoundationFromCompletion() {
       hideCompletionTakeover();
       exitSessionMode();
-      if (activePractice === 'Stability') {
-        activePractice = 'StabilityHome';
-        activeSubcategory = 'OpenAwareness';
-        stabilityMenuOpen = true;
-        foundationMenuOpen = false;
-        shownLessonKey = '';
-        refreshCurrentMode();
-      } else {
-        goToFoundationHome();
-      }
+      goToFoundationHome();
     }
     window.goToFoundationFromCompletion = goToFoundationFromCompletion;
 

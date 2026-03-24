@@ -499,6 +499,31 @@
       transition: 0.25s ease;
     }
 
+    .menu-subgroup {
+      margin-top: 10px;
+    }
+
+    .menu-subgroup .menu-subcat-btn {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .menu-practice-list {
+      margin: 0 0 8px 10px;
+      padding-left: 10px;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      display: none;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .menu-practice-list.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     .volume-control.active { opacity: 1; }
     .volume-icon { font-size: 13px; color: var(--text-dim); }
     .volume-slider { width: 130px; height: 3px; -webkit-appearance: none; background: rgba(255,255,255,0.1); border-radius: 999px; outline: none; }
@@ -1154,23 +1179,25 @@
         </button>
 
         <div class="menu-subsection" id="foundationSubsection">
-          <div class="menu-subsection-label">Foundation Practices</div>
-          <button class="menu-subcat-btn" id="BreathAwarenessBtn" onclick="setSubcategory('BreathAwareness', true, event)">Breath Awareness</button>
-          <button class="menu-subcat-btn" id="BodyAwarenessBtn" onclick="setSubcategory('BodyAwareness', true, event)">Body Awareness</button>
-          <button class="menu-subcat-btn" id="ThoughtAwarenessBtn" onclick="setSubcategory('ThoughtAwareness', true, event)">Thought Awareness</button>
-          <button class="menu-subcat-btn" id="EmotionalAwarenessBtn" onclick="setSubcategory('EmotionalAwareness', true, event)">Emotional Awareness</button>
-          <button class="menu-subcat-btn" id="DeepFocusBtn" onclick="setSubcategory('DeepFocus', true, event)">Deep Focus</button>
-        </div>
-
-        <button class="menu-item" id="stabilityMenuBtn" onclick="toggleStabilityMenu()">
-          <div class="menu-item-title">Stability</div>
-          <div class="menu-item-desc">Expand awareness beyond a single anchor. Learn to rest in open attention.</div>
-        </button>
-
-        <div class="menu-subsection" id="stabilitySubsection">
-          <div class="menu-subsection-label">Stability Practices</div>
-          <button class="menu-subcat-btn" id="OpenAwarenessBtn" onclick="setStabilitySubcategory('OpenAwareness', true, event)">Open Awareness</button>
-          <button class="menu-subcat-btn" id="SensoryAwarenessBtn" onclick="setStabilitySubcategory('SensoryAwareness', true, event)">Sensory Awareness</button>
+          <div class="menu-subsection-label">Foundation Tracks</div>
+          <div class="menu-subgroup">
+            <button class="menu-subcat-btn" id="coreStabilityBtn" onclick="toggleFoundationGroup('CoreStability', event)">Core Stability</button>
+            <div class="menu-practice-list" id="coreStabilityList">
+              <button class="menu-subcat-btn" id="IntroductionBtn" onclick="setSubcategory('Introduction', true, event)">Introduction to Meditation</button>
+              <button class="menu-subcat-btn" id="BreathAwarenessBtn" onclick="setSubcategory('BreathAwareness', true, event)">Breath Awareness Meditation</button>
+              <button class="menu-subcat-btn" id="BodyAwarenessBtn" onclick="setSubcategory('BodyAwareness', true, event)">Body Awareness Meditation</button>
+              <button class="menu-subcat-btn" id="EmotionalAwarenessBtn" onclick="setSubcategory('EmotionalAwareness', true, event)">Emotional Awareness Meditation</button>
+              <button class="menu-subcat-btn" id="ThoughtAwarenessBtn" onclick="setSubcategory('ThoughtAwareness', true, event)">Thought Awareness Meditation</button>
+              <button class="menu-subcat-btn" id="DeepFocusBtn" onclick="setSubcategory('DeepFocus', true, event)">Deep Focus Meditation</button>
+            </div>
+          </div>
+          <div class="menu-subgroup">
+            <button class="menu-subcat-btn" id="appliedAwarenessBtn" onclick="toggleFoundationGroup('AppliedAwareness', event)">Applied Awareness</button>
+            <div class="menu-practice-list" id="appliedAwarenessList">
+              <button class="menu-subcat-btn" id="OpenAwarenessBtn" onclick="setSubcategory('OpenAwareness', true, event)">Open Awareness Meditation</button>
+              <button class="menu-subcat-btn" id="SensoryAwarenessBtn" onclick="setSubcategory('SensoryAwareness', true, event)">Sensory Awareness Meditation</button>
+            </div>
+          </div>
         </div>
 
         <button class="menu-item" id="profileMenuBtn" onclick="selectMainMode('Profile')">
