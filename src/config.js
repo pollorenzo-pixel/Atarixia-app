@@ -39,12 +39,34 @@ export const SESSION_STATE = {
   COMPLETE: 'complete'
 };
 
-export const quotes = [
+export const openingQuotes = [
+  { text: 'You are not your thoughts. You are the awareness behind them.', author: 'Unknown' },
   { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
   { text: 'He who conquers himself is the mightiest warrior.', author: 'Confucius' },
   { text: 'Calmness is the cradle of power.', author: 'Josiah Gilbert Holland' },
-  { text: 'Return again. That is the training.', author: 'Unknown' }
+  { text: 'Return again. That is the training.', author: 'Unknown' },
+  { text: 'Between stimulus and response there is a space.', author: 'Viktor E. Frankl' },
+  { text: 'The quieter you become, the more you can hear.', author: 'Ram Dass' },
+  { text: 'To understand all is to forgive all.', author: 'Buddhist Saying' },
+  { text: 'The mind is everything. What you think you become.', author: 'Buddha' },
+  { text: 'Peace comes from within. Do not seek it without.', author: 'Buddha' },
+  { text: 'Stillness is where clarity begins.', author: 'Unknown' },
+  { text: 'Feel the breath. Let the rest settle on its own.', author: 'Unknown' },
+  { text: 'You do not have to believe every thought you notice.', author: 'Unknown' },
+  { text: 'Steadiness is built one return at a time.', author: 'Unknown' },
+  { text: 'Attention is your most valuable currency. Spend it wisely.', author: 'James Clear' },
+  { text: 'Wherever you are, be there totally.', author: 'Eckhart Tolle' },
+  { text: 'Respond, do not react.', author: 'Unknown' },
+  { text: 'Clarity is a consequence of calm, not force.', author: 'Unknown' },
+  { text: 'Discipline is choosing what matters over what is loud.', author: 'Unknown' },
+  { text: 'You can observe the storm without becoming it.', author: 'Unknown' },
+  { text: 'A calm mind is not empty; it is precise.', author: 'Unknown' },
+  { text: 'Each moment noticed is a moment reclaimed.', author: 'Unknown' },
+  { text: 'Breathe. Notice. Return.', author: 'Unknown' },
+  { text: 'Your practice is not to stop thought, but to stop being carried by it.', author: 'Unknown' }
 ];
+
+export const quotes = openingQuotes;
 
 export function resolveAssetPath(path) {
   if (!path) return '';
