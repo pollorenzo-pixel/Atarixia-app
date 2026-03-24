@@ -841,12 +841,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function refreshCurrentMode() {
       initAudio();
-
-    if (el.sessionFeedbackContinueBtn) {
-      el.sessionFeedbackContinueBtn.addEventListener('click', () => {
-        hideSessionFeedback();
-      });
-    }
       syncUI();
     }
 
@@ -2099,6 +2093,9 @@ window.__ataraxia = {
     function bootstrapApp() {
       if (appBooted) return;
       appBooted = true;
+      if (el.sessionFeedbackContinueBtn) {
+        el.sessionFeedbackContinueBtn.addEventListener('click', hideSessionFeedback);
+      }
       try {
         configureBackgroundAudio();
         initAudio();
