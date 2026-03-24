@@ -2738,6 +2738,38 @@ Sessions completed: ${sessionCount}` : ''}</div>`;
       }
     }
 
+    function configureBackgroundAudio() {
+      try {
+        if ('audioSession' in navigator && navigator.audioSession && navigator.audioSession.type !== 'playback') {
+          navigator.audioSession.type = 'playback';
+        }
+      } catch (error) {
+        console.warn('Audio session playback mode unavailable.', error);
+      }
+
+      if ('mediaSession' in navigator) {
+        try {
+          navigator.mediaSession.playbackState = (sessionState === SESSION_STATE.PLAYING) ? 'playing' : 'paused';
+          if (!navigator.mediaSession.metadata) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: 'Ataraxia',
+              artist: 'Meditation Session',
+              album: 'Ataraxia'
+            });
+          }
+        } catch (error) {
+          console.warn('Media Session metadata unavailable.', error);
+        }
+      }
+    }
+
+    function syncMediaPlaybackState() {
+      if (!('mediaSession' in navigator)) return;
+      try {
+        navigator.mediaSession.playbackState = (sessionState === SESSION_STATE.PLAYING) ? 'playing' : 'paused';
+      } catch {}
+    }
+
     function hideReflectionTakeover() {
       el.reflectionScreen.classList.remove('active');
       el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
@@ -2899,8 +2931,10 @@ ${insights.streak} days of showing up.`;
       const modeConfig = getModeConfig();
       const sub = getSubcategoryData();
 
+      configureBackgroundAudio();
       currentAudio.play().then(() => {
         sessionState = SESSION_STATE.PLAYING;
+        syncMediaPlaybackState();
         setAudioStatus(el.audioText.textContent, true);
         el.volumeControl.classList.add('active');
 
@@ -2918,6 +2952,7 @@ ${insights.streak} days of showing up.`;
         requestWakeLock();
       }).catch(() => {
         sessionState = SESSION_STATE.PAUSED;
+        syncMediaPlaybackState();
         setCircleState('paused');
         el.sessionStateText.textContent = 'Paused';
         el.sessionStateLabel.textContent = 'Awaiting Resume';
@@ -2928,6 +2963,7 @@ ${insights.streak} days of showing up.`;
       if (!currentAudio) return;
       currentAudio.pause();
       sessionState = SESSION_STATE.PAUSED;
+      syncMediaPlaybackState();
 
       const modeConfig = getModeConfig();
       setAudioStatus(el.audioText.textContent, false);
@@ -2964,6 +3000,7 @@ ${insights.streak} days of showing up.`;
       }
 
       if (currentAudio && sessionState === SESSION_STATE.PLAYING && currentAudio.paused && !document.hidden) {
+        configureBackgroundAudio();
         currentAudio.play().catch(() => {});
       }
     }
@@ -2990,6 +3027,7 @@ ${insights.streak} days of showing up.`;
       }
 
       sessionState = SESSION_STATE.COMPLETE;
+      syncMediaPlaybackState();
       setCircleState('complete');
       setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.remove('active');
@@ -3035,6 +3073,7 @@ ${insights.streak} days of showing up.`;
     function resetSessionFromDoubleTap() {
       clearSessionTimers();
       sessionState = SESSION_STATE.IDLE;
+      syncMediaPlaybackState();
       detachAudio();
       initAudio();
       resetVisualSessionState();
@@ -3057,6 +3096,7 @@ ${insights.streak} days of showing up.`;
 
       enterSessionMode();
       sessionState = SESSION_STATE.GROUNDING;
+      syncMediaPlaybackState();
       setCircleState('grounding');
       setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.add('active');
@@ -3085,6 +3125,7 @@ ${insights.streak} days of showing up.`;
     function exitSessionEarly() {
       clearSessionTimers();
       sessionState = SESSION_STATE.IDLE;
+      syncMediaPlaybackState();
       detachAudio();
       initAudio();
       setAudioStatus(el.audioText.textContent, false);
@@ -3321,6 +3362,7 @@ ${insights.streak} days of showing up.`;
       el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
       el.welcomeIntroAudio.ontimeupdate = cueTrack ? null : () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
       el.welcomeIntroAudio.onended = () => endWelcomeIntro(true);
+      configureBackgroundAudio();
       const playPromise = el.welcomeIntroAudio.play();
       if (!cueTrack) startWelcomeIntroTicker();
       if (playPromise && typeof playPromise.then === 'function') {
@@ -3373,6 +3415,7 @@ ${insights.streak} days of showing up.`;
       if (appBooted) return;
       appBooted = true;
       try {
+        configureBackgroundAudio();
         initAudio();
         syncUI();
       } catch (error) {
