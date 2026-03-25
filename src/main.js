@@ -385,6 +385,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
       profileTopPractice: document.getElementById('profileTopPractice'),
       profileRecommendationTitle: document.getElementById('profileRecommendationTitle'),
       profileRecommendationBody: document.getElementById('profileRecommendationBody'),
+      profileNextMoveCard: document.getElementById('profileNextMoveCard'),
+      profileNextMoveTitle: document.getElementById('profileNextMoveTitle'),
+      profileNextMoveCategory: document.getElementById('profileNextMoveCategory'),
+      profileNextMoveDuration: document.getElementById('profileNextMoveDuration'),
+      profileNextMoveReason: document.getElementById('profileNextMoveReason'),
+      profileNextMoveActionBtn: document.getElementById('profileNextMoveActionBtn'),
       profileInsightsList: document.getElementById('profileInsightsList'),
       profileHistoryList: document.getElementById('profileHistoryList'),
       sessionFeedbackOverlay: document.getElementById('sessionFeedbackOverlay'),
@@ -483,6 +489,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let welcomeAudioAnalyser = null;
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
+    let profileNextMove = null;
     let journalDraftId = '';
     let journalEditorMode = 'create';
     let journalPromptPanelOpen = false;
@@ -961,6 +968,106 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return sorted;
     }
 
+    function getPracticeCategory(practiceKey) {
+      if (!practiceKey) return 'Guided Action';
+      if (foundationGroups.CoreStability.includes(practiceKey)) return 'Core Stability';
+      if (foundationGroups.AppliedAwareness.includes(practiceKey)) return 'Applied Awareness';
+      return 'Guided Action';
+    }
+
+    function getRecommendedNextMove(history, journalEntries, insights) {
+      const safeHistory = Array.isArray(history) ? history : [];
+      const safeJournal = Array.isArray(journalEntries) ? journalEntries : [];
+      const now = Date.now();
+      const todayKey = toDayKey(new Date().toISOString());
+      const practicedToday = safeHistory.some((entry) => toDayKey(entry.timestamp) === todayKey);
+      const lastSession = safeHistory[safeHistory.length - 1] || null;
+      const lastSessionTime = new Date(lastSession?.timestamp || '').getTime();
+      const hasValidLastSession = Number.isFinite(lastSessionTime);
+      const justCompletedSession = hasValidLastSession && ((now - lastSessionTime) <= 90 * 60000);
+      const hasJournalAfterSession = hasValidLastSession && safeJournal.some((entry) => {
+        const entryTime = new Date(entry.updatedAt || entry.createdAt || '').getTime();
+        return Number.isFinite(entryTime) && entryTime >= lastSessionTime;
+      });
+      const progress = loadProgress();
+      const nextCorePractice = foundationGroups.CoreStability.find((practiceKey) => !progress[practiceKey]);
+      const isConsistent = (insights?.streak || 0) >= 4 || (insights?.scores?.consistency || 0) >= 75;
+      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !progress[practiceKey]) || 'OpenAwareness';
+
+      if (!safeHistory.length) {
+        return {
+          type: 'session',
+          practiceKey: 'Introduction',
+          title: 'Introduction to Meditation',
+          category: 'Core Stability',
+          duration: '',
+          actionLabel: 'Start Session',
+          reason: 'Start Your First Practice.'
+        };
+      }
+
+      if (nextCorePractice) {
+        const practiceLabel = PRACTICE_GUIDANCE[nextCorePractice]?.label || formatPracticeLabel(nextCorePractice);
+        return {
+          type: 'session',
+          practiceKey: nextCorePractice,
+          title: practiceLabel,
+          category: 'Core Stability',
+          duration: '',
+          actionLabel: 'Start Session',
+          reason: 'Continue the Core Stability sequence before expanding into wider practices.'
+        };
+      }
+
+      if (!practicedToday) {
+        return {
+          type: 'session',
+          practiceKey: 'BreathAwareness',
+          title: 'Breath Awareness',
+          category: 'Core Stability',
+          duration: 'Short reset',
+          actionLabel: 'Start Session',
+          reason: 'You have not practiced today. Use a low-resistance session to re-enter quickly.'
+        };
+      }
+
+      if (justCompletedSession && !hasJournalAfterSession) {
+        return {
+          type: 'journal',
+          practiceKey: '',
+          title: 'Capture the Session',
+          category: 'Journal Integration',
+          duration: '2 min reflection',
+          actionLabel: 'Open Journal',
+          reason: 'You just completed practice. Lock in insight with a short reflection before the signal fades.'
+        };
+      }
+
+      if (isConsistent) {
+        const appliedLabel = PRACTICE_GUIDANCE[nextAppliedPractice]?.label || formatPracticeLabel(nextAppliedPractice);
+        return {
+          type: 'session',
+          practiceKey: nextAppliedPractice,
+          title: appliedLabel,
+          category: 'Applied Awareness',
+          duration: '',
+          actionLabel: 'Start Session',
+          reason: 'Your consistency is strong enough to widen awareness while staying stable.'
+        };
+      }
+
+      const fallbackKey = insights?.recommendationKey || 'BreathAwareness';
+      return {
+        type: 'session',
+        practiceKey: fallbackKey,
+        title: PRACTICE_GUIDANCE[fallbackKey]?.label || formatPracticeLabel(fallbackKey),
+        category: getPracticeCategory(fallbackKey),
+        duration: '',
+        actionLabel: 'Start Session',
+        reason: insights?.recommendationReason || 'Start Your First Practice.'
+      };
+    }
+
     function getTrainingInsights() {
       const history = loadSessionHistory();
       const journalEntries = loadJournalEntries();
@@ -977,6 +1084,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         title: 'You are building consistency.',
         body: 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.',
         patternInsights: [{ id: 'fallback-empty', text: 'More sessions will reveal your patterns.' }],
+        recommendationKey: 'BreathAwareness',
         recommendationLabel: 'Breath Awareness',
         recommendationReason: 'Start with one clear anchor and repeat it.',
         readiness: 'starting',
@@ -1215,6 +1323,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         title,
         body: bodyParts.join('\n'),
         recommendationLabel: guide.label,
+        recommendationKey,
         recommendationReason,
         patternInsights: buildPatternInsights(history, journalEntries),
         readiness,
@@ -1647,6 +1756,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (!el.profilePagePanel) return;
       renderJournalPromptPanel();
       const insights = getTrainingInsights();
+      const journalEntries = loadJournalEntries();
+      profileNextMove = getRecommendedNextMove(loadSessionHistory(), journalEntries, insights);
       const history = loadSessionHistory().slice(-8).reverse();
 
       el.profileCoachTitle.textContent = insights.title;
@@ -1671,8 +1782,24 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const nextStepsText = (insights.nextThreeSessions || []).map((step, index) => (index + 1) + '. ' + step).join('\n');
 
       el.profileRecommendationBody.textContent = (insights.recommendationReason || 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.') + '\n\n' + trendText + '\nCoach state: ' + (insights.coachState || 'starting') + '\n\nNext 3 sessions:\n' + nextStepsText + '\n\nCoach note: ' + (insights.feedback || 'Keep showing up and the pattern will become clearer.');
+      if (el.profileNextMoveTitle) el.profileNextMoveTitle.textContent = profileNextMove?.title || 'Start Your First Practice';
+      if (el.profileNextMoveCategory) el.profileNextMoveCategory.textContent = profileNextMove?.category || 'Core Stability';
+      if (el.profileNextMoveDuration) {
+        const duration = profileNextMove?.duration || '';
+        el.profileNextMoveDuration.textContent = duration;
+        el.profileNextMoveDuration.classList.toggle('hidden', !duration);
+      }
+      if (el.profileNextMoveReason) el.profileNextMoveReason.textContent = profileNextMove?.reason || 'A single focused session is the fastest way to build momentum.';
+      if (el.profileNextMoveActionBtn) el.profileNextMoveActionBtn.textContent = profileNextMove?.actionLabel || 'Start Session';
+
       if (el.profileInsightsList) {
-        const patternInsights = Array.isArray(insights.patternInsights) ? insights.patternInsights.slice(0, 3) : [];
+        const patternInsights = Array.isArray(insights.patternInsights) ? insights.patternInsights.slice(0, 2) : [];
+        if (profileNextMove?.reason) {
+          patternInsights.unshift({
+            id: 'next-move-context',
+            text: 'Why this next move: ' + profileNextMove.reason
+          });
+        }
         el.profileInsightsList.innerHTML = '';
         patternInsights.forEach((insight) => {
           const node = document.createElement('div');
@@ -1712,6 +1839,24 @@ You do not need to clear your mind. You do not need to perform. You only need to
       });
       renderJournalList();
     }
+
+    function handleRecommendedNextMove(event = null) {
+      if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+      const move = profileNextMove || getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
+      if (!move) return;
+      if (move.type === 'journal') {
+        selectMainMode('Profile');
+        startNewJournalEntry();
+        return;
+      }
+      if (move.practiceKey === 'Introduction') {
+        selectMainMode('Introduction');
+      } else if (move.practiceKey) {
+        setSubcategory(move.practiceKey, false);
+      }
+      startSessionButton();
+    }
+    window.handleRecommendedNextMove = handleRecommendedNextMove;
 
     function resetVisualSessionState() {
       setCircleState('idle');

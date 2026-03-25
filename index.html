@@ -566,6 +566,52 @@
     }
     .profile-card,
     .profile-history-card { padding: 18px; }
+    .profile-next-move-card {
+      width: 100%;
+      border: 1px solid rgba(88,209,143,0.32);
+      background: radial-gradient(circle at top right, rgba(88,209,143,0.16), rgba(88,209,143,0.04) 45%, rgba(9,14,20,0.92) 100%);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.45), 0 0 0 1px rgba(88,209,143,0.1) inset;
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .profile-next-move-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(88,209,143,0.16) inset;
+    }
+    .profile-next-move-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .profile-next-move-chip {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .profile-next-move-chip.hidden { display: none; }
+    .profile-next-move-action {
+      border: 1px solid rgba(88,209,143,0.36);
+      background: rgba(88,209,143,0.14);
+      color: rgba(226,255,236,0.98);
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      align-self: flex-start;
+      cursor: pointer;
+    }
     .profile-card-kicker {
       font-size: 8px;
       letter-spacing: 0.22em;
@@ -1426,6 +1472,17 @@
       </div>
 
       <div class="profile-page-panel hidden" id="profilePagePanel">
+        <div class="profile-next-move-card" id="profileNextMoveCard" onclick="handleRecommendedNextMove()">
+          <div class="profile-card-kicker">Recommended Next Move</div>
+          <div class="profile-card-title" id="profileNextMoveTitle">Start Your First Practice</div>
+          <div class="profile-next-move-meta">
+            <div class="profile-next-move-chip" id="profileNextMoveCategory">Core Stability</div>
+            <div class="profile-next-move-chip hidden" id="profileNextMoveDuration">~10 min</div>
+          </div>
+          <div class="profile-card-body" id="profileNextMoveReason">A single focused session is the fastest way to build momentum.</div>
+          <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Session</button>
+        </div>
+
         <div class="profile-history-card">
           <div class="journal-header">
             <div>
