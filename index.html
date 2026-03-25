@@ -661,6 +661,29 @@
       text-align: center;
       padding: 8px 0 2px;
     }
+    .profile-insights-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .profile-insight-item {
+      border: 1px solid rgba(88,209,143,0.2);
+      background: rgba(88,209,143,0.05);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: rgba(230,245,236,0.96);
+    }
+    .profile-insight-note {
+      margin-top: 12px;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      line-height: 1.8;
+    }
     .journal-header {
       display: flex;
       justify-content: space-between;
@@ -1452,6 +1475,13 @@
               <div class="profile-score-caption" id="profileDepthCaption">Built from readiness to move beyond basic anchoring.</div>
             </div>
           </div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-kicker">Awareness Insights</div>
+          <div class="profile-card-title">Pattern reflections</div>
+          <div class="profile-insights-list" id="profileInsightsList"></div>
+          <div class="profile-insight-note">Based on your recent patterns · Insights are generated on this device from your activity.</div>
         </div>
 
         <div class="profile-card">

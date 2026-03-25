@@ -385,6 +385,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       profileTopPractice: document.getElementById('profileTopPractice'),
       profileRecommendationTitle: document.getElementById('profileRecommendationTitle'),
       profileRecommendationBody: document.getElementById('profileRecommendationBody'),
+      profileInsightsList: document.getElementById('profileInsightsList'),
       profileHistoryList: document.getElementById('profileHistoryList'),
       sessionFeedbackOverlay: document.getElementById('sessionFeedbackOverlay'),
       sessionFeedbackTitle: document.getElementById('sessionFeedbackTitle'),
@@ -542,11 +543,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (activePractice === 'Introduction') return;
 
       const history = loadSessionHistory();
+      const durationSeconds = Number.isFinite(currentAudio?.duration) && currentAudio.duration > 0
+        ? Math.round(currentAudio.duration)
+        : 0;
       history.push({
         timestamp: new Date().toISOString(),
         mode: activePractice,
         practice: activeSubcategory || 'Unknown',
-        reflection: reflection || ''
+        reflection: reflection || '',
+        durationSeconds
       });
 
       saveSessionHistory(history.slice(-120));
@@ -773,8 +778,192 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
     window.deleteCurrentJournalEntry = deleteCurrentJournalEntry;
 
+    function toDayKey(iso) {
+      return String(iso || '').slice(0, 10);
+    }
+
+    function getDayDifference(aIso, bIso) {
+      if (!aIso || !bIso) return 0;
+      const a = new Date(toDayKey(aIso) + 'T00:00:00Z').getTime();
+      const b = new Date(toDayKey(bIso) + 'T00:00:00Z').getTime();
+      if (!Number.isFinite(a) || !Number.isFinite(b)) return 0;
+      return Math.round((b - a) / 86400000);
+    }
+
+    function getDayWindow(history, days) {
+      const since = Date.now() - (days * 86400000);
+      return history.filter((entry) => {
+        const timestamp = new Date(entry.timestamp || '').getTime();
+        return Number.isFinite(timestamp) && timestamp >= since;
+      });
+    }
+
+    function inferSessionPeriod(iso) {
+      const date = new Date(iso || '');
+      if (Number.isNaN(date.getTime())) return 'unknown';
+      const hour = date.getHours();
+      if (hour < 12) return 'morning';
+      if (hour < 17) return 'afternoon';
+      return 'evening';
+    }
+
+    function countPracticeDays(history) {
+      return new Set(history.map((entry) => toDayKey(entry.timestamp)).filter(Boolean)).size;
+    }
+
+    function buildPatternInsights(history, journalEntries) {
+      const insights = [];
+      const addInsight = (id, score, text, category) => {
+        if (!text) return;
+        if (insights.some((item) => item.id === id)) return;
+        insights.push({ id, score, text, category });
+      };
+
+      if (!history.length) {
+        return [{
+          id: 'fallback-empty',
+          text: 'More sessions will reveal your patterns.',
+          score: 1,
+          category: 'fallback'
+        }];
+      }
+
+      const sessions30 = getDayWindow(history, 30);
+      const sessions14 = getDayWindow(history, 14);
+      const sessions7 = getDayWindow(history, 7);
+      const prior14 = history.filter((entry) => {
+        const time = new Date(entry.timestamp || '').getTime();
+        const now = Date.now();
+        return Number.isFinite(time) && time >= (now - 28 * 86400000) && time < (now - 14 * 86400000);
+      });
+
+      const recentPracticeDays7 = countPracticeDays(sessions7);
+      const priorPracticeDays14 = countPracticeDays(prior14);
+      const recentPracticeDays14 = countPracticeDays(sessions14);
+
+      if (recentPracticeDays7 >= 4) {
+        addInsight('consistency-steady', 92, 'Your practice rhythm has been steady this week.', 'consistency');
+      }
+
+      if (recentPracticeDays14 >= Math.max(4, priorPracticeDays14 + 2)) {
+        addInsight('consistency-improving', 88, 'Your consistency has strengthened over the last two weeks.', 'consistency');
+      }
+
+      const sessionDays = Array.from(new Set(history.map((entry) => toDayKey(entry.timestamp)).filter(Boolean))).sort();
+      const gaps = [];
+      for (let i = 1; i < sessionDays.length; i += 1) {
+        const gap = getDayDifference(sessionDays[i - 1], sessionDays[i]) - 1;
+        if (gap > 0) gaps.push(gap);
+      }
+      if (gaps.length >= 2) {
+        const averageGap = gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length;
+        if (averageGap <= 2) {
+          addInsight('recovery-quick-return', 86, 'You tend to return quickly after missed days. That shows resilience.', 'recovery');
+        } else if (averageGap >= 4) {
+          addInsight('recovery-wide-gaps', 62, 'Your practice returns after longer gaps. Re-entry is still part of your rhythm.', 'recovery');
+        }
+      }
+
+      const periodCounts = { morning: 0, afternoon: 0, evening: 0 };
+      sessions30.forEach((entry) => {
+        const period = inferSessionPeriod(entry.timestamp);
+        if (periodCounts[period] !== undefined) periodCounts[period] += 1;
+      });
+      const dominantPeriod = Object.entries(periodCounts).sort((a, b) => b[1] - a[1])[0];
+      if (dominantPeriod && dominantPeriod[1] >= 4 && dominantPeriod[1] / Math.max(1, sessions30.length) >= 0.5) {
+        addInsight(
+          'time-dominant',
+          84,
+          'Your ' + dominantPeriod[0] + ' sessions appear to be your most consistent window.',
+          'time_of_day'
+        );
+      }
+
+      const durations = history
+        .map((entry) => Number(entry.durationSeconds) / 60)
+        .filter((minutes) => Number.isFinite(minutes) && minutes > 0);
+      const recentDurations = getDayWindow(history.filter((entry) => Number(entry.durationSeconds) > 0), 7)
+        .map((entry) => Number(entry.durationSeconds) / 60)
+        .filter((minutes) => Number.isFinite(minutes) && minutes > 0);
+      const priorDurations = history
+        .filter((entry) => {
+          const time = new Date(entry.timestamp || '').getTime();
+          const now = Date.now();
+          return Number(entry.durationSeconds) > 0 && Number.isFinite(time) && time >= (now - 14 * 86400000) && time < (now - 7 * 86400000);
+        })
+        .map((entry) => Number(entry.durationSeconds) / 60)
+        .filter((minutes) => Number.isFinite(minutes) && minutes > 0);
+
+      if (recentDurations.length >= 3 && priorDurations.length >= 3) {
+        const recentAvg = recentDurations.reduce((sum, value) => sum + value, 0) / recentDurations.length;
+        const priorAvg = priorDurations.reduce((sum, value) => sum + value, 0) / priorDurations.length;
+        if (recentAvg >= priorAvg + 1.2) {
+          addInsight('duration-increasing', 82, 'Your session length has been gradually increasing lately.', 'duration');
+        } else if (recentAvg <= priorAvg - 1) {
+          addInsight('duration-shortening', 70, 'Shorter sessions seem to be supporting your rhythm right now.', 'duration');
+        }
+      } else if (durations.length >= 5) {
+        const avgDuration = durations.reduce((sum, value) => sum + value, 0) / durations.length;
+        if (avgDuration <= 8) {
+          addInsight('duration-compact', 66, 'Short sessions appear to be your reliable baseline at the moment.', 'duration');
+        }
+      }
+
+      const entries30 = journalEntries.filter((entry) => {
+        const stamp = new Date(entry.updatedAt || entry.createdAt || '').getTime();
+        return Number.isFinite(stamp) && stamp >= (Date.now() - 30 * 86400000);
+      });
+      if (entries30.length >= 4) {
+        const sessionCount30 = Math.max(1, sessions30.length);
+        const reflectionRate = entries30.length / sessionCount30;
+        if (reflectionRate >= 0.4) {
+          addInsight('journal-regular', 80, 'Your reflection habit is becoming more regular.', 'journal');
+        }
+      }
+
+      const keywordGroups = {
+        calm: ['calm', 'ease', 'settled', 'still'],
+        focus: ['focus', 'focused', 'attention', 'present'],
+        distraction: ['distraction', 'distracted', 'wander', 'wandering', 'restless'],
+        clarity: ['clarity', 'clear', 'clearer', 'understand'],
+        resistance: ['resistance', 'resist', 'avoid', 'avoiding', 'stuck']
+      };
+      if (entries30.length >= 3) {
+        const themeCounts = { calm: 0, focus: 0, distraction: 0, clarity: 0, resistance: 0 };
+        entries30.forEach((entry) => {
+          const body = String(entry.body || '').toLowerCase();
+          Object.entries(keywordGroups).forEach(([theme, words]) => {
+            if (words.some((word) => body.includes(word))) themeCounts[theme] += 1;
+          });
+        });
+        const topTheme = Object.entries(themeCounts).sort((a, b) => b[1] - a[1])[0];
+        if (topTheme && topTheme[1] >= 3) {
+          const labels = {
+            calm: 'Calm and settling themes appear repeatedly in your reflections.',
+            focus: 'Focus and presence are recurring themes in your recent reflections.',
+            distraction: 'You often notice distraction directly in your reflections. That awareness is part of the practice.',
+            clarity: 'Clarity is showing up more often in your recent notes.',
+            resistance: 'You are honestly naming resistance in your reflections, which supports awareness.'
+          };
+          addInsight('journal-theme-' + topTheme[0], 72, labels[topTheme[0]], 'journal_signal');
+        }
+      }
+
+      const sorted = insights.sort((a, b) => b.score - a.score).slice(0, 3);
+      if (!sorted.length) {
+        return [{
+          id: 'fallback-building',
+          text: 'Keep practicing to unlock personal insights.',
+          score: 1,
+          category: 'fallback'
+        }];
+      }
+      return sorted;
+    }
+
     function getTrainingInsights() {
       const history = loadSessionHistory();
+      const journalEntries = loadJournalEntries();
       const total = history.length;
 
       const empty = {
@@ -787,6 +976,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         feedback: '',
         title: 'You are building consistency.',
         body: 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.',
+        patternInsights: [{ id: 'fallback-empty', text: 'More sessions will reveal your patterns.' }],
         recommendationLabel: 'Breath Awareness',
         recommendationReason: 'Start with one clear anchor and repeat it.',
         readiness: 'starting',
@@ -1026,6 +1216,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         body: bodyParts.join('\n'),
         recommendationLabel: guide.label,
         recommendationReason,
+        patternInsights: buildPatternInsights(history, journalEntries),
         readiness,
         recentTrend,
         nextThreeSessions,
@@ -1480,6 +1671,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const nextStepsText = (insights.nextThreeSessions || []).map((step, index) => (index + 1) + '. ' + step).join('\n');
 
       el.profileRecommendationBody.textContent = (insights.recommendationReason || 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.') + '\n\n' + trendText + '\nCoach state: ' + (insights.coachState || 'starting') + '\n\nNext 3 sessions:\n' + nextStepsText + '\n\nCoach note: ' + (insights.feedback || 'Keep showing up and the pattern will become clearer.');
+      if (el.profileInsightsList) {
+        const patternInsights = Array.isArray(insights.patternInsights) ? insights.patternInsights.slice(0, 3) : [];
+        el.profileInsightsList.innerHTML = '';
+        patternInsights.forEach((insight) => {
+          const node = document.createElement('div');
+          node.className = 'profile-insight-item';
+          node.textContent = insight.text || '';
+          el.profileInsightsList.appendChild(node);
+        });
+      }
 
       el.profileHistoryList.innerHTML = '';
       if (!history.length) {
