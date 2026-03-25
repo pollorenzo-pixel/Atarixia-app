@@ -1766,7 +1766,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.profileStreak.textContent = String(insights.streak || 0);
       el.profileTopReflection.textContent = insights.topReflection || '—';
       el.profileTopPractice.textContent = insights.topPractice || '—';
-      el.profileRecommendationTitle.textContent = insights.recommendationLabel ? ('Recommended: ' + insights.recommendationLabel) : 'Recommended direction';
       if (el.profileConsistencyScore) el.profileConsistencyScore.textContent = String(insights.scores?.consistency || 0);
       if (el.profileStabilityScore) el.profileStabilityScore.textContent = String(insights.scores?.stability || 0);
       if (el.profileDepthScore) el.profileDepthScore.textContent = String(insights.scores?.depth || 0);
@@ -1774,22 +1773,14 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.profileStabilityCaption) el.profileStabilityCaption.textContent = insights.scores?.stabilityLabel || 'Needs more clean returns and simpler anchors.';
       if (el.profileDepthCaption) el.profileDepthCaption.textContent = insights.scores?.depthLabel || 'Early-stage depth. Keep strengthening the base.';
 
-      let trendText = 'Recent trend: still forming.';
-      if (insights.recentTrend === 'improving') trendText = 'Recent trend: improving.';
-      else if (insights.recentTrend === 'noisy') trendText = 'Recent trend: more restless lately.';
-      else if (insights.recentTrend === 'steady') trendText = 'Recent trend: steady.';
-
-      const nextStepsText = (insights.nextThreeSessions || []).map((step, index) => (index + 1) + '. ' + step).join('\n');
-
-      el.profileRecommendationBody.textContent = (insights.recommendationReason || 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.') + '\n\n' + trendText + '\nCoach state: ' + (insights.coachState || 'starting') + '\n\nNext 3 sessions:\n' + nextStepsText + '\n\nCoach note: ' + (insights.feedback || 'Keep showing up and the pattern will become clearer.');
-      if (el.profileNextMoveTitle) el.profileNextMoveTitle.textContent = profileNextMove?.title || 'Start Your First Practice';
+      if (el.profileRecommendationTitle) el.profileRecommendationTitle.textContent = profileNextMove?.title || 'Start Your First Practice';
+      if (el.profileRecommendationBody) el.profileRecommendationBody.textContent = profileNextMove?.reason || 'A single focused session is the fastest way to build momentum.';
       if (el.profileNextMoveCategory) el.profileNextMoveCategory.textContent = profileNextMove?.category || 'Core Stability';
       if (el.profileNextMoveDuration) {
         const duration = profileNextMove?.duration || '';
         el.profileNextMoveDuration.textContent = duration;
         el.profileNextMoveDuration.classList.toggle('hidden', !duration);
       }
-      if (el.profileNextMoveReason) el.profileNextMoveReason.textContent = profileNextMove?.reason || 'A single focused session is the fastest way to build momentum.';
       if (el.profileNextMoveActionBtn) el.profileNextMoveActionBtn.textContent = profileNextMove?.actionLabel || 'Start Session';
 
       if (el.profileInsightsList) {
