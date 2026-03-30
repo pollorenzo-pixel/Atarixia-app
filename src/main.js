@@ -990,14 +990,28 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return completed;
     }
 
+    function getCompletedSessionCount(history) {
+      const safeHistory = Array.isArray(history) ? history : [];
+      const completedPractices = getCompletedPracticeSet(safeHistory);
+      return safeHistory.filter((entry) => {
+        const key = typeof entry?.practice === 'string' ? entry.practice.trim() : '';
+        return completedPractices.has(key);
+      }).length;
+    }
+
+    function hasCompletedSessionHistory(history = loadSessionHistory()) {
+      return getCompletedSessionCount(history) > 0;
+    }
+
+    function getDefaultOpeningMode() {
+      return hasCompletedSessionHistory() ? 'Profile' : 'Introduction';
+    }
+
     function getRecommendedNextMove(history, journalEntries, insights) {
       const safeHistory = Array.isArray(history) ? history : [];
       const safeJournal = Array.isArray(journalEntries) ? journalEntries : [];
       const completedPractices = getCompletedPracticeSet(safeHistory);
-      const completedSessionsCount = safeHistory.filter((entry) => {
-        const key = typeof entry?.practice === 'string' ? entry.practice.trim() : '';
-        return completedPractices.has(key);
-      }).length;
+      const completedSessionsCount = getCompletedSessionCount(safeHistory);
       const now = Date.now();
       const todayKey = toDayKey(new Date().toISOString());
       const practicedToday = safeHistory.some((entry) => toDayKey(entry.timestamp) === todayKey);
@@ -2671,7 +2685,7 @@ window.__ataraxia = {
       el.openingAuthor.textContent = q.author;
       setTimeout(() => {
         el.openingScene.classList.add('fade-out');
-        activePractice = 'Welcome';
+        activePractice = getDefaultOpeningMode();
         try {
           refreshCurrentMode();
         } catch (error) {
