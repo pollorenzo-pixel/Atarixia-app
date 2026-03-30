@@ -975,9 +975,29 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return 'Guided Action';
     }
 
+    function getCompletedPracticeSet(history) {
+      const completed = new Set();
+      if (!Array.isArray(history)) return completed;
+
+      history.forEach((entry) => {
+        const key = typeof entry?.practice === 'string' ? entry.practice.trim() : '';
+        if (!key || key === 'Unknown') return;
+        if (practiceContent.Foundation?.subcategories?.[key]) {
+          completed.add(key);
+        }
+      });
+
+      return completed;
+    }
+
     function getRecommendedNextMove(history, journalEntries, insights) {
       const safeHistory = Array.isArray(history) ? history : [];
       const safeJournal = Array.isArray(journalEntries) ? journalEntries : [];
+      const completedPractices = getCompletedPracticeSet(safeHistory);
+      const completedSessionsCount = safeHistory.filter((entry) => {
+        const key = typeof entry?.practice === 'string' ? entry.practice.trim() : '';
+        return completedPractices.has(key);
+      }).length;
       const now = Date.now();
       const todayKey = toDayKey(new Date().toISOString());
       const practicedToday = safeHistory.some((entry) => toDayKey(entry.timestamp) === todayKey);
@@ -989,12 +1009,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
         const entryTime = new Date(entry.updatedAt || entry.createdAt || '').getTime();
         return Number.isFinite(entryTime) && entryTime >= lastSessionTime;
       });
-      const progress = loadProgress();
-      const nextCorePractice = foundationGroups.CoreStability.find((practiceKey) => !progress[practiceKey]);
+      const coreSequence = foundationGroups.CoreStability.filter((practiceKey) => practiceKey !== 'Introduction');
+      const nextCorePractice = coreSequence.find((practiceKey) => !completedPractices.has(practiceKey));
       const isConsistent = (insights?.streak || 0) >= 4 || (insights?.scores?.consistency || 0) >= 75;
-      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !progress[practiceKey]) || 'OpenAwareness';
+      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey)) || 'OpenAwareness';
 
-      if (!safeHistory.length) {
+      if (!completedSessionsCount) {
         return {
           type: 'session',
           practiceKey: 'Introduction',
@@ -1755,10 +1775,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function renderProfilePage() {
       if (!el.profilePagePanel) return;
       renderJournalPromptPanel();
+      const historyAll = loadSessionHistory();
       const insights = getTrainingInsights();
       const journalEntries = loadJournalEntries();
-      profileNextMove = getRecommendedNextMove(loadSessionHistory(), journalEntries, insights);
-      const history = loadSessionHistory().slice(-8).reverse();
+      profileNextMove = getRecommendedNextMove(historyAll, journalEntries, insights);
+      const history = historyAll.slice(-8).reverse();
 
       el.profileCoachTitle.textContent = insights.title;
       el.profileCoachBody.textContent = insights.body;
