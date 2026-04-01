@@ -40,9 +40,9 @@
       'What did I learn about myself today?'
     ];
     const TRANSITION_DELAY = 2000;
-    const foundationOrder = ['Introduction', 'BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness'];
+    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness'];
     const foundationGroups = {
-      CoreStability: ['Introduction', 'BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
+      CoreStability: ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
       AppliedAwareness: ['OpenAwareness', 'SensoryAwareness']
     };
     const APP_BOOT_DELAY = 1800;
@@ -1023,7 +1023,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         const entryTime = new Date(entry.updatedAt || entry.createdAt || '').getTime();
         return Number.isFinite(entryTime) && entryTime >= lastSessionTime;
       });
-      const coreSequence = foundationGroups.CoreStability.filter((practiceKey) => practiceKey !== 'Introduction');
+      const coreSequence = foundationGroups.CoreStability;
       const nextCorePractice = coreSequence.find((practiceKey) => !completedPractices.has(practiceKey));
       const isConsistent = (insights?.streak || 0) >= 4 || (insights?.scores?.consistency || 0) >= 75;
       const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey)) || 'OpenAwareness';
@@ -1033,7 +1033,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           type: 'session',
           practiceKey: 'Introduction',
           title: 'Introduction to Meditation',
-          category: 'Core Stability',
+          category: 'Onboarding',
           duration: '',
           actionLabel: 'Start Session',
           reason: 'Start Your First Practice.'
@@ -1760,7 +1760,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const progress = loadProgress();
       const nextKey = foundationOrder.find((key) => !progress[key]) || foundationOrder[0];
       foundationOrder.forEach((key) => {
-        const data = key === 'Introduction' ? practiceContent.Introduction : practiceContent.Foundation.subcategories[key];
+        const data = practiceContent.Foundation.subcategories[key];
         const groupLabel = foundationGroups.AppliedAwareness.includes(key) ? 'Applied Awareness' : 'Core Stability';
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
