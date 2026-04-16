@@ -3,13 +3,17 @@
     
 
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
-    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
+    const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
+    const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', FOUNDATION_SHARED_ENDING_AUDIO];
     const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
     const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
     const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
-    const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
-    const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
+    const FOUNDATION_OPEN_AWARENESS_AUDIO = ['audio/open awareness meditation.mp3'];
+    const FOUNDATION_SENSORY_AWARENESS_AUDIO = ['audio/sensory awareness meditation.mp3'];
+    const FOUNDATION_WALKING_MEDITATION_AUDIO = ['audio/walking meditation.mp3'];
+    const FOUNDATION_STRESS_RESET_AUDIO = ['audio/stress reset meditation.mp3'];
+    const FOUNDATION_PRE_SLEEP_AUDIO = ['audio/pre-sleep meditation.mp3'];
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
@@ -40,10 +44,10 @@
       'What did I learn about myself today?'
     ];
     const TRANSITION_DELAY = 2000;
-    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness'];
+    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep'];
     const foundationGroups = {
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
-      AppliedAwareness: ['OpenAwareness', 'SensoryAwareness']
+      AppliedAwareness: ['OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep']
     };
     const APP_BOOT_DELAY = 1800;
 
@@ -140,6 +144,21 @@
         label: 'Sensory Awareness',
         stabilise: 'Let sensation come to you instead of searching for it.',
         deepen: 'This builds a calm, wide, embodied awareness.'
+      },
+      WalkingMeditation: {
+        label: 'Walking Meditation',
+        stabilise: 'Slow the pace and feel each step contact the ground.',
+        deepen: 'Carry this same quality of attention into daily movement.'
+      },
+      StressReset: {
+        label: 'Stress Reset',
+        stabilise: 'Use one full exhale at a time to downshift reactivity.',
+        deepen: 'Practice this early under pressure to recover steadiness faster.'
+      },
+      PreSleep: {
+        label: 'Pre-Sleep',
+        stabilise: 'Keep the pace gentle and let unfinished thoughts pass by.',
+        deepen: 'Use this to make mental settling a repeatable evening skill.'
       }
     };
 
@@ -305,17 +324,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
             copyLabel: 'Current Foundation Practice',
             copyTitle: 'Open Awareness',
             copyBody: 'There is nothing to focus on. Simply notice whatever is present.',
-            audio: [STABILITY_OPEN_AWARENESS_AUDIO],
+            audio: FOUNDATION_OPEN_AWARENESS_AUDIO,
             lesson: 'Nothing needs to be chosen. Let the whole field be included.',
             reinforcement: 'Resting in openness trains stable awareness without force.',
             activeText: 'Playing',
             activeLabel: 'Open Awareness',
-            endingText: 'Open',
-            endingLabel: 'Complete'
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
           },
           SensoryAwareness: {
             title: 'Sensory Awareness Meditation',
-            shortPurpose: 'Rest in the full field of sensation.',
+            shortPurpose: 'Train present-moment attention through sensation.',
             eyebrow: 'Foundation · Applied Awareness',
             hero: 'Feel the full field.<br>Include sensation.',
             subtitle: ['Sense', 'Include', 'Remain'],
@@ -324,14 +343,72 @@ You do not need to clear your mind. You do not need to perform. You only need to
             copyLabel: 'Current Foundation Practice',
             copyTitle: 'Sensory Awareness',
             copyBody: 'Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.',
-            audio: [STABILITY_SENSORY_AWARENESS_AUDIO],
+            audio: FOUNDATION_SENSORY_AWARENESS_AUDIO,
             lesson: 'Let sensation come to you. Do not narrow attention.',
             reinforcement: 'Including the full sensory field widens and steadies awareness.',
             activeText: 'Playing',
             activeLabel: 'Sensory Awareness',
-            endingText: 'Settling',
-            endingLabel: 'Complete'
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          WalkingMeditation: {
+            title: 'Walking Meditation',
+            shortPurpose: 'Build awareness in motion through each step.',
+            eyebrow: 'Foundation · Applied Awareness',
+            hero: 'Move with awareness.<br>Feel each step.',
+            subtitle: ['Step', 'Feel', 'Return'],
+            note: 'Stay with contact, pace, and balance from moment to moment.',
+            badge: 'Foundation · Applied Awareness · Walking Meditation',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Walking Meditation',
+            copyBody: 'Build awareness in motion through each step and contact with the ground.',
+            audio: FOUNDATION_WALKING_MEDITATION_AUDIO,
+            lesson: 'Movement can be an anchor when each step is known clearly.',
+            reinforcement: 'Staying present while moving builds portable attention.',
+            activeText: 'Playing',
+            activeLabel: 'Walking Meditation',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          StressReset: {
+            title: 'Stress Reset',
+            shortPurpose: 'Downshift reactivity and return to steadiness.',
+            eyebrow: 'Foundation · Applied Awareness',
+            hero: 'Reset under pressure.<br>Return to steady.',
+            subtitle: ['Exhale', 'Release', 'Recover'],
+            note: 'Use this when stress spikes and you need a clean reset.',
+            badge: 'Foundation · Applied Awareness · Stress Reset',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Stress Reset',
+            copyBody: 'Downshift reactivity and return to steadiness under pressure.',
+            audio: FOUNDATION_STRESS_RESET_AUDIO,
+            lesson: 'A slower exhale can shift your state quickly.',
+            reinforcement: 'Quick regulation keeps stress from taking over the session.',
+            activeText: 'Playing',
+            activeLabel: 'Stress Reset',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
+          },
+          PreSleep: {
+            title: 'Pre-Sleep',
+            shortPurpose: 'Release mental noise before sleep.',
+            eyebrow: 'Foundation · Applied Awareness',
+            hero: 'Settle the system.<br>Prepare for sleep.',
+            subtitle: ['Soften', 'Release', 'Settle'],
+            note: 'Let attention quiet down without forcing the mind.',
+            badge: 'Foundation · Applied Awareness · Pre-Sleep',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Pre-Sleep',
+            copyBody: 'Release mental noise and settle the system before sleep.',
+            audio: FOUNDATION_PRE_SLEEP_AUDIO,
+            lesson: 'You are not trying to sleep on command, only reducing mental momentum.',
+            reinforcement: 'Reliable downshifting supports better recovery at night.',
+            activeText: 'Playing',
+            activeLabel: 'Pre-Sleep',
+            endingText: 'Closing',
+            endingLabel: 'Ending Audio'
           }
+
         }
       }
     };
@@ -975,6 +1052,13 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return 'Guided Action';
     }
 
+    function hasPlayablePracticeAudio(practiceKey) {
+      const practice = practiceContent.Foundation?.subcategories?.[practiceKey];
+      if (!practice?.audio) return false;
+      const playlist = Array.isArray(practice.audio) ? practice.audio : [practice.audio];
+      return playlist.some((item) => typeof item === 'string' && item.trim().length > 0);
+    }
+
     function getCompletedPracticeSet(history) {
       const completed = new Set();
       if (!Array.isArray(history)) return completed;
@@ -1024,9 +1108,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
         return Number.isFinite(entryTime) && entryTime >= lastSessionTime;
       });
       const coreSequence = foundationGroups.CoreStability;
-      const nextCorePractice = coreSequence.find((practiceKey) => !completedPractices.has(practiceKey));
+      const nextCorePractice = coreSequence.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey));
       const isConsistent = (insights?.streak || 0) >= 4 || (insights?.scores?.consistency || 0) >= 75;
-      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey)) || 'OpenAwareness';
+      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey)) || 'OpenAwareness';
 
       if (!completedSessionsCount) {
         return {
@@ -1090,7 +1174,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         };
       }
 
-      const fallbackKey = insights?.recommendationKey || 'BreathAwareness';
+      const fallbackKey = hasPlayablePracticeAudio(insights?.recommendationKey) ? insights.recommendationKey : 'BreathAwareness';
       return {
         type: 'session',
         practiceKey: fallbackKey,
@@ -1681,6 +1765,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'Profile') ? 'none' : 'inline-flex';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
+      const canStartSelectedPractice = !(activePractice === 'Foundation' && !hasPlayablePracticeAudio(activeSubcategory));
+      el.startSessionBtn.disabled = !canStartSelectedPractice;
+      el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
     }
 
     function hideLessonOverlayImmediate() {
@@ -1762,11 +1849,14 @@ You do not need to clear your mind. You do not need to perform. You only need to
       foundationOrder.forEach((key) => {
         const data = practiceContent.Foundation.subcategories[key];
         const groupLabel = foundationGroups.AppliedAwareness.includes(key) ? 'Applied Awareness' : 'Core Stability';
+        const hasAudio = hasPlayablePracticeAudio(key);
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
         if (key === nextKey) btn.classList.add('next');
         if (progress[key]) btn.classList.add('completed');
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available'}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+        if (!hasAudio) btn.classList.add('muted');
+        const statusLabel = !hasAudio ? 'Audio Soon' : (progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available');
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
         btn.addEventListener('click', () => setSubcategory(key, false));
         el.foundationCardsContainer.appendChild(btn);
       });
@@ -2663,8 +2753,8 @@ window.__ataraxia = {
         ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
         ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
         ...FOUNDATION_DEEP_FOCUS_AUDIO,
-        STABILITY_OPEN_AWARENESS_AUDIO,
-        STABILITY_SENSORY_AWARENESS_AUDIO
+        ...FOUNDATION_OPEN_AWARENESS_AUDIO,
+        ...FOUNDATION_SENSORY_AWARENESS_AUDIO
       ].filter(Boolean);
       audioFiles.forEach((src) => {
         const audio = new Audio();
