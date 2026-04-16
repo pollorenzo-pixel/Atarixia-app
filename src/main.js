@@ -13,9 +13,9 @@
     const FOUNDATION_SENSORY_AWARENESS_AUDIO = ['audio/sensory awareness meditation.mp3'];
     // The newly-added Applied Awareness sessions must resolve to real files in /audio.
     // Keep these mapped to existing uploaded assets so playback works in local and GitHub Pages.
-    const FOUNDATION_WALKING_MEDITATION_AUDIO = ['audio/open awareness meditation.mp3'];
-    const FOUNDATION_STRESS_RESET_AUDIO = ['audio/sensory awareness meditation.mp3'];
-    const FOUNDATION_PRE_SLEEP_AUDIO = ['audio/open awareness meditation.mp3'];
+    const FOUNDATION_WALKING_MEDITATION_AUDIO = ['audio/walking meditation.mp3'];
+    const FOUNDATION_STRESS_RESET_AUDIO = ['audio/stress reset meditation.mp3'];
+    const FOUNDATION_PRE_SLEEP_AUDIO = ['audio/pre-sleep meditation.mp3'];
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
