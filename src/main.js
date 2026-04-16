@@ -11,6 +11,9 @@
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
     const FOUNDATION_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
     const FOUNDATION_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
+    const FOUNDATION_WALKING_MEDITATION_AUDIO = FOUNDATION_OPEN_AWARENESS_AUDIO;
+    const FOUNDATION_STRESS_RESET_AUDIO = FOUNDATION_SENSORY_AWARENESS_AUDIO;
+    const FOUNDATION_PRE_SLEEP_AUDIO = FOUNDATION_SENSORY_AWARENESS_AUDIO;
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
@@ -355,7 +358,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
             copyLabel: 'Current Foundation Practice',
             copyTitle: 'Walking Meditation',
             copyBody: 'Bring attention to each step and the changing sensations of movement.',
-            audio: [],
+            audio: FOUNDATION_WALKING_MEDITATION_AUDIO,
             lesson: 'Keep the pace simple and let attention rest in the body moving.',
             reinforcement: 'Awareness in motion strengthens continuity in daily life.',
             activeText: 'Walking',
@@ -372,7 +375,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
             copyLabel: 'Current Foundation Practice',
             copyTitle: 'Stress Reset',
             copyBody: 'Use a brief guided reset to drop tension and recover steady attention.',
-            audio: [],
+            audio: FOUNDATION_STRESS_RESET_AUDIO,
             lesson: 'Do less. Keep it short, clear, and repeatable when stress rises.',
             reinforcement: 'Rapid resets improve recovery and reduce reactivity.',
             activeText: 'Resetting',
@@ -389,7 +392,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
             copyLabel: 'Current Foundation Practice',
             copyTitle: 'Pre-Sleep Meditation',
             copyBody: 'Allow attention to settle into a softer, quieter rhythm before sleep.',
-            audio: [],
+            audio: FOUNDATION_PRE_SLEEP_AUDIO,
             lesson: 'Reduce effort and allow the body to settle naturally.',
             reinforcement: 'Evening awareness supports calmer transitions into sleep.',
             activeText: 'Unwinding',
