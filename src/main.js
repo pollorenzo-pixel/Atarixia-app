@@ -9,6 +9,8 @@
     const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
     const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
+    const FOUNDATION_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
+    const FOUNDATION_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
@@ -39,10 +41,10 @@
       'What did I learn about myself today?'
     ];
     const TRANSITION_DELAY = 2000;
-    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
+    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep'];
     const foundationGroups = {
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
-      AppliedAwareness: []
+      AppliedAwareness: ['OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep']
     };
     const APP_BOOT_DELAY = 1800;
 
@@ -129,6 +131,31 @@
         label: 'Deep Focus',
         stabilise: 'Tighten the session. Shorter, cleaner repetitions beat forcing intensity.',
         deepen: 'Good sign. Keep strengthening one-pointed attention.'
+      },
+      OpenAwareness: {
+        label: 'Open Awareness',
+        stabilise: 'Briefly touch one anchor, then reopen awareness to the full field.',
+        deepen: 'Stay open and include everything without tightening around any one object.'
+      },
+      SensoryAwareness: {
+        label: 'Sensory Awareness',
+        stabilise: 'Let sensation come to you naturally instead of searching for detail.',
+        deepen: 'Rest in the whole sensory field while remaining calm and steady.'
+      },
+      WalkingMeditation: {
+        label: 'Walking Meditation',
+        stabilise: 'Slow the pace and feel each step clearly before adding more detail.',
+        deepen: 'Let movement and awareness stay continuous from step to step.'
+      },
+      StressReset: {
+        label: 'Stress Reset',
+        stabilise: 'Shorten the session and return to simple grounding cues.',
+        deepen: 'Use this to interrupt reactivity and restore steadier attention quickly.'
+      },
+      PreSleep: {
+        label: 'Pre-Sleep',
+        stabilise: 'Lower effort and keep attention soft and simple.',
+        deepen: 'Allow awareness to stay relaxed while the body settles toward rest.'
       }
     };
 
@@ -282,6 +309,91 @@ You do not need to clear your mind. You do not need to perform. You only need to
             activeLabel: 'Deep Focus',
             endingText: 'Closing',
             endingLabel: 'Ending Audio'
+          },
+          OpenAwareness: {
+            title: 'Open Awareness Meditation',
+            shortPurpose: 'Open attention to the full field of experience.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Open the field.<br>Include everything.',
+            subtitle: ['Open', 'Include', 'Remain'],
+            note: 'Let awareness stay wide without chasing any one object.',
+            badge: 'Foundation · Applied Awareness · Open Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Open Awareness Meditation',
+            copyBody: 'Relax the spotlight of attention and include sounds, sensations, thoughts, and space together.',
+            audio: FOUNDATION_OPEN_AWARENESS_AUDIO,
+            lesson: 'There is nothing to hold tightly. Let awareness remain open and steady.',
+            reinforcement: 'Open attention builds stability without narrowing focus.',
+            activeText: 'Aware',
+            activeLabel: 'Open Awareness'
+          },
+          SensoryAwareness: {
+            title: 'Sensory Awareness Meditation',
+            shortPurpose: 'Rest in the full field of sensation.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Feel the whole field.<br>Stay present.',
+            subtitle: ['Sense', 'Include', 'Remain'],
+            note: 'Allow sensation to be known without choosing or rejecting.',
+            badge: 'Foundation · Applied Awareness · Sensory Awareness',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Sensory Awareness Meditation',
+            copyBody: 'Notice touch, sound, pressure, temperature, and space as one living field.',
+            audio: FOUNDATION_SENSORY_AWARENESS_AUDIO,
+            lesson: 'Let sensation come to you. No need to search for anything special.',
+            reinforcement: 'Including the sensory field widens and steadies awareness.',
+            activeText: 'Sensing',
+            activeLabel: 'Sensory Awareness'
+          },
+          WalkingMeditation: {
+            title: 'Walking Meditation',
+            shortPurpose: 'Carry awareness through calm, deliberate movement.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Walk slowly.<br>Stay aware.',
+            subtitle: ['Step', 'Feel', 'Return'],
+            note: 'Each step can become an anchor for attention.',
+            badge: 'Foundation · Applied Awareness · Walking Meditation',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Walking Meditation',
+            copyBody: 'Bring attention to each step and the changing sensations of movement.',
+            audio: [],
+            lesson: 'Keep the pace simple and let attention rest in the body moving.',
+            reinforcement: 'Awareness in motion strengthens continuity in daily life.',
+            activeText: 'Walking',
+            activeLabel: 'Walking Meditation'
+          },
+          StressReset: {
+            title: 'Stress Reset',
+            shortPurpose: 'Settle quickly when the nervous system is overloaded.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Pause and reset.<br>Return to center.',
+            subtitle: ['Pause', 'Breathe', 'Reset'],
+            note: 'A short awareness reset can interrupt stress momentum.',
+            badge: 'Foundation · Applied Awareness · Stress Reset',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Stress Reset',
+            copyBody: 'Use a brief guided reset to drop tension and recover steady attention.',
+            audio: [],
+            lesson: 'Do less. Keep it short, clear, and repeatable when stress rises.',
+            reinforcement: 'Rapid resets improve recovery and reduce reactivity.',
+            activeText: 'Resetting',
+            activeLabel: 'Stress Reset'
+          },
+          PreSleep: {
+            title: 'Pre-Sleep Meditation',
+            shortPurpose: 'Downshift attention and prepare the mind for rest.',
+            eyebrow: 'Meditation Foundations',
+            hero: 'Soften the mind.<br>Ease into rest.',
+            subtitle: ['Soften', 'Unwind', 'Rest'],
+            note: 'Use this before sleep to release mental pressure.',
+            badge: 'Foundation · Applied Awareness · Pre-Sleep',
+            copyLabel: 'Current Foundation Practice',
+            copyTitle: 'Pre-Sleep Meditation',
+            copyBody: 'Allow attention to settle into a softer, quieter rhythm before sleep.',
+            audio: [],
+            lesson: 'Reduce effort and allow the body to settle naturally.',
+            reinforcement: 'Evening awareness supports calmer transitions into sleep.',
+            activeText: 'Unwinding',
+            activeLabel: 'Pre-Sleep'
           },
         }
       }
