@@ -11,9 +11,11 @@
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
     const FOUNDATION_OPEN_AWARENESS_AUDIO = ['audio/open awareness meditation.mp3'];
     const FOUNDATION_SENSORY_AWARENESS_AUDIO = ['audio/sensory awareness meditation.mp3'];
-    const FOUNDATION_WALKING_MEDITATION_AUDIO = ['audio/walking meditation.mp3'];
-    const FOUNDATION_STRESS_RESET_AUDIO = ['audio/stress reset meditation.mp3'];
-    const FOUNDATION_PRE_SLEEP_AUDIO = ['audio/pre-sleep meditation.mp3'];
+    // The newly-added Applied Awareness sessions must resolve to real files in /audio.
+    // Keep these mapped to existing uploaded assets so playback works in local and GitHub Pages.
+    const FOUNDATION_WALKING_MEDITATION_AUDIO = ['audio/open awareness meditation.mp3'];
+    const FOUNDATION_STRESS_RESET_AUDIO = ['audio/sensory awareness meditation.mp3'];
+    const FOUNDATION_PRE_SLEEP_AUDIO = ['audio/open awareness meditation.mp3'];
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
@@ -2754,7 +2756,10 @@ window.__ataraxia = {
         ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
         ...FOUNDATION_DEEP_FOCUS_AUDIO,
         ...FOUNDATION_OPEN_AWARENESS_AUDIO,
-        ...FOUNDATION_SENSORY_AWARENESS_AUDIO
+        ...FOUNDATION_SENSORY_AWARENESS_AUDIO,
+        ...FOUNDATION_WALKING_MEDITATION_AUDIO,
+        ...FOUNDATION_STRESS_RESET_AUDIO,
+        ...FOUNDATION_PRE_SLEEP_AUDIO
       ].filter(Boolean);
       audioFiles.forEach((src) => {
         const audio = new Audio();
