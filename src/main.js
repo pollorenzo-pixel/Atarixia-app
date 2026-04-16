@@ -9,13 +9,6 @@
     const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
     const FOUNDATION_EMOTIONAL_AWARENESS_AUDIO = ['audio/Emotional Awareness meditations.mp3', 'audio/emotional awareness ending audio.mp3'];
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
-    const FOUNDATION_OPEN_AWARENESS_AUDIO = ['audio/open awareness meditation.mp3'];
-    const FOUNDATION_SENSORY_AWARENESS_AUDIO = ['audio/sensory awareness meditation.mp3'];
-    // The newly-added Applied Awareness sessions must resolve to real files in /audio.
-    // Keep these mapped to existing uploaded assets so playback works in local and GitHub Pages.
-    const FOUNDATION_WALKING_MEDITATION_AUDIO = ['audio/walking meditation.mp3'];
-    const FOUNDATION_STRESS_RESET_AUDIO = ['audio/stress reset meditation.mp3'];
-    const FOUNDATION_PRE_SLEEP_AUDIO = ['audio/pre-sleep meditation.mp3'];
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
@@ -46,10 +39,10 @@
       'What did I learn about myself today?'
     ];
     const TRANSITION_DELAY = 2000;
-    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep'];
+    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
     const foundationGroups = {
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
-      AppliedAwareness: ['OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep']
+      AppliedAwareness: []
     };
     const APP_BOOT_DELAY = 1800;
 
@@ -136,31 +129,6 @@
         label: 'Deep Focus',
         stabilise: 'Tighten the session. Shorter, cleaner repetitions beat forcing intensity.',
         deepen: 'Good sign. Keep strengthening one-pointed attention.'
-      },
-      OpenAwareness: {
-        label: 'Open Awareness',
-        stabilise: 'Return briefly to one anchor, then reopen the field.',
-        deepen: 'You are learning to remain open without losing stability.'
-      },
-      SensoryAwareness: {
-        label: 'Sensory Awareness',
-        stabilise: 'Let sensation come to you instead of searching for it.',
-        deepen: 'This builds a calm, wide, embodied awareness.'
-      },
-      WalkingMeditation: {
-        label: 'Walking Meditation',
-        stabilise: 'Slow the pace and feel each step contact the ground.',
-        deepen: 'Carry this same quality of attention into daily movement.'
-      },
-      StressReset: {
-        label: 'Stress Reset',
-        stabilise: 'Use one full exhale at a time to downshift reactivity.',
-        deepen: 'Practice this early under pressure to recover steadiness faster.'
-      },
-      PreSleep: {
-        label: 'Pre-Sleep',
-        stabilise: 'Keep the pace gentle and let unfinished thoughts pass by.',
-        deepen: 'Use this to make mental settling a repeatable evening skill.'
       }
     };
 
@@ -193,13 +161,13 @@ You do not need to clear your mind. You do not need to perform. You only need to
       },
       FoundationHome: {
         eyebrow: 'Meditation Foundations',
-        hero: 'Choose a track.<br>Then a practice.',
-        subtitle: ['Core Stability', 'Applied Awareness', 'Repeatable'],
-        note: 'Start with Core Stability, then expand into Applied Awareness.',
+        hero: 'Choose one practice.<br>Stay with it.',
+        subtitle: ['Simple', 'Steady', 'Repeatable'],
+        note: 'Start with one practice. Return often.',
         badge: 'Foundation',
         copyLabel: 'Foundation Path',
-        copyTitle: 'Foundation Phase',
-        copyBody: 'Foundation includes Core Stability and Applied Awareness. Choose one practice and stay consistent.'
+        copyTitle: 'Beginner Practice Track',
+        copyBody: 'Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.'
       },
       Profile: {
         eyebrow: 'Profile',
@@ -315,102 +283,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
             endingText: 'Closing',
             endingLabel: 'Ending Audio'
           },
-          OpenAwareness: {
-            title: 'Open Awareness Meditation',
-            shortPurpose: 'Let awareness open to everything at once.',
-            eyebrow: 'Foundation · Applied Awareness',
-            hero: 'Open the field.<br>Let everything appear.',
-            subtitle: ['Open', 'Notice', 'Remain'],
-            note: 'There is nothing to hold. Let awareness stay wide.',
-            badge: 'Foundation · Applied Awareness · Open Awareness',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Open Awareness',
-            copyBody: 'There is nothing to focus on. Simply notice whatever is present.',
-            audio: FOUNDATION_OPEN_AWARENESS_AUDIO,
-            lesson: 'Nothing needs to be chosen. Let the whole field be included.',
-            reinforcement: 'Resting in openness trains stable awareness without force.',
-            activeText: 'Playing',
-            activeLabel: 'Open Awareness',
-            endingText: 'Closing',
-            endingLabel: 'Ending Audio'
-          },
-          SensoryAwareness: {
-            title: 'Sensory Awareness Meditation',
-            shortPurpose: 'Train present-moment attention through sensation.',
-            eyebrow: 'Foundation · Applied Awareness',
-            hero: 'Feel the full field.<br>Include sensation.',
-            subtitle: ['Sense', 'Include', 'Remain'],
-            note: 'Nothing needs to be chosen. Let sensation be known.',
-            badge: 'Foundation · Applied Awareness · Sensory Awareness',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Sensory Awareness',
-            copyBody: 'Allow awareness to rest in sensation. Notice sound, touch, temperature, pressure, and space.',
-            audio: FOUNDATION_SENSORY_AWARENESS_AUDIO,
-            lesson: 'Let sensation come to you. Do not narrow attention.',
-            reinforcement: 'Including the full sensory field widens and steadies awareness.',
-            activeText: 'Playing',
-            activeLabel: 'Sensory Awareness',
-            endingText: 'Closing',
-            endingLabel: 'Ending Audio'
-          },
-          WalkingMeditation: {
-            title: 'Walking Meditation',
-            shortPurpose: 'Build awareness in motion through each step.',
-            eyebrow: 'Foundation · Applied Awareness',
-            hero: 'Move with awareness.<br>Feel each step.',
-            subtitle: ['Step', 'Feel', 'Return'],
-            note: 'Stay with contact, pace, and balance from moment to moment.',
-            badge: 'Foundation · Applied Awareness · Walking Meditation',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Walking Meditation',
-            copyBody: 'Build awareness in motion through each step and contact with the ground.',
-            audio: FOUNDATION_WALKING_MEDITATION_AUDIO,
-            lesson: 'Movement can be an anchor when each step is known clearly.',
-            reinforcement: 'Staying present while moving builds portable attention.',
-            activeText: 'Playing',
-            activeLabel: 'Walking Meditation',
-            endingText: 'Closing',
-            endingLabel: 'Ending Audio'
-          },
-          StressReset: {
-            title: 'Stress Reset',
-            shortPurpose: 'Downshift reactivity and return to steadiness.',
-            eyebrow: 'Foundation · Applied Awareness',
-            hero: 'Reset under pressure.<br>Return to steady.',
-            subtitle: ['Exhale', 'Release', 'Recover'],
-            note: 'Use this when stress spikes and you need a clean reset.',
-            badge: 'Foundation · Applied Awareness · Stress Reset',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Stress Reset',
-            copyBody: 'Downshift reactivity and return to steadiness under pressure.',
-            audio: FOUNDATION_STRESS_RESET_AUDIO,
-            lesson: 'A slower exhale can shift your state quickly.',
-            reinforcement: 'Quick regulation keeps stress from taking over the session.',
-            activeText: 'Playing',
-            activeLabel: 'Stress Reset',
-            endingText: 'Closing',
-            endingLabel: 'Ending Audio'
-          },
-          PreSleep: {
-            title: 'Pre-Sleep',
-            shortPurpose: 'Release mental noise before sleep.',
-            eyebrow: 'Foundation · Applied Awareness',
-            hero: 'Settle the system.<br>Prepare for sleep.',
-            subtitle: ['Soften', 'Release', 'Settle'],
-            note: 'Let attention quiet down without forcing the mind.',
-            badge: 'Foundation · Applied Awareness · Pre-Sleep',
-            copyLabel: 'Current Foundation Practice',
-            copyTitle: 'Pre-Sleep',
-            copyBody: 'Release mental noise and settle the system before sleep.',
-            audio: FOUNDATION_PRE_SLEEP_AUDIO,
-            lesson: 'You are not trying to sleep on command, only reducing mental momentum.',
-            reinforcement: 'Reliable downshifting supports better recovery at night.',
-            activeText: 'Playing',
-            activeLabel: 'Pre-Sleep',
-            endingText: 'Closing',
-            endingLabel: 'Ending Audio'
-          }
-
         }
       }
     };
@@ -1112,7 +984,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const coreSequence = foundationGroups.CoreStability;
       const nextCorePractice = coreSequence.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey));
       const isConsistent = (insights?.streak || 0) >= 4 || (insights?.scores?.consistency || 0) >= 75;
-      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey)) || 'OpenAwareness';
+      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey));
 
       if (!completedSessionsCount) {
         return {
@@ -1163,7 +1035,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         };
       }
 
-      if (isConsistent) {
+      if (isConsistent && nextAppliedPractice) {
         const appliedLabel = PRACTICE_GUIDANCE[nextAppliedPractice]?.label || formatPracticeLabel(nextAppliedPractice);
         return {
           type: 'session',
@@ -1305,8 +1177,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
         assessment = 'Your awareness is widening beyond one object without fully collapsing.';
         readiness = 'opening';
         coachState = 'opening';
-        recommendationKey = recentPracticeKey || 'OpenAwareness';
-        recommendationReason = 'You are ready to widen the field, but you should still keep one anchor in reserve.';
+        recommendationKey = recentPracticeKey || 'DeepFocus';
+        recommendationReason = 'You are ready to deepen steadiness while keeping one stable anchor in reserve.';
       }
 
       if (total >= 12 && wanderingRate < 0.24 && breathRate >= 0.28) {
@@ -2754,12 +2626,7 @@ window.__ataraxia = {
         ...FOUNDATION_BODY_AWARENESS_AUDIO,
         ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
         ...FOUNDATION_EMOTIONAL_AWARENESS_AUDIO,
-        ...FOUNDATION_DEEP_FOCUS_AUDIO,
-        ...FOUNDATION_OPEN_AWARENESS_AUDIO,
-        ...FOUNDATION_SENSORY_AWARENESS_AUDIO,
-        ...FOUNDATION_WALKING_MEDITATION_AUDIO,
-        ...FOUNDATION_STRESS_RESET_AUDIO,
-        ...FOUNDATION_PRE_SLEEP_AUDIO
+        ...FOUNDATION_DEEP_FOCUS_AUDIO
       ].filter(Boolean);
       audioFiles.forEach((src) => {
         const audio = new Audio();
