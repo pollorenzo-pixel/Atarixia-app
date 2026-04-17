@@ -543,6 +543,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let foundationMenuOpen = false;
     let stabilityMenuOpen = false;
     let openFoundationGroup = 'CoreStability';
+    let activeFoundationGroup = 'CoreStability';
+    let lastCoreStabilitySubcategory = 'BreathAwareness';
     let currentPlaylist = [];
     let currentTrackIndex = 0;
     let currentAudio = null;
@@ -1746,11 +1748,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.profileMenuBtn) el.profileMenuBtn.classList.toggle('active', activePractice === 'Profile');
       el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
       if (el.stabilitySubsection) el.stabilitySubsection.classList.toggle('visible', false);
-      if (activePractice === 'Foundation' && foundationGroups.AppliedAwareness.includes(activeSubcategory)) {
-        openFoundationGroup = 'AppliedAwareness';
-      }
-      if (activePractice === 'Foundation' && foundationGroups.CoreStability.includes(activeSubcategory)) {
-        openFoundationGroup = 'CoreStability';
+      if (activePractice === 'Foundation') {
+        openFoundationGroup = activeFoundationGroup;
       }
       if (el.coreStabilityBtn) el.coreStabilityBtn.classList.toggle('active', openFoundationGroup === 'CoreStability');
       if (el.appliedAwarenessBtn) el.appliedAwarenessBtn.classList.toggle('active', openFoundationGroup === 'AppliedAwareness');
@@ -2472,7 +2471,8 @@ ${insights.streak} days of showing up.`;
 
     function toggleFoundationGroup(name, event = null) {
       if (event) event.stopPropagation();
-      openFoundationGroup = openFoundationGroup === name ? '' : name;
+      activeFoundationGroup = name;
+      openFoundationGroup = name;
       foundationMenuOpen = true;
       refreshCurrentMode();
     }
@@ -2487,9 +2487,13 @@ ${insights.streak} days of showing up.`;
       }
       activePractice = 'Foundation';
       activeSubcategory = name;
+      activeFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
+      if (activeFoundationGroup === 'CoreStability') {
+        lastCoreStabilitySubcategory = name;
+      }
       foundationMenuOpen = true;
       stabilityMenuOpen = false;
-      openFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
+      openFoundationGroup = activeFoundationGroup;
       shownLessonKey = '';
       refreshCurrentMode();
       if (fromMenu) closeMenu();
@@ -2508,6 +2512,17 @@ ${insights.streak} days of showing up.`;
     window.setStabilitySubcategory = setStabilitySubcategory;
 
     function goToFoundationHome() {
+      if (activePractice === 'Foundation' && activeFoundationGroup === 'AppliedAwareness') {
+        activeFoundationGroup = 'CoreStability';
+        openFoundationGroup = 'CoreStability';
+        activeSubcategory = foundationGroups.CoreStability.includes(lastCoreStabilitySubcategory)
+          ? lastCoreStabilitySubcategory
+          : foundationGroups.CoreStability[0];
+        foundationMenuOpen = true;
+        shownLessonKey = '';
+        refreshCurrentMode();
+        return;
+      }
       activePractice = 'FoundationHome';
       foundationMenuOpen = true;
       shownLessonKey = '';
