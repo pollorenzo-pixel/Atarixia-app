@@ -659,8 +659,21 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     const radius = 236;
     const circumference = 2 * Math.PI * radius;
-    el.sessionProgressRing.style.strokeDasharray = circumference;
-    el.sessionProgressRing.style.strokeDashoffset = circumference;
+    const warnedUiRefs = new Set();
+
+    function warnMissingUiRef(refName, context = 'ui') {
+      const warningKey = `${context}:${refName}`;
+      if (warnedUiRefs.has(warningKey)) return;
+      warnedUiRefs.add(warningKey);
+      console.warn(`[Ataraxia] Missing ${context} ref: ${refName}.`);
+    }
+
+    if (el.sessionProgressRing) {
+      el.sessionProgressRing.style.strokeDasharray = circumference;
+      el.sessionProgressRing.style.strokeDashoffset = circumference;
+    } else {
+      warnMissingUiRef('sessionProgressRing', 'session');
+    }
 
     let activePractice = 'Introduction';
     let activeDestination = 'Home';
@@ -2019,20 +2032,25 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function updateSeekUI() {
+      if (!el.sessionSeekBar) warnMissingUiRef('sessionSeekBar', 'session');
+      if (!el.sessionCurrentTime) warnMissingUiRef('sessionCurrentTime', 'session');
+      if (!el.sessionDuration) warnMissingUiRef('sessionDuration', 'session');
+      if (!el.sessionProgressRing) warnMissingUiRef('sessionProgressRing', 'session');
+
       if (!currentAudio) {
-        el.sessionSeekBar.value = 0;
-        el.sessionCurrentTime.textContent = '00:00';
-        el.sessionDuration.textContent = '00:00';
-        el.sessionProgressRing.style.strokeDashoffset = circumference;
+        if (el.sessionSeekBar) el.sessionSeekBar.value = 0;
+        if (el.sessionCurrentTime) el.sessionCurrentTime.textContent = '00:00';
+        if (el.sessionDuration) el.sessionDuration.textContent = '00:00';
+        if (el.sessionProgressRing) el.sessionProgressRing.style.strokeDashoffset = circumference;
         return;
       }
       const duration = Number.isFinite(currentAudio.duration) ? currentAudio.duration : 0;
       const current = Number.isFinite(currentAudio.currentTime) ? currentAudio.currentTime : 0;
       const progress = duration > 0 ? (current / duration) * 100 : 0;
-      el.sessionSeekBar.value = progress;
-      el.sessionCurrentTime.textContent = formatTimeDisplay(current);
-      el.sessionDuration.textContent = formatTimeDisplay(duration);
-      el.sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress / 100);
+      if (el.sessionSeekBar) el.sessionSeekBar.value = progress;
+      if (el.sessionCurrentTime) el.sessionCurrentTime.textContent = formatTimeDisplay(current);
+      if (el.sessionDuration) el.sessionDuration.textContent = formatTimeDisplay(duration);
+      if (el.sessionProgressRing) el.sessionProgressRing.style.strokeDashoffset = circumference * (1 - progress / 100);
     }
 
     function seekToPercent(percent) {
@@ -2062,6 +2080,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function setCircleState(state) {
+      if (!el.sessionCircleShell) {
+        warnMissingUiRef('sessionCircleShell', 'session');
+        return;
+      }
       el.sessionCircleShell.classList.remove('state-idle', 'state-grounding', 'state-playing', 'state-paused', 'state-ending', 'state-complete', 'stability-mode', 'running');
       if (foundationGroups.AppliedAwareness.includes(activeSubcategory)) el.sessionCircleShell.classList.add('stability-mode');
       if (state) el.sessionCircleShell.classList.add(`state-${state}`);
@@ -2103,10 +2125,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function updateJourneyButtons() {
       const inTrainMode = activeDestination === 'Train';
-      el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
+      if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
-      el.backToFoundationBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
-      el.nextPracticeBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+      if (el.backToFoundationBtn) el.backToFoundationBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+      if (el.nextPracticeBtn) el.nextPracticeBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+      if (!el.startSessionBtn) {
+        warnMissingUiRef('startSessionBtn', 'session');
+        return;
+      }
       el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activeDestination === 'Progress' || activeDestination === 'Account') ? 'none' : 'inline-flex';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
@@ -2118,6 +2144,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function hideLessonOverlayImmediate() {
       clearTimeout(lessonOverlayTimeout);
       clearTimeout(lessonOverlayExitTimeout);
+      if (!el.lessonOverlay) {
+        warnMissingUiRef('lessonOverlay');
+        return;
+      }
       el.lessonOverlay.classList.remove('active', 'exit');
     }
 
@@ -2153,13 +2183,21 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!data.lesson || shownLessonKey === lessonKey) return;
       shownLessonKey = lessonKey;
       hideLessonOverlayImmediate();
+      if (!el.lessonOverlay) {
+        warnMissingUiRef('lessonOverlay');
+        return;
+      }
       el.lessonOverlay.classList.add('active');
       lessonOverlayTimeout = setTimeout(() => {
         el.lessonOverlay.classList.add('exit');
-        el.lessonCard.classList.add('highlight');
+        const activeLessonCard = activeDestination === 'Train' ? el.trainLessonCard : el.lessonCard;
+        if (activeLessonCard) activeLessonCard.classList.add('highlight');
+        else warnMissingUiRef(activeDestination === 'Train' ? 'trainLessonCard' : 'lessonCard');
         lessonOverlayExitTimeout = setTimeout(() => {
           el.lessonOverlay.classList.remove('active', 'exit');
-          setTimeout(() => el.lessonCard.classList.remove('highlight'), 250);
+          setTimeout(() => {
+            if (activeLessonCard) activeLessonCard.classList.remove('highlight');
+          }, 250);
         }, 560);
       }, 4400);
     }
@@ -2175,17 +2213,21 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const view = getActiveHeroElements();
       const skillLabel = activePractice === 'Foundation' ? (data.skillLabel || getFoundationSkillLabel(activeSubcategory)) : '';
       const skillBadge = formatSkillBadge(skillLabel);
-      el.sessionCircleShell.classList.toggle('welcome-disclaimer', activePractice === 'Welcome');
+      if (el.sessionCircleShell) el.sessionCircleShell.classList.toggle('welcome-disclaimer', activePractice === 'Welcome');
+      else warnMissingUiRef('sessionCircleShell', 'session');
       if (view.eyebrow) view.eyebrow.textContent = data.eyebrow;
       if (view.title) view.title.innerHTML = data.hero;
       if (view.subtitle) view.subtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       if (view.copyLabel) view.copyLabel.textContent = skillBadge || data.copyLabel;
       if (view.copyTitle) view.copyTitle.textContent = data.copyTitle;
       if (view.copyBody) view.copyBody.textContent = data.copyBody;
-      el.sessionModeBadge.textContent = skillBadge || data.badge || data.eyebrow;
-      el.sessionTitle.innerHTML = data.hero;
-      el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-      el.bottomNote.textContent = data.note || '';
+      if (el.sessionModeBadge) el.sessionModeBadge.textContent = skillBadge || data.badge || data.eyebrow;
+      else warnMissingUiRef('sessionModeBadge', 'session');
+      if (el.sessionTitle) el.sessionTitle.innerHTML = data.hero;
+      else warnMissingUiRef('sessionTitle', 'session');
+      if (el.sessionSubtitle) el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+      else warnMissingUiRef('sessionSubtitle', 'session');
+      if (el.bottomNote) el.bottomNote.textContent = data.note || '';
 
       if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'Welcome') {
         if (view.lessonCard) view.lessonCard.style.display = 'block';
@@ -2586,6 +2628,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
       renderStabilityHomeCards();
       renderProfilePage();
       updateInsightCard();
+      if (!el.sessionOverlay) {
+        warnMissingUiRef('sessionOverlay', 'session');
+        return;
+      }
       if (!el.sessionOverlay.classList.contains('active')) {
         resetVisualSessionState();
       }
@@ -2593,7 +2639,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function loadTrack(index) {
       const src = currentPlaylist[index];
-      if (!src || !el.sessionAudio) return false;
+      if (!src) return false;
+      if (!el.sessionAudio) {
+        warnMissingUiRef('sessionAudio', 'session');
+        return false;
+      }
 
       currentTrackIndex = index;
       currentAudio = el.sessionAudio;
@@ -2762,6 +2812,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const topbarHeight = document.querySelector('.session-topbar')?.offsetHeight || 0;
       const stageHeight = el.sessionStage?.scrollHeight || 0;
       const needsScroll = stageHeight + topbarHeight > window.innerHeight - 8;
+      if (!el.sessionOverlay) {
+        warnMissingUiRef('sessionOverlay', 'session');
+        return;
+      }
       el.sessionOverlay.classList.toggle('scrollable', needsScroll);
     }
 
@@ -2799,10 +2853,18 @@ You do not need to force anything. Arrive and follow the guidance.`,
       document.exitFullscreen().catch(() => {});
     }
 
+    // Session boot path (selection -> overlay takeover -> grounding -> playback):
+    // 1) startSessionButton validates playlist/audio refs.
+    // 2) enterSessionMode guarantees the takeover layer becomes visible.
+    // 3) beginSessionGroundingPhase transitions to active playback state.
     function enterSessionMode() {
       hideReflectionTakeover();
       hideCompletionTakeover();
       document.body.classList.add('session-active');
+      if (!el.sessionOverlay) {
+        warnMissingUiRef('sessionOverlay', 'session');
+        return;
+      }
       el.sessionOverlay.classList.add('active');
       requestImmersiveFullscreen();
       updateSessionScrollability();
@@ -2810,7 +2872,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function exitSessionMode() {
-      el.sessionOverlay.classList.remove('active', 'scrollable');
+      if (el.sessionOverlay) el.sessionOverlay.classList.remove('active', 'scrollable');
       document.body.classList.remove('session-active');
       hideReflectionTakeover();
       hideCompletionTakeover();
@@ -2827,17 +2889,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
       currentAudio.play().then(() => {
         sessionState = SESSION_STATE.PLAYING;
         syncMediaPlaybackState();
-        setAudioStatus(el.audioText.textContent, true);
-        el.volumeControl.classList.add('active');
+        setAudioStatus(el.audioText?.textContent || 'Session Active', true);
+        if (el.volumeControl) el.volumeControl.classList.add('active');
 
         const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
         setCircleState(inEndingPhase ? 'ending' : 'playing');
 
-        el.sessionStateText.textContent = inEndingPhase
+        if (el.sessionStateText) el.sessionStateText.textContent = inEndingPhase
           ? (sub?.endingText || 'Closing')
           : (sub?.activeText || modeConfig?.activeText || 'Playing');
 
-        el.sessionStateLabel.textContent = inEndingPhase
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = inEndingPhase
           ? (sub?.endingLabel || 'Ending Audio')
           : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
 
@@ -2846,8 +2908,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         sessionState = SESSION_STATE.PAUSED;
         syncMediaPlaybackState();
         setCircleState('paused');
-        el.sessionStateText.textContent = 'Paused';
-        el.sessionStateLabel.textContent = 'Awaiting Resume';
+        if (el.sessionStateText) el.sessionStateText.textContent = 'Paused';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Awaiting Resume';
       });
     }
 
@@ -2858,11 +2920,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       syncMediaPlaybackState();
 
       const modeConfig = getModeConfig();
-      setAudioStatus(el.audioText.textContent, false);
+      setAudioStatus(el.audioText?.textContent || 'Session Paused', false);
       setCircleState('paused');
 
-      el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
-      el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
+      if (el.sessionStateText) el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
+      if (el.sessionStateLabel) el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
 
       releaseWakeLock();
     }
@@ -2884,7 +2946,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function maybeRecoverAudioState() {
-      if (sessionState === SESSION_STATE.IDLE || sessionState === SESSION_STATE.COMPLETE || !el.sessionOverlay.classList.contains('active')) return;
+      if (!el.sessionOverlay || sessionState === SESSION_STATE.IDLE || sessionState === SESSION_STATE.COMPLETE || !el.sessionOverlay.classList.contains('active')) return;
 
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
         const recovered = advanceToNextTrackIfNeeded();
@@ -2903,8 +2965,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         clearTimeout(transitionTimeout);
         sessionState = SESSION_STATE.ENDING;
         setCircleState('ending');
-        el.sessionStateText.textContent = getSubcategoryData()?.endingText || 'Closing';
-        el.sessionStateLabel.textContent = getSubcategoryData()?.endingLabel || 'Ending Audio';
+        if (el.sessionStateText) el.sessionStateText.textContent = getSubcategoryData()?.endingText || 'Closing';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = getSubcategoryData()?.endingLabel || 'Ending Audio';
 
         const continueNow = document.hidden || document.visibilityState === 'hidden';
         if (continueNow) {
@@ -2921,8 +2983,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       sessionState = SESSION_STATE.COMPLETE;
       syncMediaPlaybackState();
       setCircleState('complete');
-      setAudioStatus(el.audioText.textContent, false);
-      el.volumeControl.classList.remove('active');
+      setAudioStatus(el.audioText?.textContent || 'Session Complete', false);
+      if (el.volumeControl) el.volumeControl.classList.remove('active');
       releaseWakeLock();
       const elapsedSeconds = activeSessionStartedAt > 0 ? Math.round((Date.now() - activeSessionStartedAt) / 1000) : 0;
       const playbackDurationSeconds = Number.isFinite(currentAudio?.duration) && currentAudio.duration > 0 ? Math.round(currentAudio.duration) : 0;
@@ -2975,11 +3037,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       completedSessionDurationSeconds = 0;
       syncMediaPlaybackState();
       setCircleState('grounding');
-      setAudioStatus(el.audioText.textContent, false);
-      el.volumeControl.classList.add('active');
-      el.sessionStateText.textContent = 'Settle';
-      el.sessionStateLabel.textContent = 'Grounding';
-      el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
+      setAudioStatus(el.audioText?.textContent || 'Grounding', false);
+      if (el.volumeControl) el.volumeControl.classList.add('active');
+      if (el.sessionStateText) el.sessionStateText.textContent = 'Settle';
+      if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Grounding';
+      if (el.sessionTapHint) el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
       updateSeekUI();
 
       groundingTimeout = setTimeout(() => {
@@ -3023,9 +3085,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
+      // Defensive session launch guard: avoid a black screen when refs are missing.
       clearSessionTimers();
       initAudio();
-      if (!currentPlaylist.length || !currentAudio) return;
+      if (!currentPlaylist.length || !currentAudio) {
+        console.warn('[Ataraxia] Session launch aborted: missing playlist/audio.');
+        return;
+      }
 
       enterSessionMode();
       beginSessionGroundingPhase();
@@ -3062,8 +3128,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       syncMediaPlaybackState();
       detachAudio();
       initAudio();
-      setAudioStatus(el.audioText.textContent, false);
-      el.volumeControl.classList.remove('active');
+      setAudioStatus(el.audioText?.textContent || 'Session', false);
+      if (el.volumeControl) el.volumeControl.classList.remove('active');
       resetVisualSessionState();
       exitSessionMode();
     }
@@ -3538,13 +3604,19 @@ window.__ataraxia = {
       }, 0);
     }
 
-    el.reflectionOptionsTakeover.addEventListener('click', (event) => {
-      const button = event.target.closest('.reflection-option-btn');
-      handleReflectionChoice(button);
-    });
+    if (el.reflectionOptionsTakeover) {
+      el.reflectionOptionsTakeover.addEventListener('click', (event) => {
+        const button = event.target.closest('.reflection-option-btn');
+        handleReflectionChoice(button);
+      });
+    } else {
+      warnMissingUiRef('reflectionOptionsTakeover', 'session');
+    }
 
-    el.sessionCircleShell.addEventListener('click', handleCircleTap);
-    el.sessionSeekBar.addEventListener('input', (event) => seekToPercent(Number(event.target.value)));
+    if (el.sessionCircleShell) el.sessionCircleShell.addEventListener('click', handleCircleTap);
+    else warnMissingUiRef('sessionCircleShell', 'session');
+    if (el.sessionSeekBar) el.sessionSeekBar.addEventListener('input', (event) => seekToPercent(Number(event.target.value)));
+    else warnMissingUiRef('sessionSeekBar', 'session');
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', bootstrapApp);
@@ -3555,17 +3627,17 @@ window.__ataraxia = {
     window.addEventListener('load', bootstrapApp);
 
     window.addEventListener('resize', () => {
-      if (el.welcomeIntroOverlay.classList.contains('active')) {
+      if (el.welcomeIntroOverlay?.classList.contains('active')) {
         startWelcomeParticles();
       }
-      if (el.sessionOverlay.classList.contains('active')) {
+      if (el.sessionOverlay?.classList.contains('active')) {
         updateSessionScrollability();
       }
     });
 
     window.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
-        if (el.welcomeIntroOverlay.classList.contains('active')) {
+        if (el.welcomeIntroOverlay?.classList.contains('active')) {
           skipWelcomeIntro();
           return;
         }
@@ -3583,7 +3655,7 @@ window.__ataraxia = {
 
       setTimeout(() => {
         maybeRecoverAudioState();
-        if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
+        if (el.sessionOverlay?.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
           requestWakeLock();
           updateSessionScrollability();
         }
@@ -3591,7 +3663,7 @@ window.__ataraxia = {
     });
 
     function recoverSessionAfterReturn() {
-      if (el.welcomeIntroOverlay.classList.contains('active') && el.welcomeIntroAudio && el.welcomeIntroAudio.paused && el.welcomeIntroAudio.currentTime > 0) {
+      if (el.welcomeIntroOverlay?.classList.contains('active') && el.welcomeIntroAudio && el.welcomeIntroAudio.paused && el.welcomeIntroAudio.currentTime > 0) {
         el.welcomeIntroAudio.play().then(() => {
           el.welcomeIntroLabel.textContent = 'Playing';
           startWelcomeIntroTicker();
@@ -3600,7 +3672,7 @@ window.__ataraxia = {
       }
       setTimeout(() => {
         maybeRecoverAudioState();
-        if (el.sessionOverlay.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
+        if (el.sessionOverlay?.classList.contains('active') && sessionState !== SESSION_STATE.IDLE && sessionState !== SESSION_STATE.COMPLETE) {
           requestWakeLock();
           updateSessionScrollability();
         }
