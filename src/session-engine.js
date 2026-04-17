@@ -20,4 +20,5 @@ export const hideCompletionTakeover = (...a) => callBridge('hideCompletionTakeov
 export const handleReflectionChoice = (...a) => callBridge('handleReflectionChoice', a);
 export const repeatCurrentPractice = (...a) => callBridge('repeatCurrentPractice', a);
 export const goToNextPracticeFromCompletion = (...a) => callBridge('goToNextPracticeFromCompletion', a);
+export const goToTrainFromCompletion = (...a) => callBridge('goToTrainFromCompletion', a);
 export const goToFoundationFromCompletion = (...a) => callBridge('goToFoundationFromCompletion', a);

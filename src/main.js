@@ -2755,7 +2755,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function showCompletionTakeover(reflection = '') {
       const completionLoop = getFoundationCompletionLoop(activeSubcategory);
-      el.completionScreenTitle.textContent = completionLoop.acknowledgment;
+      el.completionScreenTitle.textContent = 'Well done';
       el.completionScreenSubtitle.textContent = `${completionLoop.trained} ${completionLoop.why}`;
       el.completionScreen.classList.add('active');
     }
@@ -2794,11 +2794,23 @@ You do not need to clear your mind. You do not need to perform. You only need to
       wakeLockHandle = null;
     }
 
+    function requestImmersiveFullscreen() {
+      const root = document.documentElement;
+      if (!root || document.fullscreenElement || !root.requestFullscreen) return;
+      root.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    }
+
+    function exitImmersiveFullscreen() {
+      if (!document.fullscreenElement || !document.exitFullscreen) return;
+      document.exitFullscreen().catch(() => {});
+    }
+
     function enterSessionMode() {
       hideReflectionTakeover();
       hideCompletionTakeover();
       document.body.classList.add('session-active');
       el.sessionOverlay.classList.add('active');
+      requestImmersiveFullscreen();
       updateSessionScrollability();
       requestWakeLock();
     }
@@ -2808,6 +2820,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       document.body.classList.remove('session-active');
       hideReflectionTakeover();
       hideCompletionTakeover();
+      exitImmersiveFullscreen();
       releaseWakeLock();
     }
 
@@ -2958,14 +2971,38 @@ You do not need to clear your mind. You do not need to perform. You only need to
       }, 220);
     }
 
+    function beginSessionGroundingPhase() {
+      clearTimeout(groundingTimeout);
+      clearTimeout(transitionTimeout);
+      pendingTrackAdvance = false;
+
+      sessionState = SESSION_STATE.GROUNDING;
+      activeSessionStartedAt = Date.now();
+      completedSessionDurationSeconds = 0;
+      syncMediaPlaybackState();
+      setCircleState('grounding');
+      setAudioStatus(el.audioText.textContent, false);
+      el.volumeControl.classList.add('active');
+      el.sessionStateText.textContent = 'Settle';
+      el.sessionStateLabel.textContent = 'Grounding';
+      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      updateSeekUI();
+
+      groundingTimeout = setTimeout(() => {
+        if (sessionState === SESSION_STATE.GROUNDING) startPlayback();
+      }, 2000);
+    }
+
     function resetSessionFromDoubleTap() {
       clearSessionTimers();
-      sessionState = SESSION_STATE.IDLE;
-      syncMediaPlaybackState();
       detachAudio();
       initAudio();
       resetVisualSessionState();
-      exitSessionMode();
+      if (!currentPlaylist.length || !currentAudio) {
+        exitSessionMode();
+        return;
+      }
+      beginSessionGroundingPhase();
     }
 
     function startSessionButton() {
@@ -2996,26 +3033,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
       initAudio();
       if (!currentPlaylist.length || !currentAudio) return;
 
-      clearTimeout(groundingTimeout);
-      clearTimeout(transitionTimeout);
-      pendingTrackAdvance = false;
-      completedSessionDurationSeconds = 0;
-
       enterSessionMode();
-      sessionState = SESSION_STATE.GROUNDING;
-      activeSessionStartedAt = Date.now();
-      syncMediaPlaybackState();
-      setCircleState('grounding');
-      setAudioStatus(el.audioText.textContent, false);
-      el.volumeControl.classList.add('active');
-      el.sessionStateText.textContent = 'Settle';
-      el.sessionStateLabel.textContent = 'Grounding';
-      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
-      updateSeekUI();
-
-      groundingTimeout = setTimeout(() => {
-        if (sessionState === SESSION_STATE.GROUNDING) startPlayback();
-      }, 2000);
+      beginSessionGroundingPhase();
     }
     window.startSessionButton = startSessionButton;
 
@@ -3220,10 +3239,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
     window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
 
-    function goToFoundationFromCompletion() {
+    function goToTrainFromCompletion() {
       hideCompletionTakeover();
       exitSessionMode();
       goToFoundationHome();
+    }
+    window.goToTrainFromCompletion = goToTrainFromCompletion;
+
+    function goToFoundationFromCompletion() {
+      goToTrainFromCompletion();
     }
     window.goToFoundationFromCompletion = goToFoundationFromCompletion;
 
@@ -3276,6 +3300,7 @@ window.__ataraxia = {
   handleReflectionChoice,
   repeatCurrentPractice,
   goToNextPracticeFromCompletion,
+  goToTrainFromCompletion,
   goToFoundationFromCompletion,
   openWelcomeIntroOverlay,
   closeWelcomeIntroOverlay,

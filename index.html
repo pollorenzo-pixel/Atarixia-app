@@ -65,6 +65,13 @@
       height: 100svh;
     }
 
+    body.session-active .app-shell,
+    body.session-active .opening-scene {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
     .atmosphere {
       position: fixed;
       inset: 0;
@@ -2243,11 +2250,12 @@
   <div class="completion-screen" id="completionScreen">
     <div class="completion-screen-panel">
       <div class="completion-screen-kicker">Session Complete</div>
-      <div class="completion-screen-title" id="completionScreenTitle">Well done.</div>
+      <div class="completion-screen-title" id="completionScreenTitle">Well done</div>
       <div class="completion-screen-subtitle" id="completionScreenSubtitle">Take a moment to acknowledge the skill you just trained.</div>
       <div class="completion-panel">
+        <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat</button>
         <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
-        <button class="completion-btn secondary" onclick="goToFoundationFromCompletion()">Back to Foundation</button>
+        <button class="completion-btn secondary" onclick="goToTrainFromCompletion()">Back to Train</button>
       </div>
     </div>
   </div>
