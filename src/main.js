@@ -914,6 +914,64 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return new Set(history.map((entry) => toDayKey(entry.timestamp)).filter(Boolean)).size;
     }
 
+    function formatSessionCountLabel(count) {
+      return count + ' time' + (count === 1 ? '' : 's');
+    }
+
+    function generateInsightBlocksV1({ history, recommendationKey, recommendationReason }) {
+      const safeHistory = Array.isArray(history) ? history : [];
+      if (!safeHistory.length) {
+        return [{
+          id: 'insight-empty',
+          type: 'Weekly Summary',
+          text: 'No sessions yet. Start one short practice to begin your weekly summary.'
+        }];
+      }
+
+      const sessions7 = getDayWindow(safeHistory, 7);
+      const sessionCount7 = sessions7.length;
+      const practiceDays7 = countPracticeDays(sessions7);
+      const practiceCounts7 = {};
+      sessions7.forEach((entry) => {
+        const key = entry?.practice;
+        if (!key) return;
+        practiceCounts7[key] = (practiceCounts7[key] || 0) + 1;
+      });
+      const topPracticeKey = Object.entries(practiceCounts7).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+      const topPracticeLabel = PRACTICE_GUIDANCE[topPracticeKey]?.label || formatPracticeLabel(topPracticeKey);
+      const weeklySummaryText = sessionCount7
+        ? `You practiced ${formatSessionCountLabel(sessionCount7)} this week${topPracticeLabel ? ` and returned most often to ${topPracticeLabel}.` : '.'}`
+        : 'No sessions in the last 7 days. A short reset will restart your weekly pattern.';
+
+      const recentDurations = sessions7
+        .map((entry) => Number(entry.durationSeconds) / 60)
+        .filter((minutes) => Number.isFinite(minutes) && minutes > 0);
+      const avgDuration = recentDurations.length
+        ? (recentDurations.reduce((sum, value) => sum + value, 0) / recentDurations.length)
+        : 0;
+
+      let patternText = 'Your pattern is still forming. Keep sessions simple and repeatable.';
+      if (practiceDays7 >= 4 && avgDuration > 0 && avgDuration <= 10) {
+        patternText = 'Your sessions have been short and consistent. That points to habit formation.';
+      } else if (practiceDays7 >= 4 && avgDuration > 10) {
+        patternText = 'You are showing up consistently with longer sessions. Endurance is building.';
+      } else if (practiceDays7 >= 2) {
+        patternText = 'You are returning regularly. A fixed session window may strengthen consistency.';
+      } else if (sessionCount7 >= 1) {
+        patternText = 'Your recent sessions are sparse. Lowering session length can reduce friction.';
+      }
+
+      const nextPracticeKey = hasPlayablePracticeAudio(recommendationKey) ? recommendationKey : 'BreathAwareness';
+      const nextPracticeLabel = PRACTICE_GUIDANCE[nextPracticeKey]?.label || formatPracticeLabel(nextPracticeKey);
+      const nextBestActionText = `A good next step is ${nextPracticeLabel}${recommendationReason ? `. ${recommendationReason}` : '.'}`;
+
+      return [
+        { id: 'insight-weekly-summary', type: 'Weekly Summary', text: weeklySummaryText },
+        { id: 'insight-pattern-mirror', type: 'Pattern Mirror', text: patternText },
+        { id: 'insight-next-best-action', type: 'Next Best Action', text: nextBestActionText }
+      ];
+    }
+
     function buildPatternInsights(history, journalEntries) {
       const insights = [];
       const addInsight = (id, score, text, category) => {
@@ -1259,6 +1317,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
           'Notice one thing clearly and return.'
         ],
         coachState: 'starting',
+        insightBlocks: [{
+          id: 'insight-empty',
+          type: 'Weekly Summary',
+          text: 'No sessions yet. Start one short practice to begin your weekly summary.'
+        }],
         scores: {
           consistency: 0,
           stability: 0,
@@ -1489,6 +1552,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
         recommendationLabel: guide.label,
         recommendationKey,
         recommendationReason,
+        insightBlocks: generateInsightBlocksV1({
+          history,
+          recommendationKey,
+          recommendationReason
+        }),
         patternInsights: buildPatternInsights(history, journalEntries),
         readiness,
         recentTrend,
@@ -2022,18 +2090,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.profileNextMoveActionBtn) el.profileNextMoveActionBtn.textContent = profileNextMove?.actionLabel || 'Start Session';
 
       if (el.profileInsightsList) {
-        const patternInsights = Array.isArray(insights.patternInsights) ? insights.patternInsights.slice(0, 2) : [];
-        if (profileNextMove?.reason) {
-          patternInsights.unshift({
-            id: 'next-move-context',
-            text: 'Why this next move: ' + profileNextMove.reason
-          });
-        }
+        const insightBlocks = Array.isArray(insights.insightBlocks) && insights.insightBlocks.length
+          ? insights.insightBlocks.slice(0, 3)
+          : [{ id: 'insight-fallback', type: 'Weekly Summary', text: 'More sessions will reveal your pattern.' }];
         el.profileInsightsList.innerHTML = '';
-        patternInsights.forEach((insight) => {
+        insightBlocks.forEach((insight) => {
           const node = document.createElement('div');
           node.className = 'profile-insight-item';
-          node.textContent = insight.text || '';
+          const typeLabel = insight.type ? insight.type + ': ' : '';
+          node.textContent = typeLabel + (insight.text || '');
           el.profileInsightsList.appendChild(node);
         });
       }
