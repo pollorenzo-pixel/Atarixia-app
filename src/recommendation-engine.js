@@ -87,8 +87,8 @@ export function createPracticeRecommendation({
       priority: 1,
       practiceKey: introAvailable ? 'Introduction' : fallbackPracticeKey,
       reason: introAvailable
-        ? 'Finish onboarding first, then continue into Foundation.'
-        : 'Finish onboarding, then begin with the first Foundation practice.',
+        ? 'Complete the introduction, then move into Foundation.'
+        : 'Begin with the first Foundation practice.',
       fallbackPracticeKey,
       resumeIncompletePracticeKey,
       debug: {
@@ -104,7 +104,7 @@ export function createPracticeRecommendation({
     return {
       priority: 2,
       practiceKey: nextIncompletePracticeKey,
-      reason: 'Continue the Foundation sequence with the next incomplete practice.',
+      reason: 'Continue with the next Foundation step.',
       fallbackPracticeKey,
       resumeIncompletePracticeKey,
       debug: {
@@ -129,7 +129,7 @@ export function createPracticeRecommendation({
     return {
       priority: 4,
       practiceKey: repeatCandidate.key,
-      reason: `Foundation is complete. Repeat the least-recent or least-repeated practice (${repeatCandidate.daysSince}d since last, ${repeatCandidate.count} completions).`,
+      reason: `Foundation complete. Revisit ${repeatCandidate.key} (${repeatCandidate.daysSince}d since last).`,
       fallbackPracticeKey,
       resumeIncompletePracticeKey,
       debug: {
@@ -143,7 +143,7 @@ export function createPracticeRecommendation({
   return {
     priority: 3,
     practiceKey: followUpPracticeKey,
-    reason: 'Continue with the most relevant follow-up based on your last completed practice.',
+    reason: 'Continue with the next follow-up practice.',
     fallbackPracticeKey,
     resumeIncompletePracticeKey,
     debug: {

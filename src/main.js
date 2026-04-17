@@ -261,11 +261,13 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
         eyebrow: 'Before You Begin (Disclaimer)',
         hero: 'Welcome first.<br>Then begin.',
         subtitle: ['Arrive', 'Read', 'Begin'],
-        note: 'Read this first, then continue into the introduction.',
+        note: 'Read this once, then begin.',
         badge: 'Before You Begin (Disclaimer)',
         copyLabel: 'Session Guidance',
         copyTitle: 'Before You Begin (Disclaimer)',
-        copyBody: `A short disclaimer before practice. This app is for mindfulness and mental training. It is not a replacement for medical, psychiatric, or crisis support. If something feels overwhelming, pause, stop, and seek support if needed. Only practice in a safe place where you can fully relax and pay attention.`,
+        copyBody: `Ataraxia supports mindfulness training. It is not medical or crisis care.
+
+Practice only in a safe place. Pause or stop anytime.`,
         startLabel: 'Begin',
         audio: []
       },
@@ -274,34 +276,34 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
         eyebrow: 'Introduction',
         hero: 'Arrive first.<br>Then begin.',
         subtitle: ['Settle', 'Notice', 'Prepare'],
-        note: 'This is your starting point.',
+        note: 'Start here.',
         badge: 'Introduction',
         copyLabel: 'Session Guidance',
         copyTitle: 'Introduction',
         copyBody: `This is a place to begin.
 
-You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.`,
+You do not need to force anything. Arrive and follow the guidance.`,
         audio: [INTRODUCTION_AUDIO]
       },
       FoundationHome: {
         eyebrow: 'Train',
         hero: 'Choose your section.<br>Then go deeper.',
         subtitle: ['Foundation', 'Intuition', 'Flow'],
-        note: 'Use the training map to move from section to subgroup to practice.',
+        note: 'Choose one track and continue.',
         badge: 'Train',
         copyLabel: 'Train',
         copyTitle: 'Structured Practice Map',
-        copyBody: 'Foundation is fully wired now. Intuition and Flow are staged as coming next.'
+        copyBody: 'Foundation is live. Intuition and Flow are coming next.'
       },
       Profile: {
         eyebrow: 'Profile',
         hero: 'Your training.<br>Your pattern.',
         subtitle: ['Insights', 'Stats', 'Coach'],
-        note: 'Track how your awareness is developing over time.',
+        note: 'See your pattern over time.',
         badge: 'Profile',
         copyLabel: 'Profile Overview',
         copyTitle: 'Training Summary',
-        copyBody: 'All your reflection patterns, practice history, and current guidance live here.'
+        copyBody: 'Your history, reflections, and guidance in one place.'
       },
       Foundation: {
         groundingText: 'Get comfortable and prepare to begin',
@@ -2183,9 +2185,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.sessionModeBadge.textContent = skillBadge || data.badge || data.eyebrow;
       el.sessionTitle.innerHTML = data.hero;
       el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-      el.bottomNote.textContent = activePractice === 'Welcome'
-        ? 'Read this first, then continue into the introduction.'
-        : data.note;
+      el.bottomNote.textContent = data.note || '';
 
       if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'Welcome') {
         if (view.lessonCard) view.lessonCard.style.display = 'block';
@@ -2477,7 +2477,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.profileDepthCaption) el.profileDepthCaption.textContent = insights.scores?.depthLabel || 'Early-stage depth. Keep strengthening the base.';
 
       if (el.profileRecommendationTitle) el.profileRecommendationTitle.textContent = profileNextMove?.title || 'Start your first practice';
-      if (el.profileRecommendationBody) el.profileRecommendationBody.textContent = profileNextMove?.reason || 'A single focused session is the fastest way to build momentum.';
+      if (el.profileRecommendationBody) el.profileRecommendationBody.textContent = profileNextMove?.reason || 'One focused session builds momentum.';
       if (el.profileNextMoveCategory) el.profileNextMoveCategory.textContent = profileNextMove?.category || 'Core Stability';
       if (el.profileNextMoveDuration) {
         const duration = profileNextMove?.duration || '';
@@ -2489,7 +2489,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.profileInsightsList) {
         const insightBlocks = Array.isArray(insights.insightBlocks) && insights.insightBlocks.length
           ? insights.insightBlocks.slice(0, 3)
-          : [{ id: 'insight-fallback', type: 'Weekly Summary', text: 'More sessions will reveal your pattern.' }];
+          : [{ id: 'insight-fallback', type: 'Weekly Summary', text: 'More sessions will clarify your pattern.' }];
         el.profileInsightsList.innerHTML = '';
         insightBlocks.forEach((insight) => {
           const node = document.createElement('div');
@@ -2504,7 +2504,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (!history.length) {
         const empty = document.createElement('div');
         empty.className = 'profile-history-empty';
-        empty.textContent = 'Your recent sessions will appear here once you begin practicing.';
+        empty.textContent = 'Your recent sessions will appear here after you begin.';
         el.profileHistoryList.appendChild(empty);
         renderJournalList();
         return;
@@ -2571,7 +2571,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       setCircleState('idle');
       el.sessionStateText.textContent = 'Ready';
       el.sessionStateLabel.textContent = 'Awaiting Start';
-      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
       updateSeekUI();
     }
 
@@ -2673,7 +2673,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (!last) {
         return {
           title: 'You showed up.',
-          body: 'Consistency is the foundation. Keep going.'
+          body: 'Showing up is the practice.'
         };
       }
 
@@ -2685,10 +2685,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
         body = 'That moment of noticing is the training.';
       } else if (last.reflection === 'Breath') {
         title = 'You stayed with the breath.';
-        body = 'Your attention is stabilising.';
+        body = 'Attention is stabilizing.';
       } else if (last.reflection === 'Sensations') {
         title = 'You felt the body clearly.';
-        body = 'Presence is becoming grounded.';
+        body = 'Presence is settling.';
       } else if (last.reflection === 'Sounds') {
         title = 'You stayed open.';
         body = 'Awareness is widening.';
@@ -2696,26 +2696,20 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
       if (prev) {
         if (prev.reflection === 'Mind wandering' && last.reflection !== 'Mind wandering') {
-          body += '\n\nYou improved from last session — less distraction.';
+          body += '\n\nLess pull than last session.';
         } else if (prev.reflection !== 'Mind wandering' && last.reflection === 'Mind wandering') {
-          body += '\n\nMore distraction than last time. Still part of the process.';
+          body += '\n\nMore pull than last session. Still part of training.';
         }
       }
 
-      if (last.reflection === 'Mind wandering') {
-        body += '\n\nThis was a training session. This builds awareness.';
-      } else {
-        body += '\n\nThis was a clean session. Focus is sharpening.';
-      }
-
       if (insights.recentTrend === 'improving') {
-        body += '\n\nYou are trending upward. Stay consistent.';
+        body += '\n\nTrend is improving. Keep it steady.';
       } else if (insights.recentTrend === 'noisy') {
-        body += '\n\nMind is more restless lately. Simplify the next session.';
+        body += '\n\nRecent sessions are noisier. Keep the next one simple.';
       }
 
       if (insights.streak >= 3) {
-        body += '\n\nConsistency is compounding now.';
+        body += '\n\nYour consistency is compounding.';
       }
 
       return { title, body };
@@ -2985,7 +2979,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.volumeControl.classList.add('active');
       el.sessionStateText.textContent = 'Settle';
       el.sessionStateLabel.textContent = 'Grounding';
-      el.sessionTapHint.textContent = 'Tap to Pause · Tap Again to Resume · Double Tap to Reset';
+      el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
       updateSeekUI();
 
       groundingTimeout = setTimeout(() => {
