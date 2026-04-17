@@ -11,11 +11,8 @@
     const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', 'audio/deep focus ending audio.mp3'];
     const FOUNDATION_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
     const FOUNDATION_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
-    // TODO(audio): Add the dedicated Walking Meditation file and set the exact path once uploaded.
     const FOUNDATION_WALKING_MEDITATION_AUDIO = 'audio/Walking meditation.mp3';
-    // TODO(audio): Add the dedicated Stress Reset file and set the exact path once uploaded.
     const FOUNDATION_STRESS_RESET_AUDIO = 'audio/Stress reset.mp3';
-    // TODO(audio): Add the dedicated Pre-Sleep file and set the exact path once uploaded.
     const FOUNDATION_PRE_SLEEP_AUDIO = 'audio/Pre-sleep.mp3';
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
@@ -47,6 +44,7 @@
       'What did I learn about myself today?'
     ];
     const TRANSITION_DELAY = 2000;
+    // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep'];
     const foundationGroups = {
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
