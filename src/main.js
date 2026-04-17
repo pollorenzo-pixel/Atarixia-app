@@ -2205,8 +2205,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function updateInsightCard() {
       const insights = getTrainingInsights();
-      const showOnThisScreen = activeDestination === 'Train'
-        && (activePractice === 'Foundation' || (activePractice === 'FoundationHome' && activeTrainTrack === 'Foundation'));
+      const showOnThisScreen = activeDestination === 'Progress';
       if (!insights.total || !showOnThisScreen) {
         el.insightCard.classList.remove('visible');
         return;
