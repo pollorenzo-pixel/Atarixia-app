@@ -209,13 +209,13 @@ You do not need to clear your mind. You do not need to perform. You only need to
       },
       FoundationHome: {
         eyebrow: 'Meditation Foundations',
-        hero: 'Choose one practice.<br>Stay with it.',
-        subtitle: ['Simple', 'Steady', 'Repeatable'],
-        note: 'Start with one practice. Return often.',
+        hero: 'Start training.<br>Follow the next step.',
+        subtitle: ['Guided', 'Focused', 'Repeatable'],
+        note: 'Use Start Training for your best next Foundation session.',
         badge: 'Foundation',
         copyLabel: 'Foundation Path',
         copyTitle: 'Beginner Practice Track',
-        copyBody: 'Foundation is the place where meditation becomes familiar. Choose one practice and stay with it.'
+        copyBody: 'Foundation is your mental training path. Start with the recommended next step, or browse manually below.'
       },
       Profile: {
         eyebrow: 'Profile',
@@ -487,6 +487,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       profileNextMoveActionBtn: document.getElementById('profileNextMoveActionBtn'),
       foundationNextCategory: document.getElementById('foundationNextCategory'),
       foundationNextTitle: document.getElementById('foundationNextTitle'),
+      foundationNextPractice: document.getElementById('foundationNextPractice'),
       foundationNextBody: document.getElementById('foundationNextBody'),
       foundationNextActionBtn: document.getElementById('foundationNextActionBtn'),
       profileInsightsList: document.getElementById('profileInsightsList'),
@@ -2037,10 +2038,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.foundationTotalPractices) el.foundationTotalPractices.textContent = String(progressMetrics.totalPractices);
       if (el.foundationCoreProgress) el.foundationCoreProgress.textContent = `${progressMetrics.coreCompleted}/${progressMetrics.coreTotal}`;
       if (el.foundationAppliedProgress) el.foundationAppliedProgress.textContent = `${progressMetrics.appliedCompleted}/${progressMetrics.appliedTotal}`;
-      if (el.foundationNextTitle) el.foundationNextTitle.textContent = recommendationLabel;
+      if (el.foundationNextTitle) el.foundationNextTitle.textContent = 'Start Training';
+      if (el.foundationNextPractice) el.foundationNextPractice.textContent = `Next: ${recommendationLabel}`;
       if (el.foundationNextCategory) el.foundationNextCategory.textContent = recommendationCategory;
-      if (el.foundationNextBody) el.foundationNextBody.textContent = recommendationReason;
-      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = `Open ${recommendationLabel}`;
+      if (el.foundationNextBody) el.foundationNextBody.textContent = `Best next step: ${recommendationReason}`;
+      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = 'Start Training';
 
       practices.forEach((key) => {
         const data = practiceContent.Foundation.subcategories[key];
@@ -2183,10 +2185,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
         : nextUncompleted;
       if (recommendedKey === 'Introduction') {
         selectMainMode('Introduction');
+        startSessionButton();
         return;
       }
       if (recommendedKey && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
         setSubcategory(recommendedKey, false);
+        startSessionButton();
       }
     }
     window.startRecommendedFoundationPractice = startRecommendedFoundationPractice;

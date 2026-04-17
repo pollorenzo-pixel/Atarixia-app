@@ -1029,17 +1029,23 @@
     }
     .foundation-next-action {
       border: 1px solid rgba(88,209,143,0.34);
-      background: rgba(88,209,143,0.12);
+      background: rgba(88,209,143,0.16);
       color: rgba(228,255,237,0.98);
       border-radius: 999px;
-      padding: 9px 14px;
-      font-size: 9px;
-      letter-spacing: 0.17em;
+      padding: 11px 16px;
+      font-size: 10px;
+      letter-spacing: 0.19em;
       text-transform: uppercase;
       font-weight: 700;
       font-family: inherit;
       align-self: flex-start;
       cursor: pointer;
+    }
+    .foundation-next-practice {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(88,209,143,0.92);
     }
     #foundationCardsContainer {
       display: flex;
@@ -1602,13 +1608,15 @@
         </div>
         <div class="foundation-next-card">
           <div class="foundation-next-top">
-            <div class="profile-card-kicker" style="margin-bottom:0;">Recommended Next Practice</div>
+            <div class="profile-card-kicker" style="margin-bottom:0;">System Entry</div>
             <div class="foundation-next-chip" id="foundationNextCategory">Core Stability</div>
           </div>
-          <div class="profile-card-title" id="foundationNextTitle">Breath Awareness</div>
-          <div class="profile-card-body" id="foundationNextBody">Continue with a simple anchor to keep your foundation stable.</div>
-          <button class="foundation-next-action" id="foundationNextActionBtn" onclick="startRecommendedFoundationPractice()">Open Practice</button>
+          <div class="profile-card-title" id="foundationNextTitle">Start Training</div>
+          <div class="foundation-next-practice" id="foundationNextPractice">Next: Breath Awareness</div>
+          <div class="profile-card-body" id="foundationNextBody">Best next step right now.</div>
+          <button class="foundation-next-action" id="foundationNextActionBtn" onclick="startRecommendedFoundationPractice()">Start Training</button>
         </div>
+        <div class="foundation-home-header">Browse all Foundation practices</div>
         <div id="foundationCardsContainer"></div>
       </div>
 
