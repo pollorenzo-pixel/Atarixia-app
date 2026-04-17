@@ -1144,7 +1144,65 @@
     .insight-kicker { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(88,209,143,0.88); margin-bottom: 10px; }
     .insight-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 8px; }
     .insight-body { font-size: 12px; line-height: 1.7; color: var(--text-dim); white-space: pre-line; }
-    .foundation-home-header { text-align: center; color: var(--text-faint); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 4px; }
+    .foundation-home-header { text-align: center; color: var(--text-faint); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 8px; }
+    .train-track-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .train-track-btn {
+      text-align: left;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-dim);
+      transition: 0.25s ease;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .train-track-btn.active {
+      background: rgba(255,255,255,0.07);
+      border-color: var(--line-strong);
+      color: var(--text);
+    }
+    .train-track-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+    .train-track-desc { font-size: 11px; line-height: 1.45; color: var(--text-faint); }
+    .foundation-subgroup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 8px 0 14px;
+    }
+    .foundation-subgroup-btn {
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-dim);
+      padding: 11px 12px;
+      text-align: center;
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+    .foundation-subgroup-btn.active {
+      border-color: var(--line-strong);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+    .coming-next-panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      text-align: left;
+    }
+    .coming-next-title { font-size: 15px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .coming-next-body { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
     .foundation-progress-module {
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -1727,6 +1785,7 @@
       .session-tap-hint { font-size: 8px; }
       .foundation-card-top { flex-direction: column; align-items: flex-start; }
       .foundation-card-status { text-align: left; min-width: 0; }
+      .train-track-grid, .foundation-subgroup-grid { grid-template-columns: 1fr; }
     }
   </style>
   
@@ -1768,13 +1827,21 @@
           <button class="session-exit-btn" onclick="closeMenu()" style="padding:0;">Close</button>
         </div>
 
-        <button class="menu-item" id="foundationMenuBtn" onclick="toggleFoundationMenu()">
+        <button class="menu-item" id="foundationMenuBtn" onclick="setTrainTrack('Foundation')">
           <div class="menu-item-title">Foundation</div>
           <div class="menu-item-desc">Build attention and awareness through structured practices.</div>
         </button>
+        <button class="menu-item" id="intuitionMenuBtn" onclick="setTrainTrack('Intuition', true)">
+          <div class="menu-item-title">Intuition</div>
+          <div class="menu-item-desc">Coming next. Insight and pattern training will expand here.</div>
+        </button>
+        <button class="menu-item" id="flowMenuBtn" onclick="setTrainTrack('Flow', true)">
+          <div class="menu-item-title">Flow</div>
+          <div class="menu-item-desc">Coming next. Performance-state training will expand here.</div>
+        </button>
 
         <div class="menu-subsection" id="foundationSubsection">
-          <div class="menu-subsection-label">Foundation Tracks</div>
+          <div class="menu-subsection-label">Foundation</div>
           <div class="menu-subgroup">
             <button class="menu-subcat-btn" id="coreStabilityBtn" onclick="toggleFoundationGroup('CoreStability', event)">Core Stability</button>
             <div class="menu-practice-list" id="coreStabilityList">
@@ -1850,15 +1917,15 @@
       <!-- Train Screen -->
       <section class="screen-container hidden" id="trainScreen">
       <div class="hero">
-        <div class="eyebrow" id="trainEyebrowText">Meditation Foundations</div>
-        <h1 class="hero-title" id="trainHeroTitle">Start training.<br>Follow the next step.</h1>
-        <div class="hero-subtitle" id="trainHeroSubtitle"><span>Guided</span><span>Focused</span><span>Repeatable</span></div>
+        <div class="eyebrow" id="trainEyebrowText">Train</div>
+        <h1 class="hero-title" id="trainHeroTitle">Choose your section.<br>Then go deeper.</h1>
+        <div class="hero-subtitle" id="trainHeroSubtitle"><span>Foundation</span><span>Intuition</span><span>Flow</span></div>
       </div>
 
       <div class="practice-copy">
-        <div class="practice-copy-label" id="trainPracticeCopyLabel">Foundation Path</div>
-        <div class="practice-copy-title" id="trainPracticeCopyTitle">Beginner Practice Track</div>
-        <div class="practice-copy-body" id="trainPracticeCopyBody">Foundation is your mental training path. Start with the recommended next step, or browse manually below.</div>
+        <div class="practice-copy-label" id="trainPracticeCopyLabel">Train</div>
+        <div class="practice-copy-title" id="trainPracticeCopyTitle">Structured Practice Map</div>
+        <div class="practice-copy-body" id="trainPracticeCopyBody">Foundation is fully wired now. Intuition and Flow are staged as coming next.</div>
       </div>
 
       <div class="practice-copy lesson-card" id="trainLessonCard" style="display:none;">
@@ -1868,7 +1935,21 @@
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
-        <div class="foundation-home-header">Foundation Path</div>
+        <div class="foundation-home-header">Train Map</div>
+        <div class="train-track-grid" id="trainTrackGrid">
+          <button class="train-track-btn active" id="trainTrackFoundationBtn" onclick="setTrainTrack('Foundation')">
+            <div class="train-track-title">Foundation</div>
+            <div class="train-track-desc">Build stable attention and awareness.</div>
+          </button>
+          <button class="train-track-btn" id="trainTrackIntuitionBtn" onclick="setTrainTrack('Intuition')">
+            <div class="train-track-title">Intuition</div>
+            <div class="train-track-desc">Coming next system section.</div>
+          </button>
+          <button class="train-track-btn" id="trainTrackFlowBtn" onclick="setTrainTrack('Flow')">
+            <div class="train-track-title">Flow</div>
+            <div class="train-track-desc">Coming next system section.</div>
+          </button>
+        </div>
         <div class="foundation-progress-module" id="foundationProgressModule">
           <div class="foundation-progress-top">
             <div>
@@ -1900,13 +1981,16 @@
           <div class="profile-card-body" id="foundationNextBody">Follow one clear next step to keep momentum and reduce decision friction.</div>
           <button class="foundation-next-action" id="foundationNextActionBtn" onclick="startRecommendedFoundationPractice()">Start Training</button>
         </div>
-        <div class="foundation-home-header">Full Foundation sequence</div>
+        <div class="foundation-subgroup-grid" id="foundationSubgroupPanel">
+          <button class="foundation-subgroup-btn active" id="foundationCoreBtn" onclick="setFoundationSubgroup('CoreStability')">Core Stability</button>
+          <button class="foundation-subgroup-btn" id="foundationAppliedBtn" onclick="setFoundationSubgroup('AppliedAwareness')">Applied Awareness</button>
+        </div>
+        <div class="foundation-home-header" id="foundationPracticeHeader">Practices</div>
         <div id="foundationCardsContainer"></div>
-      </div>
-
-      <div class="stability-home-panel hidden" id="stabilityHomePanel">
-        <div class="foundation-home-header">Stability Practices</div>
-        <div id="stabilityCardsContainer"></div>
+        <div class="coming-next-panel hidden" id="comingNextPanel">
+          <div class="coming-next-title" id="comingNextTitle">Coming next</div>
+          <div class="coming-next-body" id="comingNextBody">This section is being prepared.</div>
+        </div>
       </div>
       </section>
 
