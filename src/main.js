@@ -593,6 +593,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let journalDraftId = '';
     let journalEditorMode = 'create';
     let journalPromptPanelOpen = false;
+    let activeSessionStartedAt = 0;
+    let completedSessionDurationSeconds = 0;
 
         function loadProgress() {
       try {
@@ -650,7 +652,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (activePractice === 'Introduction') return;
 
       const history = loadSessionHistory();
-      const durationSeconds = Number.isFinite(currentAudio?.duration) && currentAudio.duration > 0
+      const durationSeconds = Number.isFinite(completedSessionDurationSeconds) && completedSessionDurationSeconds > 0
+        ? completedSessionDurationSeconds
+        : Number.isFinite(currentAudio?.duration) && currentAudio.duration > 0
         ? Math.round(currentAudio.duration)
         : 0;
       history.push({
@@ -662,6 +666,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
       });
 
       saveSessionHistory(history.slice(-120));
+      completedSessionDurationSeconds = 0;
+      activeSessionStartedAt = 0;
     }
 
     function loadJournalEntries() {
@@ -2548,6 +2554,9 @@ Recommended next: ${recommendedLabel}.`;
       setAudioStatus(el.audioText.textContent, false);
       el.volumeControl.classList.remove('active');
       releaseWakeLock();
+      const elapsedSeconds = activeSessionStartedAt > 0 ? Math.round((Date.now() - activeSessionStartedAt) / 1000) : 0;
+      const playbackDurationSeconds = Number.isFinite(currentAudio?.duration) && currentAudio.duration > 0 ? Math.round(currentAudio.duration) : 0;
+      completedSessionDurationSeconds = Math.max(elapsedSeconds, playbackDurationSeconds);
 
       if (activePractice === 'Introduction') {
         setTimeout(() => {
@@ -2609,9 +2618,11 @@ Recommended next: ${recommendedLabel}.`;
       clearTimeout(groundingTimeout);
       clearTimeout(transitionTimeout);
       pendingTrackAdvance = false;
+      completedSessionDurationSeconds = 0;
 
       enterSessionMode();
       sessionState = SESSION_STATE.GROUNDING;
+      activeSessionStartedAt = Date.now();
       syncMediaPlaybackState();
       setCircleState('grounding');
       setAudioStatus(el.audioText.textContent, false);
@@ -2641,6 +2652,8 @@ Recommended next: ${recommendedLabel}.`;
     function exitSessionEarly() {
       clearSessionTimers();
       sessionState = SESSION_STATE.IDLE;
+      activeSessionStartedAt = 0;
+      completedSessionDurationSeconds = 0;
       syncMediaPlaybackState();
       detachAudio();
       initAudio();
@@ -3121,108 +3134,3 @@ window.__ataraxia = {
     window.addEventListener('focus', recoverSessionAfterReturn);
     window.addEventListener('pageshow', recoverSessionAfterReturn);
   
-
-window.toggleMenu = toggleMenu;
-window.closeMenu = closeMenu;
-window.selectMainMode = selectMainMode;
-window.toggleFoundationMenu = toggleFoundationMenu;
-window.setSubcategory = setSubcategory;
-window.toggleStabilityMenu = toggleStabilityMenu;
-window.setStabilitySubcategory = setStabilitySubcategory;
-window.goToFoundationHome = goToFoundationHome;
-window.goToNextPractice = goToNextPractice;
-window.startSessionButton = startSessionButton;
-window.exitSessionEarly = exitSessionEarly;
-window.repeatCurrentPractice = repeatCurrentPractice;
-window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
-window.goToFoundationFromCompletion = goToFoundationFromCompletion;
-
-window.__ataraxia = {
-  loadProgress,
-  savePracticeComplete,
-  saveReflectionEntry,
-  loadSessionHistory,
-  saveSessionHistory,
-  recordCompletedSession,
-  getTrainingInsights,
-  generateSessionFeedback,
-  formatHistoryDate,
-  formatPracticeLabel,
-  renderProfilePage,
-  updateInsightCard,
-  formatTimeDisplay,
-  getCurrentVolume,
-  setAudioStatus,
-  updateSeekUI,
-  seekToPercent,
-  detachAudio,
-  preloadNextTrack,
-  loadTrack,
-  initAudio,
-  startPlayback,
-  pausePlayback,
-  advanceToNextTrackIfNeeded,
-  maybeRecoverAudioState,
-  handleTrackEnd,
-  setVolume,
-  preloadMeditationAudio,
-  buildPlaylist,
-  isLegacyMultiTrackSession,
-  clearSessionTimers,
-  resetVisualSessionState,
-  setCircleState,
-  updateSessionScrollability,
-  requestWakeLock,
-  releaseWakeLock,
-  enterSessionMode,
-  exitSessionMode,
-  handleCircleTap,
-  startSessionButton,
-  exitSessionEarly,
-  showReflectionTakeover,
-  hideReflectionTakeover,
-  showCompletionTakeover,
-  hideCompletionTakeover,
-  handleReflectionChoice,
-  repeatCurrentPractice,
-  goToNextPracticeFromCompletion,
-  goToFoundationFromCompletion,
-  openWelcomeIntroOverlay,
-  closeWelcomeIntroOverlay,
-  resetWelcomeIntroUI,
-  ensureWelcomeIntroAudioGraph,
-  stopWelcomeParticles,
-  startWelcomeParticles,
-  stopWelcomeReactiveTicker,
-  startWelcomeReactiveTicker,
-  stopWelcomeIntroAudio,
-  ensureWelcomeIntroTextTrack,
-  renderWelcomeIntroCue,
-  startWelcomeIntroTicker,
-  endWelcomeIntro,
-  skipWelcomeIntro,
-  startWelcomeIntro,
-  getModeConfig,
-  getSubcategoryData,
-  currentViewData,
-  updateMenuState,
-  hideLessonOverlayImmediate,
-  maybeShowLessonOverlay,
-  updateContentUI,
-  updateAudioStatus,
-  updateJourneyButtons,
-  renderFoundationHomeCards,
-  renderStabilityHomeCards,
-  refreshCurrentMode,
-  syncUI,
-  bootstrapApp,
-  toggleMenu,
-  closeMenu,
-  selectMainMode,
-  toggleFoundationMenu,
-  setSubcategory,
-  toggleStabilityMenu,
-  setStabilitySubcategory,
-  goToFoundationHome,
-  goToNextPractice
-};
