@@ -464,7 +464,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
       profileCoachTitle: document.getElementById('profileCoachTitle'),
       profileCoachBody: document.getElementById('profileCoachBody'),
       profileTotalSessions: document.getElementById('profileTotalSessions'),
+      profileTotalMinutes: document.getElementById('profileTotalMinutes'),
       profileStreak: document.getElementById('profileStreak'),
+      profileBestStreak: document.getElementById('profileBestStreak'),
+      profileFoundationCompletions: document.getElementById('profileFoundationCompletions'),
+      profileUniquePractices: document.getElementById('profileUniquePractices'),
       profileTopReflection: document.getElementById('profileTopReflection'),
       profileTopPractice: document.getElementById('profileTopPractice'),
       profileRecommendationTitle: document.getElementById('profileRecommendationTitle'),
@@ -1468,6 +1472,62 @@ You do not need to clear your mind. You do not need to perform. You only need to
       };
     }
 
+    function getAccountProgressStats(history = loadSessionHistory()) {
+      const safeHistory = Array.isArray(history) ? history.filter((entry) => entry && entry.timestamp) : [];
+      const dayKeys = Array.from(new Set(safeHistory.map((entry) => String(entry.timestamp).slice(0, 10)).filter(Boolean))).sort();
+      const daySet = new Set(dayKeys);
+
+      let currentStreak = 0;
+      let cursor = new Date();
+      cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate()));
+      while (daySet.has(cursor.toISOString().slice(0, 10))) {
+        currentStreak += 1;
+        cursor.setUTCDate(cursor.getUTCDate() - 1);
+      }
+
+      let bestStreak = 0;
+      let runningStreak = 0;
+      let previousDay = null;
+      dayKeys.forEach((day) => {
+        if (!previousDay) {
+          runningStreak = 1;
+          bestStreak = 1;
+          previousDay = day;
+          return;
+        }
+        const prior = new Date(previousDay + 'T00:00:00.000Z');
+        const current = new Date(day + 'T00:00:00.000Z');
+        const gapDays = Math.round((current.getTime() - prior.getTime()) / 86400000);
+        runningStreak = gapDays === 1 ? runningStreak + 1 : 1;
+        if (runningStreak > bestStreak) bestStreak = runningStreak;
+        previousDay = day;
+      });
+
+      const totalDurationSeconds = safeHistory.reduce((sum, entry) => {
+        const durationSeconds = Number(entry.durationSeconds);
+        return Number.isFinite(durationSeconds) && durationSeconds > 0 ? sum + durationSeconds : sum;
+      }, 0);
+      const totalMinutes = Math.round(totalDurationSeconds / 60);
+      const completedFoundationCount = safeHistory.filter((entry) => foundationOrder.includes(entry.practice)).length;
+      const uniquePractices = new Set(safeHistory.map((entry) => entry.practice).filter(Boolean)).size;
+
+      const completedByMode = {};
+      safeHistory.forEach((entry) => {
+        const modeKey = entry.mode || 'Unknown';
+        completedByMode[modeKey] = (completedByMode[modeKey] || 0) + 1;
+      });
+
+      return {
+        totalSessions: safeHistory.length,
+        totalMinutes,
+        currentStreak,
+        bestStreak,
+        completedFoundationCount,
+        uniquePractices,
+        completedByMode
+      };
+    }
+
     function getModeConfig() {
       if (activePractice === 'Foundation') return practiceContent.Foundation;
       return null;
@@ -1887,16 +1947,21 @@ You do not need to clear your mind. You do not need to perform. You only need to
       renderJournalPromptPanel();
       const historyAll = loadSessionHistory();
       const insights = getTrainingInsights();
+      const accountStats = getAccountProgressStats(historyAll);
       const journalEntries = loadJournalEntries();
       profileNextMove = getRecommendedNextMove(historyAll, journalEntries, insights);
       const history = historyAll.slice(-8).reverse();
 
       el.profileCoachTitle.textContent = insights.title;
       el.profileCoachBody.textContent = insights.body;
-      el.profileTotalSessions.textContent = String(insights.total || 0);
-      el.profileStreak.textContent = String(insights.streak || 0);
-      el.profileTopReflection.textContent = insights.topReflection || '—';
-      el.profileTopPractice.textContent = insights.topPractice || '—';
+      el.profileTotalSessions.textContent = String(accountStats.totalSessions || 0);
+      if (el.profileTotalMinutes) el.profileTotalMinutes.textContent = String(accountStats.totalMinutes || 0);
+      el.profileStreak.textContent = String(accountStats.currentStreak || 0);
+      if (el.profileBestStreak) el.profileBestStreak.textContent = String(accountStats.bestStreak || 0);
+      if (el.profileFoundationCompletions) el.profileFoundationCompletions.textContent = String(accountStats.completedFoundationCount || 0);
+      if (el.profileUniquePractices) el.profileUniquePractices.textContent = String(accountStats.uniquePractices || 0);
+      if (el.profileTopReflection) el.profileTopReflection.textContent = insights.topReflection || '—';
+      if (el.profileTopPractice) el.profileTopPractice.textContent = insights.topPractice || '—';
       if (el.profileConsistencyScore) el.profileConsistencyScore.textContent = String(insights.scores?.consistency || 0);
       if (el.profileStabilityScore) el.profileStabilityScore.textContent = String(insights.scores?.stability || 0);
       if (el.profileDepthScore) el.profileDepthScore.textContent = String(insights.scores?.depth || 0);
