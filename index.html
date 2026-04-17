@@ -26,6 +26,14 @@
       --success: #58d18f;
       --shadow-lg: 0 25px 80px rgba(0, 0, 0, 0.55);
       --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.38);
+      --space-1: 8px;
+      --space-2: 12px;
+      --space-3: 16px;
+      --space-4: 20px;
+      --space-5: 24px;
+      --card-radius: 22px;
+      --card-radius-tight: 16px;
+      --card-padding: 20px;
     }
 
     html, body {
@@ -190,8 +198,9 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       padding: 8px 14px 10px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.72), rgba(0,0,0,0.34), transparent);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.78), rgba(0,0,0,0.4), transparent);
       backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
     }
 
     .tab-btn {
@@ -206,12 +215,23 @@
       font-family: inherit;
       cursor: pointer;
       transition: 0.25s ease;
+      position: relative;
     }
 
     .tab-btn.active {
-      background: rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.07));
       color: var(--text);
       border-color: var(--line-strong);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.28);
+    }
+
+    .tab-btn.active::after {
+      content: "";
+      position: absolute;
+      inset: auto 10px -8px;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.5);
     }
 
     .menu-btn {
@@ -325,8 +345,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 18px 48px;
-      gap: 18px;
+      padding: 28px 20px 56px;
+      gap: 20px;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
@@ -385,8 +405,8 @@
       border: 1px solid var(--line);
       background: var(--panel);
       box-shadow: var(--shadow-md);
-      border-radius: 22px;
-      padding: 20px 20px 18px;
+      border-radius: var(--card-radius);
+      padding: var(--card-padding);
     }
 
     .practice-copy-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px; }
@@ -398,7 +418,7 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
     .home-quote-card,
@@ -407,13 +427,13 @@
     .home-resume-btn {
       border: 1px solid var(--line);
       background: var(--panel);
-      border-radius: 22px;
+      border-radius: var(--card-radius);
       box-shadow: var(--shadow-md);
     }
 
     .home-quote-card,
     .home-next-card {
-      padding: 18px 18px 16px;
+      padding: var(--card-padding);
     }
 
     .home-quote-label,
@@ -427,8 +447,8 @@
 
     .home-quote-text {
       margin-top: 10px;
-      font-size: 18px;
-      line-height: 1.35;
+      font-size: 20px;
+      line-height: 1.45;
       letter-spacing: -0.01em;
       color: var(--text);
     }
@@ -465,22 +485,23 @@
 
     .home-next-title {
       margin-top: 8px;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--text);
+      line-height: 1.2;
     }
 
     .home-next-reason {
       margin-top: 8px;
       color: var(--text-dim);
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 14px;
+      line-height: 1.65;
     }
 
     .home-resume-btn {
       width: 100%;
-      padding: 14px 16px;
+      padding: 16px 18px;
       text-align: left;
       display: flex;
       justify-content: space-between;
@@ -507,7 +528,7 @@
     .home-cta-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
     }
 
     .home-cta-primary,
@@ -538,8 +559,8 @@
     .home-momentum-strip {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      padding: 12px 10px;
-      gap: 6px;
+      padding: 14px 12px;
+      gap: 8px;
     }
 
     .home-metric {
@@ -770,7 +791,7 @@
 
     .foundation-home-panel,
     .stability-home-panel,
-    .profile-page-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 12px; }
+    .profile-page-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 14px; }
     .profile-page-panel.hidden { display: none; }
     .profile-card,
     .profile-stat-grid,
@@ -779,10 +800,10 @@
       border: 1px solid var(--line);
       background: var(--panel);
       box-shadow: var(--shadow-md);
-      border-radius: 22px;
+      border-radius: var(--card-radius);
     }
     .profile-card,
-    .profile-history-card { padding: 18px; }
+    .profile-history-card { padding: var(--card-padding); }
     .profile-next-move-card {
       width: 100%;
       border: 1px solid rgba(88,209,143,0.32);
@@ -920,10 +941,13 @@
     }
     .profile-history-empty {
       font-size: 12px;
-      line-height: 1.7;
+      line-height: 1.75;
       color: var(--text-dim);
       text-align: center;
-      padding: 8px 0 2px;
+      padding: 16px 10px 10px;
+      border: 1px dashed rgba(255,255,255,0.14);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.015);
     }
     .profile-insights-list {
       display: flex;
@@ -1083,12 +1107,15 @@
     }
     .journal-empty {
       text-align: center;
-      padding: 12px 8px 10px;
+      padding: 16px 10px 14px;
       color: var(--text-dim);
       display: flex;
       flex-direction: column;
       gap: 6px;
       align-items: center;
+      border: 1px dashed rgba(255,255,255,0.14);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.015);
     }
     .journal-empty-title {
       color: var(--text);
@@ -1155,13 +1182,13 @@
     .train-track-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
     .train-track-btn {
       text-align: left;
-      padding: 14px;
-      border-radius: 14px;
+      padding: 16px;
+      border-radius: var(--card-radius-tight);
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.02);
       color: var(--text-dim);
@@ -1170,9 +1197,10 @@
       cursor: pointer;
     }
     .train-track-btn.active {
-      background: rgba(255,255,255,0.07);
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
       border-color: var(--line-strong);
       color: var(--text);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.32);
     }
     .train-track-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
     .train-track-desc { font-size: 11px; line-height: 1.45; color: var(--text-faint); }
@@ -1212,10 +1240,10 @@
     .coming-next-body { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
     .foundation-progress-module {
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--card-radius-tight);
       background: rgba(255,255,255,0.02);
-      padding: 16px;
-      margin: 12px 0 14px;
+      padding: 18px;
+      margin: 14px 0 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -1268,10 +1296,10 @@
     }
     .foundation-next-card {
       border: 1px solid rgba(88,209,143,0.28);
-      border-radius: 18px;
+      border-radius: var(--card-radius-tight);
       background: radial-gradient(circle at top right, rgba(88,209,143,0.13), rgba(88,209,143,0.035) 45%, rgba(9,14,20,0.88) 100%);
       box-shadow: 0 10px 26px rgba(0,0,0,0.38), 0 0 0 1px rgba(88,209,143,0.08) inset;
-      padding: 16px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -1321,9 +1349,9 @@
     }
     .foundation-phase-section {
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--card-radius-tight);
       background: rgba(255,255,255,0.015);
-      padding: 14px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -1357,7 +1385,7 @@
       flex-direction: column;
       gap: 10px;
     }
-    .foundation-card-btn { width: 100%; text-align: left; padding: 16px; background: rgba(255,255,255,0.03); }
+    .foundation-card-btn { width: 100%; text-align: left; padding: 18px; background: rgba(255,255,255,0.03); }
     .foundation-card-btn.current { border-color: rgba(88,209,143,0.24); background: rgba(88,209,143,0.08); box-shadow: 0 0 0 1px rgba(88,209,143,0.08) inset; }
     .foundation-card-btn.completed { border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); }
     .foundation-card-btn.secondary { opacity: 0.84; }
@@ -1368,7 +1396,7 @@
     .foundation-card-skill { margin-top: 6px; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); }
     .foundation-card-status { flex-shrink: 0; min-width: 92px; text-align: right; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); padding-top: 4px; }
     .foundation-card-status.next { color: var(--success); }
-    .foundation-card-desc { font-size: 12px; line-height: 1.65; color: var(--text-dim); letter-spacing: normal; text-transform: none; font-weight: 500; }
+    .foundation-card-desc { font-size: 12px; line-height: 1.72; color: var(--text-dim); letter-spacing: normal; text-transform: none; font-weight: 500; }
 
     .welcome-intro-overlay {
       position: fixed;
@@ -1775,12 +1803,28 @@
       }
     }
 
+    @media (max-width: 768px) {
+      .nav { padding: 16px 16px; }
+      .tab-nav { top: 72px; padding: 8px 12px 10px; gap: 7px; }
+      .main-content { padding: 22px 16px 44px; gap: 16px; }
+      .home-brand-tagline { margin-top: 10px; letter-spacing: 0.18em; }
+      .profile-score-grid { grid-template-columns: 1fr; }
+      .profile-card,
+      .profile-history-card,
+      .practice-copy,
+      .home-quote-card,
+      .home-next-card { padding: 18px; }
+    }
+
     @media (max-width: 480px) {
-      .main-content { padding: 20px 14px 42px; gap: 16px; }
+      .main-content { padding: 20px 14px 40px; gap: 14px; }
       .hero-title { font-size: 30px; }
       .hero-subtitle, .session-subtitle { gap: 10px; letter-spacing: 0.22em; }
       .opening-quote { font-size: 30px; line-height: 1.22; }
       .practice-copy-body { font-size: 12px; }
+      .home-quote-text { font-size: 18px; line-height: 1.5; }
+      .home-next-title { font-size: 19px; }
+      .home-next-reason { font-size: 13px; line-height: 1.58; }
       .journey-btn, .completion-btn, .foundation-card-btn, .home-cta-primary, .home-cta-secondary { width: 100%; }
       .home-cta-row { grid-template-columns: 1fr; }
       .session-stage { gap: 18px; padding: 8px 16px 32px; }
