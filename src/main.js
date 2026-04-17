@@ -12,11 +12,11 @@
     const FOUNDATION_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
     const FOUNDATION_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
     // TODO(audio): Add the dedicated Walking Meditation file and set the exact path once uploaded.
-    const FOUNDATION_WALKING_MEDITATION_AUDIO = '';
+    const FOUNDATION_WALKING_MEDITATION_AUDIO = 'audio/Walking meditation.mp3';
     // TODO(audio): Add the dedicated Stress Reset file and set the exact path once uploaded.
-    const FOUNDATION_STRESS_RESET_AUDIO = '';
+    const FOUNDATION_STRESS_RESET_AUDIO = 'audio/Stress reset.mp3';
     // TODO(audio): Add the dedicated Pre-Sleep file and set the exact path once uploaded.
-    const FOUNDATION_PRE_SLEEP_AUDIO = '';
+    const FOUNDATION_PRE_SLEEP_AUDIO = 'audio/Pre-sleep.mp3';
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
