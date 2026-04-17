@@ -1897,20 +1897,6 @@
           <button class="home-cta-secondary" id="homeOpenTrainBtn" onclick="openTrainFromHome()">Open Train</button>
         </div>
 
-        <div class="home-momentum-strip">
-          <div class="home-metric">
-            <div class="home-metric-label">Streak</div>
-            <div class="home-metric-value" id="homeMetricStreak">0</div>
-          </div>
-          <div class="home-metric">
-            <div class="home-metric-label">Sessions</div>
-            <div class="home-metric-value" id="homeMetricSessions">0</div>
-          </div>
-          <div class="home-metric">
-            <div class="home-metric-label">Completion</div>
-            <div class="home-metric-value" id="homeMetricCompletion">0%</div>
-          </div>
-        </div>
       </div>
       </section>
 
@@ -1998,45 +1984,40 @@
       <section class="screen-container hidden" id="progressScreen">
       <div class="profile-page-panel hidden" id="profilePagePanel">
         <div class="profile-card">
-          <div class="profile-card-kicker">AI Coach</div>
-          <div class="profile-card-title" id="profileCoachTitle">Your training pattern is still forming.</div>
-          <div class="profile-card-body" id="profileCoachBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
-        </div>
-
-        <div class="profile-stat-grid">
-          <div class="profile-stat">
-            <div class="profile-stat-label">Total Sessions</div>
-            <div class="profile-stat-value" id="profileTotalSessions">0</div>
-            <div class="profile-stat-sub">Completed meditation sessions</div>
+          <div class="profile-card-kicker">Overview</div>
+          <div class="profile-card-title">Session Metrics</div>
+          <div class="profile-stat-grid">
+            <div class="profile-stat">
+              <div class="profile-stat-label">Total Sessions</div>
+              <div class="profile-stat-value" id="profileTotalSessions">0</div>
+              <div class="profile-stat-sub">Completed meditation sessions</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-label">Total Minutes</div>
+              <div class="profile-stat-value" id="profileTotalMinutes">0</div>
+              <div class="profile-stat-sub">Tracked completed session time</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-label">Current Streak</div>
+              <div class="profile-stat-value" id="profileStreak">0</div>
+              <div class="profile-stat-sub">Consecutive practice days</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-label">Best Streak</div>
+              <div class="profile-stat-value" id="profileBestStreak">0</div>
+              <div class="profile-stat-sub">Longest historical run</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-label">Foundations Completed</div>
+              <div class="profile-stat-value" id="profileFoundationCompletions">0</div>
+              <div class="profile-stat-sub">Completed sessions in Foundation</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-label">Unique Practices</div>
+              <div class="profile-stat-value" id="profileUniquePractices">0</div>
+              <div class="profile-stat-sub">Distinct practices completed</div>
+            </div>
           </div>
-          <div class="profile-stat">
-            <div class="profile-stat-label">Total Minutes</div>
-            <div class="profile-stat-value" id="profileTotalMinutes">0</div>
-            <div class="profile-stat-sub">Tracked completed session time</div>
-          </div>
-          <div class="profile-stat">
-            <div class="profile-stat-label">Current Streak</div>
-            <div class="profile-stat-value" id="profileStreak">0</div>
-            <div class="profile-stat-sub">Consecutive practice days</div>
-          </div>
-          <div class="profile-stat">
-            <div class="profile-stat-label">Best Streak</div>
-            <div class="profile-stat-value" id="profileBestStreak">0</div>
-            <div class="profile-stat-sub">Longest historical run</div>
-          </div>
-          <div class="profile-stat">
-            <div class="profile-stat-label">Foundations Completed</div>
-            <div class="profile-stat-value" id="profileFoundationCompletions">0</div>
-            <div class="profile-stat-sub">Completed sessions in Foundation</div>
-          </div>
-          <div class="profile-stat">
-            <div class="profile-stat-label">Unique Practices</div>
-            <div class="profile-stat-value" id="profileUniquePractices">0</div>
-            <div class="profile-stat-sub">Distinct practices completed</div>
-          </div>
-        </div>
-
-        <div class="profile-card">
           <div class="profile-card-kicker">Scoring Layer</div>
           <div class="profile-card-title">Mental training scores</div>
           <div class="profile-score-grid">
@@ -2059,6 +2040,32 @@
         </div>
 
         <div class="profile-card">
+          <div class="profile-card-kicker">Insights</div>
+          <div class="profile-card-title">Awareness Mirror</div>
+          <div class="insight-card" id="insightCard">
+            <div class="insight-kicker">Awareness Mirror</div>
+            <div class="insight-title" id="insightTitle">You are building consistency.</div>
+            <div class="insight-body" id="insightBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
+          </div>
+          <div class="profile-next-move-card" id="profileNextMoveCard" onclick="handleRecommendedNextMove()">
+            <div class="profile-card-kicker">Next Best Action</div>
+            <div class="profile-card-title" id="profileRecommendationTitle">Start your first practice</div>
+            <div class="profile-next-move-meta">
+              <div class="profile-next-move-chip" id="profileNextMoveCategory">Core Stability</div>
+              <div class="profile-next-move-chip hidden" id="profileNextMoveDuration">~10 min</div>
+            </div>
+            <div class="profile-card-body" id="profileRecommendationBody">A single focused session is the fastest way to build momentum.</div>
+            <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Training</button>
+          </div>
+        </div>
+
+        <div class="profile-card">
+          <div class="profile-card-kicker">AI Coach</div>
+          <div class="profile-card-title" id="profileCoachTitle">Your training pattern is still forming.</div>
+          <div class="profile-card-body" id="profileCoachBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
+        </div>
+
+        <div class="profile-card">
           <div class="profile-card-kicker">Awareness Insights</div>
           <div class="profile-card-title">Pattern reflections</div>
           <div class="profile-insights-list" id="profileInsightsList"></div>
@@ -2070,28 +2077,12 @@
           <div class="profile-card-title">Latest sessions</div>
           <div class="profile-history-list" id="profileHistoryList"></div>
         </div>
-      </div>
-      </section>
-
-      <!-- Account Screen -->
-      <section class="screen-container hidden" id="accountScreen">
-      <div class="profile-page-panel" id="accountPagePanel">
-        <div class="profile-next-move-card" id="profileNextMoveCard" onclick="handleRecommendedNextMove()">
-          <div class="profile-card-kicker">Recommended Next Practice</div>
-          <div class="profile-card-title" id="profileRecommendationTitle">Start your first practice</div>
-          <div class="profile-next-move-meta">
-            <div class="profile-next-move-chip" id="profileNextMoveCategory">Core Stability</div>
-            <div class="profile-next-move-chip hidden" id="profileNextMoveDuration">~10 min</div>
-          </div>
-          <div class="profile-card-body" id="profileRecommendationBody">A single focused session is the fastest way to build momentum.</div>
-          <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Training</button>
-        </div>
 
         <div class="profile-history-card">
           <div class="journal-header">
             <div>
-              <div class="profile-card-kicker">Personal Journal</div>
-              <div class="profile-card-title">Private reflections</div>
+              <div class="profile-card-kicker">Journal</div>
+              <div class="profile-card-title">Personal Journal</div>
             </div>
             <div class="journal-header-actions">
               <button class="journal-btn primary" id="journalNewEntryBtn" onclick="startNewJournalEntry()">New Entry</button>
@@ -2122,11 +2113,16 @@
       </div>
       </section>
 
-      <div class="insight-card" id="insightCard">
-        <div class="insight-kicker">Awareness Mirror</div>
-        <div class="insight-title" id="insightTitle">You are building consistency.</div>
-        <div class="insight-body" id="insightBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
+      <!-- Account Screen -->
+      <section class="screen-container hidden" id="accountScreen">
+      <div class="profile-page-panel" id="accountPagePanel">
+        <div class="profile-card">
+          <div class="profile-card-kicker">Account</div>
+          <div class="profile-card-title">Personal settings space</div>
+          <div class="profile-card-body">Training intelligence, history, and journaling now live under Progress.</div>
+        </div>
       </div>
+      </section>
 
       <div class="journey-panel">
         <div class="journey-row">
