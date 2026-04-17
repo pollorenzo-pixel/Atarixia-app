@@ -466,14 +466,20 @@ You do not need to clear your mind. You do not need to perform. You only need to
       welcomeIntroCaption: document.getElementById('welcomeIntroCaption'),
       welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
       sessionAudio: document.getElementById('sessionAudio'),
-      welcomeMenuBtn: document.getElementById('welcomeMenuBtn'),
-      profileMenuBtn: document.getElementById('profileMenuBtn'),
+      homeTabBtn: document.getElementById('homeTabBtn'),
+      trainTabBtn: document.getElementById('trainTabBtn'),
+      progressTabBtn: document.getElementById('progressTabBtn'),
+      accountTabBtn: document.getElementById('accountTabBtn'),
+      homeScreen: document.getElementById('homeScreen'),
+      trainScreen: document.getElementById('trainScreen'),
+      progressScreen: document.getElementById('progressScreen'),
+      accountScreen: document.getElementById('accountScreen'),
       openingScene: document.getElementById('openingScene'),
+      navMenuBtn: document.getElementById('navMenuBtn'),
       openingQuote: document.getElementById('openingQuote'),
       openingAuthor: document.getElementById('openingAuthor'),
       appShell: document.getElementById('appShell'),
       menuOverlay: document.getElementById('menuOverlay'),
-      introductionMenuBtn: document.getElementById('introductionMenuBtn'),
       foundationMenuBtn: document.getElementById('foundationMenuBtn'),
       stabilityMenuBtn: document.getElementById('stabilityMenuBtn'),
       foundationSubsection: document.getElementById('foundationSubsection'),
@@ -485,12 +491,21 @@ You do not need to clear your mind. You do not need to perform. You only need to
       eyebrowText: document.getElementById('eyebrowText'),
       heroTitle: document.getElementById('heroTitle'),
       heroSubtitle: document.getElementById('heroSubtitle'),
+      trainEyebrowText: document.getElementById('trainEyebrowText'),
+      trainHeroTitle: document.getElementById('trainHeroTitle'),
+      trainHeroSubtitle: document.getElementById('trainHeroSubtitle'),
       practiceCopyLabel: document.getElementById('practiceCopyLabel'),
       practiceCopyTitle: document.getElementById('practiceCopyTitle'),
       practiceCopyBody: document.getElementById('practiceCopyBody'),
+      trainPracticeCopyLabel: document.getElementById('trainPracticeCopyLabel'),
+      trainPracticeCopyTitle: document.getElementById('trainPracticeCopyTitle'),
+      trainPracticeCopyBody: document.getElementById('trainPracticeCopyBody'),
       lessonCard: document.getElementById('lessonCard'),
       lessonTitle: document.getElementById('lessonTitle'),
       lessonBody: document.getElementById('lessonBody'),
+      trainLessonCard: document.getElementById('trainLessonCard'),
+      trainLessonTitle: document.getElementById('trainLessonTitle'),
+      trainLessonBody: document.getElementById('trainLessonBody'),
       lessonOverlay: document.getElementById('lessonOverlay'),
       lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
       lessonOverlayBody: document.getElementById('lessonOverlayBody'),
@@ -591,6 +606,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.sessionProgressRing.style.strokeDashoffset = circumference;
 
     let activePractice = 'Welcome';
+    let activeDestination = 'Home';
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
@@ -634,6 +650,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let journalPromptPanelOpen = false;
     let activeSessionStartedAt = 0;
     let completedSessionDurationSeconds = 0;
+
+    // Navigation Controller Section (V2 shell): top-level destination mapping
+    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
+
+    function inferDestinationFromPractice(practice = activePractice) {
+      if (practice === 'FoundationHome' || practice === 'Foundation') return 'Train';
+      if (practice === 'Profile') return 'Progress';
+      return 'Home';
+    }
 
         function loadProgress() {
       try {
@@ -1970,12 +1995,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function updateMenuState() {
-      el.welcomeMenuBtn.classList.toggle('active', activePractice === 'Welcome');
-      el.introductionMenuBtn.classList.toggle('active', activePractice === 'Introduction');
-      el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
+      if (el.foundationMenuBtn) el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
       if (el.stabilityMenuBtn) el.stabilityMenuBtn.classList.toggle('active', false);
-      if (el.profileMenuBtn) el.profileMenuBtn.classList.toggle('active', activePractice === 'Profile');
-      el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
+      if (el.foundationSubsection) el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
       if (el.stabilitySubsection) el.stabilitySubsection.classList.toggle('visible', false);
       if (activePractice === 'Foundation') {
         openFoundationGroup = activeFoundationGroup;
@@ -1991,13 +2013,28 @@ You do not need to clear your mind. You do not need to perform. You only need to
       });
     }
 
+    function updateTopNavigationShell() {
+      // Major Screen Section: V2 destination shell containers
+      DESTINATION_TABS.forEach((tab) => {
+        const button = el[`${tab.toLowerCase()}TabBtn`];
+        if (button) button.classList.toggle('active', activeDestination === tab);
+      });
+
+      if (el.homeScreen) el.homeScreen.classList.toggle('hidden', activeDestination !== 'Home');
+      if (el.trainScreen) el.trainScreen.classList.toggle('hidden', activeDestination !== 'Train');
+      if (el.progressScreen) el.progressScreen.classList.toggle('hidden', activeDestination !== 'Progress');
+      if (el.accountScreen) el.accountScreen.classList.toggle('hidden', activeDestination !== 'Account');
+      if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
+    }
+
     function updateJourneyButtons() {
-      el.foundationHomePanel.classList.toggle('hidden', activePractice !== 'FoundationHome');
+      const inTrainMode = activeDestination === 'Train';
+      el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
       el.stabilityHomePanel.classList.add('hidden');
-      if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activePractice !== 'Profile');
-      el.backToFoundationBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-      el.nextPracticeBtn.classList.toggle('hidden', activePractice !== 'Foundation');
-      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activePractice === 'Profile') ? 'none' : 'inline-flex';
+      if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
+      el.backToFoundationBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+      el.nextPracticeBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activeDestination === 'Progress' || activeDestination === 'Account') ? 'none' : 'inline-flex';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
       const canStartSelectedPractice = !(activePractice === 'Foundation' && !hasPlayablePracticeAudio(activeSubcategory));
@@ -2009,6 +2046,33 @@ You do not need to clear your mind. You do not need to perform. You only need to
       clearTimeout(lessonOverlayTimeout);
       clearTimeout(lessonOverlayExitTimeout);
       el.lessonOverlay.classList.remove('active', 'exit');
+    }
+
+    function getActiveHeroElements() {
+      if (activeDestination === 'Train') {
+        return {
+          eyebrow: el.trainEyebrowText,
+          title: el.trainHeroTitle,
+          subtitle: el.trainHeroSubtitle,
+          copyLabel: el.trainPracticeCopyLabel,
+          copyTitle: el.trainPracticeCopyTitle,
+          copyBody: el.trainPracticeCopyBody,
+          lessonCard: el.trainLessonCard,
+          lessonTitle: el.trainLessonTitle,
+          lessonBody: el.trainLessonBody
+        };
+      }
+      return {
+        eyebrow: el.eyebrowText,
+        title: el.heroTitle,
+        subtitle: el.heroSubtitle,
+        copyLabel: el.practiceCopyLabel,
+        copyTitle: el.practiceCopyTitle,
+        copyBody: el.practiceCopyBody,
+        lessonCard: el.lessonCard,
+        lessonTitle: el.lessonTitle,
+        lessonBody: el.lessonBody
+      };
     }
 
     function maybeShowLessonOverlay(data) {
@@ -2029,15 +2093,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function updateContentUI() {
       const data = currentViewData();
+      const view = getActiveHeroElements();
       const skillLabel = activePractice === 'Foundation' ? (data.skillLabel || getFoundationSkillLabel(activeSubcategory)) : '';
       const skillBadge = formatSkillBadge(skillLabel);
       el.sessionCircleShell.classList.toggle('welcome-disclaimer', activePractice === 'Welcome');
-      el.eyebrowText.textContent = data.eyebrow;
-      el.heroTitle.innerHTML = data.hero;
-      el.heroSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-      el.practiceCopyLabel.textContent = skillBadge || data.copyLabel;
-      el.practiceCopyTitle.textContent = data.copyTitle;
-      el.practiceCopyBody.textContent = data.copyBody;
+      if (view.eyebrow) view.eyebrow.textContent = data.eyebrow;
+      if (view.title) view.title.innerHTML = data.hero;
+      if (view.subtitle) view.subtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
+      if (view.copyLabel) view.copyLabel.textContent = skillBadge || data.copyLabel;
+      if (view.copyTitle) view.copyTitle.textContent = data.copyTitle;
+      if (view.copyBody) view.copyBody.textContent = data.copyBody;
       el.sessionModeBadge.textContent = skillBadge || data.badge || data.eyebrow;
       el.sessionTitle.innerHTML = data.hero;
       el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
@@ -2046,16 +2111,19 @@ You do not need to clear your mind. You do not need to perform. You only need to
         : data.note;
 
       if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'Welcome') {
-        el.lessonCard.style.display = 'block';
-        el.lessonTitle.textContent = data.copyTitle || 'Before you begin';
-        el.lessonBody.textContent = data.lesson;
+        if (view.lessonCard) view.lessonCard.style.display = 'block';
+        if (view.lessonTitle) view.lessonTitle.textContent = data.copyTitle || 'Before you begin';
+        if (view.lessonBody) view.lessonBody.textContent = data.lesson;
         el.lessonOverlayTitle.textContent = data.copyTitle || 'Before you begin';
         el.lessonOverlayBody.textContent = data.lesson;
         maybeShowLessonOverlay(data);
       } else {
-        el.lessonCard.style.display = 'none';
-        el.lessonTitle.textContent = 'Before you begin';
-        el.lessonBody.textContent = '';
+        if (el.lessonCard) el.lessonCard.style.display = 'none';
+        if (el.trainLessonCard) el.trainLessonCard.style.display = 'none';
+        if (el.lessonTitle) el.lessonTitle.textContent = 'Before you begin';
+        if (el.lessonBody) el.lessonBody.textContent = '';
+        if (el.trainLessonTitle) el.trainLessonTitle.textContent = 'Before you begin';
+        if (el.trainLessonBody) el.trainLessonBody.textContent = '';
         hideLessonOverlayImmediate();
       }
     }
@@ -2065,11 +2133,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
       else if (activePractice === 'Introduction') setAudioStatus('Introduction Ready');
       else if (activePractice === 'FoundationHome') setAudioStatus('Choose a Foundation Practice');
       else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
+      else if (activeDestination === 'Progress' || activeDestination === 'Account') setAudioStatus('Training Status');
     }
 
     function updateInsightCard() {
       const insights = getTrainingInsights();
-      const showOnThisScreen = activePractice === 'FoundationHome' || activePractice === 'Foundation';
+      const showOnThisScreen = activeDestination === 'Train' && (activePractice === 'FoundationHome' || activePractice === 'Foundation');
       if (!insights.total || !showOnThisScreen) {
         el.insightCard.classList.remove('visible');
         return;
@@ -2318,6 +2387,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function syncUI() {
+      updateTopNavigationShell();
       updateContentUI();
       updateMenuState();
       updateJourneyButtons();
@@ -2768,6 +2838,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     window.exitSessionEarly = exitSessionEarly;
 
     function toggleMenu() {
+      if (activeDestination !== 'Train') return;
       el.menuOverlay.classList.toggle('active');
     }
     window.toggleMenu = toggleMenu;
@@ -2777,8 +2848,28 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
     window.closeMenu = closeMenu;
 
+    function setTopDestination(destination) {
+      // Navigation Controller Section: destination switch entrypoint
+      if (!DESTINATION_TABS.includes(destination)) return;
+      activeDestination = destination;
+      shownLessonKey = '';
+
+      if (destination === 'Home' && !['Welcome', 'Introduction'].includes(activePractice)) {
+        activePractice = getDefaultOpeningMode();
+      } else if (destination === 'Train' && activePractice !== 'Foundation' && activePractice !== 'FoundationHome') {
+        activePractice = 'FoundationHome';
+      } else if ((destination === 'Progress' || destination === 'Account') && activePractice !== 'Profile') {
+        activePractice = 'Profile';
+      }
+
+      refreshCurrentMode();
+      closeMenu();
+    }
+    window.setTopDestination = setTopDestination;
+
     function selectMainMode(name) {
       activePractice = name;
+      activeDestination = inferDestinationFromPractice(name);
       foundationMenuOpen = false;
       stabilityMenuOpen = false;
       shownLessonKey = '';
@@ -2789,6 +2880,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     window.selectMainMode = selectMainMode;
 
     function toggleFoundationMenu() {
+      activeDestination = 'Train';
       if (activePractice !== 'FoundationHome' && activePractice !== 'Foundation') {
         activePractice = 'FoundationHome';
         stabilityMenuOpen = false;
@@ -2816,6 +2908,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         if (fromMenu) closeMenu();
         return;
       }
+      activeDestination = 'Train';
       activePractice = 'Foundation';
       activeSubcategory = name;
       activeFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
@@ -2843,6 +2936,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     window.setStabilitySubcategory = setStabilitySubcategory;
 
     function goToFoundationHome() {
+      activeDestination = 'Train';
       if (activePractice === 'Foundation' && activeFoundationGroup === 'AppliedAwareness') {
         activeFoundationGroup = 'CoreStability';
         openFoundationGroup = 'CoreStability';
@@ -3059,6 +3153,7 @@ window.__ataraxia = {
       resetWelcomeIntroUI();
       if (goToIntro) {
         activePractice = 'Introduction';
+        activeDestination = 'Home';
         refreshCurrentMode();
       }
     }
@@ -3133,6 +3228,7 @@ window.__ataraxia = {
       setTimeout(() => {
         el.openingScene.classList.add('fade-out');
         activePractice = getDefaultOpeningMode();
+        activeDestination = inferDestinationFromPractice(activePractice);
         try {
           refreshCurrentMode();
         } catch (error) {
