@@ -31,6 +31,7 @@
     ];
 
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
+    const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const JOURNAL_STORAGE_KEY = 'ataraxia_journal_entries_v1';
@@ -660,7 +661,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     el.sessionProgressRing.style.strokeDasharray = circumference;
     el.sessionProgressRing.style.strokeDashoffset = circumference;
 
-    let activePractice = 'Welcome';
+    let activePractice = 'Introduction';
     let activeDestination = 'Home';
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
@@ -700,6 +701,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let welcomeAudioAnalyser = null;
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
+    let pendingWelcomeIntroTarget = null;
     let profileNextMove = null;
     let homeNextMove = null;
     let journalDraftId = '';
@@ -731,6 +733,20 @@ You do not need to clear your mind. You do not need to perform. You only need to
         const progress = loadProgress();
         progress[key] = true;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      } catch {}
+    }
+
+    function hasCompletedDisclaimer() {
+      try {
+        return localStorage.getItem(DISCLAIMER_STORAGE_KEY) === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    function markDisclaimerCompleted() {
+      try {
+        localStorage.setItem(DISCLAIMER_STORAGE_KEY, 'true');
       } catch {}
     }
 
@@ -2953,8 +2969,26 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function startSessionButton() {
+      const needsDisclaimer = !hasCompletedDisclaimer() && (activePractice === 'Introduction' || activePractice === 'Foundation');
+      if (needsDisclaimer) {
+        startWelcomeIntro({
+          markCompleteOnFinish: true,
+          returnTarget: {
+            destination: 'Home',
+            practice: 'Introduction'
+          }
+        });
+        return;
+      }
+
       if (activePractice === 'Welcome') {
-        startWelcomeIntro();
+        startWelcomeIntro({
+          markCompleteOnFinish: true,
+          returnTarget: {
+            destination: 'Home',
+            practice: 'Introduction'
+          }
+        });
         return;
       }
 
@@ -2984,6 +3018,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
       }, 2000);
     }
     window.startSessionButton = startSessionButton;
+
+    function openDisclaimerFromAccount() {
+      startWelcomeIntro({
+        markCompleteOnFinish: false,
+        returnTarget: {
+          destination: 'Account',
+          practice: 'Profile'
+        }
+      });
+    }
+    window.openDisclaimerFromAccount = openDisclaimerFromAccount;
 
     function setVolume(value) {
       const v = Number(value) / 100;
@@ -3342,10 +3387,19 @@ window.__ataraxia = {
       welcomeIntroTickRaf = requestAnimationFrame(tick);
     }
 
-    function endWelcomeIntro(goToIntro = true) {
+    function endWelcomeIntro(goToIntro = true, markCompleteOnFinish = false) {
       stopWelcomeIntroAudio();
       closeWelcomeIntroOverlay();
       resetWelcomeIntroUI();
+      if (markCompleteOnFinish) markDisclaimerCompleted();
+      const target = pendingWelcomeIntroTarget;
+      pendingWelcomeIntroTarget = null;
+      if (target) {
+        activeDestination = target.destination || 'Home';
+        activePractice = target.practice || (goToIntro ? 'Introduction' : activePractice);
+        refreshCurrentMode();
+        return;
+      }
       if (goToIntro) {
         activePractice = 'Introduction';
         activeDestination = 'Home';
@@ -3354,16 +3408,28 @@ window.__ataraxia = {
     }
 
     function skipWelcomeIntro() {
-      endWelcomeIntro(true);
+      endWelcomeIntro(true, Boolean(pendingWelcomeIntroTarget?.markCompleteOnFinish));
     }
     window.skipWelcomeIntro = skipWelcomeIntro;
 
-    function startWelcomeIntro() {
+    function startWelcomeIntro(options = {}) {
+      const {
+        returnTarget = { destination: 'Home', practice: 'Introduction' },
+        markCompleteOnFinish = false
+      } = options;
       if (!el.welcomeIntroOverlay || !el.welcomeIntroAudio) {
-        selectMainMode('Introduction');
+        if (markCompleteOnFinish) markDisclaimerCompleted();
+        activePractice = returnTarget.practice || 'Introduction';
+        activeDestination = returnTarget.destination || inferDestinationFromPractice(activePractice);
+        refreshCurrentMode();
         return;
       }
 
+      pendingWelcomeIntroTarget = {
+        destination: returnTarget.destination || 'Home',
+        practice: returnTarget.practice || 'Introduction',
+        markCompleteOnFinish
+      };
       closeMenu();
       openWelcomeIntroOverlay();
       resetWelcomeIntroUI();
@@ -3379,7 +3445,7 @@ window.__ataraxia = {
       ensureWelcomeIntroAudioGraph();
       el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
       el.welcomeIntroAudio.ontimeupdate = cueTrack ? null : () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
-      el.welcomeIntroAudio.onended = () => endWelcomeIntro(true);
+      el.welcomeIntroAudio.onended = () => endWelcomeIntro(true, markCompleteOnFinish);
       configureBackgroundAudio();
       const playPromise = el.welcomeIntroAudio.play();
       if (!cueTrack) startWelcomeIntroTicker();
