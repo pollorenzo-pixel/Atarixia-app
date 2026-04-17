@@ -1,6 +1,5 @@
 
-
-    
+import { createPracticeRecommendation } from './recommendation-engine.js';
 
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -2233,22 +2232,34 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function getFoundationHomeRecommendation() {
       const progressMetrics = getFoundationProgressMetrics();
-      const { completedSet, practices } = progressMetrics;
-      const currentStepKey = practices.find((key) => !completedSet.has(key)) || null;
+      const { practices } = progressMetrics;
+      const history = loadSessionHistory();
+      const recommendation = createPracticeRecommendation({
+        history,
+        progress: loadProgress(),
+        foundationOrder: progressMetrics.practices,
+        hasCompletedDisclaimer: hasCompletedDisclaimer(),
+        introAvailable: Boolean(practiceContent.Introduction?.audio)
+      });
+      const currentStepKey = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key)) || null;
       const fallbackKey = practices[0] || foundationOrder[0] || 'BreathAwareness';
-      const recommendedKey = currentStepKey || fallbackKey;
+      const recommendedKey = (recommendation.practiceKey && recommendation.practiceKey !== 'Introduction')
+        ? recommendation.practiceKey
+        : (currentStepKey || fallbackKey);
       const recommendationLabel = PRACTICE_GUIDANCE[recommendedKey]?.label || formatPracticeLabel(recommendedKey);
       const recommendationCategory = getPracticeCategory(recommendedKey);
-      const recommendationReason = currentStepKey
+      const recommendationReason = recommendation.reason || (currentStepKey
         ? 'Follow the path in order. Keep this step steady before widening.'
-        : 'Path complete. Revisit any step to keep attention stable.';
+        : 'Path complete. Revisit any step to keep attention stable.');
       return {
         progressMetrics,
         currentStepKey,
         recommendedKey,
         recommendationLabel,
         recommendationCategory,
-        recommendationReason
+        recommendationReason,
+        recommendationPriority: recommendation.priority,
+        resumeIncompletePracticeKey: recommendation.resumeIncompletePracticeKey || null
       };
     }
 
@@ -2350,49 +2361,37 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function getHomeRecommendation(history = loadSessionHistory()) {
       const safeHistory = Array.isArray(history) ? history : [];
       const progress = getFoundationProgressMetrics(safeHistory);
-      const lastSession = safeHistory[safeHistory.length - 1] || null;
-      const orderedPlayable = progress.practices;
-      const firstFoundation = orderedPlayable[0] || 'BreathAwareness';
-      const nextUncompleted = orderedPlayable.find((key) => !progress.completedSet.has(key));
-
-      if (!safeHistory.length) {
-        const introReady = Boolean(practiceContent.Introduction?.audio);
-        if (introReady) {
-          return {
-            practiceKey: 'Introduction',
-            title: 'Introduction',
-            reason: 'Start with a single orientation session, then move into Foundation.'
-          };
-        }
-        return {
-          practiceKey: firstFoundation,
-          title: PRACTICE_GUIDANCE[firstFoundation]?.label || formatPracticeLabel(firstFoundation),
-          reason: 'Start with the first Foundation practice to establish your baseline.'
-        };
-      }
-
-      if (nextUncompleted) {
-        return {
-          practiceKey: nextUncompleted,
-          title: PRACTICE_GUIDANCE[nextUncompleted]?.label || formatPracticeLabel(nextUncompleted),
-          reason: 'Continue the sequence in order to build stability without decision friction.'
-        };
-      }
-
-      const recentSessions = safeHistory.slice().reverse();
-      const lastPracticeKey = recentSessions.find((entry) => hasPlayablePracticeAudio(entry.practice))?.practice || firstFoundation;
-      const lastSessionTime = new Date(lastSession?.timestamp || '').getTime();
-      const daysSinceLast = Number.isFinite(lastSessionTime) ? Math.max(0, Math.floor((Date.now() - lastSessionTime) / 86400000)) : null;
-      const reason = daysSinceLast !== null && daysSinceLast >= 2
-        ? 'You have been away for a bit. Resume a familiar anchor to regain momentum.'
-        : 'You have completed Foundation. Repeat your latest anchor to keep momentum steady.';
-
+      const recommendation = createPracticeRecommendation({
+        history: safeHistory,
+        progress: loadProgress(),
+        foundationOrder: progress.practices,
+        hasCompletedDisclaimer: hasCompletedDisclaimer(),
+        introAvailable: Boolean(practiceContent.Introduction?.audio)
+      });
+      const practiceKey = recommendation.practiceKey || recommendation.fallbackPracticeKey || 'BreathAwareness';
       return {
-        practiceKey: lastPracticeKey,
-        title: PRACTICE_GUIDANCE[lastPracticeKey]?.label || formatPracticeLabel(lastPracticeKey),
-        reason
+        practiceKey,
+        title: practiceKey === 'Introduction'
+          ? 'Introduction'
+          : (PRACTICE_GUIDANCE[practiceKey]?.label || formatPracticeLabel(practiceKey)),
+        reason: recommendation.reason,
+        priority: recommendation.priority,
+        resumeIncompletePracticeKey: recommendation.resumeIncompletePracticeKey || null
       };
     }
+
+    function getPracticeRecommendationDebug(history = loadSessionHistory()) {
+      const safeHistory = Array.isArray(history) ? history : [];
+      const progress = getFoundationProgressMetrics(safeHistory);
+      return createPracticeRecommendation({
+        history: safeHistory,
+        progress: loadProgress(),
+        foundationOrder: progress.practices,
+        hasCompletedDisclaimer: hasCompletedDisclaimer(),
+        introAvailable: Boolean(practiceContent.Introduction?.audio)
+      });
+    }
+    window.getPracticeRecommendationDebug = getPracticeRecommendationDebug;
 
     function renderHomeSurface() {
       if (!el.homeScreen) return;
@@ -2439,7 +2438,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function resumeLastPracticeFromHome() {
       const history = loadSessionHistory();
-      const lastPracticeKey = (history[history.length - 1]?.practice || '').trim();
+      const recommendation = getHomeRecommendation(history);
+      const lastPracticeKey = String(recommendation?.resumeIncompletePracticeKey || history[history.length - 1]?.practice || '').trim();
       if (!hasPlayablePracticeAudio(lastPracticeKey)) {
         openTrainFromHome();
         return;
@@ -3230,7 +3230,11 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function goToNextPracticeFromCompletion() {
       hideCompletionTakeover();
       exitSessionMode();
-      const recommendedKey = getStartTrainingRecommendedPracticeKey();
+      const recommendedKey = getHomeRecommendation(loadSessionHistory())?.practiceKey || getStartTrainingRecommendedPracticeKey();
+      if (recommendedKey === 'Introduction') {
+        selectMainMode('Introduction');
+        return;
+      }
       if (hasPlayablePracticeAudio(recommendedKey) && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
         setSubcategory(recommendedKey, false);
         return;
@@ -3328,6 +3332,8 @@ window.__ataraxia = {
   updateJourneyButtons,
   renderFoundationHomeCards,
   renderStabilityHomeCards,
+  getHomeRecommendation,
+  getPracticeRecommendationDebug,
   refreshCurrentMode,
   syncUI,
   bootstrapApp,
