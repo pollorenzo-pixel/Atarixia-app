@@ -62,6 +62,44 @@
       StressReset: 'Emotional Regulation',
       PreSleep: 'Downregulation and Release'
     };
+    const FOUNDATION_ESTIMATED_MINUTES = {
+      BreathAwareness: 8,
+      BodyAwareness: 10,
+      ThoughtAwareness: 11,
+      EmotionalAwareness: 11,
+      DeepFocus: 12,
+      OpenAwareness: 10,
+      SensoryAwareness: 10,
+      WalkingMeditation: 9,
+      StressReset: 7,
+      PreSleep: 12
+    };
+    const TRAIN_SECTION_CONTENT = {
+      Foundation: {
+        eyebrow: 'Train · Foundation',
+        hero: 'Build stable attention.<br>Then broaden awareness.',
+        subtitle: ['Core', 'Applied', 'Structured'],
+        copyLabel: 'Foundation',
+        copyTitle: 'Structured Practice Map',
+        copyBody: 'Progressive disclosure: choose subgroup, then practice. Every card opens a full session.'
+      },
+      Intuition: {
+        eyebrow: 'Train · Intuition',
+        hero: 'Intuition training.<br>Coming next.',
+        subtitle: ['System', 'Coming', 'Next'],
+        copyLabel: 'Intuition',
+        copyTitle: 'System Section In Progress',
+        copyBody: 'Intuition will be added as the next structured training section.'
+      },
+      Flow: {
+        eyebrow: 'Train · Flow',
+        hero: 'Flow training.<br>Coming next.',
+        subtitle: ['System', 'Coming', 'Next'],
+        copyLabel: 'Flow',
+        copyTitle: 'System Section In Progress',
+        copyBody: 'Flow will be added without changing Foundation routing or audio wiring.'
+      }
+    };
     const APP_BOOT_DELAY = 1800;
 
     function resolveAssetPath(path) {
@@ -246,14 +284,14 @@ You do not need to clear your mind. You do not need to perform. You only need to
         audio: [INTRODUCTION_AUDIO]
       },
       FoundationHome: {
-        eyebrow: 'Meditation Foundations',
-        hero: 'Start training.<br>Follow the next step.',
-        subtitle: ['Guided', 'Focused', 'Repeatable'],
-        note: 'Use Start Training for your best next Foundation session.',
-        badge: 'Foundation',
-        copyLabel: 'Foundation Path',
-        copyTitle: 'Beginner Practice Track',
-        copyBody: 'Foundation is your mental training path. Start with the recommended next step, or browse manually below.'
+        eyebrow: 'Train',
+        hero: 'Choose your section.<br>Then go deeper.',
+        subtitle: ['Foundation', 'Intuition', 'Flow'],
+        note: 'Use the training map to move from section to subgroup to practice.',
+        badge: 'Train',
+        copyLabel: 'Train',
+        copyTitle: 'Structured Practice Map',
+        copyBody: 'Foundation is fully wired now. Intuition and Flow are staged as coming next.'
       },
       Profile: {
         eyebrow: 'Profile',
@@ -490,9 +528,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
       appShell: document.getElementById('appShell'),
       menuOverlay: document.getElementById('menuOverlay'),
       foundationMenuBtn: document.getElementById('foundationMenuBtn'),
-      stabilityMenuBtn: document.getElementById('stabilityMenuBtn'),
+      intuitionMenuBtn: document.getElementById('intuitionMenuBtn'),
+      flowMenuBtn: document.getElementById('flowMenuBtn'),
       foundationSubsection: document.getElementById('foundationSubsection'),
-      stabilitySubsection: document.getElementById('stabilitySubsection'),
       coreStabilityBtn: document.getElementById('coreStabilityBtn'),
       appliedAwarenessBtn: document.getElementById('appliedAwarenessBtn'),
       coreStabilityList: document.getElementById('coreStabilityList'),
@@ -520,14 +558,22 @@ You do not need to clear your mind. You do not need to perform. You only need to
       lessonOverlayBody: document.getElementById('lessonOverlayBody'),
       foundationHomePanel: document.getElementById('foundationHomePanel'),
       foundationProgressModule: document.getElementById('foundationProgressModule'),
+      foundationSubgroupPanel: document.getElementById('foundationSubgroupPanel'),
+      foundationPracticeHeader: document.getElementById('foundationPracticeHeader'),
+      foundationCoreBtn: document.getElementById('foundationCoreBtn'),
+      foundationAppliedBtn: document.getElementById('foundationAppliedBtn'),
       foundationOverallPercent: document.getElementById('foundationOverallPercent'),
       foundationCompletedPractices: document.getElementById('foundationCompletedPractices'),
       foundationTotalPractices: document.getElementById('foundationTotalPractices'),
       foundationCoreProgress: document.getElementById('foundationCoreProgress'),
       foundationAppliedProgress: document.getElementById('foundationAppliedProgress'),
       foundationCardsContainer: document.getElementById('foundationCardsContainer'),
-      stabilityHomePanel: document.getElementById('stabilityHomePanel'),
-      stabilityCardsContainer: document.getElementById('stabilityCardsContainer'),
+      trainTrackFoundationBtn: document.getElementById('trainTrackFoundationBtn'),
+      trainTrackIntuitionBtn: document.getElementById('trainTrackIntuitionBtn'),
+      trainTrackFlowBtn: document.getElementById('trainTrackFlowBtn'),
+      comingNextPanel: document.getElementById('comingNextPanel'),
+      comingNextTitle: document.getElementById('comingNextTitle'),
+      comingNextBody: document.getElementById('comingNextBody'),
       profilePagePanel: document.getElementById('profilePagePanel'),
       profileCoachTitle: document.getElementById('profileCoachTitle'),
       profileCoachBody: document.getElementById('profileCoachBody'),
@@ -619,7 +665,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
-    let stabilityMenuOpen = false;
+    let activeTrainTrack = 'Foundation';
+    let activeFoundationSubgroup = 'CoreStability';
     let openFoundationGroup = 'CoreStability';
     let activeFoundationGroup = 'CoreStability';
     let lastCoreStabilitySubcategory = 'BreathAwareness';
@@ -2005,10 +2052,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function updateMenuState() {
-      if (el.foundationMenuBtn) el.foundationMenuBtn.classList.toggle('active', activePractice === 'FoundationHome' || activePractice === 'Foundation' || foundationMenuOpen);
-      if (el.stabilityMenuBtn) el.stabilityMenuBtn.classList.toggle('active', false);
-      if (el.foundationSubsection) el.foundationSubsection.classList.toggle('visible', foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome');
-      if (el.stabilitySubsection) el.stabilitySubsection.classList.toggle('visible', false);
+      if (el.foundationMenuBtn) el.foundationMenuBtn.classList.toggle('active', activeTrainTrack === 'Foundation');
+      if (el.intuitionMenuBtn) el.intuitionMenuBtn.classList.toggle('active', activeTrainTrack === 'Intuition');
+      if (el.flowMenuBtn) el.flowMenuBtn.classList.toggle('active', activeTrainTrack === 'Flow');
+      if (el.foundationSubsection) el.foundationSubsection.classList.toggle('visible', activeTrainTrack === 'Foundation' && (foundationMenuOpen || activePractice === 'Foundation' || activePractice === 'FoundationHome'));
       if (activePractice === 'Foundation') {
         openFoundationGroup = activeFoundationGroup;
       }
@@ -2040,7 +2087,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function updateJourneyButtons() {
       const inTrainMode = activeDestination === 'Train';
       el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
-      el.stabilityHomePanel.classList.add('hidden');
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
       el.backToFoundationBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
       el.nextPracticeBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
@@ -2102,7 +2148,13 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function updateContentUI() {
-      const data = currentViewData();
+      let data = currentViewData();
+      if (activePractice === 'FoundationHome' && TRAIN_SECTION_CONTENT[activeTrainTrack]) {
+        data = {
+          ...data,
+          ...TRAIN_SECTION_CONTENT[activeTrainTrack]
+        };
+      }
       const view = getActiveHeroElements();
       const skillLabel = activePractice === 'Foundation' ? (data.skillLabel || getFoundationSkillLabel(activeSubcategory)) : '';
       const skillBadge = formatSkillBadge(skillLabel);
@@ -2141,14 +2193,20 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function updateAudioStatus() {
       if (activePractice === 'Welcome') setAudioStatus('Before You Begin');
       else if (activePractice === 'Introduction') setAudioStatus('Introduction Ready');
-      else if (activePractice === 'FoundationHome') setAudioStatus('Choose a Foundation Practice');
+      else if (activePractice === 'FoundationHome') {
+        const label = activeTrainTrack === 'Foundation'
+          ? 'Choose a Foundation Practice'
+          : `${activeTrainTrack} Coming Next`;
+        setAudioStatus(label);
+      }
       else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
       else if (activeDestination === 'Progress' || activeDestination === 'Account') setAudioStatus('Training Status');
     }
 
     function updateInsightCard() {
       const insights = getTrainingInsights();
-      const showOnThisScreen = activeDestination === 'Train' && (activePractice === 'FoundationHome' || activePractice === 'Foundation');
+      const showOnThisScreen = activeDestination === 'Train'
+        && (activePractice === 'Foundation' || (activePractice === 'FoundationHome' && activeTrainTrack === 'Foundation'));
       if (!insights.total || !showOnThisScreen) {
         el.insightCard.classList.remove('visible');
         return;
@@ -2181,6 +2239,22 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function renderFoundationHomeCards() {
       el.foundationCardsContainer.innerHTML = '';
+      const isFoundationTrack = activeTrainTrack === 'Foundation';
+      if (el.trainTrackFoundationBtn) el.trainTrackFoundationBtn.classList.toggle('active', activeTrainTrack === 'Foundation');
+      if (el.trainTrackIntuitionBtn) el.trainTrackIntuitionBtn.classList.toggle('active', activeTrainTrack === 'Intuition');
+      if (el.trainTrackFlowBtn) el.trainTrackFlowBtn.classList.toggle('active', activeTrainTrack === 'Flow');
+      if (el.foundationProgressModule) el.foundationProgressModule.classList.toggle('hidden', !isFoundationTrack);
+      if (el.foundationNextActionBtn) el.foundationNextActionBtn.classList.toggle('hidden', !isFoundationTrack);
+      if (el.foundationSubgroupPanel) el.foundationSubgroupPanel.classList.toggle('hidden', !isFoundationTrack);
+      if (el.foundationPracticeHeader) el.foundationPracticeHeader.classList.toggle('hidden', !isFoundationTrack);
+      if (el.comingNextPanel) el.comingNextPanel.classList.toggle('hidden', isFoundationTrack);
+
+      if (!isFoundationTrack) {
+        if (el.comingNextTitle) el.comingNextTitle.textContent = `${activeTrainTrack} · Coming Next`;
+        if (el.comingNextBody) el.comingNextBody.textContent = `${activeTrainTrack} is reserved as a system section. Foundation remains fully wired while this section is being built.`;
+        return;
+      }
+
       const {
         progressMetrics,
         currentStepKey,
@@ -2200,59 +2274,39 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.foundationNextCategory) el.foundationNextCategory.textContent = recommendationCategory;
       if (el.foundationNextBody) el.foundationNextBody.textContent = recommendationReason;
       if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = currentStepKey ? 'Start Training' : 'Train Again';
+      if (el.foundationCoreBtn) el.foundationCoreBtn.classList.toggle('active', activeFoundationSubgroup === 'CoreStability');
+      if (el.foundationAppliedBtn) el.foundationAppliedBtn.classList.toggle('active', activeFoundationSubgroup === 'AppliedAwareness');
 
-      const phaseDefinitions = [
-        {
-          key: 'CoreStability',
-          label: 'Phase 1 — Core Stability',
-          subtitle: 'Build stability first through sequential attention training.'
-        },
-        {
-          key: 'AppliedAwareness',
-          label: 'Phase 2 — Applied Awareness',
-          subtitle: 'Expand awareness into movement, stress, and daily transitions.'
-        }
-      ];
+      const subgroupKeys = foundationGroups[activeFoundationSubgroup].filter((key) => practices.includes(key));
+      const subgroupCompleted = subgroupKeys.filter((key) => completedSet.has(key)).length;
+      if (el.foundationPracticeHeader) {
+        const subgroupTitle = activeFoundationSubgroup === 'CoreStability' ? 'Core Stability' : 'Applied Awareness';
+        el.foundationPracticeHeader.textContent = `${subgroupTitle} · ${subgroupCompleted}/${subgroupKeys.length}`;
+      }
 
-      phaseDefinitions.forEach((phase) => {
-        const phaseKeys = foundationGroups[phase.key].filter((key) => practices.includes(key));
-        if (!phaseKeys.length) return;
+      subgroupKeys.forEach((key) => {
+        const data = practiceContent.Foundation.subcategories[key];
+        const hasAudio = hasPlayablePracticeAudio(key);
+        const isCompleted = completedSet.has(key);
+        const isCurrent = Boolean(currentStepKey) && key === currentStepKey;
+        const sequenceStep = practices.indexOf(key) + 1;
+        const estimated = FOUNDATION_ESTIMATED_MINUTES[key];
+        const btn = document.createElement('button');
+        btn.className = 'foundation-card-btn';
 
-        const phaseCompleted = phaseKeys.filter((key) => completedSet.has(key)).length;
-        const section = document.createElement('section');
-        section.className = 'foundation-phase-section';
-        section.innerHTML = `<div class="foundation-phase-header"><div class="foundation-phase-title">${phase.label}</div><div class="foundation-phase-progress">${phaseCompleted}/${phaseKeys.length}</div></div><div class="foundation-phase-subtitle">${phase.subtitle}</div>`;
+        if (isCurrent) btn.classList.add('current');
+        if (isCompleted) btn.classList.add('completed');
+        if (!isCurrent) btn.classList.add('secondary');
+        if (!hasAudio) btn.classList.add('muted');
 
-        const list = document.createElement('div');
-        list.className = 'foundation-phase-list';
+        const statusLabel = !hasAudio
+          ? 'Audio Soon'
+          : (isCompleted ? 'Completed' : isCurrent ? 'Current Step' : 'Not Started');
+        const metadataLine = [estimated ? `${estimated} min` : '', `Step ${String(sequenceStep).padStart(2, '0')}`].filter(Boolean).join(' · ');
 
-        phaseKeys.forEach((key) => {
-          const data = practiceContent.Foundation.subcategories[key];
-          const skillLabel = data.skillLabel || getFoundationSkillLabel(key);
-          const skillBadge = formatSkillBadge(skillLabel);
-          const hasAudio = hasPlayablePracticeAudio(key);
-          const isCompleted = completedSet.has(key);
-          const isCurrent = Boolean(currentStepKey) && key === currentStepKey;
-          const sequenceStep = practices.indexOf(key) + 1;
-          const btn = document.createElement('button');
-          btn.className = 'foundation-card-btn';
-
-          if (isCurrent) btn.classList.add('current');
-          if (isCompleted) btn.classList.add('completed');
-          if (!isCurrent) btn.classList.add('secondary');
-          if (!hasAudio) btn.classList.add('muted');
-
-          const statusLabel = !hasAudio
-            ? 'Audio Soon'
-            : (isCompleted ? 'Completed' : isCurrent ? 'Current Step' : 'Upcoming');
-
-          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Step ${String(sequenceStep).padStart(2, '0')}</div><div class="foundation-card-title">${data.copyTitle}</div>${skillBadge ? `<div class="foundation-card-skill">${skillBadge}</div>` : ''}</div><div class="foundation-card-status ${isCurrent ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
-          btn.addEventListener('click', () => setSubcategory(key, false));
-          list.appendChild(btn);
-        });
-
-        section.appendChild(list);
-        el.foundationCardsContainer.appendChild(section);
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${metadataLine}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${isCurrent ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+        btn.addEventListener('click', () => setSubcategory(key, false));
+        el.foundationCardsContainer.appendChild(btn);
       });
     }
 
@@ -2979,6 +3033,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         activePractice = getDefaultOpeningMode();
       } else if (destination === 'Train' && activePractice !== 'Foundation' && activePractice !== 'FoundationHome') {
         activePractice = 'FoundationHome';
+        activeTrainTrack = 'Foundation';
       } else if ((destination === 'Progress' || destination === 'Account') && activePractice !== 'Profile') {
         activePractice = 'Profile';
       }
@@ -2992,7 +3047,6 @@ You do not need to clear your mind. You do not need to perform. You only need to
       activePractice = name;
       activeDestination = inferDestinationFromPractice(name);
       foundationMenuOpen = false;
-      stabilityMenuOpen = false;
       shownLessonKey = '';
       if (name === 'Introduction' || name === 'Welcome') activeSubcategory = 'BreathAwareness';
       refreshCurrentMode();
@@ -3000,15 +3054,32 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
     window.selectMainMode = selectMainMode;
 
-    function toggleFoundationMenu() {
+    function setTrainTrack(name = 'Foundation', closeAfter = false) {
+      if (!['Foundation', 'Intuition', 'Flow'].includes(name)) return;
       activeDestination = 'Train';
-      if (activePractice !== 'FoundationHome' && activePractice !== 'Foundation') {
-        activePractice = 'FoundationHome';
-        stabilityMenuOpen = false;
-        foundationMenuOpen = true;
-      } else {
-        foundationMenuOpen = !foundationMenuOpen;
-      }
+      activePractice = 'FoundationHome';
+      activeTrainTrack = name;
+      foundationMenuOpen = name === 'Foundation';
+      shownLessonKey = '';
+      refreshCurrentMode();
+      if (closeAfter) closeMenu();
+    }
+    window.setTrainTrack = setTrainTrack;
+
+    function setFoundationSubgroup(group = 'CoreStability') {
+      if (!foundationGroups[group]) return;
+      activeTrainTrack = 'Foundation';
+      activeFoundationSubgroup = group;
+      activeFoundationGroup = group;
+      openFoundationGroup = group;
+      foundationMenuOpen = true;
+      refreshCurrentMode();
+    }
+    window.setFoundationSubgroup = setFoundationSubgroup;
+
+    function toggleFoundationMenu() {
+      setTrainTrack('Foundation');
+      foundationMenuOpen = !foundationMenuOpen;
       refreshCurrentMode();
     }
     window.toggleFoundationMenu = toggleFoundationMenu;
@@ -3016,7 +3087,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function toggleFoundationGroup(name, event = null) {
       if (event) event.stopPropagation();
       activeFoundationGroup = name;
+      activeFoundationSubgroup = name;
       openFoundationGroup = name;
+      activeTrainTrack = 'Foundation';
       foundationMenuOpen = true;
       refreshCurrentMode();
     }
@@ -3033,11 +3106,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
       activePractice = 'Foundation';
       activeSubcategory = name;
       activeFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
+      activeFoundationSubgroup = activeFoundationGroup;
       if (activeFoundationGroup === 'CoreStability') {
         lastCoreStabilitySubcategory = name;
       }
       foundationMenuOpen = true;
-      stabilityMenuOpen = false;
+      activeTrainTrack = 'Foundation';
       openFoundationGroup = activeFoundationGroup;
       shownLessonKey = '';
       refreshCurrentMode();
@@ -3046,8 +3120,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     window.setSubcategory = setSubcategory;
 
     function toggleStabilityMenu() {
-      openFoundationGroup = 'AppliedAwareness';
-      toggleFoundationMenu();
+      setFoundationSubgroup('AppliedAwareness');
     }
     window.toggleStabilityMenu = toggleStabilityMenu;
 
@@ -3058,8 +3131,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function goToFoundationHome() {
       activeDestination = 'Train';
+      activeTrainTrack = 'Foundation';
       if (activePractice === 'Foundation' && activeFoundationGroup === 'AppliedAwareness') {
         activeFoundationGroup = 'CoreStability';
+        activeFoundationSubgroup = 'CoreStability';
         openFoundationGroup = 'CoreStability';
         activeSubcategory = foundationGroups.CoreStability.includes(lastCoreStabilitySubcategory)
           ? lastCoreStabilitySubcategory
