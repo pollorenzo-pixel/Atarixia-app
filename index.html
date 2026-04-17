@@ -175,6 +175,38 @@
     .logo { font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--text-dim); font-weight: 700; }
     .logo-sub { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint); }
 
+    .tab-nav {
+      position: sticky;
+      top: 78px;
+      z-index: 95;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px 14px 10px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.72), rgba(0,0,0,0.34), transparent);
+      backdrop-filter: blur(8px);
+    }
+
+    .tab-btn {
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.02);
+      color: var(--text-dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .tab-btn.active {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border-color: var(--line-strong);
+    }
+
     .menu-btn {
       width: 42px;
       height: 42px;
@@ -291,6 +323,10 @@
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
+    }
+
+    .screen-container.hidden {
+      display: none !important;
     }
 
     .hero {
@@ -1546,27 +1582,24 @@
         <div class="logo">Ataraxia</div>
         <div class="logo-sub">Inner Chamber Training</div>
       </div>
-      <button class="menu-btn" onclick="toggleMenu()">
+      <button class="menu-btn" id="navMenuBtn" onclick="toggleMenu()">
         <span></span><span></span><span></span>
       </button>
     </nav>
 
+    <div class="tab-nav">
+      <button class="tab-btn active" id="homeTabBtn" onclick="setTopDestination('Home')">Home</button>
+      <button class="tab-btn" id="trainTabBtn" onclick="setTopDestination('Train')">Train</button>
+      <button class="tab-btn" id="progressTabBtn" onclick="setTopDestination('Progress')">Progress</button>
+      <button class="tab-btn" id="accountTabBtn" onclick="setTopDestination('Account')">Account</button>
+    </div>
+
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
       <div class="menu-panel" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-          <div class="menu-label" style="margin-bottom:0;">Modes</div>
+          <div class="menu-label" style="margin-bottom:0;">Train Library</div>
           <button class="session-exit-btn" onclick="closeMenu()" style="padding:0;">Close</button>
         </div>
-
-        <button class="menu-item" id="welcomeMenuBtn" onclick="selectMainMode('Welcome')">
-          <div class="menu-item-title">Before You Begin (Disclaimer)</div>
-          <div class="menu-item-desc">Read this short guidance before starting your practice.</div>
-        </button>
-
-        <button class="menu-item" id="introductionMenuBtn" onclick="selectMainMode('Introduction')">
-          <div class="menu-item-title">Introduction</div>
-          <div class="menu-item-desc">Start here. Learn what meditation is and how to approach it.</div>
-        </button>
 
         <button class="menu-item" id="foundationMenuBtn" onclick="toggleFoundationMenu()">
           <div class="menu-item-title">Foundation</div>
@@ -1596,15 +1629,12 @@
             </div>
           </div>
         </div>
-
-        <button class="menu-item" id="profileMenuBtn" onclick="selectMainMode('Profile')">
-          <div class="menu-item-title">Profile</div>
-          <div class="menu-item-desc">Insights, stats, history, and coach recommendations.</div>
-        </button>
       </div>
     </div>
 
     <main class="main-content">
+      <!-- Home Screen -->
+      <section class="screen-container" id="homeScreen">
       <div class="hero">
         <div class="eyebrow" id="eyebrowText">Before You Begin (Disclaimer)</div>
         <h1 class="hero-title" id="heroTitle">Welcome first.<br>Then begin.</h1>
@@ -1621,6 +1651,27 @@
         <div class="practice-copy-label">Lesson</div>
         <div class="practice-copy-title" id="lessonTitle">Before you begin</div>
         <div class="practice-copy-body" id="lessonBody">A short lesson will appear here.</div>
+      </div>
+      </section>
+
+      <!-- Train Screen -->
+      <section class="screen-container hidden" id="trainScreen">
+      <div class="hero">
+        <div class="eyebrow" id="trainEyebrowText">Meditation Foundations</div>
+        <h1 class="hero-title" id="trainHeroTitle">Start training.<br>Follow the next step.</h1>
+        <div class="hero-subtitle" id="trainHeroSubtitle"><span>Guided</span><span>Focused</span><span>Repeatable</span></div>
+      </div>
+
+      <div class="practice-copy">
+        <div class="practice-copy-label" id="trainPracticeCopyLabel">Foundation Path</div>
+        <div class="practice-copy-title" id="trainPracticeCopyTitle">Beginner Practice Track</div>
+        <div class="practice-copy-body" id="trainPracticeCopyBody">Foundation is your mental training path. Start with the recommended next step, or browse manually below.</div>
+      </div>
+
+      <div class="practice-copy lesson-card" id="trainLessonCard" style="display:none;">
+        <div class="practice-copy-label">Lesson</div>
+        <div class="practice-copy-title" id="trainLessonTitle">Before you begin</div>
+        <div class="practice-copy-body" id="trainLessonBody">A short lesson will appear here.</div>
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
@@ -1664,52 +1715,11 @@
         <div class="foundation-home-header">Stability Practices</div>
         <div id="stabilityCardsContainer"></div>
       </div>
+      </section>
 
+      <!-- Progress Screen -->
+      <section class="screen-container hidden" id="progressScreen">
       <div class="profile-page-panel hidden" id="profilePagePanel">
-        <div class="profile-next-move-card" id="profileNextMoveCard" onclick="handleRecommendedNextMove()">
-          <div class="profile-card-kicker">Recommended Next Practice</div>
-          <div class="profile-card-title" id="profileRecommendationTitle">Start your first practice</div>
-          <div class="profile-next-move-meta">
-            <div class="profile-next-move-chip" id="profileNextMoveCategory">Core Stability</div>
-            <div class="profile-next-move-chip hidden" id="profileNextMoveDuration">~10 min</div>
-          </div>
-          <div class="profile-card-body" id="profileRecommendationBody">A single focused session is the fastest way to build momentum.</div>
-          <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Training</button>
-        </div>
-
-        <div class="profile-history-card">
-          <div class="journal-header">
-            <div>
-              <div class="profile-card-kicker">Personal Journal</div>
-              <div class="profile-card-title">Private reflections</div>
-            </div>
-            <div class="journal-header-actions">
-              <button class="journal-btn primary" id="journalNewEntryBtn" onclick="startNewJournalEntry()">New Entry</button>
-            </div>
-          </div>
-
-          <div class="journal-editor hidden" id="journalEditorPanel">
-            <div class="journal-editor-meta" id="journalEditorMeta"></div>
-            <input class="journal-input" id="journalTitleInput" type="text" maxlength="120" placeholder="Optional title">
-            <textarea class="journal-textarea" id="journalBodyInput" placeholder="Write what you noticed in practice..."></textarea>
-            <div class="journal-editor-actions">
-              <div class="journal-header-actions">
-                <button class="journal-btn" id="journalPromptToggleBtn" onclick="toggleJournalPromptPanel()">Need a prompt?</button>
-              </div>
-              <div class="journal-header-actions">
-                <button class="journal-btn" id="journalDeleteBtn" onclick="deleteCurrentJournalEntry()">Delete</button>
-                <button class="journal-btn" id="journalCancelBtn" onclick="cancelJournalEditor()">Close</button>
-                <button class="journal-btn primary" id="journalSaveBtn" onclick="saveJournalEntry()">Save Entry</button>
-              </div>
-            </div>
-            <div class="journal-prompt-panel" id="journalPromptPanel"></div>
-          </div>
-
-          <div class="journal-list" id="journalList"></div>
-
-          <div class="journal-note">Your journal stays on this device. Clearing browser data may remove entries.</div>
-        </div>
-
         <div class="profile-card">
           <div class="profile-card-kicker">AI Coach</div>
           <div class="profile-card-title" id="profileCoachTitle">Your training pattern is still forming.</div>
@@ -1784,6 +1794,56 @@
           <div class="profile-history-list" id="profileHistoryList"></div>
         </div>
       </div>
+      </section>
+
+      <!-- Account Screen -->
+      <section class="screen-container hidden" id="accountScreen">
+      <div class="profile-page-panel" id="accountPagePanel">
+        <div class="profile-next-move-card" id="profileNextMoveCard" onclick="handleRecommendedNextMove()">
+          <div class="profile-card-kicker">Recommended Next Practice</div>
+          <div class="profile-card-title" id="profileRecommendationTitle">Start your first practice</div>
+          <div class="profile-next-move-meta">
+            <div class="profile-next-move-chip" id="profileNextMoveCategory">Core Stability</div>
+            <div class="profile-next-move-chip hidden" id="profileNextMoveDuration">~10 min</div>
+          </div>
+          <div class="profile-card-body" id="profileRecommendationBody">A single focused session is the fastest way to build momentum.</div>
+          <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Training</button>
+        </div>
+
+        <div class="profile-history-card">
+          <div class="journal-header">
+            <div>
+              <div class="profile-card-kicker">Personal Journal</div>
+              <div class="profile-card-title">Private reflections</div>
+            </div>
+            <div class="journal-header-actions">
+              <button class="journal-btn primary" id="journalNewEntryBtn" onclick="startNewJournalEntry()">New Entry</button>
+            </div>
+          </div>
+
+          <div class="journal-editor hidden" id="journalEditorPanel">
+            <div class="journal-editor-meta" id="journalEditorMeta"></div>
+            <input class="journal-input" id="journalTitleInput" type="text" maxlength="120" placeholder="Optional title">
+            <textarea class="journal-textarea" id="journalBodyInput" placeholder="Write what you noticed in practice..."></textarea>
+            <div class="journal-editor-actions">
+              <div class="journal-header-actions">
+                <button class="journal-btn" id="journalPromptToggleBtn" onclick="toggleJournalPromptPanel()">Need a prompt?</button>
+              </div>
+              <div class="journal-header-actions">
+                <button class="journal-btn" id="journalDeleteBtn" onclick="deleteCurrentJournalEntry()">Delete</button>
+                <button class="journal-btn" id="journalCancelBtn" onclick="cancelJournalEditor()">Close</button>
+                <button class="journal-btn primary" id="journalSaveBtn" onclick="saveJournalEntry()">Save Entry</button>
+              </div>
+            </div>
+            <div class="journal-prompt-panel" id="journalPromptPanel"></div>
+          </div>
+
+          <div class="journal-list" id="journalList"></div>
+
+          <div class="journal-note">Your journal stays on this device. Clearing browser data may remove entries.</div>
+        </div>
+      </div>
+      </section>
 
       <div class="insight-card" id="insightCard">
         <div class="insight-kicker">Awareness Mirror</div>
