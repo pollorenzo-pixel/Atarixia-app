@@ -386,6 +386,172 @@
     .practice-copy-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 8px; }
     .practice-copy-body { font-size: 13px; line-height: 1.7; color: var(--text-dim); white-space: pre-line; }
 
+    .home-surface {
+      width: min(680px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .home-quote-card,
+    .home-next-card,
+    .home-momentum-strip,
+    .home-resume-btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 22px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .home-quote-card,
+    .home-next-card {
+      padding: 18px 18px 16px;
+    }
+
+    .home-quote-label,
+    .home-next-kicker,
+    .home-metric-label {
+      font-size: 9px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .home-quote-text {
+      margin-top: 10px;
+      font-size: 18px;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .home-quote-author {
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .home-brand-block {
+      text-align: center;
+      padding: 4px 0 6px;
+    }
+
+    .home-brand-title {
+      font-size: clamp(32px, 8vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+      line-height: 0.95;
+    }
+
+    .home-brand-tagline {
+      margin-top: 12px;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .home-next-title {
+      margin-top: 8px;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .home-next-reason {
+      margin-top: 8px;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .home-resume-btn {
+      width: 100%;
+      padding: 14px 16px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .home-resume-btn span {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    .home-resume-btn strong {
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .home-cta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .home-cta-primary,
+    .home-cta-secondary {
+      min-height: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      font-family: inherit;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .home-cta-primary {
+      background: rgba(255,255,255,0.14);
+      border-color: var(--line-strong);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .home-cta-secondary {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-dim);
+    }
+
+    .home-momentum-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: 12px 10px;
+      gap: 6px;
+    }
+
+    .home-metric {
+      text-align: center;
+      padding: 6px;
+    }
+
+    .home-metric-value {
+      margin-top: 6px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .home-resume-btn.hidden {
+      display: none;
+    }
+
     .lesson-card { position: relative; overflow: hidden; }
 
     .lesson-overlay {
@@ -1550,7 +1716,8 @@
       .hero-subtitle, .session-subtitle { gap: 10px; letter-spacing: 0.22em; }
       .opening-quote { font-size: 30px; line-height: 1.22; }
       .practice-copy-body { font-size: 12px; }
-      .journey-btn, .completion-btn, .foundation-card-btn { width: 100%; }
+      .journey-btn, .completion-btn, .foundation-card-btn, .home-cta-primary, .home-cta-secondary { width: 100%; }
+      .home-cta-row { grid-template-columns: 1fr; }
       .session-stage { gap: 18px; padding: 8px 16px 32px; }
       .session-circle-shell { width: min(84vw, 420px); }
       .session-circle-shell.welcome-disclaimer { width: min(168vw, 840px); }
@@ -1635,22 +1802,48 @@
     <main class="main-content">
       <!-- Home Screen -->
       <section class="screen-container" id="homeScreen">
-      <div class="hero">
-        <div class="eyebrow" id="eyebrowText">Before You Begin (Disclaimer)</div>
-        <h1 class="hero-title" id="heroTitle">Welcome first.<br>Then begin.</h1>
-        <div class="hero-subtitle" id="heroSubtitle"><span>Arrive</span><span>Listen</span><span>Begin</span></div>
-      </div>
+      <div class="home-surface">
+        <div class="home-quote-card">
+          <div class="home-quote-label">Quote of the Day</div>
+          <div class="home-quote-text" id="homeQuoteText">“The obstacle is the way.”</div>
+          <div class="home-quote-author" id="homeQuoteAuthor">Marcus Aurelius</div>
+        </div>
 
-      <div class="practice-copy">
-        <div class="practice-copy-label" id="practiceCopyLabel">Session Guidance</div>
-        <div class="practice-copy-title" id="practiceCopyTitle">Before You Begin (Disclaimer)</div>
-        <div class="practice-copy-body" id="practiceCopyBody">A short disclaimer before practice. This app is for mindfulness and mental training. It is not a replacement for medical, psychiatric, or crisis support. If something feels overwhelming, pause, stop, and seek support if needed. Only practice in a safe place where you can fully relax and pay attention.</div>
-      </div>
+        <div class="home-brand-block">
+          <div class="home-brand-title">Ataraxia</div>
+          <div class="home-brand-tagline">Calm focus. One clear next move.</div>
+        </div>
 
-      <div class="practice-copy lesson-card" id="lessonCard" style="display:none;">
-        <div class="practice-copy-label">Lesson</div>
-        <div class="practice-copy-title" id="lessonTitle">Before you begin</div>
-        <div class="practice-copy-body" id="lessonBody">A short lesson will appear here.</div>
+        <div class="home-next-card">
+          <div class="home-next-kicker">Recommended Next Move</div>
+          <div class="home-next-title" id="homeNextMoveTitle">Start with Introduction</div>
+          <div class="home-next-reason" id="homeNextMoveReason">A single guided session is the fastest way to begin.</div>
+        </div>
+
+        <button class="home-resume-btn hidden" id="homeResumeBtn" onclick="resumeLastPracticeFromHome()">
+          <span>Resume Last Practice</span>
+          <strong id="homeResumeLabel">Breath Awareness</strong>
+        </button>
+
+        <div class="home-cta-row">
+          <button class="home-cta-primary" id="homeStartSessionBtn" onclick="startTodaySessionFromHome()">Start Today’s Session</button>
+          <button class="home-cta-secondary" id="homeOpenTrainBtn" onclick="openTrainFromHome()">Open Train</button>
+        </div>
+
+        <div class="home-momentum-strip">
+          <div class="home-metric">
+            <div class="home-metric-label">Streak</div>
+            <div class="home-metric-value" id="homeMetricStreak">0</div>
+          </div>
+          <div class="home-metric">
+            <div class="home-metric-label">Sessions</div>
+            <div class="home-metric-value" id="homeMetricSessions">0</div>
+          </div>
+          <div class="home-metric">
+            <div class="home-metric-label">Completion</div>
+            <div class="home-metric-value" id="homeMetricCompletion">0%</div>
+          </div>
+        </div>
       </div>
       </section>
 
