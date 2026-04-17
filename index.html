@@ -941,6 +941,61 @@
     .insight-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); margin-bottom: 8px; }
     .insight-body { font-size: 12px; line-height: 1.7; color: var(--text-dim); white-space: pre-line; }
     .foundation-home-header { text-align: center; color: var(--text-faint); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 4px; }
+    .foundation-progress-module {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.02);
+      padding: 16px;
+      margin: 12px 0 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .foundation-progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+    }
+    .foundation-progress-label {
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 6px;
+    }
+    .foundation-progress-value {
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-weight: 780;
+      color: var(--text);
+    }
+    .foundation-progress-completed {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-dim);
+      text-align: right;
+    }
+    .foundation-progress-breakdown {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .foundation-progress-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.03em;
+    }
+    .foundation-progress-row strong {
+      color: var(--text);
+      font-weight: 650;
+      letter-spacing: normal;
+    }
     .foundation-card-btn { width: 100%; text-align: left; padding: 18px; background: rgba(255,255,255,0.03); }
     .foundation-card-btn.next { border-color: rgba(88,209,143,0.18); background: rgba(88,209,143,0.05); }
     .foundation-card-btn.completed { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.045); }
@@ -1474,6 +1529,27 @@
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
         <div class="foundation-home-header">Foundation Practices</div>
+        <div class="foundation-progress-module" id="foundationProgressModule">
+          <div class="foundation-progress-top">
+            <div>
+              <div class="foundation-progress-label">Foundation Completion</div>
+              <div class="foundation-progress-value"><span id="foundationOverallPercent">0</span>%</div>
+            </div>
+            <div class="foundation-progress-completed">
+              <span id="foundationCompletedPractices">0</span> / <span id="foundationTotalPractices">0</span><br>practices completed
+            </div>
+          </div>
+          <div class="foundation-progress-breakdown">
+            <div class="foundation-progress-row">
+              <span>Core Stability</span>
+              <strong id="foundationCoreProgress">0/0</strong>
+            </div>
+            <div class="foundation-progress-row">
+              <span>Applied Awareness</span>
+              <strong id="foundationAppliedProgress">0/0</strong>
+            </div>
+          </div>
+        </div>
         <div id="foundationCardsContainer"></div>
       </div>
 
