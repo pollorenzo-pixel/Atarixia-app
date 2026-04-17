@@ -26,7 +26,9 @@ export const STORAGE_KEY = 'ataraxia_practice_progress_v4';
 export const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
 export const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
 export const TRANSITION_DELAY = 2000;
+// Foundation sequence is production-stable; keep keys/order aligned with practiceContent.Foundation.subcategories.
 export const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'];
+// Applied Awareness sequence is production-stable; keep keys/order aligned with practiceContent.Stability.subcategories.
 export const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
 export const APP_BOOT_DELAY = 1800;
 

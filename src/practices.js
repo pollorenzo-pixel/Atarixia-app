@@ -131,6 +131,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         pausedLabel: 'Session Paused',
         activeText: 'Playing',
         activeLabel: 'Session Active',
+        // Locked Foundation structure: keep these keys stable to protect routing, tracking, and audio mapping.
         subcategories: {
           BreathAwareness: {
             title: 'Breath Awareness Meditation',
@@ -237,6 +238,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         pausedLabel: 'Awareness Paused',
         activeText: 'Aware',
         activeLabel: 'Open Awareness',
+        // Locked Applied Awareness structure: keep these keys stable to protect routing, tracking, and audio mapping.
         subcategories: {
           OpenAwareness: {
             title: 'Open Awareness Meditation',
@@ -279,4 +281,3 @@ You do not need to clear your mind. You do not need to perform. You only need to
         }
       }
     };
-
