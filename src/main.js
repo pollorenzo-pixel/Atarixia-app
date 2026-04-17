@@ -457,6 +457,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
       lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
       lessonOverlayBody: document.getElementById('lessonOverlayBody'),
       foundationHomePanel: document.getElementById('foundationHomePanel'),
+      foundationProgressModule: document.getElementById('foundationProgressModule'),
+      foundationOverallPercent: document.getElementById('foundationOverallPercent'),
+      foundationCompletedPractices: document.getElementById('foundationCompletedPractices'),
+      foundationTotalPractices: document.getElementById('foundationTotalPractices'),
+      foundationCoreProgress: document.getElementById('foundationCoreProgress'),
+      foundationAppliedProgress: document.getElementById('foundationAppliedProgress'),
       foundationCardsContainer: document.getElementById('foundationCardsContainer'),
       stabilityHomePanel: document.getElementById('stabilityHomePanel'),
       stabilityCardsContainer: document.getElementById('stabilityCardsContainer'),
@@ -1094,6 +1100,33 @@ You do not need to clear your mind. You do not need to perform. You only need to
         const key = typeof entry?.practice === 'string' ? entry.practice.trim() : '';
         return completedPractices.has(key);
       }).length;
+    }
+
+    function getFoundationProgressMetrics(history = loadSessionHistory()) {
+      const safeHistory = Array.isArray(history) ? history : [];
+      const completedSet = getCompletedPracticeSet(safeHistory);
+      const practices = foundationOrder.filter((key) => practiceContent.Foundation?.subcategories?.[key] && hasPlayablePracticeAudio(key));
+      const totalPractices = practices.length;
+      const completedPractices = practices.filter((key) => completedSet.has(key));
+      const completedCount = completedPractices.length;
+      const completionPercent = totalPractices ? Math.round((completedCount / totalPractices) * 100) : 0;
+
+      const coreTotal = foundationGroups.CoreStability.filter((key) => practices.includes(key)).length;
+      const appliedTotal = foundationGroups.AppliedAwareness.filter((key) => practices.includes(key)).length;
+      const coreCompleted = foundationGroups.CoreStability.filter((key) => completedSet.has(key) && practices.includes(key)).length;
+      const appliedCompleted = foundationGroups.AppliedAwareness.filter((key) => completedSet.has(key) && practices.includes(key)).length;
+
+      return {
+        completedSet,
+        practices,
+        totalPractices,
+        completedCount,
+        completionPercent,
+        coreCompleted,
+        coreTotal,
+        appliedCompleted,
+        appliedTotal
+      };
     }
 
     function hasCompletedSessionHistory(history = loadSessionHistory()) {
@@ -1910,19 +1943,28 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function renderFoundationHomeCards() {
       el.foundationCardsContainer.innerHTML = '';
-      const progress = loadProgress();
-      const nextKey = foundationOrder.find((key) => !progress[key]) || foundationOrder[0];
-      foundationOrder.forEach((key) => {
+      const progressMetrics = getFoundationProgressMetrics();
+      const { completedSet, practices } = progressMetrics;
+      const nextKey = practices.find((key) => !completedSet.has(key)) || practices[0] || foundationOrder[0];
+
+      if (el.foundationOverallPercent) el.foundationOverallPercent.textContent = String(progressMetrics.completionPercent);
+      if (el.foundationCompletedPractices) el.foundationCompletedPractices.textContent = String(progressMetrics.completedCount);
+      if (el.foundationTotalPractices) el.foundationTotalPractices.textContent = String(progressMetrics.totalPractices);
+      if (el.foundationCoreProgress) el.foundationCoreProgress.textContent = `${progressMetrics.coreCompleted}/${progressMetrics.coreTotal}`;
+      if (el.foundationAppliedProgress) el.foundationAppliedProgress.textContent = `${progressMetrics.appliedCompleted}/${progressMetrics.appliedTotal}`;
+
+      practices.forEach((key) => {
         const data = practiceContent.Foundation.subcategories[key];
         const groupLabel = foundationGroups.AppliedAwareness.includes(key) ? 'Applied Awareness' : 'Core Stability';
         const hasAudio = hasPlayablePracticeAudio(key);
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
         if (key === nextKey) btn.classList.add('next');
-        if (progress[key]) btn.classList.add('completed');
+        if (completedSet.has(key)) btn.classList.add('completed');
         if (!hasAudio) btn.classList.add('muted');
-        const statusLabel = !hasAudio ? 'Audio Soon' : (progress[key] ? 'Completed' : key === nextKey ? 'Next' : 'Available');
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+        const isCompleted = completedSet.has(key);
+        const statusLabel = !hasAudio ? 'Audio Soon' : (isCompleted ? '✓ Complete' : key === nextKey ? 'Next' : 'Available');
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey && !isCompleted ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
         btn.addEventListener('click', () => setSubcategory(key, false));
         el.foundationCardsContainer.appendChild(btn);
       });
