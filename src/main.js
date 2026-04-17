@@ -91,7 +91,7 @@
 
     const quotes = openingQuotes;
 
-        const REFLECTION_REINFORCEMENT = {
+    const REFLECTION_REINFORCEMENT = {
       Breath: {
         title: 'You noticed the breath.',
         body: 'That means your attention found an anchor. Each return strengthens focus.'
@@ -108,6 +108,23 @@
         title: 'You noticed mind wandering.',
         body: 'That is not failure. Catching distraction is the moment awareness gets stronger.'
       }
+    };
+
+    const COMPLETION_OUTCOMES = {
+      Foundation: {
+        BreathAwareness: 'You trained attention by returning to the breath.',
+        BodyAwareness: 'You strengthened awareness through physical sensation.',
+        ThoughtAwareness: 'You noticed thought without getting pulled into it.',
+        EmotionalAwareness: 'You practiced recognizing emotion with steadiness.',
+        DeepFocus: 'You trained sustained attention and mental control.',
+        OpenAwareness: 'You widened attention without locking onto one thing.',
+        SensoryAwareness: 'You strengthened present-moment awareness through the senses.',
+        WalkingMeditation: 'You trained awareness while the body was in motion.',
+        StressReset: 'You practiced returning to steadiness under pressure.',
+        PreSleep: 'You helped the mind and body settle before rest.'
+      },
+      Intuition: {},
+      Flow: {}
     };
 
     const PRACTICE_GUIDANCE = {
@@ -2153,8 +2170,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const sub = getSubcategoryData();
       const reinforcement = REFLECTION_REINFORCEMENT[reflection] || null;
       const insights = getTrainingInsights();
-      el.completionScreenTitle.textContent = reinforcement?.title || 'Well done.';
-      el.completionScreenSubtitle.textContent = reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+      const completionOutcome = COMPLETION_OUTCOMES[activePractice]?.[activeSubcategory] || '';
+      el.completionScreenTitle.textContent = 'Well done.';
+      el.completionScreenSubtitle.textContent = completionOutcome || reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
       if (insights.streak >= 2) {
         el.completionScreenSubtitle.textContent += `
 
@@ -2513,6 +2531,12 @@ ${insights.streak} days of showing up.`;
     function goToNextPracticeFromCompletion() {
       hideCompletionTakeover();
       exitSessionMode();
+      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
+      const recommendedKey = recommendedMove?.type === 'session' ? recommendedMove.practiceKey : '';
+      if (hasPlayablePracticeAudio(recommendedKey) && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
+        setSubcategory(recommendedKey, false);
+        return;
+      }
       goToNextPractice();
     }
     window.goToNextPracticeFromCompletion = goToNextPracticeFromCompletion;
