@@ -474,6 +474,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
       trainScreen: document.getElementById('trainScreen'),
       progressScreen: document.getElementById('progressScreen'),
       accountScreen: document.getElementById('accountScreen'),
+      homeQuoteText: document.getElementById('homeQuoteText'),
+      homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
+      homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
+      homeNextMoveReason: document.getElementById('homeNextMoveReason'),
+      homeResumeBtn: document.getElementById('homeResumeBtn'),
+      homeResumeLabel: document.getElementById('homeResumeLabel'),
+      homeMetricStreak: document.getElementById('homeMetricStreak'),
+      homeMetricSessions: document.getElementById('homeMetricSessions'),
+      homeMetricCompletion: document.getElementById('homeMetricCompletion'),
       openingScene: document.getElementById('openingScene'),
       navMenuBtn: document.getElementById('navMenuBtn'),
       openingQuote: document.getElementById('openingQuote'),
@@ -645,6 +654,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
     let profileNextMove = null;
+    let homeNextMove = null;
     let journalDraftId = '';
     let journalEditorMode = 'create';
     let journalPromptPanelOpen = false;
@@ -2260,6 +2270,116 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return key.replace(/([A-Z])/g, ' $1').trim();
     }
 
+    function getQuoteOfTheDay() {
+      if (!quotes.length) return { text: 'Begin where you are.', author: 'Ataraxia' };
+      const now = new Date();
+      const startOfYear = Date.UTC(now.getUTCFullYear(), 0, 0);
+      const dayOfYear = Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - startOfYear) / 86400000);
+      return quotes[dayOfYear % quotes.length] || quotes[0];
+    }
+
+    function getHomeRecommendation(history = loadSessionHistory()) {
+      const safeHistory = Array.isArray(history) ? history : [];
+      const progress = getFoundationProgressMetrics(safeHistory);
+      const lastSession = safeHistory[safeHistory.length - 1] || null;
+      const orderedPlayable = progress.practices;
+      const firstFoundation = orderedPlayable[0] || 'BreathAwareness';
+      const nextUncompleted = orderedPlayable.find((key) => !progress.completedSet.has(key));
+
+      if (!safeHistory.length) {
+        const introReady = Boolean(practiceContent.Introduction?.audio);
+        if (introReady) {
+          return {
+            practiceKey: 'Introduction',
+            title: 'Introduction',
+            reason: 'Start with a single orientation session, then move into Foundation.'
+          };
+        }
+        return {
+          practiceKey: firstFoundation,
+          title: PRACTICE_GUIDANCE[firstFoundation]?.label || formatPracticeLabel(firstFoundation),
+          reason: 'Start with the first Foundation practice to establish your baseline.'
+        };
+      }
+
+      if (nextUncompleted) {
+        return {
+          practiceKey: nextUncompleted,
+          title: PRACTICE_GUIDANCE[nextUncompleted]?.label || formatPracticeLabel(nextUncompleted),
+          reason: 'Continue the sequence in order to build stability without decision friction.'
+        };
+      }
+
+      const recentSessions = safeHistory.slice().reverse();
+      const lastPracticeKey = recentSessions.find((entry) => hasPlayablePracticeAudio(entry.practice))?.practice || firstFoundation;
+      const lastSessionTime = new Date(lastSession?.timestamp || '').getTime();
+      const daysSinceLast = Number.isFinite(lastSessionTime) ? Math.max(0, Math.floor((Date.now() - lastSessionTime) / 86400000)) : null;
+      const reason = daysSinceLast !== null && daysSinceLast >= 2
+        ? 'You have been away for a bit. Resume a familiar anchor to regain momentum.'
+        : 'You have completed Foundation. Repeat your latest anchor to keep momentum steady.';
+
+      return {
+        practiceKey: lastPracticeKey,
+        title: PRACTICE_GUIDANCE[lastPracticeKey]?.label || formatPracticeLabel(lastPracticeKey),
+        reason
+      };
+    }
+
+    function renderHomeSurface() {
+      if (!el.homeScreen) return;
+      const history = loadSessionHistory();
+      const accountStats = getAccountProgressStats(history);
+      const progress = getFoundationProgressMetrics(history);
+      const quote = getQuoteOfTheDay();
+      const recommendation = getHomeRecommendation(history);
+      homeNextMove = recommendation;
+
+      if (el.homeQuoteText) el.homeQuoteText.textContent = `“${quote.text}”`;
+      if (el.homeQuoteAuthor) el.homeQuoteAuthor.textContent = quote.author || 'Unknown';
+      if (el.homeNextMoveTitle) el.homeNextMoveTitle.textContent = recommendation.title;
+      if (el.homeNextMoveReason) el.homeNextMoveReason.textContent = recommendation.reason;
+      if (el.homeMetricStreak) el.homeMetricStreak.textContent = String(accountStats.currentStreak || 0);
+      if (el.homeMetricSessions) el.homeMetricSessions.textContent = String(accountStats.totalSessions || 0);
+      if (el.homeMetricCompletion) el.homeMetricCompletion.textContent = `${progress.completionPercent || 0}%`;
+
+      const lastPracticeKey = (history[history.length - 1]?.practice || '').trim();
+      const canResume = Boolean(lastPracticeKey) && hasPlayablePracticeAudio(lastPracticeKey);
+      if (el.homeResumeBtn) el.homeResumeBtn.classList.toggle('hidden', !canResume);
+      if (canResume && el.homeResumeLabel) {
+        el.homeResumeLabel.textContent = PRACTICE_GUIDANCE[lastPracticeKey]?.label || formatPracticeLabel(lastPracticeKey);
+      }
+    }
+
+    function startTodaySessionFromHome() {
+      const recommendation = homeNextMove || getHomeRecommendation(loadSessionHistory());
+      if (!recommendation?.practiceKey) return;
+      if (recommendation.practiceKey === 'Introduction') {
+        selectMainMode('Introduction');
+        startSessionButton();
+        return;
+      }
+      setSubcategory(recommendation.practiceKey, false);
+      startSessionButton();
+    }
+    window.startTodaySessionFromHome = startTodaySessionFromHome;
+
+    function openTrainFromHome() {
+      setTopDestination('Train');
+    }
+    window.openTrainFromHome = openTrainFromHome;
+
+    function resumeLastPracticeFromHome() {
+      const history = loadSessionHistory();
+      const lastPracticeKey = (history[history.length - 1]?.practice || '').trim();
+      if (!hasPlayablePracticeAudio(lastPracticeKey)) {
+        openTrainFromHome();
+        return;
+      }
+      setSubcategory(lastPracticeKey, false);
+      startSessionButton();
+    }
+    window.resumeLastPracticeFromHome = resumeLastPracticeFromHome;
+
     function renderProfilePage() {
       if (!el.profilePagePanel) return;
       renderJournalPromptPanel();
@@ -2392,6 +2512,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       updateMenuState();
       updateJourneyButtons();
       updateAudioStatus();
+      renderHomeSurface();
       renderFoundationHomeCards();
       renderStabilityHomeCards();
       renderProfilePage();
