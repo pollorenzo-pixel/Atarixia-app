@@ -50,6 +50,18 @@
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'],
       AppliedAwareness: ['SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep']
     };
+    const FOUNDATION_SKILL_IDENTITIES = {
+      BreathAwareness: 'Attention Stability',
+      BodyAwareness: 'Interoceptive Awareness',
+      ThoughtAwareness: 'Cognitive Defusion',
+      EmotionalAwareness: 'Emotional Recognition',
+      DeepFocus: 'Sustained Attention',
+      SensoryAwareness: 'Present-Moment Sensory Clarity',
+      WalkingMeditation: 'Awareness in Motion',
+      OpenAwareness: 'Broad Attention',
+      StressReset: 'Emotional Regulation',
+      PreSleep: 'Downregulation and Release'
+    };
     const APP_BOOT_DELAY = 1800;
 
     function resolveAssetPath(path) {
@@ -1650,6 +1662,14 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return null;
     }
 
+    function getFoundationSkillLabel(practiceKey = '') {
+      return FOUNDATION_SKILL_IDENTITIES[practiceKey] || '';
+    }
+
+    function formatSkillBadge(skillLabel = '') {
+      return skillLabel ? `Skill · ${skillLabel}` : '';
+    }
+
     function currentViewData() {
       if (activePractice === 'Welcome') return practiceContent.Welcome;
       if (activePractice === 'Introduction') return practiceContent.Introduction;
@@ -1972,14 +1992,16 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function updateContentUI() {
       const data = currentViewData();
+      const skillLabel = activePractice === 'Foundation' ? (data.skillLabel || getFoundationSkillLabel(activeSubcategory)) : '';
+      const skillBadge = formatSkillBadge(skillLabel);
       el.sessionCircleShell.classList.toggle('welcome-disclaimer', activePractice === 'Welcome');
       el.eyebrowText.textContent = data.eyebrow;
       el.heroTitle.innerHTML = data.hero;
       el.heroSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
-      el.practiceCopyLabel.textContent = data.copyLabel;
+      el.practiceCopyLabel.textContent = skillBadge || data.copyLabel;
       el.practiceCopyTitle.textContent = data.copyTitle;
       el.practiceCopyBody.textContent = data.copyBody;
-      el.sessionModeBadge.textContent = data.badge || data.eyebrow;
+      el.sessionModeBadge.textContent = skillBadge || data.badge || data.eyebrow;
       el.sessionTitle.innerHTML = data.hero;
       el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       el.bottomNote.textContent = activePractice === 'Welcome'
@@ -2071,6 +2093,8 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
         phaseKeys.forEach((key) => {
           const data = practiceContent.Foundation.subcategories[key];
+          const skillLabel = data.skillLabel || getFoundationSkillLabel(key);
+          const skillBadge = formatSkillBadge(skillLabel);
           const hasAudio = hasPlayablePracticeAudio(key);
           const isCompleted = completedSet.has(key);
           const isCurrent = Boolean(currentStepKey) && key === currentStepKey;
@@ -2087,7 +2111,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
             ? 'Audio Soon'
             : (isCompleted ? 'Completed' : isCurrent ? 'Current Step' : 'Upcoming');
 
-          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Step ${String(sequenceStep).padStart(2, '0')}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${isCurrent ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Step ${String(sequenceStep).padStart(2, '0')}</div><div class="foundation-card-title">${data.copyTitle}</div>${skillBadge ? `<div class="foundation-card-skill">${skillBadge}</div>` : ''}</div><div class="foundation-card-status ${isCurrent ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
           btn.addEventListener('click', () => setSubcategory(key, false));
           list.appendChild(btn);
         });
@@ -2423,8 +2447,12 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const recommendedLabel = recommendedMove?.type === 'session'
         ? (PRACTICE_GUIDANCE[recommendedMove.practiceKey]?.label || formatPracticeLabel(recommendedMove.practiceKey))
         : 'Journal';
+      const practicedSkill = sub?.skillLabel || getFoundationSkillLabel(activeSubcategory);
       el.completionScreenTitle.textContent = completedPracticeLabel ? `${completedPracticeLabel} complete.` : 'Session complete.';
       el.completionScreenSubtitle.textContent = completionOutcome || reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
+      if (practicedSkill) {
+        el.completionScreenSubtitle.textContent = `Skill trained: ${practicedSkill}.\n\n${el.completionScreenSubtitle.textContent}`;
+      }
       if (insights.streak >= 2) {
         el.completionScreenSubtitle.textContent += `
 
@@ -2437,6 +2465,10 @@ Recommended next: ${recommendedLabel}.`;
       }
       el.completionScreen.classList.add('active');
     }
+
+    Object.entries(practiceContent.Foundation.subcategories).forEach(([practiceKey, data]) => {
+      data.skillLabel = getFoundationSkillLabel(practiceKey);
+    });
 
     function updateSessionScrollability() {
       const topbarHeight = document.querySelector('.session-topbar')?.offsetHeight || 0;
