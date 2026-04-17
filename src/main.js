@@ -122,21 +122,47 @@
       }
     };
 
-    const COMPLETION_OUTCOMES = {
-      Foundation: {
-        BreathAwareness: 'You trained attention by returning to the breath.',
-        BodyAwareness: 'You strengthened awareness through physical sensation.',
-        ThoughtAwareness: 'You noticed thought without getting pulled into it.',
-        EmotionalAwareness: 'You practiced recognizing emotion with steadiness.',
-        DeepFocus: 'You trained sustained attention and mental control.',
-        OpenAwareness: 'You widened attention without locking onto one thing.',
-        SensoryAwareness: 'You strengthened present-moment awareness through the senses.',
-        WalkingMeditation: 'You trained awareness while the body was in motion.',
-        StressReset: 'You practiced returning to steadiness under pressure.',
-        PreSleep: 'You helped the mind and body settle before rest.'
+    const FOUNDATION_COMPLETION_LOOP = {
+      BreathAwareness: {
+        trained: 'You trained attention stability through breath returns.',
+        why: 'This builds steadiness when the mind starts to drift.'
       },
-      Intuition: {},
-      Flow: {}
+      BodyAwareness: {
+        trained: 'You trained interoceptive awareness in the body.',
+        why: 'This helps you settle faster when tension rises.'
+      },
+      ThoughtAwareness: {
+        trained: 'You trained cognitive defusion from thought streams.',
+        why: 'This strengthens choice before automatic reaction.'
+      },
+      EmotionalAwareness: {
+        trained: 'You trained emotional recognition without avoidance.',
+        why: 'This supports steadier responses under emotional load.'
+      },
+      DeepFocus: {
+        trained: 'You trained sustained attention on a single target.',
+        why: 'This improves your ability to hold clarity under pressure.'
+      },
+      SensoryAwareness: {
+        trained: 'You trained present-moment sensory clarity.',
+        why: 'This keeps awareness grounded in direct experience.'
+      },
+      WalkingMeditation: {
+        trained: 'You trained awareness in motion.',
+        why: 'This builds presence outside stillness.'
+      },
+      OpenAwareness: {
+        trained: 'You trained broad attention without losing center.',
+        why: 'This supports calm awareness in complex environments.'
+      },
+      StressReset: {
+        trained: 'You practiced emotional regulation under pressure.',
+        why: 'This helps you return to steadiness faster.'
+      },
+      PreSleep: {
+        trained: 'You trained downregulation before rest.',
+        why: 'This improves how quickly mind and body release.'
+      }
     };
 
     const PRACTICE_GUIDANCE = {
@@ -1666,6 +1692,17 @@ You do not need to clear your mind. You do not need to perform. You only need to
       return FOUNDATION_SKILL_IDENTITIES[practiceKey] || '';
     }
 
+    function getFoundationCompletionLoop(practiceKey = '') {
+      const completionCopy = FOUNDATION_COMPLETION_LOOP[practiceKey] || {};
+      const skillLabel = getFoundationSkillLabel(practiceKey);
+      const normalizedSkill = skillLabel ? skillLabel.charAt(0).toLowerCase() + skillLabel.slice(1) : '';
+      return {
+        acknowledgment: 'Well done.',
+        trained: completionCopy.trained || (normalizedSkill ? `You trained ${normalizedSkill}.` : 'You trained today.'),
+        why: completionCopy.why || 'This strengthens how quickly you can return to steadiness.'
+      };
+    }
+
     function formatSkillBadge(skillLabel = '') {
       return skillLabel ? `Skill · ${skillLabel}` : '';
     }
@@ -2235,11 +2272,15 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
     window.handleRecommendedNextMove = handleRecommendedNextMove;
 
-    function startRecommendedFoundationPractice() {
+    function getStartTrainingRecommendedPracticeKey() {
       const progressMetrics = getFoundationProgressMetrics();
-      const recommendedKey = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key))
+      return progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key))
         || progressMetrics.practices[0]
         || 'BreathAwareness';
+    }
+
+    function startRecommendedFoundationPractice() {
+      const recommendedKey = getStartTrainingRecommendedPracticeKey();
       if (recommendedKey === 'Introduction') {
         selectMainMode('Introduction');
         startSessionButton();
@@ -2437,32 +2478,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
     }
 
     function showCompletionTakeover(reflection = '') {
-      const modeConfig = getModeConfig();
-      const sub = getSubcategoryData();
-      const reinforcement = REFLECTION_REINFORCEMENT[reflection] || null;
-      const insights = getTrainingInsights();
-      const completionOutcome = COMPLETION_OUTCOMES[activePractice]?.[activeSubcategory] || '';
-      const completedPracticeLabel = formatPracticeLabel(activeSubcategory || '');
-      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), insights);
-      const recommendedLabel = recommendedMove?.type === 'session'
-        ? (PRACTICE_GUIDANCE[recommendedMove.practiceKey]?.label || formatPracticeLabel(recommendedMove.practiceKey))
-        : 'Journal';
-      const practicedSkill = sub?.skillLabel || getFoundationSkillLabel(activeSubcategory);
-      el.completionScreenTitle.textContent = completedPracticeLabel ? `${completedPracticeLabel} complete.` : 'Session complete.';
-      el.completionScreenSubtitle.textContent = completionOutcome || reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
-      if (practicedSkill) {
-        el.completionScreenSubtitle.textContent = `Skill trained: ${practicedSkill}.\n\n${el.completionScreenSubtitle.textContent}`;
-      }
-      if (insights.streak >= 2) {
-        el.completionScreenSubtitle.textContent += `
-
-${insights.streak} days of showing up.`;
-      }
-      if (recommendedLabel) {
-        el.completionScreenSubtitle.textContent += `
-
-Recommended next: ${recommendedLabel}.`;
-      }
+      const completionLoop = getFoundationCompletionLoop(activeSubcategory);
+      el.completionScreenTitle.textContent = completionLoop.acknowledgment;
+      el.completionScreenSubtitle.textContent = `${completionLoop.trained} ${completionLoop.why}`;
       el.completionScreen.classList.add('active');
     }
 
@@ -2844,7 +2862,11 @@ Recommended next: ${recommendedLabel}.`;
       hideCompletionTakeover();
       exitSessionMode();
       const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
-      const recommendedKey = recommendedMove?.type === 'session' ? recommendedMove.practiceKey : '';
+      const recommendationKey = recommendedMove?.type === 'session' ? recommendedMove.practiceKey : '';
+      const startTrainingKey = getStartTrainingRecommendedPracticeKey();
+      const recommendedKey = hasPlayablePracticeAudio(recommendationKey) && practiceContent.Foundation?.subcategories?.[recommendationKey]
+        ? recommendationKey
+        : startTrainingKey;
       if (hasPlayablePracticeAudio(recommendedKey) && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
         setSubcategory(recommendedKey, false);
         return;
