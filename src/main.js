@@ -1272,7 +1272,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           title: 'Introduction to Meditation',
           category: 'Onboarding',
           duration: '',
-          actionLabel: 'Start Session',
+          actionLabel: 'Start Training',
           reason: 'Start your first practice.'
         };
       }
@@ -1285,7 +1285,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           title: practiceLabel,
           category: 'Core Stability',
           duration: '',
-          actionLabel: 'Start Session',
+          actionLabel: 'Start Training',
           reason: 'Continue the Core Stability sequence before expanding into wider practices.'
         };
       }
@@ -1297,7 +1297,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           title: 'Breath Awareness',
           category: 'Core Stability',
           duration: 'Short reset',
-          actionLabel: 'Start Session',
+          actionLabel: 'Start Training',
           reason: 'You have not practiced today. Use a low-resistance session to re-enter quickly.'
         };
       }
@@ -1322,7 +1322,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           title: appliedLabel,
           category: 'Applied Awareness',
           duration: '',
-          actionLabel: 'Start Session',
+          actionLabel: 'Start Training',
           reason: 'Your consistency is strong enough to widen awareness while staying stable.'
         };
       }
@@ -1334,7 +1334,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         title: PRACTICE_GUIDANCE[fallbackKey]?.label || formatPracticeLabel(fallbackKey),
         category: getPracticeCategory(fallbackKey),
         duration: '',
-        actionLabel: 'Start Session',
+        actionLabel: 'Start Training',
         reason: insights?.recommendationReason || 'Start your first practice.'
       };
     }
@@ -2079,29 +2079,48 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.insightBody.textContent = insights.body;
     }
 
-    function renderFoundationHomeCards() {
-      el.foundationCardsContainer.innerHTML = '';
+    function getFoundationHomeRecommendation() {
       const progressMetrics = getFoundationProgressMetrics();
       const { completedSet, practices } = progressMetrics;
       const currentStepKey = practices.find((key) => !completedSet.has(key)) || null;
-      const fallbackKey = practices[0] || foundationOrder[0];
+      const fallbackKey = practices[0] || foundationOrder[0] || 'BreathAwareness';
       const recommendedKey = currentStepKey || fallbackKey;
       const recommendationLabel = PRACTICE_GUIDANCE[recommendedKey]?.label || formatPracticeLabel(recommendedKey);
       const recommendationCategory = getPracticeCategory(recommendedKey);
       const recommendationReason = currentStepKey
         ? 'Follow the path in order. Keep this step steady before widening.'
-        : 'You completed the full path. Revisit any practice to maintain stability.';
+        : 'Path complete. Revisit any step to keep attention stable.';
+      return {
+        progressMetrics,
+        currentStepKey,
+        recommendedKey,
+        recommendationLabel,
+        recommendationCategory,
+        recommendationReason
+      };
+    }
+
+    function renderFoundationHomeCards() {
+      el.foundationCardsContainer.innerHTML = '';
+      const {
+        progressMetrics,
+        currentStepKey,
+        recommendationLabel,
+        recommendationCategory,
+        recommendationReason
+      } = getFoundationHomeRecommendation();
+      const { completedSet, practices } = progressMetrics;
 
       if (el.foundationOverallPercent) el.foundationOverallPercent.textContent = String(progressMetrics.completionPercent);
       if (el.foundationCompletedPractices) el.foundationCompletedPractices.textContent = String(progressMetrics.completedCount);
       if (el.foundationTotalPractices) el.foundationTotalPractices.textContent = String(progressMetrics.totalPractices);
       if (el.foundationCoreProgress) el.foundationCoreProgress.textContent = `${progressMetrics.coreCompleted}/${progressMetrics.coreTotal}`;
       if (el.foundationAppliedProgress) el.foundationAppliedProgress.textContent = `${progressMetrics.appliedCompleted}/${progressMetrics.appliedTotal}`;
-      if (el.foundationNextTitle) el.foundationNextTitle.textContent = currentStepKey ? 'Current Recommended Step' : 'Path Complete';
+      if (el.foundationNextTitle) el.foundationNextTitle.textContent = currentStepKey ? 'Recommended Next Step' : 'Path Complete';
       if (el.foundationNextPractice) el.foundationNextPractice.textContent = currentStepKey ? `Step: ${recommendationLabel}` : 'All Foundation steps completed';
       if (el.foundationNextCategory) el.foundationNextCategory.textContent = recommendationCategory;
       if (el.foundationNextBody) el.foundationNextBody.textContent = recommendationReason;
-      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = currentStepKey ? 'Start Current Step' : 'Practice Again';
+      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = currentStepKey ? 'Start Training' : 'Train Again';
 
       const phaseDefinitions = [
         {
@@ -2273,10 +2292,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     window.handleRecommendedNextMove = handleRecommendedNextMove;
 
     function getStartTrainingRecommendedPracticeKey() {
-      const progressMetrics = getFoundationProgressMetrics();
-      return progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key))
-        || progressMetrics.practices[0]
-        || 'BreathAwareness';
+      return getFoundationHomeRecommendation().recommendedKey || 'BreathAwareness';
     }
 
     function startRecommendedFoundationPractice() {
@@ -2861,12 +2877,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
     function goToNextPracticeFromCompletion() {
       hideCompletionTakeover();
       exitSessionMode();
-      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
-      const recommendationKey = recommendedMove?.type === 'session' ? recommendedMove.practiceKey : '';
-      const startTrainingKey = getStartTrainingRecommendedPracticeKey();
-      const recommendedKey = hasPlayablePracticeAudio(recommendationKey) && practiceContent.Foundation?.subcategories?.[recommendationKey]
-        ? recommendationKey
-        : startTrainingKey;
+      const recommendedKey = getStartTrainingRecommendedPracticeKey();
       if (hasPlayablePracticeAudio(recommendedKey) && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
         setSubcategory(recommendedKey, false);
         return;

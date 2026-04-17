@@ -1624,7 +1624,7 @@
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
-        <div class="foundation-home-header">Foundation Practices</div>
+        <div class="foundation-home-header">Foundation Path</div>
         <div class="foundation-progress-module" id="foundationProgressModule">
           <div class="foundation-progress-top">
             <div>
@@ -1648,15 +1648,15 @@
         </div>
         <div class="foundation-next-card">
           <div class="foundation-next-top">
-            <div class="profile-card-kicker" style="margin-bottom:0;">System Entry</div>
+            <div class="profile-card-kicker" style="margin-bottom:0;">Start Training</div>
             <div class="foundation-next-chip" id="foundationNextCategory">Core Stability</div>
           </div>
-          <div class="profile-card-title" id="foundationNextTitle">Start Training</div>
+          <div class="profile-card-title" id="foundationNextTitle">Recommended Next Step</div>
           <div class="foundation-next-practice" id="foundationNextPractice">Next: Breath Awareness</div>
-          <div class="profile-card-body" id="foundationNextBody">Best next step right now.</div>
+          <div class="profile-card-body" id="foundationNextBody">Follow one clear next step to keep momentum and reduce decision friction.</div>
           <button class="foundation-next-action" id="foundationNextActionBtn" onclick="startRecommendedFoundationPractice()">Start Training</button>
         </div>
-        <div class="foundation-home-header">Browse all Foundation practices</div>
+        <div class="foundation-home-header">Full Foundation sequence</div>
         <div id="foundationCardsContainer"></div>
       </div>
 
@@ -1674,7 +1674,7 @@
             <div class="profile-next-move-chip hidden" id="profileNextMoveDuration">~10 min</div>
           </div>
           <div class="profile-card-body" id="profileRecommendationBody">A single focused session is the fastest way to build momentum.</div>
-          <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Session</button>
+          <button class="profile-next-move-action" id="profileNextMoveActionBtn" onclick="handleRecommendedNextMove(event)">Start Training</button>
         </div>
 
         <div class="profile-history-card">
@@ -1905,9 +1905,8 @@
     <div class="completion-screen-panel">
       <div class="completion-screen-kicker">Session Complete</div>
       <div class="completion-screen-title" id="completionScreenTitle">Well done.</div>
-      <div class="completion-screen-subtitle" id="completionScreenSubtitle">Take a moment to acknowledge the practice you just completed.</div>
+      <div class="completion-screen-subtitle" id="completionScreenSubtitle">Take a moment to acknowledge the skill you just trained.</div>
       <div class="completion-panel">
-        <button class="completion-btn" onclick="repeatCurrentPractice()">Repeat</button>
         <button class="completion-btn" onclick="goToNextPracticeFromCompletion()">Next Practice</button>
         <button class="completion-btn secondary" onclick="goToFoundationFromCompletion()">Back to Foundation</button>
       </div>
