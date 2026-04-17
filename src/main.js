@@ -45,10 +45,10 @@
     ];
     const TRANSITION_DELAY = 2000;
     // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
-    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep'];
+    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
     const foundationGroups = {
-      CoreStability: ['BreathAwareness', 'BodyAwareness', 'EmotionalAwareness', 'ThoughtAwareness', 'DeepFocus'],
-      AppliedAwareness: ['OpenAwareness', 'SensoryAwareness', 'WalkingMeditation', 'StressReset', 'PreSleep']
+      CoreStability: ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'],
+      AppliedAwareness: ['SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep']
     };
     const APP_BOOT_DELAY = 1800;
 
@@ -2024,41 +2024,76 @@ You do not need to clear your mind. You do not need to perform. You only need to
       el.foundationCardsContainer.innerHTML = '';
       const progressMetrics = getFoundationProgressMetrics();
       const { completedSet, practices } = progressMetrics;
-      const nextKey = practices.find((key) => !completedSet.has(key)) || practices[0] || foundationOrder[0];
-      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
-      const recommendedKey = recommendedMove?.type === 'session' && hasPlayablePracticeAudio(recommendedMove.practiceKey)
-        ? recommendedMove.practiceKey
-        : nextKey;
+      const currentStepKey = practices.find((key) => !completedSet.has(key)) || null;
+      const fallbackKey = practices[0] || foundationOrder[0];
+      const recommendedKey = currentStepKey || fallbackKey;
       const recommendationLabel = PRACTICE_GUIDANCE[recommendedKey]?.label || formatPracticeLabel(recommendedKey);
       const recommendationCategory = getPracticeCategory(recommendedKey);
-      const recommendationReason = recommendedMove?.reason || 'Choose one stable practice and repeat it.';
+      const recommendationReason = currentStepKey
+        ? 'Follow the path in order. Keep this step steady before widening.'
+        : 'You completed the full path. Revisit any practice to maintain stability.';
 
       if (el.foundationOverallPercent) el.foundationOverallPercent.textContent = String(progressMetrics.completionPercent);
       if (el.foundationCompletedPractices) el.foundationCompletedPractices.textContent = String(progressMetrics.completedCount);
       if (el.foundationTotalPractices) el.foundationTotalPractices.textContent = String(progressMetrics.totalPractices);
       if (el.foundationCoreProgress) el.foundationCoreProgress.textContent = `${progressMetrics.coreCompleted}/${progressMetrics.coreTotal}`;
       if (el.foundationAppliedProgress) el.foundationAppliedProgress.textContent = `${progressMetrics.appliedCompleted}/${progressMetrics.appliedTotal}`;
-      if (el.foundationNextTitle) el.foundationNextTitle.textContent = 'Start Training';
-      if (el.foundationNextPractice) el.foundationNextPractice.textContent = `Next: ${recommendationLabel}`;
+      if (el.foundationNextTitle) el.foundationNextTitle.textContent = currentStepKey ? 'Current Recommended Step' : 'Path Complete';
+      if (el.foundationNextPractice) el.foundationNextPractice.textContent = currentStepKey ? `Step: ${recommendationLabel}` : 'All Foundation steps completed';
       if (el.foundationNextCategory) el.foundationNextCategory.textContent = recommendationCategory;
-      if (el.foundationNextBody) el.foundationNextBody.textContent = `Best next step: ${recommendationReason}`;
-      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = 'Start Training';
+      if (el.foundationNextBody) el.foundationNextBody.textContent = recommendationReason;
+      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = currentStepKey ? 'Start Current Step' : 'Practice Again';
 
-      practices.forEach((key) => {
-        const data = practiceContent.Foundation.subcategories[key];
-        const groupLabel = foundationGroups.AppliedAwareness.includes(key) ? 'Applied Awareness' : 'Core Stability';
-        const hasAudio = hasPlayablePracticeAudio(key);
-        const btn = document.createElement('button');
-        btn.className = 'foundation-card-btn';
-        if (key === nextKey) btn.classList.add('next');
-        if (completedSet.has(key)) btn.classList.add('completed');
-        if (!hasAudio) btn.classList.add('muted');
-        const isCompleted = completedSet.has(key);
-        const isRecommended = key === recommendedKey && !isCompleted;
-        const statusLabel = !hasAudio ? 'Audio Soon' : (isCompleted ? 'Completed' : isRecommended ? 'Recommended' : key === nextKey ? 'Up Next' : 'Ready');
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${(isRecommended || key === nextKey) && !isCompleted ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
-        btn.addEventListener('click', () => setSubcategory(key, false));
-        el.foundationCardsContainer.appendChild(btn);
+      const phaseDefinitions = [
+        {
+          key: 'CoreStability',
+          label: 'Phase 1 — Core Stability',
+          subtitle: 'Build stability first through sequential attention training.'
+        },
+        {
+          key: 'AppliedAwareness',
+          label: 'Phase 2 — Applied Awareness',
+          subtitle: 'Expand awareness into movement, stress, and daily transitions.'
+        }
+      ];
+
+      phaseDefinitions.forEach((phase) => {
+        const phaseKeys = foundationGroups[phase.key].filter((key) => practices.includes(key));
+        if (!phaseKeys.length) return;
+
+        const phaseCompleted = phaseKeys.filter((key) => completedSet.has(key)).length;
+        const section = document.createElement('section');
+        section.className = 'foundation-phase-section';
+        section.innerHTML = `<div class="foundation-phase-header"><div class="foundation-phase-title">${phase.label}</div><div class="foundation-phase-progress">${phaseCompleted}/${phaseKeys.length}</div></div><div class="foundation-phase-subtitle">${phase.subtitle}</div>`;
+
+        const list = document.createElement('div');
+        list.className = 'foundation-phase-list';
+
+        phaseKeys.forEach((key) => {
+          const data = practiceContent.Foundation.subcategories[key];
+          const hasAudio = hasPlayablePracticeAudio(key);
+          const isCompleted = completedSet.has(key);
+          const isCurrent = Boolean(currentStepKey) && key === currentStepKey;
+          const sequenceStep = practices.indexOf(key) + 1;
+          const btn = document.createElement('button');
+          btn.className = 'foundation-card-btn';
+
+          if (isCurrent) btn.classList.add('current');
+          if (isCompleted) btn.classList.add('completed');
+          if (!isCurrent) btn.classList.add('secondary');
+          if (!hasAudio) btn.classList.add('muted');
+
+          const statusLabel = !hasAudio
+            ? 'Audio Soon'
+            : (isCompleted ? 'Completed' : isCurrent ? 'Current Step' : 'Upcoming');
+
+          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Step ${String(sequenceStep).padStart(2, '0')}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${isCurrent ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+          btn.addEventListener('click', () => setSubcategory(key, false));
+          list.appendChild(btn);
+        });
+
+        section.appendChild(list);
+        el.foundationCardsContainer.appendChild(section);
       });
     }
 
@@ -2178,11 +2213,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
 
     function startRecommendedFoundationPractice() {
       const progressMetrics = getFoundationProgressMetrics();
-      const nextUncompleted = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key)) || progressMetrics.practices[0] || 'BreathAwareness';
-      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
-      const recommendedKey = recommendedMove?.type === 'session' && hasPlayablePracticeAudio(recommendedMove.practiceKey)
-        ? recommendedMove.practiceKey
-        : nextUncompleted;
+      const recommendedKey = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key))
+        || progressMetrics.practices[0]
+        || 'BreathAwareness';
       if (recommendedKey === 'Introduction') {
         selectMainMode('Introduction');
         startSessionButton();
