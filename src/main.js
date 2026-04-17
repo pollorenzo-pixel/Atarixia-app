@@ -485,6 +485,10 @@ You do not need to clear your mind. You do not need to perform. You only need to
       profileNextMoveDuration: document.getElementById('profileNextMoveDuration'),
       profileNextMoveReason: document.getElementById('profileNextMoveReason'),
       profileNextMoveActionBtn: document.getElementById('profileNextMoveActionBtn'),
+      foundationNextCategory: document.getElementById('foundationNextCategory'),
+      foundationNextTitle: document.getElementById('foundationNextTitle'),
+      foundationNextBody: document.getElementById('foundationNextBody'),
+      foundationNextActionBtn: document.getElementById('foundationNextActionBtn'),
       profileInsightsList: document.getElementById('profileInsightsList'),
       profileHistoryList: document.getElementById('profileHistoryList'),
       sessionFeedbackOverlay: document.getElementById('sessionFeedbackOverlay'),
@@ -1224,7 +1228,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
           category: 'Onboarding',
           duration: '',
           actionLabel: 'Start Session',
-          reason: 'Start Your First Practice.'
+          reason: 'Start your first practice.'
         };
       }
 
@@ -1286,7 +1290,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
         category: getPracticeCategory(fallbackKey),
         duration: '',
         actionLabel: 'Start Session',
-        reason: insights?.recommendationReason || 'Start Your First Practice.'
+        reason: insights?.recommendationReason || 'Start your first practice.'
       };
     }
 
@@ -2014,12 +2018,23 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const progressMetrics = getFoundationProgressMetrics();
       const { completedSet, practices } = progressMetrics;
       const nextKey = practices.find((key) => !completedSet.has(key)) || practices[0] || foundationOrder[0];
+      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
+      const recommendedKey = recommendedMove?.type === 'session' && hasPlayablePracticeAudio(recommendedMove.practiceKey)
+        ? recommendedMove.practiceKey
+        : nextKey;
+      const recommendationLabel = PRACTICE_GUIDANCE[recommendedKey]?.label || formatPracticeLabel(recommendedKey);
+      const recommendationCategory = getPracticeCategory(recommendedKey);
+      const recommendationReason = recommendedMove?.reason || 'Choose one stable practice and repeat it.';
 
       if (el.foundationOverallPercent) el.foundationOverallPercent.textContent = String(progressMetrics.completionPercent);
       if (el.foundationCompletedPractices) el.foundationCompletedPractices.textContent = String(progressMetrics.completedCount);
       if (el.foundationTotalPractices) el.foundationTotalPractices.textContent = String(progressMetrics.totalPractices);
       if (el.foundationCoreProgress) el.foundationCoreProgress.textContent = `${progressMetrics.coreCompleted}/${progressMetrics.coreTotal}`;
       if (el.foundationAppliedProgress) el.foundationAppliedProgress.textContent = `${progressMetrics.appliedCompleted}/${progressMetrics.appliedTotal}`;
+      if (el.foundationNextTitle) el.foundationNextTitle.textContent = recommendationLabel;
+      if (el.foundationNextCategory) el.foundationNextCategory.textContent = recommendationCategory;
+      if (el.foundationNextBody) el.foundationNextBody.textContent = recommendationReason;
+      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = `Open ${recommendationLabel}`;
 
       practices.forEach((key) => {
         const data = practiceContent.Foundation.subcategories[key];
@@ -2031,8 +2046,9 @@ You do not need to clear your mind. You do not need to perform. You only need to
         if (completedSet.has(key)) btn.classList.add('completed');
         if (!hasAudio) btn.classList.add('muted');
         const isCompleted = completedSet.has(key);
-        const statusLabel = !hasAudio ? 'Audio Soon' : (isCompleted ? '✓ Complete' : key === nextKey ? 'Next' : 'Available');
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${key === nextKey && !isCompleted ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+        const isRecommended = key === recommendedKey && !isCompleted;
+        const statusLabel = !hasAudio ? 'Audio Soon' : (isCompleted ? 'Completed' : isRecommended ? 'Recommended' : key === nextKey ? 'Up Next' : 'Ready');
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${groupLabel}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${(isRecommended || key === nextKey) && !isCompleted ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
         btn.addEventListener('click', () => setSubcategory(key, false));
         el.foundationCardsContainer.appendChild(btn);
       });
@@ -2079,7 +2095,7 @@ You do not need to clear your mind. You do not need to perform. You only need to
       if (el.profileStabilityCaption) el.profileStabilityCaption.textContent = insights.scores?.stabilityLabel || 'Needs more clean returns and simpler anchors.';
       if (el.profileDepthCaption) el.profileDepthCaption.textContent = insights.scores?.depthLabel || 'Early-stage depth. Keep strengthening the base.';
 
-      if (el.profileRecommendationTitle) el.profileRecommendationTitle.textContent = profileNextMove?.title || 'Start Your First Practice';
+      if (el.profileRecommendationTitle) el.profileRecommendationTitle.textContent = profileNextMove?.title || 'Start your first practice';
       if (el.profileRecommendationBody) el.profileRecommendationBody.textContent = profileNextMove?.reason || 'A single focused session is the fastest way to build momentum.';
       if (el.profileNextMoveCategory) el.profileNextMoveCategory.textContent = profileNextMove?.category || 'Core Stability';
       if (el.profileNextMoveDuration) {
@@ -2151,6 +2167,23 @@ You do not need to clear your mind. You do not need to perform. You only need to
       startSessionButton();
     }
     window.handleRecommendedNextMove = handleRecommendedNextMove;
+
+    function startRecommendedFoundationPractice() {
+      const progressMetrics = getFoundationProgressMetrics();
+      const nextUncompleted = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key)) || progressMetrics.practices[0] || 'BreathAwareness';
+      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
+      const recommendedKey = recommendedMove?.type === 'session' && hasPlayablePracticeAudio(recommendedMove.practiceKey)
+        ? recommendedMove.practiceKey
+        : nextUncompleted;
+      if (recommendedKey === 'Introduction') {
+        selectMainMode('Introduction');
+        return;
+      }
+      if (recommendedKey && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
+        setSubcategory(recommendedKey, false);
+      }
+    }
+    window.startRecommendedFoundationPractice = startRecommendedFoundationPractice;
 
     function resetVisualSessionState() {
       setCircleState('idle');
@@ -2342,12 +2375,22 @@ You do not need to clear your mind. You do not need to perform. You only need to
       const reinforcement = REFLECTION_REINFORCEMENT[reflection] || null;
       const insights = getTrainingInsights();
       const completionOutcome = COMPLETION_OUTCOMES[activePractice]?.[activeSubcategory] || '';
-      el.completionScreenTitle.textContent = 'Well done.';
+      const completedPracticeLabel = formatPracticeLabel(activeSubcategory || '');
+      const recommendedMove = getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), insights);
+      const recommendedLabel = recommendedMove?.type === 'session'
+        ? (PRACTICE_GUIDANCE[recommendedMove.practiceKey]?.label || formatPracticeLabel(recommendedMove.practiceKey))
+        : 'Journal';
+      el.completionScreenTitle.textContent = completedPracticeLabel ? `${completedPracticeLabel} complete.` : 'Session complete.';
       el.completionScreenSubtitle.textContent = completionOutcome || reinforcement?.body || sub?.reinforcement || modeConfig?.completionMessage || 'Take a moment to acknowledge the practice you just completed.';
       if (insights.streak >= 2) {
         el.completionScreenSubtitle.textContent += `
 
 ${insights.streak} days of showing up.`;
+      }
+      if (recommendedLabel) {
+        el.completionScreenSubtitle.textContent += `
+
+Recommended next: ${recommendedLabel}.`;
       }
       el.completionScreen.classList.add('active');
     }
