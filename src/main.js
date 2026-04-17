@@ -3189,17 +3189,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function goToFoundationHome() {
       activeDestination = 'Train';
       activeTrainTrack = 'Foundation';
-      if (activePractice === 'Foundation' && activeFoundationGroup === 'AppliedAwareness') {
-        activeFoundationGroup = 'CoreStability';
-        activeFoundationSubgroup = 'CoreStability';
-        openFoundationGroup = 'CoreStability';
-        activeSubcategory = foundationGroups.CoreStability.includes(lastCoreStabilitySubcategory)
-          ? lastCoreStabilitySubcategory
-          : foundationGroups.CoreStability[0];
-        foundationMenuOpen = true;
-        shownLessonKey = '';
-        refreshCurrentMode();
-        return;
+      if (activePractice === 'Foundation') {
+        activeFoundationSubgroup = activeFoundationGroup;
+        openFoundationGroup = activeFoundationGroup;
       }
       activePractice = 'FoundationHome';
       foundationMenuOpen = true;
