@@ -2611,9 +2611,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function resetVisualSessionState() {
       setCircleState('idle');
-      el.sessionStateText.textContent = 'Ready';
-      el.sessionStateLabel.textContent = 'Awaiting Start';
-      el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
+      if (el.sessionStateText) el.sessionStateText.textContent = 'Ready';
+      else warnMissingUiRef('sessionStateText', 'session');
+      if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Awaiting Start';
+      else warnMissingUiRef('sessionStateLabel', 'session');
+      if (el.sessionTapHint) el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
+      else warnMissingUiRef('sessionTapHint', 'session');
       updateSeekUI();
     }
 
@@ -2710,6 +2713,15 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function hideReflectionTakeover() {
+      if (!el.reflectionScreen) {
+        warnMissingUiRef('reflectionScreen', 'session');
+        return;
+      }
+      if (!el.reflectionOptionsTakeover) {
+        warnMissingUiRef('reflectionOptionsTakeover', 'session');
+        el.reflectionScreen.classList.remove('active');
+        return;
+      }
       el.reflectionScreen.classList.remove('active');
       el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
     }
@@ -2790,14 +2802,28 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function showReflectionTakeover() {
+      if (!el.reflectionScreen) {
+        warnMissingUiRef('reflectionScreen', 'session');
+        return;
+      }
       el.reflectionScreen.classList.add('active');
     }
 
     function hideCompletionTakeover() {
+      if (!el.completionScreen) {
+        warnMissingUiRef('completionScreen', 'session');
+        return;
+      }
       el.completionScreen.classList.remove('active');
     }
 
     function showCompletionTakeover(reflection = '') {
+      if (!el.completionScreen || !el.completionScreenTitle || !el.completionScreenSubtitle) {
+        warnMissingUiRef('completionScreen', 'session');
+        warnMissingUiRef('completionScreenTitle', 'session');
+        warnMissingUiRef('completionScreenSubtitle', 'session');
+        return;
+      }
       const completionLoop = getFoundationCompletionLoop(activeSubcategory);
       el.completionScreenTitle.textContent = 'Well done';
       el.completionScreenSubtitle.textContent = `${completionLoop.trained} ${completionLoop.why}`;
@@ -2853,6 +2879,47 @@ You do not need to force anything. Arrive and follow the guidance.`,
       document.exitFullscreen().catch(() => {});
     }
 
+    function ensureSessionUiRefs() {
+      const requiredRefs = [
+        'sessionOverlay',
+        'sessionStage',
+        'sessionCircleShell',
+        'sessionProgressRing',
+        'sessionStateText',
+        'sessionStateLabel',
+        'sessionTapHint',
+        'sessionTitle',
+        'sessionSubtitle',
+        'sessionSeekBar',
+        'sessionCurrentTime',
+        'sessionDuration',
+        'sessionAudio'
+      ];
+      let missing = false;
+      requiredRefs.forEach((refName) => {
+        if (!el[refName]) {
+          warnMissingUiRef(refName, 'session');
+          missing = true;
+        }
+      });
+      if (missing) {
+        console.warn('[Ataraxia] Session launch blocked: one or more required session refs are missing.');
+      }
+      return !missing;
+    }
+
+    async function primeSessionAudioFromGesture() {
+      if (!currentAudio) return;
+      try {
+        // iOS/Safari autoplay safeguard: unlock audio during the launch tap so delayed playback can start.
+        await currentAudio.play();
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      } catch (error) {
+        console.warn('[Ataraxia] Session audio priming failed; playback may require another tap.', error);
+      }
+    }
+
     // Session boot path (selection -> overlay takeover -> grounding -> playback):
     // 1) startSessionButton validates playlist/audio refs.
     // 2) enterSessionMode guarantees the takeover layer becomes visible.
@@ -2860,15 +2927,16 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function enterSessionMode() {
       hideReflectionTakeover();
       hideCompletionTakeover();
-      document.body.classList.add('session-active');
       if (!el.sessionOverlay) {
         warnMissingUiRef('sessionOverlay', 'session');
-        return;
+        return false;
       }
+      document.body.classList.add('session-active');
       el.sessionOverlay.classList.add('active');
       requestImmersiveFullscreen();
       updateSessionScrollability();
       requestWakeLock();
+      return true;
     }
 
     function exitSessionMode() {
@@ -3061,7 +3129,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       beginSessionGroundingPhase();
     }
 
-    function startSessionButton() {
+    async function startSessionButton() {
       const needsDisclaimer = !hasCompletedDisclaimer() && (activePractice === 'Introduction' || activePractice === 'Foundation');
       if (needsDisclaimer) {
         startWelcomeIntro({
@@ -3093,7 +3161,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      enterSessionMode();
+      if (!ensureSessionUiRefs()) {
+        exitSessionMode();
+        return;
+      }
+
+      await primeSessionAudioFromGesture();
+      const enteredSessionMode = enterSessionMode();
+      if (!enteredSessionMode) {
+        exitSessionMode();
+        return;
+      }
       beginSessionGroundingPhase();
     }
     window.startSessionButton = startSessionButton;
