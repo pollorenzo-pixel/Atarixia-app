@@ -1938,14 +1938,8 @@
           <div class="home-next-reason" id="homeNextMoveReason">One clear session keeps momentum.</div>
         </div>
 
-        <button class="home-resume-btn hidden" id="homeResumeBtn" onclick="resumeLastPracticeFromHome()">
-          <span>Resume Last Practice</span>
-          <strong id="homeResumeLabel">Breath Awareness</strong>
-        </button>
-
         <div class="home-cta-row">
           <button class="home-cta-primary" id="homeStartSessionBtn" onclick="startTodaySessionFromHome()">Start Today’s Session</button>
-          <button class="home-cta-secondary" id="homeOpenTrainBtn" onclick="openTrainFromHome()">Open Train</button>
         </div>
 
       </div>
@@ -1972,57 +1966,8 @@
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
-        <div class="foundation-home-header">Train Map</div>
-        <div class="train-track-grid" id="trainTrackGrid">
-          <button class="train-track-btn active" id="trainTrackFoundationBtn" onclick="setTrainTrack('Foundation')">
-            <div class="train-track-title">Foundation</div>
-            <div class="train-track-desc">Build stable attention and awareness.</div>
-          </button>
-          <button class="train-track-btn" id="trainTrackIntuitionBtn" onclick="setTrainTrack('Intuition')">
-            <div class="train-track-title">Intuition</div>
-            <div class="train-track-desc">Coming next system section.</div>
-          </button>
-          <button class="train-track-btn" id="trainTrackFlowBtn" onclick="setTrainTrack('Flow')">
-            <div class="train-track-title">Flow</div>
-            <div class="train-track-desc">Coming next system section.</div>
-          </button>
-        </div>
-        <div class="foundation-progress-module" id="foundationProgressModule">
-          <div class="foundation-progress-top">
-            <div>
-              <div class="foundation-progress-label">Foundation Completion</div>
-              <div class="foundation-progress-value"><span id="foundationOverallPercent">0</span>%</div>
-            </div>
-            <div class="foundation-progress-completed">
-              <span id="foundationCompletedPractices">0</span> / <span id="foundationTotalPractices">0</span><br>practices completed
-            </div>
-          </div>
-          <div class="foundation-progress-breakdown">
-            <div class="foundation-progress-row">
-              <span>Core Stability</span>
-              <strong id="foundationCoreProgress">0/0</strong>
-            </div>
-            <div class="foundation-progress-row">
-              <span>Applied Awareness</span>
-              <strong id="foundationAppliedProgress">0/0</strong>
-            </div>
-          </div>
-        </div>
-        <div class="foundation-next-card">
-          <div class="foundation-next-top">
-            <div class="profile-card-kicker" style="margin-bottom:0;">Start Training</div>
-            <div class="foundation-next-chip" id="foundationNextCategory">Core Stability</div>
-          </div>
-          <div class="profile-card-title" id="foundationNextTitle">Recommended Next Step</div>
-          <div class="foundation-next-practice" id="foundationNextPractice">Next: Breath Awareness</div>
-          <div class="profile-card-body" id="foundationNextBody">Follow one clear next step.</div>
-          <button class="foundation-next-action" id="foundationNextActionBtn" onclick="startRecommendedFoundationPractice()">Start Training</button>
-        </div>
-        <div class="foundation-subgroup-grid" id="foundationSubgroupPanel">
-          <button class="foundation-subgroup-btn active" id="foundationCoreBtn" onclick="setFoundationSubgroup('CoreStability')">Core Stability</button>
-          <button class="foundation-subgroup-btn" id="foundationAppliedBtn" onclick="setFoundationSubgroup('AppliedAwareness')">Applied Awareness</button>
-        </div>
-        <div class="foundation-home-header" id="foundationPracticeHeader">Practices</div>
+        <button class="journey-btn secondary hidden" id="trainHierarchyBackBtn" onclick="navigateTrainHierarchyBack()">Back</button>
+        <div class="foundation-home-header" id="trainHierarchyTitle">Train Map</div>
         <div id="foundationCardsContainer"></div>
         <div class="coming-next-panel hidden" id="comingNextPanel">
           <div class="coming-next-title" id="comingNextTitle">Coming next</div>

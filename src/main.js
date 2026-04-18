@@ -576,6 +576,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       comingNextPanel: document.getElementById('comingNextPanel'),
       comingNextTitle: document.getElementById('comingNextTitle'),
       comingNextBody: document.getElementById('comingNextBody'),
+      trainHierarchyBackBtn: document.getElementById('trainHierarchyBackBtn'),
+      trainHierarchyTitle: document.getElementById('trainHierarchyTitle'),
       profilePagePanel: document.getElementById('profilePagePanel'),
       profileCoachTitle: document.getElementById('profileCoachTitle'),
       profileCoachBody: document.getElementById('profileCoachBody'),
@@ -681,9 +683,16 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
     let activeTrainTrack = 'Foundation';
+    // Train hierarchy state: only one level is rendered at a time to avoid long-scroll disclosure.
+    const TRAIN_HIERARCHY_LEVEL = {
+      ROOT: 'root',
+      FOUNDATION_SUBCATEGORY: 'foundation-subcategory',
+      FOUNDATION_MEDITATION_LIST: 'foundation-meditation-list'
+    };
     let activeFoundationSubgroup = 'CoreStability';
     let openFoundationGroup = 'CoreStability';
     let activeFoundationGroup = 'CoreStability';
+    let trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
     let lastCoreStabilitySubcategory = 'BreathAwareness';
     let currentPlaylist = [];
     let currentTrackIndex = 0;
@@ -2128,6 +2137,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
       if (el.backToFoundationBtn) el.backToFoundationBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+      if (el.backToFoundationBtn && activePractice === 'Foundation') el.backToFoundationBtn.textContent = 'Back to Meditation List';
       if (el.nextPracticeBtn) el.nextPracticeBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
       if (!el.startSessionBtn) {
         warnMissingUiRef('startSessionBtn', 'session');
@@ -2306,73 +2316,71 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function renderFoundationHomeCards() {
+      if (!el.foundationCardsContainer) return;
       el.foundationCardsContainer.innerHTML = '';
-      const isFoundationTrack = activeTrainTrack === 'Foundation';
-      if (el.trainTrackFoundationBtn) el.trainTrackFoundationBtn.classList.toggle('active', activeTrainTrack === 'Foundation');
-      if (el.trainTrackIntuitionBtn) el.trainTrackIntuitionBtn.classList.toggle('active', activeTrainTrack === 'Intuition');
-      if (el.trainTrackFlowBtn) el.trainTrackFlowBtn.classList.toggle('active', activeTrainTrack === 'Flow');
-      if (el.foundationProgressModule) el.foundationProgressModule.classList.toggle('hidden', !isFoundationTrack);
-      if (el.foundationNextActionBtn) el.foundationNextActionBtn.classList.toggle('hidden', !isFoundationTrack);
-      if (el.foundationSubgroupPanel) el.foundationSubgroupPanel.classList.toggle('hidden', !isFoundationTrack);
-      if (el.foundationPracticeHeader) el.foundationPracticeHeader.classList.toggle('hidden', !isFoundationTrack);
-      if (el.comingNextPanel) el.comingNextPanel.classList.toggle('hidden', isFoundationTrack);
 
-      if (!isFoundationTrack) {
+      if (el.comingNextPanel) el.comingNextPanel.classList.add('hidden');
+      if (el.trainHierarchyBackBtn) el.trainHierarchyBackBtn.classList.toggle('hidden', trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT);
+
+      const createTrackCard = (title, description, onClick, isActive = false) => {
+        const btn = document.createElement('button');
+        btn.className = 'train-track-btn';
+        if (isActive) btn.classList.add('active');
+        btn.innerHTML = `<div class="train-track-title">${title}</div><div class="train-track-desc">${description}</div>`;
+        btn.addEventListener('click', onClick);
+        return btn;
+      };
+
+      const createSubcategoryCard = (groupKey) => {
+        const isCore = groupKey === 'CoreStability';
+        const btn = document.createElement('button');
+        btn.className = 'foundation-subgroup-btn';
+        btn.innerHTML = isCore
+          ? '<strong>Core Stability</strong><span>Breath, body, thought, emotional awareness, and deep focus.</span>'
+          : '<strong>Applied Awareness</strong><span>Open, sensory, walking, stress reset, and pre-sleep.</span>';
+        btn.addEventListener('click', () => setFoundationSubgroup(groupKey));
+        return btn;
+      };
+
+      if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT) {
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Train Map';
+        el.foundationCardsContainer.appendChild(createTrackCard('Foundation', 'Build stable attention and awareness.', () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
+        el.foundationCardsContainer.appendChild(createTrackCard('Intuition', 'Coming next system section.', () => setTrainTrack('Intuition')));
+        el.foundationCardsContainer.appendChild(createTrackCard('Flow', 'Coming next system section.', () => setTrainTrack('Flow')));
+        return;
+      }
+
+      if (activeTrainTrack !== 'Foundation') {
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = `${activeTrainTrack} · Coming Next`;
+        if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
         if (el.comingNextTitle) el.comingNextTitle.textContent = `${activeTrainTrack} · Coming Next`;
         if (el.comingNextBody) el.comingNextBody.textContent = `${activeTrainTrack} is reserved as a system section. Foundation remains fully wired while this section is being built.`;
         return;
       }
 
-      const {
-        progressMetrics,
-        currentStepKey,
-        recommendationLabel,
-        recommendationCategory,
-        recommendationReason
-      } = getFoundationHomeRecommendation();
-      const { completedSet, practices } = progressMetrics;
-
-      if (el.foundationOverallPercent) el.foundationOverallPercent.textContent = String(progressMetrics.completionPercent);
-      if (el.foundationCompletedPractices) el.foundationCompletedPractices.textContent = String(progressMetrics.completedCount);
-      if (el.foundationTotalPractices) el.foundationTotalPractices.textContent = String(progressMetrics.totalPractices);
-      if (el.foundationCoreProgress) el.foundationCoreProgress.textContent = `${progressMetrics.coreCompleted}/${progressMetrics.coreTotal}`;
-      if (el.foundationAppliedProgress) el.foundationAppliedProgress.textContent = `${progressMetrics.appliedCompleted}/${progressMetrics.appliedTotal}`;
-      if (el.foundationNextTitle) el.foundationNextTitle.textContent = currentStepKey ? 'Recommended Next Step' : 'Path Complete';
-      if (el.foundationNextPractice) el.foundationNextPractice.textContent = currentStepKey ? `Step: ${recommendationLabel}` : 'All Foundation steps completed';
-      if (el.foundationNextCategory) el.foundationNextCategory.textContent = recommendationCategory;
-      if (el.foundationNextBody) el.foundationNextBody.textContent = recommendationReason;
-      if (el.foundationNextActionBtn) el.foundationNextActionBtn.textContent = currentStepKey ? 'Start Training' : 'Train Again';
-      if (el.foundationCoreBtn) el.foundationCoreBtn.classList.toggle('active', activeFoundationSubgroup === 'CoreStability');
-      if (el.foundationAppliedBtn) el.foundationAppliedBtn.classList.toggle('active', activeFoundationSubgroup === 'AppliedAwareness');
-
-      const subgroupKeys = foundationGroups[activeFoundationSubgroup].filter((key) => practices.includes(key));
-      const subgroupCompleted = subgroupKeys.filter((key) => completedSet.has(key)).length;
-      if (el.foundationPracticeHeader) {
-        const subgroupTitle = activeFoundationSubgroup === 'CoreStability' ? 'Core Stability' : 'Applied Awareness';
-        el.foundationPracticeHeader.textContent = `${subgroupTitle} · ${subgroupCompleted}/${subgroupKeys.length}`;
+      if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY) {
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Foundation';
+        el.foundationCardsContainer.appendChild(createSubcategoryCard('CoreStability'));
+        el.foundationCardsContainer.appendChild(createSubcategoryCard('AppliedAwareness'));
+        return;
       }
 
-      subgroupKeys.forEach((key) => {
+      const subgroupKeys = foundationGroups[activeFoundationSubgroup] || [];
+      const subgroupTitle = activeFoundationSubgroup === 'CoreStability' ? 'Core Stability' : 'Applied Awareness';
+      if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = subgroupTitle;
+
+      subgroupKeys.forEach((key, index) => {
         const data = practiceContent.Foundation.subcategories[key];
+        if (!data) return;
         const hasAudio = hasPlayablePracticeAudio(key);
-        const isCompleted = completedSet.has(key);
-        const isCurrent = Boolean(currentStepKey) && key === currentStepKey;
-        const sequenceStep = practices.indexOf(key) + 1;
-        const estimated = FOUNDATION_ESTIMATED_MINUTES[key];
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
-
-        if (isCurrent) btn.classList.add('current');
-        if (isCompleted) btn.classList.add('completed');
-        if (!isCurrent) btn.classList.add('secondary');
         if (!hasAudio) btn.classList.add('muted');
+        const estimated = FOUNDATION_ESTIMATED_MINUTES[key];
+        const metadataLine = [estimated ? `${estimated} min` : '', `Step ${String(index + 1).padStart(2, '0')}`].filter(Boolean).join(' · ');
+        const statusLabel = hasAudio ? 'Open' : 'Audio Soon';
 
-        const statusLabel = !hasAudio
-          ? 'Audio Soon'
-          : (isCompleted ? 'Completed' : isCurrent ? 'Current Step' : 'Not Started');
-        const metadataLine = [estimated ? `${estimated} min` : '', `Step ${String(sequenceStep).padStart(2, '0')}`].filter(Boolean).join(' · ');
-
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${metadataLine}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${isCurrent ? 'next' : ''}">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${metadataLine}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
         btn.addEventListener('click', () => setSubcategory(key, false));
         el.foundationCardsContainer.appendChild(btn);
       });
@@ -2452,12 +2460,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.homeMetricSessions) el.homeMetricSessions.textContent = String(accountStats.totalSessions || 0);
       if (el.homeMetricCompletion) el.homeMetricCompletion.textContent = `${progress.completionPercent || 0}%`;
 
-      const lastPracticeKey = (history[history.length - 1]?.practice || '').trim();
-      const canResume = Boolean(lastPracticeKey) && hasPlayablePracticeAudio(lastPracticeKey);
-      if (el.homeResumeBtn) el.homeResumeBtn.classList.toggle('hidden', !canResume);
-      if (canResume && el.homeResumeLabel) {
-        el.homeResumeLabel.textContent = PRACTICE_GUIDANCE[lastPracticeKey]?.label || formatPracticeLabel(lastPracticeKey);
-      }
     }
 
     function startTodaySessionFromHome() {
@@ -3235,6 +3237,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       } else if (destination === 'Train' && activePractice !== 'Foundation' && activePractice !== 'FoundationHome') {
         activePractice = 'FoundationHome';
         activeTrainTrack = 'Foundation';
+        trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
       } else if ((destination === 'Progress' || destination === 'Account') && activePractice !== 'Profile') {
         activePractice = 'Profile';
       }
@@ -3260,6 +3263,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeDestination = 'Train';
       activePractice = 'FoundationHome';
       activeTrainTrack = name;
+      trainHierarchyLevel = name === 'Foundation'
+        ? TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY
+        : TRAIN_HIERARCHY_LEVEL.ROOT;
       foundationMenuOpen = name === 'Foundation';
       shownLessonKey = '';
       refreshCurrentMode();
@@ -3273,6 +3279,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeFoundationSubgroup = group;
       activeFoundationGroup = group;
       openFoundationGroup = group;
+      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
       foundationMenuOpen = true;
       refreshCurrentMode();
     }
@@ -3313,6 +3320,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       foundationMenuOpen = true;
       activeTrainTrack = 'Foundation';
+      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
       openFoundationGroup = activeFoundationGroup;
       shownLessonKey = '';
       refreshCurrentMode();
@@ -3333,16 +3341,33 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function goToFoundationHome() {
       activeDestination = 'Train';
       activeTrainTrack = 'Foundation';
-      if (activePractice === 'Foundation') {
-        activeFoundationSubgroup = activeFoundationGroup;
-        openFoundationGroup = activeFoundationGroup;
-      }
       activePractice = 'FoundationHome';
+      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
       foundationMenuOpen = true;
       shownLessonKey = '';
       refreshCurrentMode();
     }
     window.goToFoundationHome = goToFoundationHome;
+
+    function navigateTrainHierarchyBack() {
+      if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST) {
+        trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
+        activePractice = 'FoundationHome';
+        refreshCurrentMode();
+        return;
+      }
+      if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY) {
+        trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+        activePractice = 'FoundationHome';
+        activeTrainTrack = 'Foundation';
+        refreshCurrentMode();
+        return;
+      }
+      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+      activePractice = 'FoundationHome';
+      refreshCurrentMode();
+    }
+    window.navigateTrainHierarchyBack = navigateTrainHierarchyBack;
 
     function goToNextPractice() {
       const index = foundationOrder.indexOf(activeSubcategory);
