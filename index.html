@@ -1915,6 +1915,12 @@
           <div class="coming-next-body" id="comingNextBody">This section is being prepared.</div>
         </div>
       </div>
+
+      <div class="journey-panel hidden">
+        <div class="journey-row-primary">
+          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Start Session</button>
+        </div>
+      </div>
       </section>
 
       <!-- Progress Screen -->
@@ -2067,25 +2073,6 @@
       </div>
       </section>
 
-      <div class="journey-panel">
-        <div class="journey-row">
-          <button class="journey-btn hidden" id="backToFoundationBtn" onclick="goToFoundationHome()">Back to Foundation</button>
-          <button class="journey-btn hidden" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
-        </div>
-        <div class="journey-row-primary">
-          <button class="primary-btn" id="startSessionBtn" onclick="startSessionButton()">Begin</button>
-        </div>
-      </div>
-
-      <div class="status-row">
-        <div class="audio-status" id="audioStatus"><span class="audio-dot"></span><span id="audioText">Before You Begin</span></div>
-        <div class="volume-control" id="volumeControl">
-          <div class="volume-icon">◌</div>
-          <input class="volume-slider" type="range" min="0" max="100" value="70" oninput="setVolume(this.value)">
-        </div>
-      </div>
-
-      <div class="bottom-note" id="bottomNote">Read this once, then begin.</div>
     </main>
   </div>
 

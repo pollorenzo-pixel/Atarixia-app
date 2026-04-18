@@ -2142,10 +2142,22 @@ You do not need to force anything. Arrive and follow the guidance.`,
         if (button) button.classList.toggle('active', activeDestination === tab);
       });
 
-      if (el.homeScreen) el.homeScreen.classList.toggle('hidden', activeDestination !== 'Home');
-      if (el.trainScreen) el.trainScreen.classList.toggle('hidden', activeDestination !== 'Train');
-      if (el.progressScreen) el.progressScreen.classList.toggle('hidden', activeDestination !== 'Progress');
-      if (el.accountScreen) el.accountScreen.classList.toggle('hidden', activeDestination !== 'Account');
+      const topLevelScreens = [
+        { node: el.homeScreen, destination: 'Home' },
+        { node: el.trainScreen, destination: 'Train' },
+        { node: el.progressScreen, destination: 'Progress' },
+        { node: el.accountScreen, destination: 'Account' }
+      ];
+
+      topLevelScreens.forEach(({ node, destination }) => {
+        if (!node) return;
+        const isActive = activeDestination === destination;
+        node.classList.toggle('hidden', !isActive);
+        node.toggleAttribute('hidden', !isActive);
+        node.setAttribute('aria-hidden', String(!isActive));
+        if (!isActive) node.setAttribute('inert', '');
+        else node.removeAttribute('inert');
+      });
       if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
     }
 
@@ -2153,17 +2165,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const inTrainMode = activeDestination === 'Train';
       const inFoundationSessionView = inTrainMode && activePractice === 'Foundation';
 
-      if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
+      if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode);
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
 
-      // Keep legacy journey/status UI scoped to Train only so Home remains minimal.
+      // Keep V2 session CTA scoped to Train only.
       if (el.journeyPanel) el.journeyPanel.classList.toggle('hidden', !inTrainMode);
-      if (el.statusRow) el.statusRow.classList.toggle('hidden', !inTrainMode);
-      if (el.bottomNote) el.bottomNote.classList.toggle('hidden', !inTrainMode);
-
-      if (el.backToFoundationBtn) el.backToFoundationBtn.classList.toggle('hidden', !inFoundationSessionView);
-      if (el.backToFoundationBtn && inFoundationSessionView) el.backToFoundationBtn.textContent = 'Back to Meditation List';
-      if (el.nextPracticeBtn) el.nextPracticeBtn.classList.toggle('hidden', !inFoundationSessionView);
 
       if (!el.startSessionBtn) {
         warnMissingUiRef('startSessionBtn', 'session');
@@ -2265,7 +2271,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       else warnMissingUiRef('sessionTitle', 'session');
       if (el.sessionSubtitle) el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       else warnMissingUiRef('sessionSubtitle', 'session');
-      if (el.bottomNote) el.bottomNote.textContent = data.note || '';
 
       if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'Welcome') {
         if (view.lessonCard) view.lessonCard.style.display = 'block';
