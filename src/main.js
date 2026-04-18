@@ -686,7 +686,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
     const TRAIN_HIERARCHY_LEVEL = {
       ROOT: 'root',
       FOUNDATION_SUBCATEGORY: 'foundation-subcategory',
-      FOUNDATION_MEDITATION_LIST: 'foundation-meditation-list'
+      FOUNDATION_MEDITATION_LIST: 'foundation-meditation-list',
+      FOUNDATION_LESSON: 'foundation-lesson'
     };
     let activeFoundationSubgroup = 'CoreStability';
     let openFoundationGroup = 'CoreStability';
@@ -2271,7 +2272,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.sessionSubtitle) el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       else warnMissingUiRef('sessionSubtitle', 'session');
 
-      if (data.lesson && activePractice !== 'Introduction' && activePractice !== 'FoundationHome' && activePractice !== 'Welcome') {
+      const shouldShowTrainLessonCard = activeDestination === 'Train'
+        && activePractice === 'Foundation'
+        && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
+
+      if (data.lesson && shouldShowTrainLessonCard) {
         if (view.lessonCard) view.lessonCard.style.display = 'block';
         if (view.lessonTitle) view.lessonTitle.textContent = data.copyTitle || 'Before you begin';
         if (view.lessonBody) view.lessonBody.textContent = data.lesson;
@@ -3470,17 +3475,23 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function setTopDestination(destination) {
       // Navigation Controller Section: destination switch entrypoint
       if (!DESTINATION_TABS.includes(destination)) return;
-      activeDestination = destination;
       shownLessonKey = '';
+      hideLessonOverlayImmediate();
 
-      // Preserve each destination's state when switching tabs.
-      // We only normalize obvious mismatches to avoid stale legacy modes leaking across screens.
-      if (destination === 'Home' && activePractice === 'Welcome') {
-        activePractice = getDefaultOpeningMode();
-      } else if (destination === 'Train' && activePractice !== 'Foundation' && activePractice !== 'FoundationHome') {
+      if (destination === 'Train') {
+        activeDestination = 'Train';
+        if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
+        }
+        // Top-level tab entry should never auto-open a lesson card.
         activePractice = 'FoundationHome';
-      } else if ((destination === 'Progress' || destination === 'Account') && activePractice === 'Welcome') {
-        activePractice = 'Profile';
+      } else {
+        // Keep Train hierarchy state isolated from non-Train destinations.
+        if (activePractice === 'Foundation') {
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
+        }
+        activeDestination = destination;
+        activePractice = destination === 'Home' ? getDefaultOpeningMode() : 'Profile';
       }
 
       refreshCurrentMode();
@@ -3516,6 +3527,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function setFoundationSubgroup(group = 'CoreStability') {
       if (!foundationGroups[group]) return;
+      activePractice = 'FoundationHome';
       activeTrainTrack = 'Foundation';
       activeFoundationSubgroup = group;
       activeFoundationGroup = group;
@@ -3535,6 +3547,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function toggleFoundationGroup(name, event = null) {
       if (event) event.stopPropagation();
+      activePractice = 'FoundationHome';
       activeFoundationGroup = name;
       activeFoundationSubgroup = name;
       openFoundationGroup = name;
@@ -3561,7 +3574,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       foundationMenuOpen = true;
       activeTrainTrack = 'Foundation';
-      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
+      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
       openFoundationGroup = activeFoundationGroup;
       shownLessonKey = '';
       refreshCurrentMode();
@@ -3596,6 +3609,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST) {
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
+        activePractice = 'FoundationHome';
+        activeTrainTrack = 'Foundation';
+        refreshCurrentMode();
+        return;
+      }
+
+      if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
+        trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
         activePractice = 'FoundationHome';
         activeTrainTrack = 'Foundation';
         refreshCurrentMode();
