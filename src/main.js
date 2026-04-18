@@ -274,7 +274,7 @@ Practice only in a safe place. Pause or stop anytime.`,
         audio: []
       },
       Introduction: {
-        startLabel: 'Begin Meditation',
+        startLabel: 'Start Today’s Session',
         eyebrow: 'Introduction',
         hero: 'Arrive first.<br>Then begin.',
         subtitle: ['Settle', 'Notice', 'Prepare'],
@@ -629,6 +629,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       volumeControl: document.getElementById('volumeControl'),
       volumeSlider: document.querySelector('.volume-slider'),
       bottomNote: document.getElementById('bottomNote'),
+      journeyPanel: document.querySelector('.journey-panel'),
+      statusRow: document.querySelector('.status-row'),
       sessionOverlay: document.getElementById('sessionOverlay'),
       sessionStage: document.querySelector('.session-stage'),
       sessionCircleShell: document.getElementById('sessionCircleShell'),
@@ -2149,18 +2151,29 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function updateJourneyButtons() {
       const inTrainMode = activeDestination === 'Train';
+      const inFoundationSessionView = inTrainMode && activePractice === 'Foundation';
+
       if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode || activePractice !== 'FoundationHome');
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
-      if (el.backToFoundationBtn) el.backToFoundationBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
-      if (el.backToFoundationBtn && activePractice === 'Foundation') el.backToFoundationBtn.textContent = 'Back to Meditation List';
-      if (el.nextPracticeBtn) el.nextPracticeBtn.classList.toggle('hidden', !inTrainMode || activePractice !== 'Foundation');
+
+      // Keep legacy journey/status UI scoped to Train only so Home remains minimal.
+      if (el.journeyPanel) el.journeyPanel.classList.toggle('hidden', !inTrainMode);
+      if (el.statusRow) el.statusRow.classList.toggle('hidden', !inTrainMode);
+      if (el.bottomNote) el.bottomNote.classList.toggle('hidden', !inTrainMode);
+
+      if (el.backToFoundationBtn) el.backToFoundationBtn.classList.toggle('hidden', !inFoundationSessionView);
+      if (el.backToFoundationBtn && inFoundationSessionView) el.backToFoundationBtn.textContent = 'Back to Meditation List';
+      if (el.nextPracticeBtn) el.nextPracticeBtn.classList.toggle('hidden', !inFoundationSessionView);
+
       if (!el.startSessionBtn) {
         warnMissingUiRef('startSessionBtn', 'session');
         return;
       }
-      el.startSessionBtn.style.display = (activePractice === 'FoundationHome' || activeDestination === 'Progress' || activeDestination === 'Account') ? 'none' : 'inline-flex';
+
+      // Keep only one primary CTA on Home. Train owns this control for practice launches.
+      el.startSessionBtn.style.display = inFoundationSessionView ? 'inline-flex' : 'none';
       const current = currentViewData();
-      el.startSessionBtn.textContent = current.startLabel || 'Begin Meditation';
+      el.startSessionBtn.textContent = current.startLabel || 'Start Session';
       const canStartSelectedPractice = !(activePractice === 'Foundation' && !hasPlayablePracticeAudio(activeSubcategory));
       el.startSessionBtn.disabled = !canStartSelectedPractice;
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
@@ -2628,7 +2641,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         renderFoundationHomeCards();
         renderStabilityHomeCards();
       }
-      if (activeDestination === 'Progress' || activeDestination === 'Account') {
+      if (activeDestination === 'Progress') {
         renderProfilePage();
         updateInsightCard();
       }
@@ -3432,13 +3445,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeDestination = destination;
       shownLessonKey = '';
 
-      if (destination === 'Home' && !['Welcome', 'Introduction'].includes(activePractice)) {
+      // Preserve each destination's state when switching tabs.
+      // We only normalize obvious mismatches to avoid stale legacy modes leaking across screens.
+      if (destination === 'Home' && activePractice === 'Welcome') {
         activePractice = getDefaultOpeningMode();
       } else if (destination === 'Train' && activePractice !== 'Foundation' && activePractice !== 'FoundationHome') {
         activePractice = 'FoundationHome';
-        activeTrainTrack = 'Foundation';
-        trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
-      } else if ((destination === 'Progress' || destination === 'Account') && activePractice !== 'Profile') {
+      } else if ((destination === 'Progress' || destination === 'Account') && activePractice === 'Welcome') {
         activePractice = 'Profile';
       }
 
@@ -3549,13 +3562,18 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
     window.goToFoundationHome = goToFoundationHome;
 
-    function navigateTrainHierarchyBack() {
+    function goBackInTrain() {
+      // Train navigation logic: one unified back handler for all hierarchy levels.
+      if (activeDestination !== 'Train') return;
+
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST) {
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
         activePractice = 'FoundationHome';
+        activeTrainTrack = 'Foundation';
         refreshCurrentMode();
         return;
       }
+
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY) {
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
         activePractice = 'FoundationHome';
@@ -3563,11 +3581,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
         refreshCurrentMode();
         return;
       }
+
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
       activePractice = 'FoundationHome';
       refreshCurrentMode();
     }
-    window.navigateTrainHierarchyBack = navigateTrainHierarchyBack;
+    window.goBackInTrain = goBackInTrain;
 
     function goToNextPractice() {
       const index = foundationOrder.indexOf(activeSubcategory);
@@ -3708,7 +3727,8 @@ window.__ataraxia = {
   toggleStabilityMenu,
   setStabilitySubcategory,
   goToFoundationHome,
-  goToNextPractice
+  goToNextPractice,
+  goBackInTrain
 };
 
     function handleReflectionChoice(button) {
