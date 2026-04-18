@@ -626,7 +626,7 @@
       color: var(--text-faint);
     }
     .journey-btn.secondary, .completion-btn.secondary { background: rgba(255,255,255,0.02); color: var(--text-dim); }
-    .journey-btn.hidden, .foundation-home-panel.hidden, .stability-home-panel.hidden { display: none; }
+    .journey-btn.hidden, .foundation-home-panel.hidden, .stability-home-panel.hidden, .journey-panel.hidden, .status-row.hidden, .bottom-note.hidden { display: none; }
 
     .primary-btn {
       min-width: 240px;
@@ -1907,7 +1907,7 @@
       </div>
 
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
-        <button class="journey-btn secondary hidden" id="trainHierarchyBackBtn" onclick="navigateTrainHierarchyBack()">Back</button>
+        <button class="journey-btn secondary hidden" id="trainHierarchyBackBtn" onclick="goBackInTrain()">Back</button>
         <div class="foundation-home-header" id="trainHierarchyTitle">Train Map</div>
         <div id="foundationCardsContainer"></div>
         <div class="coming-next-panel hidden" id="comingNextPanel">
