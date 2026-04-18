@@ -44,6 +44,7 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
       'What did I learn about myself today?'
     ];
     const TRANSITION_DELAY = 2000;
+    const SESSION_UI_READY_DELAY = 120;
     // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
     const foundationGroups = {
@@ -518,11 +519,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
       homeNextMoveReason: document.getElementById('homeNextMoveReason'),
-      homeResumeBtn: document.getElementById('homeResumeBtn'),
-      homeResumeLabel: document.getElementById('homeResumeLabel'),
-      homeMetricStreak: document.getElementById('homeMetricStreak'),
-      homeMetricSessions: document.getElementById('homeMetricSessions'),
-      homeMetricCompletion: document.getElementById('homeMetricCompletion'),
       openingScene: document.getElementById('openingScene'),
       navMenuBtn: document.getElementById('navMenuBtn'),
       openingQuote: document.getElementById('openingQuote'),
@@ -732,6 +728,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let journalPromptPanelOpen = false;
     let activeSessionStartedAt = 0;
     let completedSessionDurationSeconds = 0;
+    let sessionLaunchToken = 0;
+    let sessionAudioReady = false;
+    let pendingPlaybackStart = false;
+    let playRequestPending = false;
 
     // Navigation Controller Section (V2 shell): top-level destination mapping
     const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
@@ -740,6 +740,19 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (practice === 'FoundationHome' || practice === 'Foundation') return 'Train';
       if (practice === 'Profile') return 'Progress';
       return 'Home';
+    }
+
+    function getSelectedPracticeKey() {
+      if (activePractice === 'Introduction') return 'Introduction';
+      if (activePractice === 'Foundation') return activeSubcategory || 'UnknownFoundationPractice';
+      return activePractice || 'UnknownPractice';
+    }
+
+    function logSessionAudioEvent(eventName, details = {}) {
+      console.info(`[Ataraxia][SessionAudio] ${eventName}`, {
+        practiceKey: getSelectedPracticeKey(),
+        ...details
+      });
     }
 
         function loadProgress() {
@@ -2446,8 +2459,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function renderHomeSurface() {
       if (!el.homeScreen) return;
       const history = loadSessionHistory();
-      const accountStats = getAccountProgressStats(history);
-      const progress = getFoundationProgressMetrics(history);
       const quote = getQuoteOfTheDay();
       const recommendation = getHomeRecommendation(history);
       homeNextMove = recommendation;
@@ -2456,9 +2467,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.homeQuoteAuthor) el.homeQuoteAuthor.textContent = quote.author || 'Unknown';
       if (el.homeNextMoveTitle) el.homeNextMoveTitle.textContent = recommendation.title;
       if (el.homeNextMoveReason) el.homeNextMoveReason.textContent = recommendation.reason;
-      if (el.homeMetricStreak) el.homeMetricStreak.textContent = String(accountStats.currentStreak || 0);
-      if (el.homeMetricSessions) el.homeMetricSessions.textContent = String(accountStats.totalSessions || 0);
-      if (el.homeMetricCompletion) el.homeMetricCompletion.textContent = `${progress.completionPercent || 0}%`;
 
     }
 
@@ -2474,24 +2482,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       startSessionButton();
     }
     window.startTodaySessionFromHome = startTodaySessionFromHome;
-
-    function openTrainFromHome() {
-      setTopDestination('Train');
-    }
-    window.openTrainFromHome = openTrainFromHome;
-
-    function resumeLastPracticeFromHome() {
-      const history = loadSessionHistory();
-      const recommendation = getHomeRecommendation(history);
-      const lastPracticeKey = String(recommendation?.resumeIncompletePracticeKey || history[history.length - 1]?.practice || '').trim();
-      if (!hasPlayablePracticeAudio(lastPracticeKey)) {
-        openTrainFromHome();
-        return;
-      }
-      setSubcategory(lastPracticeKey, false);
-      startSessionButton();
-    }
-    window.resumeLastPracticeFromHome = resumeLastPracticeFromHome;
 
     function renderProfilePage() {
       if (!el.profilePagePanel) return;
@@ -2653,20 +2643,68 @@ You do not need to force anything. Arrive and follow the guidance.`,
       currentTrackIndex = index;
       currentAudio = el.sessionAudio;
       currentAudio.pause();
+      playRequestPending = false;
+      sessionAudioReady = false;
       currentAudio.ontimeupdate = null;
       currentAudio.onended = null;
       currentAudio.onpause = null;
       currentAudio.onloadedmetadata = null;
+      currentAudio.oncanplay = null;
+      currentAudio.onplaying = null;
+      currentAudio.onerror = null;
       currentAudio.src = resolveAssetPath(src);
+      logSessionAudioEvent('resolved-source', {
+        trackIndex: index,
+        src,
+        resolvedSrc: currentAudio.src
+      });
       currentAudio.preload = 'auto';
       currentAudio.volume = getCurrentVolume();
       currentAudio.currentTime = 0;
       currentAudio.ontimeupdate = updateSeekUI;
       currentAudio.onended = handleTrackEnd;
       currentAudio.onpause = () => {
+        logSessionAudioEvent('pause', {
+          trackIndex: currentTrackIndex,
+          currentTime: currentAudio?.currentTime || 0
+        });
+        updateSeekUI();
+        if (sessionState !== SESSION_STATE.COMPLETE && sessionState !== SESSION_STATE.IDLE && !playRequestPending) {
+          sessionState = SESSION_STATE.PAUSED;
+          syncMediaPlaybackState();
+          setCircleState('paused');
+        }
+      };
+      currentAudio.onloadedmetadata = () => {
+        logSessionAudioEvent('loadedmetadata', {
+          duration: Number.isFinite(currentAudio?.duration) ? currentAudio.duration : 0
+        });
         updateSeekUI();
       };
-      currentAudio.onloadedmetadata = updateSeekUI;
+      currentAudio.oncanplay = () => {
+        sessionAudioReady = true;
+        logSessionAudioEvent('canplay', {
+          trackIndex: currentTrackIndex,
+          duration: Number.isFinite(currentAudio?.duration) ? currentAudio.duration : 0
+        });
+        if (pendingPlaybackStart && sessionState === SESSION_STATE.GROUNDING) {
+          startPlayback();
+        }
+      };
+      currentAudio.onplaying = () => {
+        logSessionAudioEvent('playing', {
+          trackIndex: currentTrackIndex,
+          currentTime: currentAudio?.currentTime || 0
+        });
+        playRequestPending = false;
+      };
+      currentAudio.onerror = () => {
+        const mediaError = currentAudio?.error;
+        logSessionAudioEvent('error', {
+          code: mediaError?.code || null,
+          message: mediaError?.message || 'Unknown media error'
+        });
+      };
       currentAudio.load();
       preloadNextTrack();
       updateSeekUI();
@@ -2917,9 +2955,78 @@ You do not need to force anything. Arrive and follow the guidance.`,
         await currentAudio.play();
         currentAudio.pause();
         currentAudio.currentTime = 0;
+        logSessionAudioEvent('primed-from-gesture', { success: true });
       } catch (error) {
         console.warn('[Ataraxia] Session audio priming failed; playback may require another tap.', error);
+        logSessionAudioEvent('primed-from-gesture', { success: false, reason: error?.message || 'play rejected' });
       }
+    }
+
+    function wait(ms = 0) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function waitForSessionUiReady(launchToken) {
+      await wait(0);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await wait(SESSION_UI_READY_DELAY);
+      if (launchToken !== sessionLaunchToken) return false;
+      const overlayVisible = Boolean(el.sessionOverlay?.classList.contains('active'));
+      logSessionAudioEvent('ui-ready-check', { overlayVisible, launchToken });
+      return overlayVisible;
+    }
+
+    async function waitForAudioCanPlay(launchToken, timeoutMs = 7000) {
+      if (!currentAudio) return false;
+      if (sessionAudioReady || currentAudio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+        sessionAudioReady = true;
+        return true;
+      }
+
+      return new Promise((resolve) => {
+        let settled = false;
+        const cleanup = () => {
+          currentAudio?.removeEventListener('canplay', onCanPlay);
+          currentAudio?.removeEventListener('error', onError);
+        };
+        const finish = (ready) => {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          resolve(ready);
+        };
+        const onCanPlay = () => finish(true);
+        const onError = () => finish(false);
+
+        currentAudio.addEventListener('canplay', onCanPlay, { once: true });
+        currentAudio.addEventListener('error', onError, { once: true });
+        setTimeout(() => {
+          const stillCurrentLaunch = launchToken === sessionLaunchToken;
+          if (!stillCurrentLaunch) {
+            finish(false);
+            return;
+          }
+          finish(Boolean(currentAudio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA));
+        }, timeoutMs);
+      });
+    }
+
+    async function prepareSessionAudio(launchToken) {
+      initAudio();
+      if (!currentPlaylist.length || !currentAudio) return false;
+      logSessionAudioEvent('selected-practice', {
+        launchToken,
+        selectedPracticeKey: getSelectedPracticeKey(),
+        playlist: currentPlaylist.slice()
+      });
+      await primeSessionAudioFromGesture();
+      const audioReady = await waitForAudioCanPlay(launchToken);
+      logSessionAudioEvent('audio-ready-check', {
+        launchToken,
+        audioReady,
+        readyState: currentAudio?.readyState
+      });
+      return audioReady;
     }
 
     // Session boot path (selection -> overlay takeover -> grounding -> playback):
@@ -2951,11 +3058,23 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function startPlayback() {
-      if (!currentAudio) return;
+      if (!currentAudio || sessionState === SESSION_STATE.COMPLETE || sessionState === SESSION_STATE.IDLE) return;
+      if (playRequestPending || !currentAudio.paused) return;
+      if (!sessionAudioReady) {
+        pendingPlaybackStart = true;
+        if (el.sessionStateText) el.sessionStateText.textContent = 'Preparing';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Buffering Audio';
+        logSessionAudioEvent('start-blocked-waiting-canplay', {
+          trackIndex: currentTrackIndex
+        });
+        return;
+      }
       const modeConfig = getModeConfig();
       const sub = getSubcategoryData();
 
       configureBackgroundAudio();
+      playRequestPending = true;
+      pendingPlaybackStart = false;
       currentAudio.play().then(() => {
         sessionState = SESSION_STATE.PLAYING;
         syncMediaPlaybackState();
@@ -2975,6 +3094,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
         requestWakeLock();
       }).catch(() => {
+        playRequestPending = false;
         sessionState = SESSION_STATE.PAUSED;
         syncMediaPlaybackState();
         setCircleState('paused');
@@ -2985,6 +3105,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function pausePlayback() {
       if (!currentAudio) return;
+      pendingPlaybackStart = false;
+      playRequestPending = false;
       currentAudio.pause();
       sessionState = SESSION_STATE.PAUSED;
       syncMediaPlaybackState();
@@ -3011,6 +3133,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       pendingTrackAdvance = false;
       clearTimeout(transitionTimeout);
       loadTrack(currentTrackIndex + 1);
+      pendingPlaybackStart = true;
       startPlayback();
       return true;
     }
@@ -3030,6 +3153,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function handleTrackEnd() {
+      logSessionAudioEvent('ended', {
+        trackIndex: currentTrackIndex,
+        isLegacyMultiTrack: isLegacyMultiTrackSession()
+      });
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
         pendingTrackAdvance = true;
         clearTimeout(transitionTimeout);
@@ -3051,6 +3178,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       sessionState = SESSION_STATE.COMPLETE;
+      pendingPlaybackStart = false;
+      playRequestPending = false;
       syncMediaPlaybackState();
       setCircleState('complete');
       setAudioStatus(el.audioText?.textContent || 'Session Complete', false);
@@ -3101,6 +3230,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       clearTimeout(groundingTimeout);
       clearTimeout(transitionTimeout);
       pendingTrackAdvance = false;
+      pendingPlaybackStart = false;
 
       sessionState = SESSION_STATE.GROUNDING;
       activeSessionStartedAt = Date.now();
@@ -3115,7 +3245,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       updateSeekUI();
 
       groundingTimeout = setTimeout(() => {
-        if (sessionState === SESSION_STATE.GROUNDING) startPlayback();
+        if (sessionState !== SESSION_STATE.GROUNDING) return;
+        pendingPlaybackStart = true;
+        startPlayback();
       }, 2000);
     }
 
@@ -3157,23 +3289,37 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       // Defensive session launch guard: avoid a black screen when refs are missing.
       clearSessionTimers();
-      initAudio();
-      if (!currentPlaylist.length || !currentAudio) {
-        console.warn('[Ataraxia] Session launch aborted: missing playlist/audio.');
-        return;
-      }
+      pendingPlaybackStart = false;
+      playRequestPending = false;
+      sessionAudioReady = false;
+      const launchToken = Date.now();
+      sessionLaunchToken = launchToken;
 
       if (!ensureSessionUiRefs()) {
         exitSessionMode();
         return;
       }
 
-      await primeSessionAudioFromGesture();
       const enteredSessionMode = enterSessionMode();
       if (!enteredSessionMode) {
         exitSessionMode();
         return;
       }
+
+      const uiReady = await waitForSessionUiReady(launchToken);
+      if (!uiReady || launchToken !== sessionLaunchToken) {
+        console.warn('[Ataraxia] Session launch aborted: session UI failed readiness check.');
+        exitSessionMode();
+        return;
+      }
+
+      const audioReady = await prepareSessionAudio(launchToken);
+      if (!audioReady || !currentPlaylist.length || !currentAudio || launchToken !== sessionLaunchToken) {
+        console.warn('[Ataraxia] Session launch aborted: missing playlist/audio readiness.');
+        exitSessionMode();
+        return;
+      }
+
       beginSessionGroundingPhase();
     }
     window.startSessionButton = startSessionButton;
@@ -3202,6 +3348,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function exitSessionEarly() {
       clearSessionTimers();
+      sessionLaunchToken += 1;
+      sessionAudioReady = false;
+      pendingPlaybackStart = false;
+      playRequestPending = false;
       sessionState = SESSION_STATE.IDLE;
       activeSessionStartedAt = 0;
       completedSessionDurationSeconds = 0;

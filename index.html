@@ -422,9 +422,7 @@
     }
 
     .home-quote-card,
-    .home-next-card,
-    .home-momentum-strip,
-    .home-resume-btn {
+    .home-next-card {
       border: 1px solid var(--line);
       background: var(--panel);
       border-radius: var(--card-radius);
@@ -437,8 +435,7 @@
     }
 
     .home-quote-label,
-    .home-next-kicker,
-    .home-metric-label {
+    .home-next-kicker {
       font-size: 9px;
       letter-spacing: 0.24em;
       text-transform: uppercase;
@@ -499,40 +496,13 @@
       line-height: 1.65;
     }
 
-    .home-resume-btn {
-      width: 100%;
-      padding: 16px 18px;
-      text-align: left;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    .home-resume-btn span {
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
-    .home-resume-btn strong {
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      color: var(--text);
-      font-weight: 600;
-    }
-
     .home-cta-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 12px;
     }
 
-    .home-cta-primary,
-    .home-cta-secondary {
+    .home-cta-primary {
       min-height: 48px;
       border-radius: 16px;
       border: 1px solid var(--line);
@@ -549,35 +519,6 @@
       border-color: var(--line-strong);
       color: var(--text);
       font-weight: 700;
-    }
-
-    .home-cta-secondary {
-      background: rgba(255,255,255,0.03);
-      color: var(--text-dim);
-    }
-
-    .home-momentum-strip {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      padding: 14px 12px;
-      gap: 8px;
-    }
-
-    .home-metric {
-      text-align: center;
-      padding: 6px;
-    }
-
-    .home-metric-value {
-      margin-top: 6px;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    .home-resume-btn.hidden {
-      display: none;
     }
 
     .lesson-card { position: relative; overflow: hidden; }
@@ -1825,7 +1766,7 @@
       .home-quote-text { font-size: 18px; line-height: 1.5; }
       .home-next-title { font-size: 19px; }
       .home-next-reason { font-size: 13px; line-height: 1.58; }
-      .journey-btn, .completion-btn, .foundation-card-btn, .home-cta-primary, .home-cta-secondary { width: 100%; }
+      .journey-btn, .completion-btn, .foundation-card-btn, .home-cta-primary { width: 100%; }
       .home-cta-row { grid-template-columns: 1fr; }
       .session-stage { gap: 18px; padding: 8px 16px 32px; }
       .session-circle-shell { width: min(84vw, 420px); }
