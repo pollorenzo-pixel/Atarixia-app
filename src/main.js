@@ -45,6 +45,7 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
     ];
     const TRANSITION_DELAY = 2000;
     const SESSION_UI_READY_DELAY = 120;
+    const SESSION_AUTOSTART_ON_READY = false;
     // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
     const foundationGroups = {
@@ -697,6 +698,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     const SESSION_STATE = {
       IDLE: 'idle',
       GROUNDING: 'grounding',
+      READY: 'ready',
       PLAYING: 'playing',
       PAUSED: 'paused',
       ENDING: 'ending',
@@ -2456,7 +2458,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
     window.getPracticeRecommendationDebug = getPracticeRecommendationDebug;
 
-    function renderHomeSurface() {
+    // Home render path: intentionally minimal and focused for the V2 shell.
+    function renderHome() {
       if (!el.homeScreen) return;
       const history = loadSessionHistory();
       const quote = getQuoteOfTheDay();
@@ -2470,7 +2473,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     }
 
-    function startTodaySessionFromHome() {
+    // Single Home CTA entrypoint. Resume/new-user logic is delegated to recommendation selection.
+    function startTodaysSession() {
       const recommendation = homeNextMove || getHomeRecommendation(loadSessionHistory());
       if (!recommendation?.practiceKey) return;
       if (recommendation.practiceKey === 'Introduction') {
@@ -2481,7 +2485,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       setSubcategory(recommendation.practiceKey, false);
       startSessionButton();
     }
-    window.startTodaySessionFromHome = startTodaySessionFromHome;
+    window.startTodaysSession = startTodaysSession;
+    window.startTodaySessionFromHome = startTodaysSession;
 
     function renderProfilePage() {
       if (!el.profilePagePanel) return;
@@ -2618,17 +2623,59 @@ You do not need to force anything. Arrive and follow the guidance.`,
       updateMenuState();
       updateJourneyButtons();
       updateAudioStatus();
-      renderHomeSurface();
-      renderFoundationHomeCards();
-      renderStabilityHomeCards();
-      renderProfilePage();
-      updateInsightCard();
+      renderHome();
+      if (activeDestination === 'Train') {
+        renderFoundationHomeCards();
+        renderStabilityHomeCards();
+      }
+      if (activeDestination === 'Progress' || activeDestination === 'Account') {
+        renderProfilePage();
+        updateInsightCard();
+      }
       if (!el.sessionOverlay) {
         warnMissingUiRef('sessionOverlay', 'session');
         return;
       }
       if (!el.sessionOverlay.classList.contains('active')) {
         resetVisualSessionState();
+      }
+    }
+
+    function syncSessionUIToAudioState(state = sessionState) {
+      const modeConfig = getModeConfig();
+      const sub = getSubcategoryData();
+      const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
+
+      if (state === SESSION_STATE.GROUNDING) {
+        setCircleState('grounding');
+        if (el.sessionStateText) el.sessionStateText.textContent = 'Settle';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Grounding';
+        return;
+      }
+
+      if (state === SESSION_STATE.READY) {
+        setCircleState('paused');
+        if (el.sessionStateText) el.sessionStateText.textContent = 'Ready';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Tap to Start';
+        return;
+      }
+
+      if (state === SESSION_STATE.PLAYING) {
+        setCircleState(inEndingPhase ? 'ending' : 'playing');
+        if (el.sessionStateText) el.sessionStateText.textContent = inEndingPhase
+          ? (sub?.endingText || 'Closing')
+          : (sub?.activeText || modeConfig?.activeText || 'Playing');
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = inEndingPhase
+          ? (sub?.endingLabel || 'Ending Audio')
+          : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
+        return;
+      }
+
+      if (state === SESSION_STATE.PAUSED) {
+        setCircleState('paused');
+        if (el.sessionStateText) el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
+        return;
       }
     }
 
@@ -2672,7 +2719,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         if (sessionState !== SESSION_STATE.COMPLETE && sessionState !== SESSION_STATE.IDLE && !playRequestPending) {
           sessionState = SESSION_STATE.PAUSED;
           syncMediaPlaybackState();
-          setCircleState('paused');
+          syncSessionUIToAudioState(sessionState);
         }
       };
       currentAudio.onloadedmetadata = () => {
@@ -2697,6 +2744,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
           currentTime: currentAudio?.currentTime || 0
         });
         playRequestPending = false;
+        sessionState = SESSION_STATE.PLAYING;
+        syncMediaPlaybackState();
+        setAudioStatus(el.audioText?.textContent || 'Session Active', true);
+        syncSessionUIToAudioState(sessionState);
       };
       currentAudio.onerror = () => {
         const mediaError = currentAudio?.error;
@@ -3029,7 +3080,30 @@ You do not need to force anything. Arrive and follow the guidance.`,
       return audioReady;
     }
 
-    // Session boot path (selection -> overlay takeover -> grounding -> playback):
+    function renderSessionUI() {
+      return enterSessionMode();
+    }
+
+    async function openSession(launchToken) {
+      if (!ensureSessionUiRefs()) {
+        exitSessionMode();
+        return false;
+      }
+      const enteredSessionMode = renderSessionUI();
+      if (!enteredSessionMode) {
+        exitSessionMode();
+        return false;
+      }
+      const uiReady = await waitForSessionUiReady(launchToken);
+      if (!uiReady || launchToken !== sessionLaunchToken) {
+        console.warn('[Ataraxia] Session launch aborted: session UI failed readiness check.');
+        exitSessionMode();
+        return false;
+      }
+      return true;
+    }
+
+    // Session boot path (selection -> overlay takeover -> grounding/ready -> playback):
     // 1) startSessionButton validates playlist/audio refs.
     // 2) enterSessionMode guarantees the takeover layer becomes visible.
     // 3) beginSessionGroundingPhase transitions to active playback state.
@@ -3069,37 +3143,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
         });
         return;
       }
-      const modeConfig = getModeConfig();
-      const sub = getSubcategoryData();
-
       configureBackgroundAudio();
       playRequestPending = true;
       pendingPlaybackStart = false;
       currentAudio.play().then(() => {
-        sessionState = SESSION_STATE.PLAYING;
-        syncMediaPlaybackState();
-        setAudioStatus(el.audioText?.textContent || 'Session Active', true);
         if (el.volumeControl) el.volumeControl.classList.add('active');
-
-        const inEndingPhase = isLegacyMultiTrackSession() && currentTrackIndex > 0;
-        setCircleState(inEndingPhase ? 'ending' : 'playing');
-
-        if (el.sessionStateText) el.sessionStateText.textContent = inEndingPhase
-          ? (sub?.endingText || 'Closing')
-          : (sub?.activeText || modeConfig?.activeText || 'Playing');
-
-        if (el.sessionStateLabel) el.sessionStateLabel.textContent = inEndingPhase
-          ? (sub?.endingLabel || 'Ending Audio')
-          : (sub?.activeLabel || modeConfig?.activeLabel || 'Session Active');
-
         requestWakeLock();
       }).catch(() => {
         playRequestPending = false;
         sessionState = SESSION_STATE.PAUSED;
         syncMediaPlaybackState();
-        setCircleState('paused');
-        if (el.sessionStateText) el.sessionStateText.textContent = 'Paused';
-        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Awaiting Resume';
+        syncSessionUIToAudioState(sessionState);
       });
     }
 
@@ -3111,12 +3165,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       sessionState = SESSION_STATE.PAUSED;
       syncMediaPlaybackState();
 
-      const modeConfig = getModeConfig();
       setAudioStatus(el.audioText?.textContent || 'Session Paused', false);
-      setCircleState('paused');
-
-      if (el.sessionStateText) el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
-      if (el.sessionStateLabel) el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
+      syncSessionUIToAudioState(sessionState);
 
       releaseWakeLock();
     }
@@ -3236,22 +3286,24 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeSessionStartedAt = Date.now();
       completedSessionDurationSeconds = 0;
       syncMediaPlaybackState();
-      setCircleState('grounding');
       setAudioStatus(el.audioText?.textContent || 'Grounding', false);
       if (el.volumeControl) el.volumeControl.classList.add('active');
-      if (el.sessionStateText) el.sessionStateText.textContent = 'Settle';
-      if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Grounding';
+      syncSessionUIToAudioState(sessionState);
       if (el.sessionTapHint) el.sessionTapHint.textContent = 'Tap to pause or resume · Double tap to restart';
       updateSeekUI();
 
       groundingTimeout = setTimeout(() => {
         if (sessionState !== SESSION_STATE.GROUNDING) return;
-        pendingPlaybackStart = true;
-        startPlayback();
+        sessionState = SESSION_STATE.READY;
+        syncSessionUIToAudioState(sessionState);
+        if (SESSION_AUTOSTART_ON_READY) {
+          pendingPlaybackStart = true;
+          startPlayback();
+        }
       }, 2000);
     }
 
-    function resetSessionFromDoubleTap() {
+    function resetSession() {
       clearSessionTimers();
       detachAudio();
       initAudio();
@@ -3261,6 +3313,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       beginSessionGroundingPhase();
+    }
+
+    function resetSessionFromDoubleTap() {
+      resetSession();
     }
 
     async function startSessionButton() {
@@ -3294,21 +3350,15 @@ You do not need to force anything. Arrive and follow the guidance.`,
       sessionAudioReady = false;
       const launchToken = Date.now();
       sessionLaunchToken = launchToken;
+      logSessionAudioEvent('session-start-state', {
+        launchToken,
+        activePractice,
+        selectedPracticeKey: getSelectedPracticeKey(),
+        destination: activeDestination
+      });
 
-      if (!ensureSessionUiRefs()) {
-        exitSessionMode();
-        return;
-      }
-
-      const enteredSessionMode = enterSessionMode();
-      if (!enteredSessionMode) {
-        exitSessionMode();
-        return;
-      }
-
-      const uiReady = await waitForSessionUiReady(launchToken);
-      if (!uiReady || launchToken !== sessionLaunchToken) {
-        console.warn('[Ataraxia] Session launch aborted: session UI failed readiness check.');
+      const sessionOpened = await openSession(launchToken);
+      if (!sessionOpened) {
         exitSessionMode();
         return;
       }
@@ -3637,6 +3687,14 @@ window.__ataraxia = {
   updateJourneyButtons,
   renderFoundationHomeCards,
   renderStabilityHomeCards,
+  renderHome,
+  startTodaysSession,
+  openSession,
+  renderSessionUI,
+  prepareSessionAudio,
+  bindSessionControls,
+  syncSessionUIToAudioState,
+  resetSession,
   getHomeRecommendation,
   getPracticeRecommendationDebug,
   refreshCurrentMode,
@@ -3857,19 +3915,23 @@ window.__ataraxia = {
       }, 0);
     }
 
-    if (el.reflectionOptionsTakeover) {
-      el.reflectionOptionsTakeover.addEventListener('click', (event) => {
-        const button = event.target.closest('.reflection-option-btn');
-        handleReflectionChoice(button);
-      });
-    } else {
-      warnMissingUiRef('reflectionOptionsTakeover', 'session');
+    function bindSessionControls() {
+      if (el.reflectionOptionsTakeover) {
+        el.reflectionOptionsTakeover.addEventListener('click', (event) => {
+          const button = event.target.closest('.reflection-option-btn');
+          handleReflectionChoice(button);
+        });
+      } else {
+        warnMissingUiRef('reflectionOptionsTakeover', 'session');
+      }
+
+      if (el.sessionCircleShell) el.sessionCircleShell.addEventListener('click', handleCircleTap);
+      else warnMissingUiRef('sessionCircleShell', 'session');
+      if (el.sessionSeekBar) el.sessionSeekBar.addEventListener('input', (event) => seekToPercent(Number(event.target.value)));
+      else warnMissingUiRef('sessionSeekBar', 'session');
     }
 
-    if (el.sessionCircleShell) el.sessionCircleShell.addEventListener('click', handleCircleTap);
-    else warnMissingUiRef('sessionCircleShell', 'session');
-    if (el.sessionSeekBar) el.sessionSeekBar.addEventListener('input', (event) => seekToPercent(Number(event.target.value)));
-    else warnMissingUiRef('sessionSeekBar', 'session');
+    bindSessionControls();
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', bootstrapApp);
