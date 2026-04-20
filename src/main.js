@@ -586,14 +586,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       profileUniquePractices: document.getElementById('profileUniquePractices'),
       profileTopReflection: document.getElementById('profileTopReflection'),
       profileTopPractice: document.getElementById('profileTopPractice'),
-      profileRecommendationTitle: document.getElementById('profileRecommendationTitle'),
-      profileRecommendationBody: document.getElementById('profileRecommendationBody'),
-      profileNextMoveCard: document.getElementById('profileNextMoveCard'),
-      profileNextMoveTitle: document.getElementById('profileNextMoveTitle'),
-      profileNextMoveCategory: document.getElementById('profileNextMoveCategory'),
-      profileNextMoveDuration: document.getElementById('profileNextMoveDuration'),
-      profileNextMoveReason: document.getElementById('profileNextMoveReason'),
-      profileNextMoveActionBtn: document.getElementById('profileNextMoveActionBtn'),
       foundationNextCategory: document.getElementById('foundationNextCategory'),
       foundationNextTitle: document.getElementById('foundationNextTitle'),
       foundationNextPractice: document.getElementById('foundationNextPractice'),
@@ -725,7 +717,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
     let pendingWelcomeIntroTarget = null;
-    let profileNextMove = null;
     let homeNextMove = null;
     let journalDraftId = '';
     let journalEditorMode = 'create';
@@ -1105,7 +1096,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       return count + ' time' + (count === 1 ? '' : 's');
     }
 
-    function generateInsightBlocksV1({ history, recommendationKey, recommendationReason }) {
+    function generateInsightBlocksV1({ history }) {
       const safeHistory = Array.isArray(history) ? history : [];
       if (!safeHistory.length) {
         return [{
@@ -1148,14 +1139,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
         patternText = 'Your recent sessions are sparse. Lowering session length can reduce friction.';
       }
 
-      const nextPracticeKey = hasPlayablePracticeAudio(recommendationKey) ? recommendationKey : 'BreathAwareness';
-      const nextPracticeLabel = PRACTICE_GUIDANCE[nextPracticeKey]?.label || formatPracticeLabel(nextPracticeKey);
-      const nextBestActionText = `A good next step is ${nextPracticeLabel}${recommendationReason ? `. ${recommendationReason}` : '.'}`;
-
       return [
         { id: 'insight-weekly-summary', type: 'Weekly Summary', text: weeklySummaryText },
-        { id: 'insight-pattern-mirror', type: 'Pattern Mirror', text: patternText },
-        { id: 'insight-next-best-action', type: 'Next Best Action', text: nextBestActionText }
+        { id: 'insight-pattern-mirror', type: 'Pattern Mirror', text: patternText }
       ];
     }
 
@@ -1382,101 +1368,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       return hasCompletedSessionHistory() ? 'Profile' : 'Introduction';
     }
 
-    function getRecommendedNextMove(history, journalEntries, insights) {
-      const safeHistory = Array.isArray(history) ? history : [];
-      const safeJournal = Array.isArray(journalEntries) ? journalEntries : [];
-      const completedPractices = getCompletedPracticeSet(safeHistory);
-      const completedSessionsCount = getCompletedSessionCount(safeHistory);
-      const now = Date.now();
-      const todayKey = toDayKey(new Date().toISOString());
-      const practicedToday = safeHistory.some((entry) => toDayKey(entry.timestamp) === todayKey);
-      const lastSession = safeHistory[safeHistory.length - 1] || null;
-      const lastSessionTime = new Date(lastSession?.timestamp || '').getTime();
-      const hasValidLastSession = Number.isFinite(lastSessionTime);
-      const justCompletedSession = hasValidLastSession && ((now - lastSessionTime) <= 90 * 60000);
-      const hasJournalAfterSession = hasValidLastSession && safeJournal.some((entry) => {
-        const entryTime = new Date(entry.updatedAt || entry.createdAt || '').getTime();
-        return Number.isFinite(entryTime) && entryTime >= lastSessionTime;
-      });
-      const coreSequence = foundationGroups.CoreStability;
-      const nextCorePractice = coreSequence.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey));
-      const isConsistent = (insights?.streak || 0) >= 4 || (insights?.scores?.consistency || 0) >= 75;
-      const nextAppliedPractice = foundationGroups.AppliedAwareness.find((practiceKey) => !completedPractices.has(practiceKey) && hasPlayablePracticeAudio(practiceKey));
-
-      if (!completedSessionsCount) {
-        return {
-          type: 'session',
-          practiceKey: 'Introduction',
-          title: 'Introduction to Meditation',
-          category: 'Onboarding',
-          duration: '',
-          actionLabel: 'Start Training',
-          reason: 'Start your first practice.'
-        };
-      }
-
-      if (nextCorePractice) {
-        const practiceLabel = PRACTICE_GUIDANCE[nextCorePractice]?.label || formatPracticeLabel(nextCorePractice);
-        return {
-          type: 'session',
-          practiceKey: nextCorePractice,
-          title: practiceLabel,
-          category: 'Core Stability',
-          duration: '',
-          actionLabel: 'Start Training',
-          reason: 'Continue the Core Stability sequence before expanding into wider practices.'
-        };
-      }
-
-      if (!practicedToday) {
-        return {
-          type: 'session',
-          practiceKey: 'BreathAwareness',
-          title: 'Breath Awareness',
-          category: 'Core Stability',
-          duration: 'Short reset',
-          actionLabel: 'Start Training',
-          reason: 'You have not practiced today. Use a low-resistance session to re-enter quickly.'
-        };
-      }
-
-      if (justCompletedSession && !hasJournalAfterSession) {
-        return {
-          type: 'journal',
-          practiceKey: '',
-          title: 'Capture the Session',
-          category: 'Journal Integration',
-          duration: '2 min reflection',
-          actionLabel: 'Open Journal',
-          reason: 'You just completed practice. Lock in insight with a short reflection before the signal fades.'
-        };
-      }
-
-      if (isConsistent && nextAppliedPractice) {
-        const appliedLabel = PRACTICE_GUIDANCE[nextAppliedPractice]?.label || formatPracticeLabel(nextAppliedPractice);
-        return {
-          type: 'session',
-          practiceKey: nextAppliedPractice,
-          title: appliedLabel,
-          category: 'Applied Awareness',
-          duration: '',
-          actionLabel: 'Start Training',
-          reason: 'Your consistency is strong enough to widen awareness while staying stable.'
-        };
-      }
-
-      const fallbackKey = hasPlayablePracticeAudio(insights?.recommendationKey) ? insights.recommendationKey : 'BreathAwareness';
-      return {
-        type: 'session',
-        practiceKey: fallbackKey,
-        title: PRACTICE_GUIDANCE[fallbackKey]?.label || formatPracticeLabel(fallbackKey),
-        category: getPracticeCategory(fallbackKey),
-        duration: '',
-        actionLabel: 'Start Training',
-        reason: insights?.recommendationReason || 'Start your first practice.'
-      };
-    }
-
     function getTrainingInsights() {
       const history = loadSessionHistory();
       const journalEntries = loadJournalEntries();
@@ -1642,8 +1533,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
         feedbackParts.push('Your recent pattern is steady. This is the right time to keep the method stable and let depth accumulate.');
       }
 
-      feedbackParts.push('Recommended next practice: ' + guide.label + '. ' + ((readiness === 'stabilising' || readiness === 'starting') ? guide.stabilise : guide.deepen));
-
       let nextThreeSessions;
       if (coachState === 'unsettled' || coachState === 'overreaching') {
         nextThreeSessions = [
@@ -1722,7 +1611,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         'Scores — Consistency: ' + consistencyScore + ' • Stability: ' + stabilityScore + ' • Depth: ' + depthScore,
         'Last session: ' + (lastReflection || 'No reflection saved'),
         '',
-        'Suggested direction:',
+        'Observations:',
         feedbackParts.join('\n\n')
       ];
 
@@ -1739,11 +1628,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         recommendationLabel: guide.label,
         recommendationKey,
         recommendationReason,
-        insightBlocks: generateInsightBlocksV1({
-          history,
-          recommendationKey,
-          recommendationReason
-        }),
+        insightBlocks: generateInsightBlocksV1({ history }),
         patternInsights: buildPatternInsights(history, journalEntries),
         readiness,
         recentTrend,
@@ -2516,8 +2401,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const historyAll = loadSessionHistory();
       const insights = getTrainingInsights();
       const accountStats = getAccountProgressStats(historyAll);
-      const journalEntries = loadJournalEntries();
-      profileNextMove = getRecommendedNextMove(historyAll, journalEntries, insights);
       const history = historyAll.slice(-8).reverse();
 
       el.profileCoachTitle.textContent = insights.title;
@@ -2536,16 +2419,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.profileConsistencyCaption) el.profileConsistencyCaption.textContent = insights.scores?.consistencyLabel || 'Still building regularity.';
       if (el.profileStabilityCaption) el.profileStabilityCaption.textContent = insights.scores?.stabilityLabel || 'Needs more clean returns and simpler anchors.';
       if (el.profileDepthCaption) el.profileDepthCaption.textContent = insights.scores?.depthLabel || 'Early-stage depth. Keep strengthening the base.';
-
-      if (el.profileRecommendationTitle) el.profileRecommendationTitle.textContent = profileNextMove?.title || 'Start your first practice';
-      if (el.profileRecommendationBody) el.profileRecommendationBody.textContent = profileNextMove?.reason || 'One focused session builds momentum.';
-      if (el.profileNextMoveCategory) el.profileNextMoveCategory.textContent = profileNextMove?.category || 'Core Stability';
-      if (el.profileNextMoveDuration) {
-        const duration = profileNextMove?.duration || '';
-        el.profileNextMoveDuration.textContent = duration;
-        el.profileNextMoveDuration.classList.toggle('hidden', !duration);
-      }
-      if (el.profileNextMoveActionBtn) el.profileNextMoveActionBtn.textContent = profileNextMove?.actionLabel || 'Start Session';
 
       if (el.profileInsightsList) {
         const insightBlocks = Array.isArray(insights.insightBlocks) && insights.insightBlocks.length
@@ -2591,24 +2464,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       });
       renderJournalList();
     }
-
-    function handleRecommendedNextMove(event = null) {
-      if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
-      const move = profileNextMove || getRecommendedNextMove(loadSessionHistory(), loadJournalEntries(), getTrainingInsights());
-      if (!move) return;
-      if (move.type === 'journal') {
-        selectMainMode('Profile');
-        startNewJournalEntry();
-        return;
-      }
-      if (move.practiceKey === 'Introduction') {
-        selectMainMode('Introduction');
-      } else if (move.practiceKey) {
-        setSubcategory(move.practiceKey, false);
-      }
-      startSessionButton();
-    }
-    window.handleRecommendedNextMove = handleRecommendedNextMove;
 
     function getStartTrainingRecommendedPracticeKey() {
       return getFoundationHomeRecommendation().recommendedKey || 'BreathAwareness';
