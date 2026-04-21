@@ -1,5 +1,6 @@
 
 import { createPracticeRecommendation } from './recommendation-engine.js';
+import { GrainCircle } from './grain-circle.js';
 
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -627,6 +628,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       sessionOverlay: document.getElementById('sessionOverlay'),
       sessionStage: document.querySelector('.session-stage'),
       sessionCircleShell: document.getElementById('sessionCircleShell'),
+      sessionGrainCanvas: document.getElementById('sessionGrainCanvas'),
       sessionInnerCore: document.getElementById('sessionInnerCore'),
       wave1: document.getElementById('wave1'),
       wave2: document.getElementById('wave2'),
@@ -733,6 +735,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let sessionAudioReady = false;
     let pendingPlaybackStart = false;
     let playRequestPending = false;
+    let sessionGrainCircle = null;
 
     // Navigation Controller Section (V2 shell): top-level destination mapping
     const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
@@ -3063,6 +3066,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       document.body.classList.add('session-active');
       el.sessionOverlay.classList.add('active');
+      if (sessionGrainCircle) sessionGrainCircle.start();
       requestImmersiveFullscreen();
       updateSessionScrollability();
       requestWakeLock();
@@ -3072,10 +3076,20 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function exitSessionMode() {
       if (el.sessionOverlay) el.sessionOverlay.classList.remove('active', 'scrollable');
       document.body.classList.remove('session-active');
+      if (sessionGrainCircle) sessionGrainCircle.stop();
       hideReflectionTakeover();
       hideCompletionTakeover();
       exitImmersiveFullscreen();
       releaseWakeLock();
+    }
+
+    function initSessionGrainCircle() {
+      if (!el.sessionGrainCanvas) {
+        warnMissingUiRef('sessionGrainCanvas', 'session');
+        return;
+      }
+      sessionGrainCircle = new GrainCircle(el.sessionGrainCanvas);
+      sessionGrainCircle.start();
     }
 
     function startPlayback() {
@@ -3873,6 +3887,7 @@ window.__ataraxia = {
         configureBackgroundAudio();
         initAudio();
         syncUI();
+        initSessionGrainCircle();
       } catch (error) {
         console.error('Ataraxia initial sync error:', error);
       }
@@ -3916,6 +3931,9 @@ window.__ataraxia = {
       if (el.welcomeIntroOverlay?.classList.contains('active')) {
         startWelcomeParticles();
       }
+      if (sessionGrainCircle) {
+        sessionGrainCircle.resize();
+      }
       if (el.sessionOverlay?.classList.contains('active')) {
         updateSessionScrollability();
       }
@@ -3932,6 +3950,9 @@ window.__ataraxia = {
     });
 
     document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && sessionGrainCircle) {
+        sessionGrainCircle.resize();
+      }
       if (document.hidden) {
         if (wakeLockHandle) {
           releaseWakeLock();
