@@ -575,6 +575,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       comingNextBody: document.getElementById('comingNextBody'),
       trainHierarchyBackBtn: document.getElementById('trainHierarchyBackBtn'),
       trainHierarchyTitle: document.getElementById('trainHierarchyTitle'),
+      trainDetailBackBtn: document.getElementById('trainDetailBackBtn'),
       profilePagePanel: document.getElementById('profilePagePanel'),
       profileCoachTitle: document.getElementById('profileCoachTitle'),
       profileCoachBody: document.getElementById('profileCoachBody'),
@@ -681,10 +682,15 @@ You do not need to force anything. Arrive and follow the guidance.`,
       FOUNDATION_MEDITATION_LIST: 'foundation-meditation-list',
       FOUNDATION_LESSON: 'foundation-lesson'
     };
+    const TRAIN_VIEW_STATE = {
+      LIST: 'list',
+      DETAIL: 'detail'
+    };
     let activeFoundationSubgroup = 'CoreStability';
     let openFoundationGroup = 'CoreStability';
     let activeFoundationGroup = 'CoreStability';
     let trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+    let trainViewState = TRAIN_VIEW_STATE.LIST;
     let lastCoreStabilitySubcategory = 'BreathAwareness';
     let currentPlaylist = [];
     let currentTrackIndex = 0;
@@ -2070,6 +2076,33 @@ You do not need to force anything. Arrive and follow the guidance.`,
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
     }
 
+    function updateTrainViewVisibility() {
+      if (activeDestination !== 'Train') return;
+      const isDetailView = trainViewState === TRAIN_VIEW_STATE.DETAIL;
+      const trainSkillCard = el.trainPracticeCopyLabel?.closest('.practice-copy');
+
+      if (el.foundationHomePanel) {
+        el.foundationHomePanel.classList.toggle('hidden', isDetailView);
+        el.foundationHomePanel.toggleAttribute('hidden', isDetailView);
+      }
+
+      if (trainSkillCard) {
+        trainSkillCard.classList.toggle('hidden', !isDetailView);
+        trainSkillCard.toggleAttribute('hidden', !isDetailView);
+      }
+
+      if (el.trainLessonCard) {
+        const showLesson = isDetailView && activePractice === 'Foundation' && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
+        el.trainLessonCard.classList.toggle('hidden', !showLesson);
+        el.trainLessonCard.toggleAttribute('hidden', !showLesson);
+      }
+
+      if (el.trainDetailBackBtn) {
+        el.trainDetailBackBtn.classList.toggle('hidden', !isDetailView);
+        el.trainDetailBackBtn.toggleAttribute('hidden', !isDetailView);
+      }
+    }
+
     function hideLessonOverlayImmediate() {
       clearTimeout(lessonOverlayTimeout);
       clearTimeout(lessonOverlayExitTimeout);
@@ -2159,6 +2192,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       const shouldShowTrainLessonCard = activeDestination === 'Train'
         && activePractice === 'Foundation'
+        && trainViewState === TRAIN_VIEW_STATE.DETAIL
         && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
 
       if (data.lesson && shouldShowTrainLessonCard) {
@@ -2491,6 +2525,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function syncUI() {
       updateTopNavigationShell();
       updateContentUI();
+      updateTrainViewVisibility();
       updateMenuState();
       updateJourneyButtons();
       updateAudioStatus();
@@ -3335,6 +3370,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (destination === 'Train') {
         activeDestination = 'Train';
+        trainViewState = TRAIN_VIEW_STATE.LIST;
         if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
           trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
         }
@@ -3345,6 +3381,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         if (activePractice === 'Foundation') {
           trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
         }
+        trainViewState = TRAIN_VIEW_STATE.LIST;
         activeDestination = destination;
         activePractice = destination === 'Home' ? getDefaultOpeningMode() : 'Profile';
       }
@@ -3357,6 +3394,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function selectMainMode(name) {
       activePractice = name;
       activeDestination = inferDestinationFromPractice(name);
+      if (activeDestination !== 'Train') trainViewState = TRAIN_VIEW_STATE.LIST;
       foundationMenuOpen = false;
       shownLessonKey = '';
       if (name === 'Introduction' || name === 'Welcome') activeSubcategory = 'BreathAwareness';
@@ -3370,6 +3408,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeDestination = 'Train';
       activePractice = 'FoundationHome';
       activeTrainTrack = name;
+      trainViewState = TRAIN_VIEW_STATE.LIST;
       trainHierarchyLevel = name === 'Foundation'
         ? TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY
         : TRAIN_HIERARCHY_LEVEL.ROOT;
@@ -3387,6 +3426,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeFoundationSubgroup = group;
       activeFoundationGroup = group;
       openFoundationGroup = group;
+      trainViewState = TRAIN_VIEW_STATE.LIST;
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
       foundationMenuOpen = true;
       refreshCurrentMode();
@@ -3408,6 +3448,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       openFoundationGroup = name;
       activeTrainTrack = 'Foundation';
       foundationMenuOpen = true;
+      trainViewState = TRAIN_VIEW_STATE.LIST;
       refreshCurrentMode();
     }
     window.toggleFoundationGroup = toggleFoundationGroup;
@@ -3429,6 +3470,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       foundationMenuOpen = true;
       activeTrainTrack = 'Foundation';
+      trainViewState = TRAIN_VIEW_STATE.DETAIL;
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
       openFoundationGroup = activeFoundationGroup;
       shownLessonKey = '';
@@ -3452,6 +3494,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activeTrainTrack = 'Foundation';
       activePractice = 'FoundationHome';
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
+      trainViewState = TRAIN_VIEW_STATE.LIST;
       foundationMenuOpen = true;
       shownLessonKey = '';
       refreshCurrentMode();
@@ -3464,6 +3507,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST) {
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
+        trainViewState = TRAIN_VIEW_STATE.LIST;
         activePractice = 'FoundationHome';
         activeTrainTrack = 'Foundation';
         refreshCurrentMode();
@@ -3472,6 +3516,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
+        trainViewState = TRAIN_VIEW_STATE.LIST;
         activePractice = 'FoundationHome';
         activeTrainTrack = 'Foundation';
         refreshCurrentMode();
@@ -3480,6 +3525,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY) {
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+        trainViewState = TRAIN_VIEW_STATE.LIST;
         activePractice = 'FoundationHome';
         activeTrainTrack = 'Foundation';
         refreshCurrentMode();
@@ -3487,6 +3533,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+      trainViewState = TRAIN_VIEW_STATE.LIST;
       activePractice = 'FoundationHome';
       refreshCurrentMode();
     }
