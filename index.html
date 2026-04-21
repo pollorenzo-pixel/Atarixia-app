@@ -1595,6 +1595,15 @@
     .reactive-wave.wave-3 { inset: -46px; opacity: 0.06; }
 
     .session-circle-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+    .session-grain-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
     .session-ring { position: absolute; inset: 0; transform: rotate(-90deg); }
     .session-ring circle { fill: none; stroke-width: 4; }
     .session-ring-bg { stroke: rgba(255,255,255,0.08); }
@@ -2111,6 +2120,7 @@
         <div class="reactive-wave wave-2" id="wave2"></div>
         <div class="reactive-wave wave-3" id="wave3"></div>
         <div class="session-circle-container">
+          <canvas class="session-grain-canvas" id="sessionGrainCanvas" aria-hidden="true"></canvas>
           <svg class="session-ring" viewBox="0 0 520 520" aria-hidden="true">
             <circle class="session-ring-bg" cx="260" cy="260" r="236"></circle>
             <circle class="session-ring-progress" id="sessionProgressRing" cx="260" cy="260" r="236"></circle>
