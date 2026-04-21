@@ -1,6 +1,7 @@
 
 import { createPracticeRecommendation } from './recommendation-engine.js';
 import { GrainCircle } from './grain-circle.js';
+import { createSessionModeController } from './session-mode-controller.js';
 
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -715,7 +716,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let lessonOverlayTimeout = null;
     let lessonOverlayExitTimeout = null;
     let shownLessonKey = '';
-    let wakeLockHandle = null;
     let welcomeIntroTickRaf = null;
     let welcomeIntroTextTrack = null;
     let welcomeReactiveRaf = null;
@@ -2875,49 +2875,30 @@ You do not need to force anything. Arrive and follow the guidance.`,
       data.skillLabel = getFoundationSkillLabel(practiceKey);
     });
 
+    const sessionModeController = createSessionModeController({
+      getOverlay: () => el.sessionOverlay,
+      getStage: () => el.sessionStage,
+      sessionState: () => sessionState,
+      isTerminalState: (state) => state === SESSION_STATE.ENDED || state === SESSION_STATE.IDLE,
+      onStart: () => {
+        if (sessionGrainCircle) sessionGrainCircle.start();
+      },
+      onStop: () => {
+        if (sessionGrainCircle) sessionGrainCircle.stop();
+      },
+      onWarn: warnMissingUiRef
+    });
+
     function updateSessionScrollability() {
-      const topbarHeight = document.querySelector('.session-topbar')?.offsetHeight || 0;
-      const stageHeight = el.sessionStage?.scrollHeight || 0;
-      const needsScroll = stageHeight + topbarHeight > window.innerHeight - 8;
-      if (!el.sessionOverlay) {
-        warnMissingUiRef('sessionOverlay', 'session');
-        return;
-      }
-      el.sessionOverlay.classList.toggle('scrollable', needsScroll);
+      sessionModeController.updateScrollability();
     }
 
     async function requestWakeLock() {
-      try {
-        if (!('wakeLock' in navigator) || wakeLockHandle || !el.sessionOverlay.classList.contains('active') || sessionState === SESSION_STATE.ENDED || sessionState === SESSION_STATE.IDLE) return;
-        navigator.wakeLock.request('screen').then((handle) => {
-          wakeLockHandle = handle;
-          wakeLockHandle.addEventListener('release', () => {
-            wakeLockHandle = null;
-          });
-        }).catch(() => {
-          wakeLockHandle = null;
-        });
-      } catch {
-        wakeLockHandle = null;
-      }
+      return sessionModeController.requestWakeLock();
     }
 
     async function releaseWakeLock() {
-      try {
-        await wakeLockHandle?.release();
-      } catch {}
-      wakeLockHandle = null;
-    }
-
-    function requestImmersiveFullscreen() {
-      const root = document.documentElement;
-      if (!root || document.fullscreenElement || !root.requestFullscreen) return;
-      root.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
-    }
-
-    function exitImmersiveFullscreen() {
-      if (!document.fullscreenElement || !document.exitFullscreen) return;
-      document.exitFullscreen().catch(() => {});
+      return sessionModeController.releaseWakeLock();
     }
 
     function ensureSessionUiRefs() {
@@ -3060,27 +3041,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function enterSessionMode() {
       hideReflectionTakeover();
       hideCompletionTakeover();
-      if (!el.sessionOverlay) {
-        warnMissingUiRef('sessionOverlay', 'session');
-        return false;
-      }
-      document.body.classList.add('session-active');
-      el.sessionOverlay.classList.add('active');
-      if (sessionGrainCircle) sessionGrainCircle.start();
-      requestImmersiveFullscreen();
-      updateSessionScrollability();
-      requestWakeLock();
-      return true;
+      return sessionModeController.start();
     }
 
     function exitSessionMode() {
-      if (el.sessionOverlay) el.sessionOverlay.classList.remove('active', 'scrollable');
-      document.body.classList.remove('session-active');
-      if (sessionGrainCircle) sessionGrainCircle.stop();
+      sessionModeController.stop();
       hideReflectionTakeover();
       hideCompletionTakeover();
-      exitImmersiveFullscreen();
-      releaseWakeLock();
     }
 
     function initSessionGrainCircle() {
@@ -3918,6 +3885,7 @@ window.__ataraxia = {
     }
 
     bindSessionControls();
+    sessionModeController.mount();
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', bootstrapApp);
@@ -3954,7 +3922,7 @@ window.__ataraxia = {
         sessionGrainCircle.resize();
       }
       if (document.hidden) {
-        if (wakeLockHandle) {
+        if (sessionModeController.hasWakeLock()) {
           releaseWakeLock();
         }
         return;
@@ -3988,4 +3956,7 @@ window.__ataraxia = {
 
     window.addEventListener('focus', recoverSessionAfterReturn);
     window.addEventListener('pageshow', recoverSessionAfterReturn);
+    window.addEventListener('beforeunload', () => {
+      sessionModeController.unmount();
+    });
   
