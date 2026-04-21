@@ -1858,62 +1858,60 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       const cx = w / 2;
       const cy = h / 2 - Math.min(h * 0.03, 18);
-      const baseRadius = Math.min(w, h) * 0.165;
-      const innerRadius = baseRadius * 0.34;
-      const lineCount = 34;
-      const pointsPerLine = 520;
+      const fieldRadius = Math.min(w, h) * 0.172;
+      const innerVoid = fieldRadius * 0.2;
+      const minDimension = Math.max(1, Math.min(w, h));
+      const particleCount = minDimension < 460 ? 1000 : 1480;
 
-      const lineOffsets = Array.from({ length: lineCount }, (_, i) => ({
-        radius: innerRadius + ((baseRadius - innerRadius) * i / (lineCount - 1)),
-        wobble: 1.2 + i * 0.05,
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.00028 + i * 0.000018,
-        weight: 0.9 + (i / lineCount) * 0.18,
-        alpha: 0.72 + (i / lineCount) * 0.16,
-        twist: Math.random() * Math.PI * 2
-      }));
+      // removed old scribble logic: no line paths, no stroke loops, no orbit ring drawing
+      // new grain particle logic: dense circular grain field with soft radial weighting
+      const particles = Array.from({ length: particleCount }, () => {
+        const bias = Math.pow(Math.random(), 0.52);
+        const radialNorm = 0.26 + (0.74 * bias);
+        return {
+          radialNorm,
+          angle: Math.random() * Math.PI * 2,
+          angularDrift: (Math.random() - 0.5) * 0.045,
+          radialJitterAmp: 0.004 + Math.random() * 0.012,
+          radialJitterFreq: 0.14 + Math.random() * 0.14,
+          radialJitterPhase: Math.random() * Math.PI * 2,
+          alphaBase: 0.25 + Math.random() * 0.5,
+          size: 0.4 + Math.random() * 0.7
+        };
+      });
 
       stopWelcomeParticles();
 
       const tick = () => {
         const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
         const t = performance.now();
-        const globalBreath = 1 + reactivity * 0.045;
-        const rippleAmount = 0.55 + reactivity * 4.8;
-        const fullWave = reactivity * 5.5;
+        // breath animation section: slow 7s cycle, subtle 3-4% expansion
+        const breathWave = Math.sin((t / 7000) * Math.PI * 2);
+        const breathScale = 1 + (breathWave * 0.034) + (reactivity * 0.009);
+        const microAlpha = 0.96;
 
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = `rgba(0,0,0,${microAlpha})`;
         ctx.fillRect(0, 0, w, h);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
 
-        for (let i = 0; i < lineOffsets.length; i++) {
-          const ring = lineOffsets[i];
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.angle += p.angularDrift * 0.016;
+          const ringFocus = 0.55 + (p.radialNorm * 0.45);
+          const jitter = Math.sin((t * 0.001 * p.radialJitterFreq) + p.radialJitterPhase) * p.radialJitterAmp;
+          const radius = (fieldRadius * (p.radialNorm + jitter)) * breathScale;
+          if (radius <= innerVoid) continue;
+          const x = cx + Math.cos(p.angle) * radius;
+          const y = cy + Math.sin(p.angle) * radius;
+          const alpha = Math.min(0.75, p.alphaBase * ringFocus);
           ctx.beginPath();
-          for (let p = 0; p <= pointsPerLine; p++) {
-            const a = (p / pointsPerLine) * Math.PI * 2;
-            const radiusBreath = ring.radius * globalBreath;
-            const wave1 = Math.sin(a * 2.0 + ring.phase + t * ring.speed) * ring.wobble;
-            const wave2 = Math.sin(a * 5.2 - ring.phase * 0.7 + t * (ring.speed * 1.8)) * (rippleAmount * 0.42);
-            const wave3 = Math.cos(a * 9.5 + ring.twist + t * 0.0012) * (rippleAmount * 0.18);
-            const fullOrbitPulse = Math.sin(a + t * 0.001 + ring.phase) * fullWave;
-            const densityWeight = Math.sin(a * 3.0 + t * 0.0009 + ring.twist) * (reactivity * 1.15);
-            const r = radiusBreath + wave1 + wave2 + wave3 + fullOrbitPulse + densityWeight;
-            const x = cx + Math.cos(a) * r;
-            const y = cy + Math.sin(a) * r;
-            if (p === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          }
-          ctx.closePath();
-          ctx.strokeStyle = `rgba(255,255,255,${ring.alpha})`;
-          ctx.lineWidth = ring.weight + reactivity * 0.08;
-          ctx.stroke();
+          ctx.arc(x, y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.fill();
         }
 
         ctx.beginPath();
         ctx.fillStyle = '#000';
-        ctx.arc(cx, cy, innerRadius * globalBreath - 2, 0, Math.PI * 2);
+        ctx.arc(cx, cy, innerVoid * breathScale, 0, Math.PI * 2);
         ctx.fill();
 
         welcomeParticlesRaf = requestAnimationFrame(tick);
