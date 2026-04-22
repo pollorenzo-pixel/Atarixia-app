@@ -6,8 +6,8 @@ export class GrainCircle {
       innerVoidRatio: 0.2,
       breathDurationMs: 7000,
       breathScale: 0.045,
-      baseFadeAlpha: 0.11,
-      particleAlpha: 0.6,
+      baseFadeAlpha: 0.34,
+      particleAlpha: 0.5,
       ...options
     };
     this.dpr = 1;
@@ -36,18 +36,22 @@ export class GrainCircle {
   createParticles() {
     const minDimension = Math.max(1, Math.min(this.width, this.height));
     const mobile = minDimension < 460;
-    const count = mobile ? 820 : 1120;
+    const count = mobile ? 1700 : 2500;
     const inner = this.options.innerVoidRatio;
     this.particles = Array.from({ length: count }, () => {
-      const radialBias = Math.pow(Math.random(), 0.48);
+      const radialBias = Math.pow(Math.random(), 0.62);
       const radialNorm = inner + (1 - inner) * radialBias;
       return {
+        xJitter: (Math.random() - 0.5) * 0.22,
+        yJitter: (Math.random() - 0.5) * 0.22,
         radialNorm,
-        radialBreatheOffset: (Math.random() - 0.5) * 0.015,
+        radialBreatheOffset: (Math.random() - 0.5) * 0.042,
         angle: Math.random() * Math.PI * 2,
-        drift: (Math.random() - 0.5) * 0.03,
+        drift: (Math.random() - 0.5) * 0.004,
+        wander: 0.2 + Math.random() * 0.9,
+        pulse: 0.05 + Math.random() * 0.16,
         seed: Math.random() * Math.PI * 2,
-        size: 0.5 + Math.random() * 0.7
+        size: 0.35 + Math.random() * 0.8
       };
     });
   }
@@ -129,14 +133,19 @@ export class GrainCircle {
 
     for (let i = 0; i < this.particles.length; i += 1) {
       const p = this.particles[i];
-      p.angle += p.drift * dt;
-      const driftNoise = Math.sin((t * 0.24) + p.seed) * 0.008;
-      const radialNoise = Math.sin((t * 0.12) + (p.seed * 1.7)) * 0.016;
+      p.angle += (p.drift + ((Math.random() - 0.5) * 0.002)) * dt;
+      const randomWalkX = ((Math.random() - 0.5) * p.wander);
+      const randomWalkY = ((Math.random() - 0.5) * p.wander);
+      p.xJitter = (p.xJitter * 0.85) + (randomWalkX * 0.15);
+      p.yJitter = (p.yJitter * 0.85) + (randomWalkY * 0.15);
+
+      const grainPulse = Math.sin((t * (0.35 + p.pulse)) + (p.seed * 1.2)) * 0.022;
+      const radialNoise = (Math.sin((t * 0.17) + (p.seed * 1.9)) * 0.02) + grainPulse;
       const radius = this.maxRadius * (p.radialNorm + radialNoise + (breath * p.radialBreatheOffset)) * breathScale;
       if (radius <= innerVoid) continue;
-      const angle = p.angle + driftNoise;
-      const x = this.cx + Math.cos(angle) * radius;
-      const y = this.cy + Math.sin(angle) * radius;
+      const angle = p.angle + (Math.sin((t * 0.28) + p.seed) * 0.008);
+      const x = this.cx + (Math.cos(angle) * radius) + p.xJitter;
+      const y = this.cy + (Math.sin(angle) * radius) + p.yJitter;
       ctx.beginPath();
       ctx.arc(x, y, p.size, 0, Math.PI * 2);
       ctx.fill();
