@@ -767,6 +767,15 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let welcomeAudioAnalyser = null;
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
+    let welcomeAudioWaveData = null;
+    let welcomeVisualState = {
+      rms: 0,
+      low: 0,
+      mid: 0,
+      high: 0,
+      presence: 0,
+      silence: 1
+    };
     let pendingWelcomeIntroTarget = null;
     let welcomeIntroMode = 'welcome';
     let homeNextMove = null;
@@ -1888,7 +1897,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
         el.welcomeIntroSkipBtn.classList.remove('hidden');
         el.welcomeIntroSkipBtn.textContent = 'Skip';
       }
-      document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
+      welcomeVisualState = {
+        rms: 0,
+        low: 0,
+        mid: 0,
+        high: 0,
+        presence: 0,
+        silence: 1
+      };
     }
 
     function ensureWelcomeIntroAudioGraph() {
@@ -1902,15 +1918,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
           welcomeAudioSource = welcomeAudioCtx.createMediaElementSource(el.welcomeIntroAudio);
         }
         welcomeAudioAnalyser = welcomeAudioCtx.createAnalyser();
-        welcomeAudioAnalyser.fftSize = 256;
-        welcomeAudioAnalyser.smoothingTimeConstant = 0.86;
+        welcomeAudioAnalyser.fftSize = 1024;
+        welcomeAudioAnalyser.smoothingTimeConstant = 0.72;
         welcomeAudioData = new Uint8Array(welcomeAudioAnalyser.frequencyBinCount);
+        welcomeAudioWaveData = new Uint8Array(welcomeAudioAnalyser.fftSize);
         welcomeAudioSource.connect(welcomeAudioAnalyser);
         welcomeAudioAnalyser.connect(welcomeAudioCtx.destination);
       } catch (error) {
         console.warn('Welcome audio analyser unavailable.', error);
         welcomeAudioAnalyser = null;
         welcomeAudioData = null;
+        welcomeAudioWaveData = null;
       }
     }
     
@@ -1973,30 +1991,60 @@ You do not need to force anything. Arrive and follow the guidance.`,
         };
       });
 
+      const visual = {
+        bodyScale: 1,
+        edgeActivity: 0,
+        shimmer: 0,
+        inwardPull: 0,
+        settle: 1,
+        voiceMotion: 0
+      };
+
       stopWelcomeParticles();
 
       const tick = () => {
-        const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
+        const {
+          rms = 0,
+          low = 0,
+          mid = 0,
+          high = 0,
+          presence = 0,
+          silence = 1
+        } = welcomeVisualState || {};
         const t = performance.now();
-        const breath = (Math.sin(t * 0.001) + 1) / 2;
-        const breathScale = 0.93 + (breath * 0.14) + (reactivity * 0.014);
-        const contractionPull = (1 - breath) * 2.2;
-        const alphaBoost = 0.88 + (breath * 0.12);
+        const breath = (Math.sin(t * 0.0007) + 1) / 2;
+        const baseBreathScale = 0.965 + (breath * 0.05);
+        const targetBodyScale = baseBreathScale + (rms * 0.09) + (mid * 0.05) + (low * 0.03);
+        const targetEdgeActivity = (mid * 0.55) + (high * 0.45);
+        const targetShimmer = high * (0.55 + (presence * 0.45));
+        const targetInwardPull = (low * 1.45) + ((1 - breath) * 0.85) + (silence * 0.65);
+        const targetSettle = 1 - (presence * 0.5) + (silence * 0.22);
+        const targetVoiceMotion = (mid * 0.75) + (rms * 0.45);
+        visual.bodyScale += (targetBodyScale - visual.bodyScale) * 0.08;
+        visual.edgeActivity += (targetEdgeActivity - visual.edgeActivity) * 0.1;
+        visual.shimmer += (targetShimmer - visual.shimmer) * 0.15;
+        visual.inwardPull += (targetInwardPull - visual.inwardPull) * 0.06;
+        visual.settle += (targetSettle - visual.settle) * 0.08;
+        visual.voiceMotion += (targetVoiceMotion - visual.voiceMotion) * 0.11;
 
         ctx.fillStyle = 'rgba(0,0,0,1)';
         ctx.fillRect(0, 0, w, h);
 
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i];
-          p.angle += p.angularDrift;
+          const edgeFactor = Math.pow(Math.min(1, Math.max(0, (p.baseRadius - innerRadius) / radiusBand)), 1.2);
+          p.angle += p.angularDrift * (0.55 + (visual.edgeActivity * 1.05));
           const drift = Math.sin((t * 0.001 * p.radialDriftFreq) + p.radialDriftPhase) * p.radialDriftAmp;
-          const pulse = Math.sin((t * 0.0008) + p.pulsePhase) * 0.85;
-          let radius = ((p.baseRadius + p.scatter + drift + pulse) * breathScale) - contractionPull;
+          const pulse = Math.sin((t * 0.00055 * (0.85 + visual.voiceMotion)) + p.pulsePhase) * (0.52 + (visual.edgeActivity * 0.45));
+          const shimmerWave = Math.sin((t * 0.0023) + (p.pulsePhase * 1.6)) * (visual.shimmer * 0.9) * (0.2 + (edgeFactor * 0.8));
+          const bodyDrift = Math.sin((t * 0.00042) + p.radialDriftPhase) * (low * 1.8);
+          let radius = ((p.baseRadius + p.scatter + drift + pulse + shimmerWave + bodyDrift) * visual.bodyScale) - visual.inwardPull;
           if (radius <= innerRadius) continue;
 
           const x = cx + Math.cos(p.angle) * radius;
           const y = cy + Math.sin(p.angle) * radius;
-          const alpha = Math.min(0.9, p.alphaBase * alphaBoost * p.breatheWeight);
+          const alphaBoost = (0.82 + (visual.voiceMotion * 0.22) + (visual.shimmer * 0.18)) * visual.settle;
+          const alpha = Math.min(0.9, p.alphaBase * alphaBoost * p.breatheWeight * (0.9 + (edgeFactor * visual.edgeActivity * 0.2)));
           ctx.beginPath();
           ctx.arc(x, y, p.size, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255,255,255,${alpha})`;
@@ -2014,25 +2062,84 @@ You do not need to force anything. Arrive and follow the guidance.`,
         cancelAnimationFrame(welcomeReactiveRaf);
         welcomeReactiveRaf = null;
       }
-      document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
+      welcomeVisualState = {
+        rms: 0,
+        low: 0,
+        mid: 0,
+        high: 0,
+        presence: 0,
+        silence: 1
+      };
     }
 
     function startWelcomeReactiveTicker() {
-      if (!welcomeAudioAnalyser || !welcomeAudioData) return;
+      if (!welcomeAudioAnalyser || !welcomeAudioData || !welcomeAudioWaveData) return;
       stopWelcomeReactiveTicker();
+      const smoothed = {
+        rms: 0,
+        low: 0,
+        mid: 0,
+        high: 0,
+        presence: 0
+      };
+      const applySmooth = (current, target) => {
+        const attack = 0.24;
+        const release = 0.06;
+        return current + ((target - current) * (target > current ? attack : release));
+      };
       const tick = () => {
         if (!el.welcomeIntroAudio || el.welcomeIntroAudio.paused || el.welcomeIntroAudio.ended) {
           welcomeReactiveRaf = null;
-          document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
+          welcomeVisualState = {
+            rms: 0,
+            low: 0,
+            mid: 0,
+            high: 0,
+            presence: 0,
+            silence: 1
+          };
           return;
         }
         welcomeAudioAnalyser.getByteFrequencyData(welcomeAudioData);
-        let sum = 0;
-        const sampleSize = Math.min(48, welcomeAudioData.length);
-        for (let i = 0; i < sampleSize; i++) sum += welcomeAudioData[i];
-        const avg = sampleSize ? sum / sampleSize : 0;
-        const normalized = Math.min(1, Math.max(0, (avg / 255) * 1.85));
-        document.documentElement.style.setProperty('--welcome-audio-reactivity', normalized.toFixed(3));
+        welcomeAudioAnalyser.getByteTimeDomainData(welcomeAudioWaveData);
+        const sampleCount = welcomeAudioWaveData.length || 1;
+        let squareSum = 0;
+        for (let i = 0; i < sampleCount; i += 1) {
+          const centered = (welcomeAudioWaveData[i] - 128) / 128;
+          squareSum += centered * centered;
+        }
+        const rmsRaw = Math.sqrt(squareSum / sampleCount);
+        const normalizedRms = Math.max(0, Math.min(1, (rmsRaw - 0.012) / 0.22));
+
+        const bandAvg = (start, end) => {
+          const cappedStart = Math.max(0, Math.min(welcomeAudioData.length - 1, start));
+          const cappedEnd = Math.max(cappedStart + 1, Math.min(welcomeAudioData.length, end));
+          let total = 0;
+          for (let i = cappedStart; i < cappedEnd; i += 1) total += welcomeAudioData[i];
+          return (total / Math.max(1, cappedEnd - cappedStart)) / 255;
+        };
+        const lowRaw = bandAvg(2, 18);
+        const midRaw = bandAvg(18, 72);
+        const highRaw = bandAvg(72, 160);
+        const presenceRaw = Math.max(normalizedRms, (midRaw * 0.75) + (lowRaw * 0.18) + (highRaw * 0.07));
+        const silenceGate = 0.04;
+        const gatedPresence = presenceRaw < silenceGate ? 0 : (presenceRaw - silenceGate) / (1 - silenceGate);
+
+        smoothed.rms = applySmooth(smoothed.rms, normalizedRms);
+        smoothed.low = applySmooth(smoothed.low, lowRaw);
+        smoothed.mid = applySmooth(smoothed.mid, midRaw);
+        smoothed.high = applySmooth(smoothed.high, highRaw);
+        smoothed.presence = applySmooth(smoothed.presence, gatedPresence);
+
+        const silence = 1 - Math.min(1, smoothed.presence * 1.18);
+        welcomeVisualState = {
+          rms: smoothed.rms,
+          low: smoothed.low,
+          mid: smoothed.mid,
+          high: smoothed.high,
+          presence: smoothed.presence,
+          silence
+        };
         welcomeReactiveRaf = requestAnimationFrame(tick);
       };
       welcomeReactiveRaf = requestAnimationFrame(tick);
