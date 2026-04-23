@@ -1856,27 +1856,35 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!ctx) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const cx = w / 2;
-      const cy = h / 2 - Math.min(h * 0.03, 18);
-      const fieldRadius = Math.min(w, h) * 0.172;
-      const innerVoid = fieldRadius * 0.2;
-      const minDimension = Math.max(1, Math.min(w, h));
-      const particleCount = minDimension < 460 ? 1000 : 1480;
+      const minSide = Math.max(1, Math.min(w, h));
+      const cx = w * 0.5;
+      const cy = h * 0.37;
+      const outerRadius = Math.min(w * 0.38, minSide * 0.34);
+      const innerRadius = outerRadius * 0.32;
+      const radiusBand = Math.max(1, outerRadius - innerRadius);
+      const mobileDensityFactor = Math.min(1, minSide / 430);
+      const particleCount = Math.max(2500, Math.min(4500, Math.floor(2500 + (mobileDensityFactor * 2000))));
 
-      // removed old scribble logic: no line paths, no stroke loops, no orbit ring drawing
-      // new grain particle logic: dense circular grain field with soft radial weighting
+      // particle-only grain vortex: dense ring body, empty center, soft edge scatter
       const particles = Array.from({ length: particleCount }, () => {
-        const bias = Math.pow(Math.random(), 0.52);
-        const radialNorm = 0.26 + (0.74 * bias);
+        const t = Math.random();
+        const ringBias = Math.pow(t, 0.55);
+        const baseRadius = innerRadius + (ringBias * radiusBand);
+        const scatter = (Math.random() - 0.5) * outerRadius * 0.12;
+        const baseAlpha = 0.25 + Math.random() * 0.65;
+        const bodyBias = 0.72 + (ringBias * 0.45);
         return {
-          radialNorm,
+          baseRadius,
+          scatter,
           angle: Math.random() * Math.PI * 2,
-          angularDrift: (Math.random() - 0.5) * 0.045,
-          radialJitterAmp: 0.004 + Math.random() * 0.012,
-          radialJitterFreq: 0.14 + Math.random() * 0.14,
-          radialJitterPhase: Math.random() * Math.PI * 2,
-          alphaBase: 0.25 + Math.random() * 0.5,
-          size: 0.4 + Math.random() * 0.7
+          angularDrift: (Math.random() - 0.5) * (0.00005 + (Math.random() * 0.0002)),
+          radialDriftAmp: 0.5 + Math.random() * 1.5,
+          radialDriftFreq: 0.25 + Math.random() * 0.4,
+          radialDriftPhase: Math.random() * Math.PI * 2,
+          alphaBase: Math.min(0.9, baseAlpha * bodyBias),
+          size: 0.35 + Math.random() * 0.8,
+          breatheWeight: 0.55 + Math.random() * 0.5,
+          pulsePhase: Math.random() * Math.PI * 2
         };
       });
 
@@ -1885,34 +1893,30 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const tick = () => {
         const reactivity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--welcome-audio-reactivity')) || 0;
         const t = performance.now();
-        // breath animation section: slow 7s cycle, subtle 3-4% expansion
-        const breathWave = Math.sin((t / 7000) * Math.PI * 2);
-        const breathScale = 1 + (breathWave * 0.034) + (reactivity * 0.009);
-        const microAlpha = 0.96;
+        const breath = (Math.sin(t * 0.001) + 1) / 2;
+        const breathScale = 0.93 + (breath * 0.14) + (reactivity * 0.014);
+        const contractionPull = (1 - breath) * 2.2;
+        const alphaBoost = 0.88 + (breath * 0.12);
 
-        ctx.fillStyle = `rgba(0,0,0,${microAlpha})`;
+        ctx.fillStyle = 'rgba(0,0,0,1)';
         ctx.fillRect(0, 0, w, h);
 
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i];
-          p.angle += p.angularDrift * 0.016;
-          const ringFocus = 0.55 + (p.radialNorm * 0.45);
-          const jitter = Math.sin((t * 0.001 * p.radialJitterFreq) + p.radialJitterPhase) * p.radialJitterAmp;
-          const radius = (fieldRadius * (p.radialNorm + jitter)) * breathScale;
-          if (radius <= innerVoid) continue;
+          p.angle += p.angularDrift;
+          const drift = Math.sin((t * 0.001 * p.radialDriftFreq) + p.radialDriftPhase) * p.radialDriftAmp;
+          const pulse = Math.sin((t * 0.0008) + p.pulsePhase) * 0.85;
+          let radius = ((p.baseRadius + p.scatter + drift + pulse) * breathScale) - contractionPull;
+          if (radius <= innerRadius) continue;
+
           const x = cx + Math.cos(p.angle) * radius;
           const y = cy + Math.sin(p.angle) * radius;
-          const alpha = Math.min(0.75, p.alphaBase * ringFocus);
+          const alpha = Math.min(0.9, p.alphaBase * alphaBoost * p.breatheWeight);
           ctx.beginPath();
           ctx.arc(x, y, p.size, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(255,255,255,${alpha})`;
           ctx.fill();
         }
-
-        ctx.beginPath();
-        ctx.fillStyle = '#000';
-        ctx.arc(cx, cy, innerVoid * breathScale, 0, Math.PI * 2);
-        ctx.fill();
 
         welcomeParticlesRaf = requestAnimationFrame(tick);
       };
