@@ -2098,13 +2098,14 @@
     <div class="welcome-intro-stage">
       <div class="welcome-intro-bg"></div>
       <canvas class="welcome-intro-particles" id="welcomeIntroParticles"></canvas>
-      <div class="welcome-intro-kicker">Before You Begin</div>
+      <div class="welcome-intro-kicker" id="welcomeIntroKicker">Before You Begin</div>
       <div class="welcome-intro-core">
           <div class="welcome-intro-state" id="welcomeIntroState">Settle</div>
           <div class="welcome-intro-label" id="welcomeIntroLabel">Welcome Audio</div>
         <div class="welcome-intro-caption" id="welcomeIntroCaption">Hey… welcome to Ataraxia.</div>
       </div>
-      <button class="journey-btn secondary" style="position:absolute;bottom:max(28px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:2;" onclick="skipWelcomeIntro()">Skip</button>
+      <button class="journey-btn hidden" id="welcomeIntroActionBtn" style="position:absolute;bottom:max(84px,calc(env(safe-area-inset-bottom) + 68px));left:50%;transform:translateX(-50%);z-index:2;">Begin Introduction</button>
+      <button class="journey-btn secondary" id="welcomeIntroSkipBtn" style="position:absolute;bottom:max(28px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:2;" onclick="skipWelcomeIntro()">Skip</button>
       <audio id="welcomeIntroAudio" preload="auto" playsinline webkit-playsinline>
         <source src="audio/Brittney welcome audio.mp3" type="audio/mpeg">
       </audio>

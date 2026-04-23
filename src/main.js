@@ -17,6 +17,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const FOUNDATION_PRE_SLEEP_AUDIO = 'audio/Pre-sleep.mp3';
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
+    const INTUITION_INTRO_AUDIO = 'audio/introduction audio 2.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
     const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
@@ -33,6 +34,7 @@ import { createSessionModeController } from './session-mode-controller.js';
 
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
+    const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const JOURNAL_STORAGE_KEY = 'ataraxia_journal_entries_v1';
@@ -89,11 +91,11 @@ import { createSessionModeController } from './session-mode-controller.js';
       },
       Intuition: {
         eyebrow: 'Train · Intuition',
-        hero: 'Intuition training.<br>Coming next.',
-        subtitle: ['System', 'Coming', 'Next'],
+        hero: 'Intuition training.<br>Ready to unlock.',
+        subtitle: ['Unlock', 'Signal', 'Detection'],
         copyLabel: 'Intuition',
-        copyTitle: 'System Section In Progress',
-        copyBody: 'Intuition will be added as the next structured training section.'
+        copyTitle: 'Intuition Unlock',
+        copyBody: 'Complete Foundation first. Intuition opens once stable awareness is built.'
       },
       Flow: {
         eyebrow: 'Train · Flow',
@@ -504,10 +506,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     const el = {
       welcomeIntroOverlay: document.getElementById('welcomeIntroOverlay'),
+      welcomeIntroKicker: document.getElementById('welcomeIntroKicker'),
       welcomeIntroState: document.getElementById('welcomeIntroState'),
       welcomeIntroParticles: document.getElementById('welcomeIntroParticles'),
       welcomeIntroLabel: document.getElementById('welcomeIntroLabel'),
       welcomeIntroCaption: document.getElementById('welcomeIntroCaption'),
+      welcomeIntroActionBtn: document.getElementById('welcomeIntroActionBtn'),
+      welcomeIntroSkipBtn: document.getElementById('welcomeIntroSkipBtn'),
       welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
       sessionAudio: document.getElementById('sessionAudio'),
       homeTabBtn: document.getElementById('homeTabBtn'),
@@ -725,6 +730,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let welcomeAudioSource = null;
     let welcomeAudioData = null;
     let pendingWelcomeIntroTarget = null;
+    let welcomeIntroMode = 'welcome';
     let homeNextMove = null;
     let journalDraftId = '';
     let journalEditorMode = 'create';
@@ -787,6 +793,20 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function markDisclaimerCompleted() {
       try {
         localStorage.setItem(DISCLAIMER_STORAGE_KEY, 'true');
+      } catch {}
+    }
+
+    function hasCompletedIntuitionIntro() {
+      try {
+        return localStorage.getItem(INTUITION_INTRO_STORAGE_KEY) === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    function markIntuitionIntroCompleted() {
+      try {
+        localStorage.setItem(INTUITION_INTRO_STORAGE_KEY, 'true');
       } catch {}
     }
 
@@ -1373,6 +1393,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       return getCompletedSessionCount(history) > 0;
     }
 
+    function isFoundationFullyCompleted(history = loadSessionHistory()) {
+      const progress = getFoundationProgressMetrics(history);
+      return progress.totalPractices > 0 && progress.completedCount >= progress.totalPractices;
+    }
+
     function getDefaultOpeningMode() {
       return hasCompletedSessionHistory() ? 'Profile' : 'Introduction';
     }
@@ -1800,9 +1825,20 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function resetWelcomeIntroUI() {
+      welcomeIntroMode = 'welcome';
+      if (el.welcomeIntroKicker) el.welcomeIntroKicker.textContent = 'Before You Begin';
       el.welcomeIntroState.textContent = DEFAULT_WELCOME_STATE;
       el.welcomeIntroLabel.textContent = DEFAULT_WELCOME_LABEL;
       el.welcomeIntroCaption.textContent = DEFAULT_WELCOME_CAPTION;
+      if (el.welcomeIntroActionBtn) {
+        el.welcomeIntroActionBtn.classList.add('hidden');
+        el.welcomeIntroActionBtn.textContent = 'Begin Introduction';
+        el.welcomeIntroActionBtn.onclick = null;
+      }
+      if (el.welcomeIntroSkipBtn) {
+        el.welcomeIntroSkipBtn.classList.remove('hidden');
+        el.welcomeIntroSkipBtn.textContent = 'Skip';
+      }
       document.documentElement.style.setProperty('--welcome-audio-reactivity', '0');
     }
 
@@ -2303,11 +2339,35 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return btn;
       };
 
+      const foundationReadyForIntuition = isFoundationFullyCompleted();
+      const intuitionIntroCompleted = hasCompletedIntuitionIntro();
+
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT) {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Train Map';
         el.foundationCardsContainer.appendChild(createTrackCard('Foundation', 'Build stable attention and awareness.', () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
-        el.foundationCardsContainer.appendChild(createTrackCard('Intuition', 'Coming next system section.', () => setTrainTrack('Intuition')));
+        const intuitionTrackCopy = foundationReadyForIntuition
+          ? (intuitionIntroCompleted ? 'Unlocked. Enter Intuition track.' : 'Ready to unlock. Begin Intuition Introduction.')
+          : 'Complete Foundation first to unlock Intuition.';
+        el.foundationCardsContainer.appendChild(createTrackCard('Intuition', intuitionTrackCopy, () => setTrainTrack('Intuition'), activeTrainTrack === 'Intuition'));
         el.foundationCardsContainer.appendChild(createTrackCard('Flow', 'Coming next system section.', () => setTrainTrack('Flow')));
+        return;
+      }
+
+      if (activeTrainTrack === 'Intuition') {
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
+        if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
+        if (!foundationReadyForIntuition) {
+          if (el.comingNextTitle) el.comingNextTitle.textContent = 'Complete Foundation first.';
+          if (el.comingNextBody) el.comingNextBody.textContent = 'Intuition training opens once you’ve built stable awareness.';
+          return;
+        }
+        if (!intuitionIntroCompleted) {
+          if (el.comingNextTitle) el.comingNextTitle.textContent = 'Intuition Introduction ready.';
+          if (el.comingNextBody) el.comingNextBody.textContent = 'Begin the Intuition Introduction to unlock this section.';
+          return;
+        }
+        if (el.comingNextTitle) el.comingNextTitle.textContent = 'Intuition training is now unlocked.';
+        if (el.comingNextBody) el.comingNextBody.textContent = 'Signal Detection is the next practice to build.';
         return;
       }
 
@@ -3388,6 +3448,32 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function setTrainTrack(name = 'Foundation', closeAfter = false) {
       if (!['Foundation', 'Intuition', 'Flow'].includes(name)) return;
+      if (name === 'Intuition') {
+        const foundationReadyForIntuition = isFoundationFullyCompleted();
+        if (!foundationReadyForIntuition) {
+          activeDestination = 'Train';
+          activePractice = 'FoundationHome';
+          activeTrainTrack = 'Intuition';
+          trainViewState = TRAIN_VIEW_STATE.LIST;
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+          foundationMenuOpen = false;
+          shownLessonKey = '';
+          refreshCurrentMode();
+          if (closeAfter) closeMenu();
+          return;
+        }
+        if (!hasCompletedIntuitionIntro()) {
+          startIntuitionIntro({
+            returnTarget: {
+              destination: 'Train',
+              practice: 'FoundationHome',
+              trainTrack: 'Intuition'
+            }
+          });
+          if (closeAfter) closeMenu();
+          return;
+        }
+      }
       activeDestination = 'Train';
       activePractice = 'FoundationHome';
       activeTrainTrack = name;
@@ -3736,15 +3822,22 @@ window.__ataraxia = {
     }
 
     function endWelcomeIntro(goToIntro = true, markCompleteOnFinish = false) {
+      const completedIntuitionIntro = welcomeIntroMode === 'intuition';
       stopWelcomeIntroAudio();
       closeWelcomeIntroOverlay();
       resetWelcomeIntroUI();
-      if (markCompleteOnFinish) markDisclaimerCompleted();
+      if (completedIntuitionIntro) markIntuitionIntroCompleted();
+      else if (markCompleteOnFinish) markDisclaimerCompleted();
       const target = pendingWelcomeIntroTarget;
       pendingWelcomeIntroTarget = null;
       if (target) {
         activeDestination = target.destination || 'Home';
         activePractice = target.practice || (goToIntro ? 'Introduction' : activePractice);
+        if (target.trainTrack) activeTrainTrack = target.trainTrack;
+        if (activeTrainTrack === 'Intuition') {
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+          trainViewState = TRAIN_VIEW_STATE.LIST;
+        }
         refreshCurrentMode();
         return;
       }
@@ -3776,8 +3869,10 @@ window.__ataraxia = {
       pendingWelcomeIntroTarget = {
         destination: returnTarget.destination || 'Home',
         practice: returnTarget.practice || 'Introduction',
+        trainTrack: returnTarget.trainTrack || '',
         markCompleteOnFinish
       };
+      welcomeIntroMode = 'welcome';
       closeMenu();
       openWelcomeIntroOverlay();
       resetWelcomeIntroUI();
@@ -3807,10 +3902,76 @@ window.__ataraxia = {
       }
     }
 
+    function startIntuitionIntro(options = {}) {
+      const {
+        returnTarget = { destination: 'Train', practice: 'FoundationHome', trainTrack: 'Intuition' }
+      } = options;
+      if (!el.welcomeIntroOverlay || !el.welcomeIntroAudio) {
+        markIntuitionIntroCompleted();
+        activePractice = returnTarget.practice || 'FoundationHome';
+        activeDestination = returnTarget.destination || 'Train';
+        activeTrainTrack = returnTarget.trainTrack || 'Intuition';
+        refreshCurrentMode();
+        return;
+      }
+
+      pendingWelcomeIntroTarget = {
+        destination: returnTarget.destination || 'Train',
+        practice: returnTarget.practice || 'FoundationHome',
+        trainTrack: returnTarget.trainTrack || 'Intuition',
+        markCompleteOnFinish: false
+      };
+      welcomeIntroMode = 'intuition';
+      closeMenu();
+      openWelcomeIntroOverlay();
+      resetWelcomeIntroUI();
+      welcomeIntroMode = 'intuition';
+      startWelcomeParticles();
+      if (el.welcomeIntroKicker) el.welcomeIntroKicker.textContent = 'Intuition Unlock';
+      el.welcomeIntroState.textContent = 'Intuition Training';
+      el.welcomeIntroLabel.textContent = 'Signal detection begins after awareness becomes stable.';
+      el.welcomeIntroCaption.textContent = 'This next phase trains you to notice subtle signals before reaction takes over.';
+      if (el.welcomeIntroSkipBtn) el.welcomeIntroSkipBtn.classList.add('hidden');
+      if (el.welcomeIntroActionBtn) {
+        el.welcomeIntroActionBtn.classList.remove('hidden');
+        el.welcomeIntroActionBtn.textContent = 'Begin Introduction';
+      }
+      el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
+      el.welcomeIntroAudio.load();
+      el.welcomeIntroAudio.volume = getCurrentVolume();
+      el.welcomeIntroAudio.currentTime = 0;
+      ensureWelcomeIntroAudioGraph();
+      el.welcomeIntroAudio.onloadedmetadata = null;
+      el.welcomeIntroAudio.ontimeupdate = null;
+      el.welcomeIntroAudio.onended = () => {
+        markIntuitionIntroCompleted();
+        el.welcomeIntroLabel.textContent = 'Introduction Complete';
+        if (el.welcomeIntroActionBtn) {
+          el.welcomeIntroActionBtn.textContent = 'Enter Intuition';
+          el.welcomeIntroActionBtn.onclick = () => endWelcomeIntro(false, false);
+        }
+      };
+      configureBackgroundAudio();
+      if (el.welcomeIntroActionBtn) {
+        el.welcomeIntroActionBtn.onclick = () => {
+          const playPromise = el.welcomeIntroAudio.play();
+          if (playPromise && typeof playPromise.then === 'function') {
+            playPromise.then(() => {
+              el.welcomeIntroLabel.textContent = 'Playing';
+              startWelcomeReactiveTicker();
+            }).catch(() => {
+              el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
+            });
+          }
+        };
+      }
+    }
+
     function preloadMeditationAudio() {
       const audioFiles = [
         WELCOME_AUDIO,
         INTRODUCTION_AUDIO,
+        INTUITION_INTRO_AUDIO,
         ...FOUNDATION_BREATH_AWARENESS_AUDIO,
         ...FOUNDATION_BODY_AWARENESS_AUDIO,
         ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
