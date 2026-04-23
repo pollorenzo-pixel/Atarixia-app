@@ -17,7 +17,8 @@ import { createSessionModeController } from './session-mode-controller.js';
     const FOUNDATION_PRE_SLEEP_AUDIO = 'audio/Pre-sleep.mp3';
 
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
-    const INTUITION_INTRO_AUDIO = 'audio/introduction audio 2.mp3';
+    const INTUITION_INTRO_AUDIO = 'audio/Intuition_intro.mp3';
+    const INTUITION_SIGNAL_DETECTION_AUDIO = 'audio/Signal Detection Meditation.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
     const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
@@ -67,6 +68,9 @@ import { createSessionModeController } from './session-mode-controller.js';
       OpenAwareness: 'Broad Attention',
       StressReset: 'Emotional Regulation',
       PreSleep: 'Downregulation and Release'
+    };
+    const INTUITION_SKILL_IDENTITIES = {
+      SignalDetection: 'Signal Awareness'
     };
     const FOUNDATION_ESTIMATED_MINUTES = {
       BreathAwareness: 8,
@@ -206,6 +210,12 @@ import { createSessionModeController } from './session-mode-controller.js';
       PreSleep: {
         trained: 'You trained downregulation before rest.',
         why: 'This improves how quickly mind and body release.'
+      }
+    };
+    const INTUITION_COMPLETION_LOOP = {
+      SignalDetection: {
+        trained: 'You trained signal awareness.',
+        why: 'This builds the ability to notice subtle information before reacting.'
       }
     };
 
@@ -501,6 +511,34 @@ You do not need to force anything. Arrive and follow the guidance.`,
             activeLabel: 'Pre-Sleep'
           },
         }
+      },
+      Intuition: {
+        groundingText: 'Settle and prepare to detect subtle signals.',
+        completionMessage: 'Well done. Let the signal stay clear without forcing it.',
+        readyAudioText: 'Intuition Ready',
+        pausedText: 'Paused',
+        pausedLabel: 'Session Paused',
+        activeText: 'Playing',
+        activeLabel: 'Signal Detection',
+        subcategories: {
+          SignalDetection: {
+            title: 'Signal Detection',
+            shortPurpose: 'Notice subtle signals before the mind explains them.',
+            eyebrow: 'Intuition',
+            hero: 'Signal Detection',
+            subtitle: ['Notice subtle signals before the mind explains them.'],
+            note: 'Train awareness to catch quiet internal and external signals before reaction takes over.',
+            badge: 'Intuition · Signal Detection',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Signal Detection',
+            copyBody: 'Train awareness to catch quiet internal and external signals before reaction takes over.',
+            audio: INTUITION_SIGNAL_DETECTION_AUDIO,
+            lesson: 'Notice what appears first, before interpretation.',
+            reinforcement: 'Subtle cues become clearer when reaction slows down.',
+            activeText: 'Playing',
+            activeLabel: 'Signal Detection'
+          }
+        }
       }
     };
 
@@ -747,7 +785,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
 
     function inferDestinationFromPractice(practice = activePractice) {
-      if (practice === 'FoundationHome' || practice === 'Foundation') return 'Train';
+      if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition') return 'Train';
       if (practice === 'Profile') return 'Progress';
       return 'Home';
     }
@@ -755,6 +793,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function getSelectedPracticeKey() {
       if (activePractice === 'Introduction') return 'Introduction';
       if (activePractice === 'Foundation') return activeSubcategory || 'UnknownFoundationPractice';
+      if (activePractice === 'Intuition') return activeSubcategory || 'UnknownIntuitionPractice';
       return activePractice || 'UnknownPractice';
     }
 
@@ -1332,7 +1371,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function hasPlayablePracticeAudio(practiceKey) {
-      const practice = practiceContent.Foundation?.subcategories?.[practiceKey];
+      const practice = practiceContent.Foundation?.subcategories?.[practiceKey]
+        || practiceContent.Intuition?.subcategories?.[practiceKey];
       if (!practice?.audio) return false;
       const playlist = Array.isArray(practice.audio) ? practice.audio : [practice.audio];
       return playlist.some((item) => typeof item === 'string' && item.trim().length > 0);
@@ -1737,11 +1777,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function getModeConfig() {
       if (activePractice === 'Foundation') return practiceContent.Foundation;
+      if (activePractice === 'Intuition') return practiceContent.Intuition;
       return null;
     }
 
     function getSubcategoryData() {
       if (activePractice === 'Foundation') return practiceContent.Foundation.subcategories[activeSubcategory] || null;
+      if (activePractice === 'Intuition') return practiceContent.Intuition.subcategories[activeSubcategory] || null;
       return null;
     }
 
@@ -1749,9 +1791,16 @@ You do not need to force anything. Arrive and follow the guidance.`,
       return FOUNDATION_SKILL_IDENTITIES[practiceKey] || '';
     }
 
-    function getFoundationCompletionLoop(practiceKey = '') {
-      const completionCopy = FOUNDATION_COMPLETION_LOOP[practiceKey] || {};
-      const skillLabel = getFoundationSkillLabel(practiceKey);
+    function getSkillLabel(practiceKey = '', practiceMode = activePractice) {
+      if (practiceMode === 'Intuition') return INTUITION_SKILL_IDENTITIES[practiceKey] || '';
+      return FOUNDATION_SKILL_IDENTITIES[practiceKey] || '';
+    }
+
+    function getPracticeCompletionLoop(practiceKey = '', practiceMode = activePractice) {
+      const completionCopy = practiceMode === 'Intuition'
+        ? (INTUITION_COMPLETION_LOOP[practiceKey] || {})
+        : (FOUNDATION_COMPLETION_LOOP[practiceKey] || {});
+      const skillLabel = getSkillLabel(practiceKey, practiceMode);
       const normalizedSkill = skillLabel ? skillLabel.charAt(0).toLowerCase() + skillLabel.slice(1) : '';
       return {
         acknowledgment: 'Well done.',
@@ -2095,7 +2144,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function updateJourneyButtons() {
       const inTrainMode = activeDestination === 'Train';
-      const inFoundationSessionView = inTrainMode && activePractice === 'Foundation';
+      const inSessionView = inTrainMode && (activePractice === 'Foundation' || activePractice === 'Intuition');
 
       if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode);
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
@@ -2109,10 +2158,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       // Keep only one primary CTA on Home. Train owns this control for practice launches.
-      el.startSessionBtn.style.display = inFoundationSessionView ? 'inline-flex' : 'none';
+      el.startSessionBtn.style.display = inSessionView ? 'inline-flex' : 'none';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Start Session';
-      const canStartSelectedPractice = !(activePractice === 'Foundation' && !hasPlayablePracticeAudio(activeSubcategory));
+      const canStartSelectedPractice = !((activePractice === 'Foundation' || activePractice === 'Intuition') && !hasPlayablePracticeAudio(activeSubcategory));
       el.startSessionBtn.disabled = !canStartSelectedPractice;
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
     }
@@ -2133,7 +2182,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (el.trainLessonCard) {
-        const showLesson = isDetailView && activePractice === 'Foundation' && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
+        const showLesson = isDetailView
+          && (activePractice === 'Foundation' || activePractice === 'Intuition')
+          && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
         el.trainLessonCard.classList.toggle('hidden', !showLesson);
         el.trainLessonCard.toggleAttribute('hidden', !showLesson);
       }
@@ -2214,7 +2265,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
         };
       }
       const view = getActiveHeroElements();
-      const skillLabel = activePractice === 'Foundation' ? (data.skillLabel || getFoundationSkillLabel(activeSubcategory)) : '';
+      const skillLabel = (activePractice === 'Foundation' || activePractice === 'Intuition')
+        ? (data.skillLabel || getSkillLabel(activeSubcategory, activePractice))
+        : '';
       const skillBadge = formatSkillBadge(skillLabel);
       if (el.sessionCircleShell) el.sessionCircleShell.classList.toggle('welcome-disclaimer', activePractice === 'Welcome');
       else warnMissingUiRef('sessionCircleShell', 'session');
@@ -2232,7 +2285,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       else warnMissingUiRef('sessionSubtitle', 'session');
 
       const shouldShowTrainLessonCard = activeDestination === 'Train'
-        && activePractice === 'Foundation'
+        && (activePractice === 'Foundation' || activePractice === 'Intuition')
         && trainViewState === TRAIN_VIEW_STATE.DETAIL
         && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
 
@@ -2264,6 +2317,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         setAudioStatus(label);
       }
       else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
+      else if (activePractice === 'Intuition') setAudioStatus(practiceContent.Intuition.readyAudioText);
       else if (activeDestination === 'Progress' || activeDestination === 'Account') setAudioStatus('Training Status');
     }
 
@@ -2358,16 +2412,22 @@ You do not need to force anything. Arrive and follow the guidance.`,
         if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
         if (!foundationReadyForIntuition) {
           if (el.comingNextTitle) el.comingNextTitle.textContent = 'Complete Foundation first.';
-          if (el.comingNextBody) el.comingNextBody.textContent = 'Intuition training opens once you’ve built stable awareness.';
+          if (el.comingNextBody) el.comingNextBody.textContent = 'Intuition training opens once stable awareness is built.';
           return;
         }
         if (!intuitionIntroCompleted) {
           if (el.comingNextTitle) el.comingNextTitle.textContent = 'Intuition Introduction ready.';
-          if (el.comingNextBody) el.comingNextBody.textContent = 'Begin the Intuition Introduction to unlock this section.';
+          if (el.comingNextBody) el.comingNextBody.textContent = 'Open Intuition to begin the introduction.';
           return;
         }
-        if (el.comingNextTitle) el.comingNextTitle.textContent = 'Intuition training is now unlocked.';
-        if (el.comingNextBody) el.comingNextBody.textContent = 'Signal Detection is the next practice to build.';
+        if (el.comingNextTitle) el.comingNextTitle.textContent = 'Signal Detection';
+        if (el.comingNextBody) el.comingNextBody.textContent = 'Notice subtle signals before the mind explains them.';
+        const signalData = practiceContent.Intuition?.subcategories?.SignalDetection;
+        const btn = document.createElement('button');
+        btn.className = 'foundation-card-btn';
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">${signalData?.copyTitle || 'Signal Detection'}</div></div><div class="foundation-card-status">Open</div></div><div class="foundation-card-desc">${signalData?.shortPurpose || ''}</div>`;
+        btn.addEventListener('click', () => setSubcategory('SignalDetection', false));
+        el.foundationCardsContainer.appendChild(btn);
         return;
       }
 
@@ -2927,14 +2987,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
         warnMissingUiRef('completionScreenSubtitle', 'session');
         return;
       }
-      const completionLoop = getFoundationCompletionLoop(activeSubcategory);
+      const completionLoop = getPracticeCompletionLoop(activeSubcategory, activePractice);
       el.completionScreenTitle.textContent = 'Well done';
       el.completionScreenSubtitle.textContent = `${completionLoop.trained} ${completionLoop.why}`;
       el.completionScreen.classList.add('active');
     }
 
     Object.entries(practiceContent.Foundation.subcategories).forEach(([practiceKey, data]) => {
-      data.skillLabel = getFoundationSkillLabel(practiceKey);
+      data.skillLabel = getSkillLabel(practiceKey, 'Foundation');
+    });
+    Object.entries(practiceContent.Intuition.subcategories).forEach(([practiceKey, data]) => {
+      data.skillLabel = getSkillLabel(practiceKey, 'Intuition');
     });
 
     const sessionModeController = createSessionModeController({
@@ -3233,7 +3296,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      if (activePractice === 'Foundation' && activeSubcategory) {
+      if ((activePractice === 'Foundation' || activePractice === 'Intuition') && activeSubcategory) {
         savePracticeComplete(activeSubcategory);
       }
 
@@ -3530,18 +3593,20 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       activeDestination = 'Train';
-      activePractice = 'Foundation';
+      activePractice = activeTrainTrack === 'Intuition' ? 'Intuition' : 'Foundation';
       activeSubcategory = name;
-      activeFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
-      activeFoundationSubgroup = activeFoundationGroup;
-      if (activeFoundationGroup === 'CoreStability') {
-        lastCoreStabilitySubcategory = name;
+      if (activePractice === 'Foundation') {
+        activeFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
+        activeFoundationSubgroup = activeFoundationGroup;
+        if (activeFoundationGroup === 'CoreStability') {
+          lastCoreStabilitySubcategory = name;
+        }
+        openFoundationGroup = activeFoundationGroup;
       }
       foundationMenuOpen = true;
-      activeTrainTrack = 'Foundation';
+      activeTrainTrack = activePractice === 'Intuition' ? 'Intuition' : 'Foundation';
       trainViewState = TRAIN_VIEW_STATE.DETAIL;
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
-      openFoundationGroup = activeFoundationGroup;
       shownLessonKey = '';
       refreshCurrentMode();
       if (fromMenu) closeMenu();
@@ -3584,6 +3649,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
+        if (activeTrainTrack === 'Intuition') {
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+          trainViewState = TRAIN_VIEW_STATE.LIST;
+          activePractice = 'FoundationHome';
+          activeTrainTrack = 'Intuition';
+          refreshCurrentMode();
+          return;
+        }
         trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
         trainViewState = TRAIN_VIEW_STATE.LIST;
         activePractice = 'FoundationHome';
@@ -3972,6 +4045,7 @@ window.__ataraxia = {
         WELCOME_AUDIO,
         INTRODUCTION_AUDIO,
         INTUITION_INTRO_AUDIO,
+        INTUITION_SIGNAL_DETECTION_AUDIO,
         ...FOUNDATION_BREATH_AWARENESS_AUDIO,
         ...FOUNDATION_BODY_AWARENESS_AUDIO,
         ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
