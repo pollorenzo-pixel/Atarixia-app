@@ -728,6 +728,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     // Train hierarchy state: only one level is rendered at a time to avoid long-scroll disclosure.
     const TRAIN_HIERARCHY_LEVEL = {
       ROOT: 'root',
+      INTUITION_ACCESS: 'intuition-access',
       FOUNDATION_SUBCATEGORY: 'foundation-subcategory',
       FOUNDATION_MEDITATION_LIST: 'foundation-meditation-list',
       FOUNDATION_LESSON: 'foundation-lesson'
@@ -3829,7 +3830,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
           activePractice = 'FoundationHome';
           activeTrainTrack = 'Intuition';
           trainViewState = TRAIN_VIEW_STATE.LIST;
-          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.INTUITION_ACCESS;
           foundationMenuOpen = false;
           shownLessonKey = '';
           refreshCurrentMode();
