@@ -879,6 +879,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
       } catch {}
     }
 
+    function isFoundationUnlocked() {
+      return hasCompletedMainIntroduction();
+    }
+
     function hasCompletedIntuitionIntro() {
       try {
         return localStorage.getItem(INTUITION_INTRO_STORAGE_KEY) === 'true';
@@ -2522,6 +2526,18 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getFoundationHomeRecommendation() {
+      if (!isFoundationUnlocked()) {
+        return {
+          progressMetrics: getFoundationProgressMetrics(),
+          currentStepKey: null,
+          recommendedKey: 'Introduction',
+          recommendationLabel: 'Introduction',
+          recommendationCategory: 'Introduction',
+          recommendationReason: 'Complete the Introduction first to unlock Foundation.',
+          recommendationPriority: 'mandatory-introduction',
+          resumeIncompletePracticeKey: null
+        };
+      }
       const progressMetrics = getFoundationProgressMetrics();
       const { practices } = progressMetrics;
       const history = loadSessionHistory();
@@ -2587,7 +2603,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT) {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Train Map';
-        el.foundationCardsContainer.appendChild(createTrackCard('Foundation', 'Build stable attention and awareness.', () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
+        const foundationTrackCopy = isFoundationUnlocked()
+          ? 'Build stable attention and awareness.'
+          : 'Locked until Introduction is completed.';
+        el.foundationCardsContainer.appendChild(createTrackCard('Foundation', foundationTrackCopy, () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
         const intuitionTrackCopy = foundationReadyForIntuition
           ? (intuitionIntroCompleted ? 'Unlocked. Enter Intuition track.' : 'Ready to unlock. Begin Intuition Introduction.')
           : (intuitionUnlocked ? 'Development unlock active. Enter Intuition track.' : 'Complete Foundation first to unlock Intuition.');
@@ -2670,6 +2689,27 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
+      if (!isFoundationUnlocked()) {
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Foundation';
+        if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
+        if (el.comingNextTitle) el.comingNextTitle.textContent = 'Foundation is locked';
+        if (el.comingNextBody) el.comingNextBody.textContent = 'Complete the Introduction audio to begin Foundation training.';
+        const lockCard = document.createElement('div');
+        lockCard.className = 'intuition-lock-card';
+        lockCard.innerHTML = `
+          <div class="intuition-lock-title">Complete Introduction First</div>
+          <div class="intuition-lock-body">Before Foundation begins, listen to the Introduction. It explains how to train awareness properly.</div>
+        `;
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'journey-btn';
+        actionBtn.type = 'button';
+        actionBtn.textContent = 'Begin Introduction';
+        actionBtn.addEventListener('click', () => selectMainMode('Introduction'));
+        lockCard.appendChild(actionBtn);
+        el.foundationCardsContainer.appendChild(lockCard);
+        return;
+      }
+
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY) {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Foundation';
         el.foundationCardsContainer.appendChild(createSubcategoryCard('CoreStability'));
@@ -2721,6 +2761,15 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getHomeRecommendation(history = loadSessionHistory()) {
+      if (!isFoundationUnlocked()) {
+        return {
+          practiceKey: 'Introduction',
+          title: 'Introduction',
+          reason: 'Complete the Introduction first to unlock Foundation.',
+          priority: 'mandatory-introduction',
+          resumeIncompletePracticeKey: null
+        };
+      }
       const safeHistory = Array.isArray(history) ? history : [];
       const progress = getFoundationProgressMetrics(safeHistory);
       const recommendation = createPracticeRecommendation({
@@ -2776,7 +2825,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!recommendation?.practiceKey) return;
       if (recommendation.practiceKey === 'Introduction') {
         selectMainMode('Introduction');
-        startSessionButton();
         return;
       }
       setSubcategory(recommendation.practiceKey, false);
@@ -2856,6 +2904,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getStartTrainingRecommendedPracticeKey() {
+      if (!isFoundationUnlocked()) return 'Introduction';
       return getFoundationHomeRecommendation().recommendedKey || 'BreathAwareness';
     }
 
@@ -2863,7 +2912,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const recommendedKey = getStartTrainingRecommendedPracticeKey();
       if (recommendedKey === 'Introduction') {
         selectMainMode('Introduction');
-        startSessionButton();
         return;
       }
       if (recommendedKey && practiceContent.Foundation?.subcategories?.[recommendedKey]) {
@@ -3760,6 +3808,18 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function setTrainTrack(name = 'Foundation', closeAfter = false) {
       if (!['Foundation', 'Intuition', 'Flow'].includes(name)) return;
+      if (name === 'Foundation' && !isFoundationUnlocked()) {
+        activeDestination = 'Train';
+        activePractice = 'FoundationHome';
+        activeTrainTrack = 'Foundation';
+        trainViewState = TRAIN_VIEW_STATE.LIST;
+        trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY;
+        foundationMenuOpen = false;
+        shownLessonKey = '';
+        refreshCurrentMode();
+        if (closeAfter) closeMenu();
+        return;
+      }
       if (name === 'Intuition') {
         const intuitionUnlocked = isIntuitionUnlocked();
         if (!intuitionUnlocked) {
@@ -3801,6 +3861,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     window.setTrainTrack = setTrainTrack;
 
     function setFoundationSubgroup(group = 'CoreStability') {
+      if (!isFoundationUnlocked()) {
+        setTrainTrack('Foundation');
+        return;
+      }
       if (!foundationGroups[group]) return;
       activePractice = 'FoundationHome';
       activeTrainTrack = 'Foundation';
@@ -3823,6 +3887,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function toggleFoundationGroup(name, event = null) {
       if (event) event.stopPropagation();
+      if (!isFoundationUnlocked()) {
+        setTrainTrack('Foundation');
+        return;
+      }
       activePractice = 'FoundationHome';
       activeFoundationGroup = name;
       activeFoundationSubgroup = name;
@@ -3839,6 +3907,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (name === 'Introduction') {
         selectMainMode('Introduction');
         if (fromMenu) closeMenu();
+        return;
+      }
+      if (!isFoundationUnlocked() && practiceContent.Foundation?.subcategories?.[name]) {
+        setTrainTrack('Foundation', fromMenu);
         return;
       }
       activeDestination = 'Train';
@@ -3873,6 +3945,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     window.setStabilitySubcategory = setStabilitySubcategory;
 
     function goToFoundationHome() {
+      if (!isFoundationUnlocked()) {
+        setTrainTrack('Foundation');
+        return;
+      }
       activeDestination = 'Train';
       activeTrainTrack = 'Foundation';
       activePractice = 'FoundationHome';
