@@ -621,6 +621,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainHierarchyBackBtn: document.getElementById('trainHierarchyBackBtn'),
       trainHierarchyTitle: document.getElementById('trainHierarchyTitle'),
       trainDetailBackBtn: document.getElementById('trainDetailBackBtn'),
+      trainPracticeNavRow: document.getElementById('trainPracticeNavRow'),
+      previousPracticeBtn: document.getElementById('previousPracticeBtn'),
       profilePagePanel: document.getElementById('profilePagePanel'),
       profileCoachTitle: document.getElementById('profileCoachTitle'),
       profileCoachBody: document.getElementById('profileCoachBody'),
@@ -659,8 +661,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       journalDeleteBtn: document.getElementById('journalDeleteBtn'),
       journalCancelBtn: document.getElementById('journalCancelBtn'),
       journalList: document.getElementById('journalList'),
-      backToFoundationBtn: document.getElementById('backToFoundationBtn'),
       nextPracticeBtn: document.getElementById('nextPracticeBtn'),
+      backToFoundationPathBtn: document.getElementById('backToFoundationPathBtn'),
       startSessionBtn: document.getElementById('startSessionBtn'),
       audioStatus: document.getElementById('audioStatus'),
       audioText: document.getElementById('audioText'),
@@ -2252,6 +2254,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function updateJourneyButtons() {
       const inTrainMode = activeDestination === 'Train';
       const inSessionView = inTrainMode && (activePractice === 'Foundation' || activePractice === 'Intuition');
+      const inFoundationDetailView = inSessionView
+        && activePractice === 'Foundation'
+        && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
+      const selectedPracticeIndex = foundationOrder.indexOf(activeSubcategory);
+      const hasPreviousPractice = selectedPracticeIndex > 0;
+      const hasNextPractice = selectedPracticeIndex >= 0 && selectedPracticeIndex < foundationOrder.length - 1;
 
       if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode);
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
@@ -2271,11 +2279,26 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const canStartSelectedPractice = !((activePractice === 'Foundation' || activePractice === 'Intuition') && !hasPlayablePracticeAudio(activeSubcategory));
       el.startSessionBtn.disabled = !canStartSelectedPractice;
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
+
+      if (el.trainPracticeNavRow) {
+        el.trainPracticeNavRow.classList.toggle('hidden', !inFoundationDetailView);
+        el.trainPracticeNavRow.toggleAttribute('hidden', !inFoundationDetailView);
+      }
+      if (el.previousPracticeBtn) {
+        el.previousPracticeBtn.disabled = !hasPreviousPractice;
+        el.previousPracticeBtn.classList.toggle('disabled', !hasPreviousPractice);
+      }
+      if (el.nextPracticeBtn) {
+        el.nextPracticeBtn.disabled = !hasNextPractice;
+        el.nextPracticeBtn.classList.toggle('disabled', !hasNextPractice);
+      }
     }
 
     function updateTrainViewVisibility() {
       if (activeDestination !== 'Train') return;
-      const isDetailView = trainViewState === TRAIN_VIEW_STATE.DETAIL;
+      const isDetailView = (activePractice === 'Foundation' || activePractice === 'Intuition')
+        && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON
+        && Boolean(activeSubcategory);
       const trainSkillCard = el.trainPracticeCopyLabel?.closest('.practice-copy');
 
       if (el.foundationHomePanel) {
@@ -2297,8 +2320,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (el.trainDetailBackBtn) {
-        el.trainDetailBackBtn.classList.toggle('hidden', !isDetailView);
-        el.trainDetailBackBtn.toggleAttribute('hidden', !isDetailView);
+        el.trainDetailBackBtn.classList.add('hidden');
+        el.trainDetailBackBtn.toggleAttribute('hidden', true);
       }
     }
 
@@ -3804,9 +3827,18 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
     window.goBackInTrain = goBackInTrain;
 
+    function goToPreviousPractice() {
+      const index = foundationOrder.indexOf(activeSubcategory);
+      if (index <= 0) return;
+      const previous = foundationOrder[index - 1];
+      setSubcategory(previous, false);
+    }
+    window.goToPreviousPractice = goToPreviousPractice;
+
     function goToNextPractice() {
       const index = foundationOrder.indexOf(activeSubcategory);
-      const next = index >= 0 && index < foundationOrder.length - 1 ? foundationOrder[index + 1] : foundationOrder[0];
+      if (index < 0 || index >= foundationOrder.length - 1) return;
+      const next = foundationOrder[index + 1];
       setSubcategory(next, false);
     }
     window.goToNextPractice = goToNextPractice;
