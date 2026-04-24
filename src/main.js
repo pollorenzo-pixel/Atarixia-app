@@ -35,6 +35,9 @@ import { createSessionModeController } from './session-mode-controller.js';
 
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
+    const QUOTE_SEEN_STORAGE_KEY = 'ataraxia_quote_seen_v1';
+    const WELCOME_STARTED_STORAGE_KEY = DISCLAIMER_STORAGE_KEY;
+    const INTRO_COMPLETED_STORAGE_KEY = 'ataraxia_intro_completed_v1';
     const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
     const DEV_INTUITION_UNLOCK_STORAGE_KEY = 'ataraxia_dev_intuition_unlock_v1';
     const DEV_INTUITION_UNLOCK_PASSWORD = 'y0jak13hS';
@@ -782,7 +785,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
     };
     let pendingWelcomeIntroTarget = null;
     let welcomeIntroMode = 'welcome';
-    let intuitionAccessPromptVisible = false;
     let intuitionAccessError = '';
     let homeNextMove = null;
     let journalDraftId = '';
@@ -836,17 +838,44 @@ You do not need to force anything. Arrive and follow the guidance.`,
       } catch {}
     }
 
-    function hasCompletedDisclaimer() {
+    function hasSeenQuote() {
       try {
-        return localStorage.getItem(DISCLAIMER_STORAGE_KEY) === 'true';
+        return localStorage.getItem(QUOTE_SEEN_STORAGE_KEY) === 'true';
       } catch {
         return false;
       }
     }
 
-    function markDisclaimerCompleted() {
+    function markQuoteSeen() {
       try {
-        localStorage.setItem(DISCLAIMER_STORAGE_KEY, 'true');
+        localStorage.setItem(QUOTE_SEEN_STORAGE_KEY, 'true');
+      } catch {}
+    }
+
+    function hasStartedWelcomeOnboarding() {
+      try {
+        return localStorage.getItem(WELCOME_STARTED_STORAGE_KEY) === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    function markWelcomeOnboardingStarted() {
+      try {
+        localStorage.setItem(WELCOME_STARTED_STORAGE_KEY, 'true');
+      } catch {}
+    }
+
+    function hasCompletedMainIntroduction() {
+      try {
+        if (localStorage.getItem(INTRO_COMPLETED_STORAGE_KEY) === 'true') return true;
+      } catch {}
+      return hasStartedWelcomeOnboarding() && hasCompletedSessionHistory();
+    }
+
+    function markMainIntroductionCompleted() {
+      try {
+        localStorage.setItem(INTRO_COMPLETED_STORAGE_KEY, 'true');
       } catch {}
     }
 
@@ -1472,7 +1501,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getDefaultOpeningMode() {
-      return hasCompletedSessionHistory() ? 'Profile' : 'Introduction';
+      if (hasCompletedMainIntroduction()) return hasCompletedSessionHistory() ? 'Profile' : 'Introduction';
+      if (!hasSeenQuote()) return 'Welcome';
+      return hasStartedWelcomeOnboarding() ? 'Introduction' : 'Welcome';
     }
 
     function getTrainingInsights() {
@@ -2498,7 +2529,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         history,
         progress: loadProgress(),
         foundationOrder: progressMetrics.practices,
-        hasCompletedDisclaimer: hasCompletedDisclaimer(),
+        hasCompletedDisclaimer: hasStartedWelcomeOnboarding(),
         introAvailable: Boolean(practiceContent.Introduction?.audio)
       });
       const currentStepKey = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key)) || null;
@@ -2579,39 +2610,33 @@ You do not need to force anything. Arrive and follow the guidance.`,
           `;
           el.foundationCardsContainer.appendChild(lockCard);
 
-          const unlockToggleBtn = document.createElement('button');
-          unlockToggleBtn.className = 'intuition-access-toggle-btn';
-          unlockToggleBtn.textContent = intuitionAccessPromptVisible ? 'Hide access key' : 'Unlock with access key';
-          unlockToggleBtn.addEventListener('click', () => {
-            intuitionAccessPromptVisible = !intuitionAccessPromptVisible;
-            intuitionAccessError = '';
+          const unlockCard = document.createElement('div');
+          unlockCard.className = 'intuition-lock-card';
+          unlockCard.innerHTML = `
+            <div class="intuition-lock-title">Developer Access</div>
+            <div class="intuition-lock-body">Enter access key to preview Intuition.</div>
+          `;
+          const unlockForm = document.createElement('form');
+          unlockForm.className = 'intuition-access-form';
+          unlockForm.innerHTML = `
+            <input class="intuition-access-input" type="password" name="accessKey" autocomplete="off" placeholder="Enter password" aria-label="Enter password" required>
+            <button class="intuition-access-submit" type="submit">Unlock Intuition</button>
+          `;
+          unlockForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const accessKey = String(new FormData(unlockForm).get('accessKey') || '').trim();
+            if (accessKey === DEV_INTUITION_UNLOCK_PASSWORD) {
+              markDevIntuitionUnlockEnabled();
+              intuitionAccessError = '';
+              setTrainTrack('Intuition');
+              return;
+            } else {
+              intuitionAccessError = 'Access key not recognised.';
+            }
             renderFoundationHomeCards();
           });
-          el.foundationCardsContainer.appendChild(unlockToggleBtn);
-
-          if (intuitionAccessPromptVisible) {
-            const unlockForm = document.createElement('form');
-            unlockForm.className = 'intuition-access-form';
-            unlockForm.innerHTML = `
-              <input class="intuition-access-input" type="password" name="accessKey" autocomplete="off" placeholder="Enter access key" aria-label="Access key" required>
-              <button class="intuition-access-submit" type="submit">Unlock</button>
-            `;
-            unlockForm.addEventListener('submit', (event) => {
-              event.preventDefault();
-              const accessKey = String(new FormData(unlockForm).get('accessKey') || '').trim();
-              if (accessKey === DEV_INTUITION_UNLOCK_PASSWORD) {
-                markDevIntuitionUnlockEnabled();
-                intuitionAccessPromptVisible = false;
-                intuitionAccessError = '';
-                setTrainTrack('Intuition');
-                return;
-              } else {
-                intuitionAccessError = 'Access key not recognised.';
-              }
-              renderFoundationHomeCards();
-            });
-            el.foundationCardsContainer.appendChild(unlockForm);
-          }
+          unlockCard.appendChild(unlockForm);
+          el.foundationCardsContainer.appendChild(unlockCard);
 
           if (intuitionAccessError) {
             const errorLine = document.createElement('div');
@@ -2702,7 +2727,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         history: safeHistory,
         progress: loadProgress(),
         foundationOrder: progress.practices,
-        hasCompletedDisclaimer: hasCompletedDisclaimer(),
+        hasCompletedDisclaimer: hasStartedWelcomeOnboarding(),
         introAvailable: Boolean(practiceContent.Introduction?.audio)
       });
       const practiceKey = recommendation.practiceKey || recommendation.fallbackPracticeKey || 'BreathAwareness';
@@ -2724,7 +2749,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         history: safeHistory,
         progress: loadProgress(),
         foundationOrder: progress.practices,
-        hasCompletedDisclaimer: hasCompletedDisclaimer(),
+        hasCompletedDisclaimer: hasStartedWelcomeOnboarding(),
         introAvailable: Boolean(practiceContent.Introduction?.audio)
       });
     }
@@ -3509,6 +3534,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       completedSessionDurationSeconds = Math.max(elapsedSeconds, playbackDurationSeconds);
 
       if (activePractice === 'Introduction') {
+        markMainIntroductionCompleted();
         setTimeout(() => {
           detachAudio();
           initAudio();
@@ -3585,10 +3611,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     async function startSessionButton() {
-      const needsDisclaimer = !hasCompletedDisclaimer() && (activePractice === 'Introduction' || activePractice === 'Foundation');
+      const needsDisclaimer = !hasStartedWelcomeOnboarding() && (activePractice === 'Introduction' || activePractice === 'Foundation');
       if (needsDisclaimer) {
         startWelcomeIntro({
-          markCompleteOnFinish: true,
+          markWelcomeStartedOnFinish: true,
           returnTarget: {
             destination: 'Home',
             practice: 'Introduction'
@@ -3598,8 +3624,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (activePractice === 'Welcome') {
+        markWelcomeOnboardingStarted();
         startWelcomeIntro({
-          markCompleteOnFinish: true,
+          markWelcomeStartedOnFinish: true,
           returnTarget: {
             destination: 'Home',
             practice: 'Introduction'
@@ -3641,7 +3668,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function openDisclaimerFromAccount() {
       startWelcomeIntro({
-        markCompleteOnFinish: false,
+        markWelcomeStartedOnFinish: false,
         returnTarget: {
           destination: 'Account',
           practice: 'Profile'
@@ -4138,13 +4165,13 @@ window.__ataraxia = {
       welcomeIntroTickRaf = requestAnimationFrame(tick);
     }
 
-    function endWelcomeIntro(goToIntro = true, markCompleteOnFinish = false) {
+    function endWelcomeIntro(goToIntro = true, markWelcomeStartedOnFinish = false) {
       const completedIntuitionIntro = welcomeIntroMode === 'intuition';
       stopWelcomeIntroAudio();
       closeWelcomeIntroOverlay();
       resetWelcomeIntroUI();
       if (completedIntuitionIntro) markIntuitionIntroCompleted();
-      else if (markCompleteOnFinish) markDisclaimerCompleted();
+      else if (markWelcomeStartedOnFinish) markWelcomeOnboardingStarted();
       const target = pendingWelcomeIntroTarget;
       pendingWelcomeIntroTarget = null;
       if (target) {
@@ -4166,17 +4193,17 @@ window.__ataraxia = {
     }
 
     function skipWelcomeIntro() {
-      endWelcomeIntro(true, Boolean(pendingWelcomeIntroTarget?.markCompleteOnFinish));
+      endWelcomeIntro(true, Boolean(pendingWelcomeIntroTarget?.markWelcomeStartedOnFinish));
     }
     window.skipWelcomeIntro = skipWelcomeIntro;
 
     function startWelcomeIntro(options = {}) {
       const {
         returnTarget = { destination: 'Home', practice: 'Introduction' },
-        markCompleteOnFinish = false
+        markWelcomeStartedOnFinish = false
       } = options;
       if (!el.welcomeIntroOverlay || !el.welcomeIntroAudio) {
-        if (markCompleteOnFinish) markDisclaimerCompleted();
+        if (markWelcomeStartedOnFinish) markWelcomeOnboardingStarted();
         activePractice = returnTarget.practice || 'Introduction';
         activeDestination = returnTarget.destination || inferDestinationFromPractice(activePractice);
         refreshCurrentMode();
@@ -4187,7 +4214,7 @@ window.__ataraxia = {
         destination: returnTarget.destination || 'Home',
         practice: returnTarget.practice || 'Introduction',
         trainTrack: returnTarget.trainTrack || '',
-        markCompleteOnFinish
+        markWelcomeStartedOnFinish
       };
       welcomeIntroMode = 'welcome';
       closeMenu();
@@ -4205,7 +4232,7 @@ window.__ataraxia = {
       ensureWelcomeIntroAudioGraph();
       el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
       el.welcomeIntroAudio.ontimeupdate = cueTrack ? null : () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
-      el.welcomeIntroAudio.onended = () => endWelcomeIntro(true, markCompleteOnFinish);
+      el.welcomeIntroAudio.onended = () => endWelcomeIntro(true, markWelcomeStartedOnFinish);
       configureBackgroundAudio();
       const playPromise = el.welcomeIntroAudio.play();
       if (!cueTrack) startWelcomeIntroTicker();
@@ -4236,7 +4263,7 @@ window.__ataraxia = {
         destination: returnTarget.destination || 'Train',
         practice: returnTarget.practice || 'FoundationHome',
         trainTrack: returnTarget.trainTrack || 'Intuition',
-        markCompleteOnFinish: false
+        markWelcomeStartedOnFinish: false
       };
       welcomeIntroMode = 'intuition';
       closeMenu();
@@ -4313,6 +4340,7 @@ window.__ataraxia = {
       el.openingScene.classList.remove('fade-out');
       el.openingQuote.textContent = `“${q.text}”`;
       el.openingAuthor.textContent = q.author;
+      markQuoteSeen();
       setTimeout(() => {
         el.openingScene.classList.add('fade-out');
         activePractice = getDefaultOpeningMode();
