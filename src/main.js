@@ -2299,6 +2299,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const isDetailView = (activePractice === 'Foundation' || activePractice === 'Intuition')
         && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON
         && Boolean(activeSubcategory);
+      const isFoundationDetailView = isDetailView && activePractice === 'Foundation';
       const trainSkillCard = el.trainPracticeCopyLabel?.closest('.practice-copy');
 
       if (el.foundationHomePanel) {
@@ -2312,11 +2313,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (el.trainLessonCard) {
-        const showLesson = isDetailView
-          && (activePractice === 'Foundation' || activePractice === 'Intuition')
-          && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
-        el.trainLessonCard.classList.toggle('hidden', !showLesson);
-        el.trainLessonCard.toggleAttribute('hidden', !showLesson);
+        el.trainLessonCard.classList.add('hidden');
+        el.trainLessonCard.toggleAttribute('hidden', true);
+      }
+
+      if (el.trainHierarchyBackBtn) {
+        const showHierarchyBackButton = !isFoundationDetailView && trainHierarchyLevel !== TRAIN_HIERARCHY_LEVEL.ROOT;
+        el.trainHierarchyBackBtn.classList.toggle('hidden', !showHierarchyBackButton);
+        el.trainHierarchyBackBtn.toggleAttribute('hidden', !showHierarchyBackButton);
       }
 
       if (el.trainDetailBackBtn) {
@@ -2414,10 +2418,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.sessionSubtitle) el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       else warnMissingUiRef('sessionSubtitle', 'session');
 
-      const shouldShowTrainLessonCard = activeDestination === 'Train'
-        && (activePractice === 'Foundation' || activePractice === 'Intuition')
-        && trainViewState === TRAIN_VIEW_STATE.DETAIL
-        && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
+      const shouldShowTrainLessonCard = false;
 
       if (data.lesson && shouldShowTrainLessonCard) {
         if (view.lessonCard) view.lessonCard.style.display = 'block';
@@ -3826,6 +3827,19 @@ You do not need to force anything. Arrive and follow the guidance.`,
       refreshCurrentMode();
     }
     window.goBackInTrain = goBackInTrain;
+
+    function backToFoundationPath() {
+      activeDestination = 'Train';
+      activeTrainTrack = 'Foundation';
+      activePractice = 'FoundationHome';
+      activeSubcategory = '';
+      trainViewState = TRAIN_VIEW_STATE.LIST;
+      trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
+      foundationMenuOpen = true;
+      shownLessonKey = '';
+      refreshCurrentMode();
+    }
+    window.backToFoundationPath = backToFoundationPath;
 
     function goToPreviousPractice() {
       const index = foundationOrder.indexOf(activeSubcategory);
