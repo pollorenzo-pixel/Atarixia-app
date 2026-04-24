@@ -813,6 +813,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function logSessionAudioEvent(eventName, details = {}) {
+      if (!window.__ATARAXIA_DEBUG_AUDIO__) return;
       console.info(`[Ataraxia][SessionAudio] ${eventName}`, {
         practiceKey: getSelectedPracticeKey(),
         ...details
@@ -866,9 +867,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function hasCompletedMainIntroduction() {
       try {
-        if (localStorage.getItem(INTRO_COMPLETED_STORAGE_KEY) === 'true') return true;
-      } catch {}
-      return hasStartedWelcomeOnboarding() && hasCompletedSessionHistory();
+        return localStorage.getItem(INTRO_COMPLETED_STORAGE_KEY) === 'true';
+      } catch {
+        return false;
+      }
     }
 
     function markMainIntroductionCompleted() {
@@ -1503,7 +1505,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getDefaultOpeningMode() {
-      if (hasCompletedMainIntroduction()) return hasCompletedSessionHistory() ? 'Profile' : 'Introduction';
+      if (hasCompletedMainIntroduction()) return 'FoundationHome';
       if (!hasSeenQuote()) return 'Welcome';
       return hasStartedWelcomeOnboarding() ? 'Introduction' : 'Welcome';
     }
@@ -2614,14 +2616,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (activeTrainTrack === 'Intuition') {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
         if (!intuitionUnlocked) {
-          const lockCard = document.createElement('div');
-          lockCard.className = 'intuition-lock-card';
-          lockCard.innerHTML = `
-            <div class="intuition-lock-title">Intuition is locked</div>
-            <div class="intuition-lock-body">Complete the Foundation path to open Intuition training.</div>
-          `;
-          el.foundationCardsContainer.appendChild(lockCard);
-
           const unlockCard = document.createElement('div');
           unlockCard.className = 'intuition-lock-card';
           unlockCard.innerHTML = `
@@ -2828,6 +2822,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!recommendation?.practiceKey) return;
       if (recommendation.practiceKey === 'Introduction') {
         selectMainMode('Introduction');
+        startSessionButton();
         return;
       }
       setSubcategory(recommendation.practiceKey, false);
@@ -3916,6 +3911,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
         setTrainTrack('Foundation', fromMenu);
         return;
       }
+      if (activeTrainTrack === 'Intuition' && name === 'SignalDetection' && !hasCompletedIntuitionIntro()) {
+        startIntuitionIntro({
+          returnTarget: {
+            destination: 'Train',
+            practice: 'FoundationHome',
+            trainTrack: 'Intuition'
+          }
+        });
+        if (fromMenu) closeMenu();
+        return;
+      }
       activeDestination = 'Train';
       activePractice = activeTrainTrack === 'Intuition' ? 'Intuition' : 'Foundation';
       activeSubcategory = name;
@@ -4445,7 +4451,14 @@ window.__ataraxia = {
       } catch (error) {
         console.error('Ataraxia initial sync error:', error);
       }
-      showOpeningQuoteScene();
+      if (hasSeenQuote()) {
+        el.appShell.classList.add('revealed');
+        activePractice = getDefaultOpeningMode();
+        activeDestination = inferDestinationFromPractice(activePractice);
+        syncUI();
+      } else {
+        showOpeningQuoteScene();
+      }
       setTimeout(() => {
         try {
           preloadMeditationAudio();
