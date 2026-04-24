@@ -2261,7 +2261,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const hasPreviousPractice = selectedPracticeIndex > 0;
       const hasNextPractice = selectedPracticeIndex >= 0 && selectedPracticeIndex < foundationOrder.length - 1;
 
-      if (el.foundationHomePanel) el.foundationHomePanel.classList.toggle('hidden', !inTrainMode);
+      const shouldShowFoundationHomePanel = inTrainMode && !inSessionView;
+      if (el.foundationHomePanel) {
+        el.foundationHomePanel.classList.toggle('hidden', !shouldShowFoundationHomePanel);
+        el.foundationHomePanel.toggleAttribute('hidden', !shouldShowFoundationHomePanel);
+      }
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
 
       // Keep V2 session CTA scoped to Train only.
