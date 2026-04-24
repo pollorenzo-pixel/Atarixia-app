@@ -108,11 +108,11 @@ import { createSessionModeController } from './session-mode-controller.js';
       },
       Flow: {
         eyebrow: 'Train · Flow',
-        hero: 'Flow training.<br>Coming next.',
-        subtitle: ['System', 'Coming', 'Next'],
+        hero: 'Flow training.<br>State alignment.',
+        subtitle: ['System', 'State', 'Alignment'],
         copyLabel: 'Flow',
-        copyTitle: 'System Section In Progress',
-        copyBody: 'Flow will be added without changing Foundation routing or audio wiring.'
+        copyTitle: 'Flow Track',
+        copyBody: 'Use this section for flow-state training and performance alignment.'
       }
     };
     const APP_BOOT_DELAY = 1800;
@@ -314,7 +314,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         badge: 'Train',
         copyLabel: 'Train',
         copyTitle: 'Structured Practice Map',
-        copyBody: 'Foundation is live. Intuition and Flow are coming next.'
+        copyBody: 'Use the Train Map to continue in Foundation or Intuition.'
       },
       Profile: {
         eyebrow: 'Profile',
@@ -620,9 +620,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainTrackFoundationBtn: document.getElementById('trainTrackFoundationBtn'),
       trainTrackIntuitionBtn: document.getElementById('trainTrackIntuitionBtn'),
       trainTrackFlowBtn: document.getElementById('trainTrackFlowBtn'),
-      comingNextPanel: document.getElementById('comingNextPanel'),
-      comingNextTitle: document.getElementById('comingNextTitle'),
-      comingNextBody: document.getElementById('comingNextBody'),
       trainHierarchyBackBtn: document.getElementById('trainHierarchyBackBtn'),
       trainHierarchyTitle: document.getElementById('trainHierarchyTitle'),
       trainDetailBackBtn: document.getElementById('trainDetailBackBtn'),
@@ -2505,7 +2502,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       else if (activePractice === 'FoundationHome') {
         const label = activeTrainTrack === 'Foundation'
           ? 'Choose a Foundation Practice'
-          : `${activeTrainTrack} Coming Next`;
+          : `${activeTrainTrack} Track`;
         setAudioStatus(label);
       }
       else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
@@ -2574,7 +2571,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!el.foundationCardsContainer) return;
       el.foundationCardsContainer.innerHTML = '';
 
-      if (el.comingNextPanel) el.comingNextPanel.classList.add('hidden');
       if (el.trainHierarchyBackBtn) el.trainHierarchyBackBtn.classList.toggle('hidden', trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT);
 
       const createTrackCard = (title, description, onClick, isActive = false) => {
@@ -2616,11 +2612,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (activeTrainTrack === 'Intuition') {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
-        if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
         if (!intuitionUnlocked) {
-          if (el.comingNextTitle) el.comingNextTitle.textContent = 'Complete Foundation first.';
-          if (el.comingNextBody) el.comingNextBody.textContent = 'Intuition training opens once stable awareness is built.';
-
           const lockCard = document.createElement('div');
           lockCard.className = 'intuition-lock-card';
           lockCard.innerHTML = `
@@ -2666,12 +2658,21 @@ You do not need to force anything. Arrive and follow the guidance.`,
           return;
         }
         if (!intuitionIntroCompleted) {
-          if (el.comingNextTitle) el.comingNextTitle.textContent = 'Intuition Introduction ready.';
-          if (el.comingNextBody) el.comingNextBody.textContent = 'Open Intuition to begin the introduction.';
+          const introCard = document.createElement('div');
+          introCard.className = 'intuition-lock-card';
+          introCard.innerHTML = `
+            <div class="intuition-lock-title">Intuition Introduction</div>
+            <div class="intuition-lock-body">Start the introduction to unlock Signal Detection practice.</div>
+          `;
+          const introBtn = document.createElement('button');
+          introBtn.className = 'journey-btn';
+          introBtn.type = 'button';
+          introBtn.textContent = 'Begin Intuition Introduction';
+          introBtn.addEventListener('click', () => selectMainMode('Intuition'));
+          introCard.appendChild(introBtn);
+          el.foundationCardsContainer.appendChild(introCard);
           return;
         }
-        if (el.comingNextTitle) el.comingNextTitle.textContent = 'Signal Detection';
-        if (el.comingNextBody) el.comingNextBody.textContent = 'Notice subtle signals before the mind explains them.';
         const signalData = practiceContent.Intuition?.subcategories?.SignalDetection;
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
@@ -2682,18 +2683,19 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (activeTrainTrack !== 'Foundation') {
-        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = `${activeTrainTrack} · Coming Next`;
-        if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
-        if (el.comingNextTitle) el.comingNextTitle.textContent = `${activeTrainTrack} · Coming Next`;
-        if (el.comingNextBody) el.comingNextBody.textContent = `${activeTrainTrack} is reserved as a system section. Foundation remains fully wired while this section is being built.`;
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = activeTrainTrack;
+        const unavailableCard = document.createElement('div');
+        unavailableCard.className = 'intuition-lock-card';
+        unavailableCard.innerHTML = `
+          <div class="intuition-lock-title">${activeTrainTrack} track</div>
+          <div class="intuition-lock-body">This track is not available right now. Use Foundation or Intuition from the Train Map.</div>
+        `;
+        el.foundationCardsContainer.appendChild(unavailableCard);
         return;
       }
 
       if (!isFoundationUnlocked()) {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Foundation';
-        if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
-        if (el.comingNextTitle) el.comingNextTitle.textContent = 'Foundation is locked';
-        if (el.comingNextBody) el.comingNextBody.textContent = 'Complete the Introduction audio to begin Foundation training.';
         const lockCard = document.createElement('div');
         lockCard.className = 'intuition-lock-card';
         lockCard.innerHTML = `

@@ -1170,15 +1170,6 @@
       background: rgba(255,255,255,0.06);
       color: var(--text);
     }
-    .coming-next-panel {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-      background: rgba(255,255,255,0.03);
-      text-align: left;
-    }
-    .coming-next-title { font-size: 15px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 8px; }
-    .coming-next-body { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
     .foundation-progress-module {
       border: 1px solid var(--line);
       border-radius: var(--card-radius-tight);
@@ -1901,11 +1892,11 @@
         </button>
         <button class="menu-item" id="intuitionMenuBtn" onclick="setTrainTrack('Intuition', true)">
           <div class="menu-item-title">Intuition</div>
-          <div class="menu-item-desc">Coming next. Insight and pattern training will expand here.</div>
+          <div class="menu-item-desc">Insight and pattern training.</div>
         </button>
         <button class="menu-item" id="flowMenuBtn" onclick="setTrainTrack('Flow', true)">
           <div class="menu-item-title">Flow</div>
-          <div class="menu-item-desc">Coming next. Performance-state training will expand here.</div>
+          <div class="menu-item-desc">Performance-state training.</div>
         </button>
 
         <div class="menu-subsection" id="foundationSubsection">
@@ -1973,7 +1964,7 @@
       <div class="practice-copy">
         <div class="practice-copy-label" id="trainPracticeCopyLabel">Train</div>
         <div class="practice-copy-title" id="trainPracticeCopyTitle">Structured Practice Map</div>
-        <div class="practice-copy-body" id="trainPracticeCopyBody">Foundation is live. Intuition and Flow are coming next.</div>
+        <div class="practice-copy-body" id="trainPracticeCopyBody">Use the Train Map to continue in Foundation or Intuition.</div>
       </div>
 
       <div class="practice-copy lesson-card" id="trainLessonCard" style="display:none;">
@@ -1988,10 +1979,6 @@
         <button class="journey-btn secondary hidden" id="trainHierarchyBackBtn" onclick="goBackInTrain()">Back</button>
         <div class="foundation-home-header" id="trainHierarchyTitle">Train Map</div>
         <div id="foundationCardsContainer"></div>
-        <div class="coming-next-panel hidden" id="comingNextPanel">
-          <div class="coming-next-title" id="comingNextTitle">Coming next</div>
-          <div class="coming-next-body" id="comingNextBody">This section is being prepared.</div>
-        </div>
       </div>
 
       <div class="journey-panel hidden">
