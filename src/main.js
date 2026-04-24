@@ -3113,10 +3113,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
       sessionState: () => sessionState,
       isTerminalState: (state) => state === SESSION_STATE.ENDED || state === SESSION_STATE.IDLE,
       onStart: () => {
+        if (!isIntroSessionExperience()) return;
+        initSessionGrainCircle();
         if (sessionGrainCircle) sessionGrainCircle.start();
       },
       onStop: () => {
-        if (sessionGrainCircle) sessionGrainCircle.stop();
+        if (sessionGrainCircle) sessionGrainCircle.stop({ clear: true });
       },
       onWarn: warnMissingUiRef
     });
@@ -3252,6 +3254,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         exitSessionMode();
         return false;
       }
+      syncSessionGrainCircleScope();
       const enteredSessionMode = renderSessionUI();
       if (!enteredSessionMode) {
         exitSessionMode();
@@ -3282,13 +3285,26 @@ You do not need to force anything. Arrive and follow the guidance.`,
       hideCompletionTakeover();
     }
 
+    function isIntroSessionExperience() {
+      return activePractice === 'Introduction';
+    }
+
+    function syncSessionGrainCircleScope() {
+      if (!el.sessionGrainCanvas) return;
+      const enableIntroGrainCircle = isIntroSessionExperience();
+      el.sessionGrainCanvas.hidden = !enableIntroGrainCircle;
+      if (!enableIntroGrainCircle && sessionGrainCircle) {
+        sessionGrainCircle.stop({ clear: true });
+      }
+    }
+
     function initSessionGrainCircle() {
       if (!el.sessionGrainCanvas) {
         warnMissingUiRef('sessionGrainCanvas', 'session');
         return;
       }
+      if (sessionGrainCircle) return;
       sessionGrainCircle = new GrainCircle(el.sessionGrainCanvas);
-      sessionGrainCircle.start();
     }
 
     function startPlayback() {
@@ -4198,7 +4214,6 @@ window.__ataraxia = {
         configureBackgroundAudio();
         initAudio();
         syncUI();
-        initSessionGrainCircle();
       } catch (error) {
         console.error('Ataraxia initial sync error:', error);
       }
