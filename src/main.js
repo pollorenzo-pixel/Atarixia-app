@@ -36,6 +36,8 @@ import { createSessionModeController } from './session-mode-controller.js';
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
     const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
+    const DEV_INTUITION_UNLOCK_STORAGE_KEY = 'ataraxia_dev_intuition_unlock_v1';
+    const DEV_INTUITION_UNLOCK_PASSWORD = 'y0jak13hS';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const JOURNAL_STORAGE_KEY = 'ataraxia_journal_entries_v1';
@@ -780,6 +782,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
     };
     let pendingWelcomeIntroTarget = null;
     let welcomeIntroMode = 'welcome';
+    let intuitionAccessPromptVisible = false;
+    let intuitionAccessError = '';
     let homeNextMove = null;
     let journalDraftId = '';
     let journalEditorMode = 'create';
@@ -858,6 +862,24 @@ You do not need to force anything. Arrive and follow the guidance.`,
       try {
         localStorage.setItem(INTUITION_INTRO_STORAGE_KEY, 'true');
       } catch {}
+    }
+
+    function hasDevIntuitionUnlock() {
+      try {
+        return localStorage.getItem(DEV_INTUITION_UNLOCK_STORAGE_KEY) === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    function markDevIntuitionUnlockEnabled() {
+      try {
+        localStorage.setItem(DEV_INTUITION_UNLOCK_STORAGE_KEY, 'true');
+      } catch {}
+    }
+
+    function isIntuitionUnlocked() {
+      return isFoundationFullyCompleted() || hasDevIntuitionUnlock();
     }
 
     function saveReflectionEntry(reflection) {
@@ -2529,6 +2551,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       };
 
       const foundationReadyForIntuition = isFoundationFullyCompleted();
+      const intuitionUnlocked = isIntuitionUnlocked();
       const intuitionIntroCompleted = hasCompletedIntuitionIntro();
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT) {
@@ -2536,18 +2559,66 @@ You do not need to force anything. Arrive and follow the guidance.`,
         el.foundationCardsContainer.appendChild(createTrackCard('Foundation', 'Build stable attention and awareness.', () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
         const intuitionTrackCopy = foundationReadyForIntuition
           ? (intuitionIntroCompleted ? 'Unlocked. Enter Intuition track.' : 'Ready to unlock. Begin Intuition Introduction.')
-          : 'Complete Foundation first to unlock Intuition.';
+          : (intuitionUnlocked ? 'Development unlock active. Enter Intuition track.' : 'Complete Foundation first to unlock Intuition.');
         el.foundationCardsContainer.appendChild(createTrackCard('Intuition', intuitionTrackCopy, () => setTrainTrack('Intuition'), activeTrainTrack === 'Intuition'));
-        el.foundationCardsContainer.appendChild(createTrackCard('Flow', 'Coming next system section.', () => setTrainTrack('Flow')));
         return;
       }
 
       if (activeTrainTrack === 'Intuition') {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
         if (el.comingNextPanel) el.comingNextPanel.classList.remove('hidden');
-        if (!foundationReadyForIntuition) {
+        if (!intuitionUnlocked) {
           if (el.comingNextTitle) el.comingNextTitle.textContent = 'Complete Foundation first.';
           if (el.comingNextBody) el.comingNextBody.textContent = 'Intuition training opens once stable awareness is built.';
+
+          const lockCard = document.createElement('div');
+          lockCard.className = 'intuition-lock-card';
+          lockCard.innerHTML = `
+            <div class="intuition-lock-title">Intuition is locked</div>
+            <div class="intuition-lock-body">Complete the Foundation path to open Intuition training.</div>
+          `;
+          el.foundationCardsContainer.appendChild(lockCard);
+
+          const unlockToggleBtn = document.createElement('button');
+          unlockToggleBtn.className = 'intuition-access-toggle-btn';
+          unlockToggleBtn.textContent = intuitionAccessPromptVisible ? 'Hide access key' : 'Unlock with access key';
+          unlockToggleBtn.addEventListener('click', () => {
+            intuitionAccessPromptVisible = !intuitionAccessPromptVisible;
+            intuitionAccessError = '';
+            renderFoundationHomeCards();
+          });
+          el.foundationCardsContainer.appendChild(unlockToggleBtn);
+
+          if (intuitionAccessPromptVisible) {
+            const unlockForm = document.createElement('form');
+            unlockForm.className = 'intuition-access-form';
+            unlockForm.innerHTML = `
+              <input class="intuition-access-input" type="password" name="accessKey" autocomplete="off" placeholder="Enter access key" aria-label="Access key" required>
+              <button class="intuition-access-submit" type="submit">Unlock</button>
+            `;
+            unlockForm.addEventListener('submit', (event) => {
+              event.preventDefault();
+              const accessKey = String(new FormData(unlockForm).get('accessKey') || '').trim();
+              if (accessKey === DEV_INTUITION_UNLOCK_PASSWORD) {
+                markDevIntuitionUnlockEnabled();
+                intuitionAccessPromptVisible = false;
+                intuitionAccessError = '';
+                setTrainTrack('Intuition');
+                return;
+              } else {
+                intuitionAccessError = 'Access key not recognised.';
+              }
+              renderFoundationHomeCards();
+            });
+            el.foundationCardsContainer.appendChild(unlockForm);
+          }
+
+          if (intuitionAccessError) {
+            const errorLine = document.createElement('div');
+            errorLine.className = 'intuition-access-error';
+            errorLine.textContent = intuitionAccessError;
+            el.foundationCardsContainer.appendChild(errorLine);
+          }
           return;
         }
         if (!intuitionIntroCompleted) {
@@ -3663,8 +3734,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function setTrainTrack(name = 'Foundation', closeAfter = false) {
       if (!['Foundation', 'Intuition', 'Flow'].includes(name)) return;
       if (name === 'Intuition') {
-        const foundationReadyForIntuition = isFoundationFullyCompleted();
-        if (!foundationReadyForIntuition) {
+        const intuitionUnlocked = isIntuitionUnlocked();
+        if (!intuitionUnlocked) {
           activeDestination = 'Train';
           activePractice = 'FoundationHome';
           activeTrainTrack = 'Intuition';
