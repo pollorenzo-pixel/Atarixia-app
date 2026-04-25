@@ -32,6 +32,12 @@ import { createSessionModeController } from './session-mode-controller.js';
       { start: 51.82, end: 56.05, text: 'Take what works for you… leave what doesn’t… and move at your own pace.' },
       { start: 56.90, end: 58.67, text: 'Alright… let’s begin.' }
     ];
+    const INTUITION_INTRO_SCRIPT_CUES = [
+      { start: 0.00, end: 7.50, text: 'Intuition training begins after awareness becomes stable.' },
+      { start: 7.50, end: 16.80, text: 'This next phase trains you to notice subtle signals before reaction takes over.' },
+      { start: 16.80, end: 25.80, text: 'Notice what appears first, before interpretation.' },
+      { start: 25.80, end: 36.00, text: 'Let the signal stay clear without forcing it.' }
+    ];
 
     const STORAGE_KEY = 'ataraxia_practice_progress_v4';
     const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
@@ -2824,13 +2830,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     // Single Home CTA entrypoint. Resume/new-user logic is delegated to recommendation selection.
     function startTodaysSession() {
-      const recommendation = homeNextMove || getHomeRecommendation(loadSessionHistory());
-      if (!recommendation?.practiceKey) return;
-      if (recommendation.practiceKey === 'Introduction') {
+      if (!hasCompletedMainIntroduction()) {
         selectMainMode('Introduction');
+        startSessionButton();
         return;
       }
-      setSubcategory(recommendation.practiceKey, false);
+      const recommendedKey = getStartTrainingRecommendedPracticeKey();
+      const foundationKey = (recommendedKey && practiceContent.Foundation?.subcategories?.[recommendedKey])
+        ? recommendedKey
+        : 'BreathAwareness';
+      setTrainTrack('Foundation');
+      setSubcategory(foundationKey, false);
       startSessionButton();
     }
     window.startTodaysSession = startTodaysSession;
@@ -4200,29 +4210,26 @@ window.__ataraxia = {
   el.welcomeIntroAudio.onloadedmetadata = null;
 }
 
+    function getActiveIntroScriptCues() {
+      return welcomeIntroMode === 'intuition'
+        ? INTUITION_INTRO_SCRIPT_CUES
+        : WELCOME_SCRIPT_CUES;
+    }
+
     function ensureWelcomeIntroTextTrack() {
-      if (!el.welcomeIntroAudio || welcomeIntroTextTrack || typeof VTTCue === 'undefined') return null;
-      const track = el.welcomeIntroAudio.addTextTrack('captions', 'Welcome Script', 'en');
-      track.mode = 'hidden';
-      WELCOME_SCRIPT_CUES.forEach((cue) => {
-        track.addCue(new VTTCue(cue.start, cue.end, cue.text));
-      });
-      track.oncuechange = () => {
-        const activeCue = track.activeCues && track.activeCues.length ? track.activeCues[0] : null;
-        if (activeCue && el.welcomeIntroCaption) {
-          el.welcomeIntroCaption.textContent = activeCue.text;
-        }
-      };
-      welcomeIntroTextTrack = track;
-      return track;
+      if (welcomeIntroTextTrack) {
+        welcomeIntroTextTrack.mode = 'disabled';
+      }
+      return null;
     }
 
     function renderWelcomeIntroCue(time = 0) {
       if (!el.welcomeIntroCaption) return;
-      let activeText = WELCOME_SCRIPT_CUES[0]?.text || 'Welcome to Ataraxia.';
-      for (let i = 0; i < WELCOME_SCRIPT_CUES.length; i++) {
-        if (time >= WELCOME_SCRIPT_CUES[i].start) {
-          activeText = WELCOME_SCRIPT_CUES[i].text;
+      const activeCues = getActiveIntroScriptCues();
+      let activeText = activeCues[0]?.text || 'Welcome to Ataraxia.';
+      for (let i = 0; i < activeCues.length; i++) {
+        if (time >= activeCues[i].start) {
+          activeText = activeCues[i].text;
         }
       }
       if (el.welcomeIntroCaption.textContent !== activeText) {
@@ -4302,7 +4309,7 @@ window.__ataraxia = {
       startWelcomeParticles();
       el.welcomeIntroState.textContent = 'Welcome';
       el.welcomeIntroLabel.textContent = 'Playing';
-      el.welcomeIntroCaption.textContent = WELCOME_SCRIPT_CUES[0]?.text || DEFAULT_WELCOME_CAPTION;
+      el.welcomeIntroCaption.textContent = getActiveIntroScriptCues()[0]?.text || DEFAULT_WELCOME_CAPTION;
       el.welcomeIntroAudio.src = resolveAssetPath(WELCOME_AUDIO);
       el.welcomeIntroAudio.load();
       el.welcomeIntroAudio.volume = getCurrentVolume();
@@ -4352,11 +4359,11 @@ window.__ataraxia = {
       startWelcomeParticles();
       if (el.welcomeIntroKicker) el.welcomeIntroKicker.textContent = 'Intuition Unlock';
       el.welcomeIntroState.textContent = 'Intuition Training';
-      el.welcomeIntroLabel.textContent = 'Signal detection begins after awareness becomes stable.';
-      el.welcomeIntroCaption.textContent = 'This next phase trains you to notice subtle signals before reaction takes over.';
+      el.welcomeIntroLabel.textContent = 'Playing';
+      el.welcomeIntroCaption.textContent = getActiveIntroScriptCues()[0]?.text || 'Intuition training begins after awareness becomes stable.';
       if (el.welcomeIntroSkipBtn) el.welcomeIntroSkipBtn.classList.add('hidden');
       if (el.welcomeIntroActionBtn) {
-        el.welcomeIntroActionBtn.classList.remove('hidden');
+        el.welcomeIntroActionBtn.classList.add('hidden');
         el.welcomeIntroActionBtn.textContent = 'Begin Introduction';
       }
       el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
@@ -4364,29 +4371,23 @@ window.__ataraxia = {
       el.welcomeIntroAudio.volume = getCurrentVolume();
       el.welcomeIntroAudio.currentTime = 0;
       ensureWelcomeIntroAudioGraph();
-      el.welcomeIntroAudio.onloadedmetadata = null;
-      el.welcomeIntroAudio.ontimeupdate = null;
+      el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
+      el.welcomeIntroAudio.ontimeupdate = () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
       el.welcomeIntroAudio.onended = () => {
         markIntuitionIntroCompleted();
         el.welcomeIntroLabel.textContent = 'Introduction Complete';
-        if (el.welcomeIntroActionBtn) {
-          el.welcomeIntroActionBtn.textContent = 'Enter Intuition';
-          el.welcomeIntroActionBtn.onclick = () => endWelcomeIntro(false, false);
-        }
+        setTimeout(() => endWelcomeIntro(false, false), 350);
       };
       configureBackgroundAudio();
-      if (el.welcomeIntroActionBtn) {
-        el.welcomeIntroActionBtn.onclick = () => {
-          const playPromise = el.welcomeIntroAudio.play();
-          if (playPromise && typeof playPromise.then === 'function') {
-            playPromise.then(() => {
-              el.welcomeIntroLabel.textContent = 'Playing';
-              startWelcomeReactiveTicker();
-            }).catch(() => {
-              el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
-            });
-          }
-        };
+      const playPromise = el.welcomeIntroAudio.play();
+      startWelcomeIntroTicker();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          el.welcomeIntroLabel.textContent = 'Playing';
+          startWelcomeReactiveTicker();
+        }).catch(() => {
+          el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
+        });
       }
     }
 
