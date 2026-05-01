@@ -2625,7 +2625,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
           lockCard.innerHTML = `
             <div class="intuition-lock-title">Intuition is locked</div>
             <div class="intuition-lock-body">Complete the Foundation path to open Intuition training.</div>
+            <div class="intuition-lock-body">Foundation progress: ${computeFoundationOverallProgress()}%</div>
           `;
+          const continueFoundationBtn = document.createElement('button');
+          continueFoundationBtn.className = 'journey-btn';
+          continueFoundationBtn.type = 'button';
+          continueFoundationBtn.textContent = 'Continue Foundation';
+          continueFoundationBtn.addEventListener('click', () => setTrainTrack('Foundation'));
+          lockCard.appendChild(continueFoundationBtn);
           el.foundationCardsContainer.appendChild(lockCard);
 
           const unlockCard = document.createElement('div');
