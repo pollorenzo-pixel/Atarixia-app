@@ -807,7 +807,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function inferDestinationFromPractice(practice = activePractice) {
       if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition') return 'Train';
-      if (practice === 'Profile') return 'Progress';
+      if (practice === 'Profile') return 'Account';
       return 'Home';
     }
 
@@ -3864,7 +3864,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainViewState = TRAIN_VIEW_STATE.LIST;
       trainHierarchyLevel = name === 'Foundation'
         ? TRAIN_HIERARCHY_LEVEL.FOUNDATION_SUBCATEGORY
-        : TRAIN_HIERARCHY_LEVEL.ROOT;
+        : TRAIN_HIERARCHY_LEVEL.INTUITION_ACCESS;
       foundationMenuOpen = name === 'Foundation';
       shownLessonKey = '';
       refreshCurrentMode();
@@ -3987,7 +3987,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
         if (activeTrainTrack === 'Intuition') {
-          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.ROOT;
+          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.INTUITION_ACCESS;
           trainViewState = TRAIN_VIEW_STATE.LIST;
           activePractice = 'FoundationHome';
           activeTrainTrack = 'Intuition';
