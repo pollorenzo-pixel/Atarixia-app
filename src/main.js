@@ -45,7 +45,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const WELCOME_STARTED_STORAGE_KEY = DISCLAIMER_STORAGE_KEY;
     const INTRO_COMPLETED_STORAGE_KEY = 'ataraxia_intro_completed_v1';
     const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
-    const DEV_INTUITION_UNLOCK_STORAGE_KEY = 'ataraxia_dev_intuition_unlock_v1';
+    const INTUITION_UNLOCK_KEY = 'ATARAXIA_INTUITION_UNLOCKED';
     const DEV_INTUITION_UNLOCK_PASSWORD = 'y0jak13hS';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
@@ -901,22 +901,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
       } catch {}
     }
 
-    function hasDevIntuitionUnlock() {
+    function isIntuitionUnlocked() {
       try {
-        return localStorage.getItem(DEV_INTUITION_UNLOCK_STORAGE_KEY) === 'true';
+        return localStorage.getItem(INTUITION_UNLOCK_KEY) === 'true';
       } catch {
         return false;
       }
-    }
-
-    function markDevIntuitionUnlockEnabled() {
-      try {
-        localStorage.setItem(DEV_INTUITION_UNLOCK_STORAGE_KEY, 'true');
-      } catch {}
-    }
-
-    function isIntuitionUnlocked() {
-      return isFoundationFullyCompleted() || hasDevIntuitionUnlock();
     }
 
     function saveReflectionEntry(reflection) {
@@ -2600,7 +2590,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return btn;
       };
 
-      const foundationReadyForIntuition = isFoundationFullyCompleted();
       const intuitionUnlocked = isIntuitionUnlocked();
       const intuitionIntroCompleted = hasCompletedIntuitionIntro();
 
@@ -2610,9 +2599,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
           ? 'Build stable attention and awareness.'
           : 'Locked until Introduction is completed.';
         el.foundationCardsContainer.appendChild(createTrackCard('Foundation', foundationTrackCopy, () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
-        const intuitionTrackCopy = foundationReadyForIntuition
+        const intuitionTrackCopy = intuitionUnlocked
           ? (intuitionIntroCompleted ? 'Unlocked. Enter Intuition track.' : 'Ready to unlock. Begin Intuition Introduction.')
-          : (intuitionUnlocked ? 'Development unlock active. Enter Intuition track.' : 'Complete Foundation first to unlock Intuition.');
+          : 'Complete Foundation first to unlock Intuition.';
         el.foundationCardsContainer.appendChild(createTrackCard('Intuition', intuitionTrackCopy, () => setTrainTrack('Intuition'), activeTrainTrack === 'Intuition'));
         return;
       }
@@ -2651,7 +2640,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
             event.preventDefault();
             const accessKey = String(new FormData(unlockForm).get('accessKey') || '').trim();
             if (accessKey === DEV_INTUITION_UNLOCK_PASSWORD) {
-              markDevIntuitionUnlockEnabled();
+              localStorage.setItem(INTUITION_UNLOCK_KEY, 'true');
+              const accessInput = unlockForm.querySelector('input[name="accessKey"]');
+              if (accessInput) accessInput.value = '';
               intuitionAccessError = '';
               setTrainTrack('Intuition');
               return;
@@ -3842,6 +3833,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       if (name === 'Intuition') {
         const intuitionUnlocked = isIntuitionUnlocked();
+        console.log('Intuition unlocked:', isIntuitionUnlocked());
         if (!intuitionUnlocked) {
           activeDestination = 'Train';
           activePractice = 'FoundationHome';
