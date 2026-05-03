@@ -61,7 +61,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     ];
     const TRANSITION_DELAY = 2000;
     const SESSION_UI_READY_DELAY = 120;
-    const SESSION_AUTOSTART_ON_READY = false;
+    const SESSION_AUTOSTART_ON_READY = true;
     // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
     const foundationGroups = {
@@ -3017,6 +3017,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
+      if (state === SESSION_STATE.READY && (sessionPlaybackPhase === 'starting' || sessionPlaybackPhase === 'buffering')) {
+        setCircleState('grounding');
+        if (el.sessionStateText) el.sessionStateText.textContent = 'Starting';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Preparing Audio';
+        if (el.sessionTapHint) el.sessionTapHint.textContent = 'Tap to start if autoplay is blocked · Double tap to restart';
+        return;
+      }
+
       if (state === SESSION_STATE.READY) {
         setCircleState('paused');
         if (el.sessionStateText) el.sessionStateText.textContent = 'Ready';
@@ -3521,7 +3529,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (playRequestPending || !currentAudio.paused) return;
       if (!sessionAudioReady) {
         pendingPlaybackStart = true;
-        setSessionState(SESSION_STATE.READY, { phase: 'buffering' });
+        setSessionState(SESSION_STATE.READY, { phase: 'starting' });
         if (el.sessionStateText) el.sessionStateText.textContent = 'Preparing';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Buffering Audio';
         logSessionAudioEvent('start-blocked-waiting-canplay', {
@@ -3674,11 +3682,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       groundingTimeout = setTimeout(() => {
         if (sessionState !== SESSION_STATE.READY || sessionPlaybackPhase !== 'grounding') return;
-        setSessionState(SESSION_STATE.READY, { phase: 'ready' });
         if (SESSION_AUTOSTART_ON_READY) {
+          setSessionState(SESSION_STATE.READY, { phase: 'starting' });
           pendingPlaybackStart = true;
           startPlayback();
+          return;
         }
+        setSessionState(SESSION_STATE.READY, { phase: 'ready' });
       }, 2000);
     }
 
