@@ -532,6 +532,24 @@ You do not need to force anything. Arrive and follow the guidance.`,
         activeText: 'Playing',
         activeLabel: 'Signal Detection',
         subcategories: {
+          IntuitionIntroduction: {
+            id: 'intuition-introduction',
+            title: 'Introduction to Intuition',
+            shortPurpose: 'Learn how Intuition practice works before moving into signal training.',
+            eyebrow: 'Intuition',
+            hero: 'Introduction to Intuition',
+            subtitle: ['A guided introduction to the Intuition track.'],
+            note: 'Start here. This introduction unlocks the rest of Intuition practices.',
+            badge: 'Intuition · Introduction',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Introduction to Intuition',
+            copyBody: 'Start here. This introduction unlocks Signal Detection and future Intuition practices.',
+            audio: INTUITION_INTRO_AUDIO,
+            lesson: 'Calm attention first, then train subtle signal recognition.',
+            reinforcement: 'A stable baseline helps intuitive signals stand out clearly.',
+            activeText: 'Playing',
+            activeLabel: 'Introduction to Intuition'
+          },
           SignalDetection: {
             title: 'Signal Detection',
             shortPurpose: 'Notice subtle signals before the mind explains them.',
@@ -2673,17 +2691,25 @@ You do not need to force anything. Arrive and follow the guidance.`,
           introBtn.className = 'journey-btn';
           introBtn.type = 'button';
           introBtn.textContent = 'Begin Intuition Introduction';
-          introBtn.addEventListener('click', () => selectMainMode('Intuition'));
+          introBtn.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
           introCard.appendChild(introBtn);
           el.foundationCardsContainer.appendChild(introCard);
           return;
         }
+        const introData = practiceContent.Intuition?.subcategories?.IntuitionIntroduction;
         const signalData = practiceContent.Intuition?.subcategories?.SignalDetection;
-        const btn = document.createElement('button');
-        btn.className = 'foundation-card-btn';
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">${signalData?.copyTitle || 'Signal Detection'}</div></div><div class="foundation-card-status">Open</div></div><div class="foundation-card-desc">${signalData?.shortPurpose || ''}</div>`;
-        btn.addEventListener('click', () => setSubcategory('SignalDetection', false));
-        el.foundationCardsContainer.appendChild(btn);
+
+        const introBtn = document.createElement('button');
+        introBtn.className = 'foundation-card-btn';
+        introBtn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">${introData?.copyTitle || 'Introduction to Intuition'}</div></div><div class="foundation-card-status">Open</div></div><div class="foundation-card-desc">${introData?.shortPurpose || ''}</div>`;
+        introBtn.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
+        el.foundationCardsContainer.appendChild(introBtn);
+
+        const signalBtn = document.createElement('button');
+        signalBtn.className = 'foundation-card-btn';
+        signalBtn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 02</div><div class="foundation-card-title">${signalData?.copyTitle || 'Signal Detection'}</div></div><div class="foundation-card-status">Open</div></div><div class="foundation-card-desc">${signalData?.shortPurpose || ''}</div>`;
+        signalBtn.addEventListener('click', () => setSubcategory('SignalDetection', false));
+        el.foundationCardsContainer.appendChild(signalBtn);
         return;
       }
 
@@ -3605,6 +3631,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if ((activePractice === 'Foundation' || activePractice === 'Intuition') && activeSubcategory) {
         savePracticeComplete(activeSubcategory);
+        if (activePractice === 'Intuition' && activeSubcategory === 'IntuitionIntroduction') {
+          markIntuitionIntroCompleted();
+        }
       }
 
       setTimeout(() => {
