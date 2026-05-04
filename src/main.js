@@ -299,6 +299,8 @@ Practice only in a safe place. Pause or stop anytime.`,
         audio: []
       },
       Introduction: {
+        id: 'foundation-introduction',
+        type: 'introduction',
         startLabel: 'Start Today’s Session',
         eyebrow: 'Introduction',
         hero: 'Arrive first.<br>Then begin.',
@@ -830,7 +832,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getSelectedPracticeKey() {
-      if (activePractice === 'Introduction') return 'Introduction';
+      if (activePractice === 'Introduction') return practiceContent.Introduction.id;
       if (activePractice === 'Foundation') return activeSubcategory || 'UnknownFoundationPractice';
       if (activePractice === 'Intuition') return activeSubcategory || 'UnknownIntuitionPractice';
       return activePractice || 'UnknownPractice';
@@ -2486,7 +2488,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (view.copyBody) view.copyBody.textContent = data.copyBody;
       if (el.sessionModeBadge) el.sessionModeBadge.textContent = skillBadge || data.badge || data.eyebrow;
       else warnMissingUiRef('sessionModeBadge', 'session');
-      if (el.sessionTitle) el.sessionTitle.innerHTML = data.hero;
+      if (el.sessionTitle) el.sessionTitle.textContent = data.title || data.copyTitle || data.hero?.replace(/<br\s*\/?>(?=.)/gi, ' ') || 'Session';
       else warnMissingUiRef('sessionTitle', 'session');
       if (el.sessionSubtitle) el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       else warnMissingUiRef('sessionSubtitle', 'session');
@@ -2696,20 +2698,33 @@ You do not need to force anything. Arrive and follow the guidance.`,
           el.foundationCardsContainer.appendChild(introCard);
           return;
         }
-        const introData = practiceContent.Intuition?.subcategories?.IntuitionIntroduction;
-        const signalData = practiceContent.Intuition?.subcategories?.SignalDetection;
+        const intuitionSequence = [
+          { key: 'IntuitionIntroduction', fallbackTitle: 'Introduction to Intuition' },
+          { key: 'SignalDetection', fallbackTitle: 'Signal Detection' },
+          { key: 'SignalVsNoise', fallbackTitle: 'Signal vs Noise' },
+          { key: 'GutAwareness', fallbackTitle: 'Gut Awareness' },
+          { key: 'ReadTheRoom', fallbackTitle: 'Read the Room' },
+          { key: 'PauseBeforeReaction', fallbackTitle: 'Pause Before Reaction' },
+          { key: 'TrustTheSignal', fallbackTitle: 'Trust the Signal' }
+        ];
 
-        const introBtn = document.createElement('button');
-        introBtn.className = 'foundation-card-btn';
-        introBtn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">${introData?.copyTitle || 'Introduction to Intuition'}</div></div><div class="foundation-card-status">Open</div></div><div class="foundation-card-desc">${introData?.shortPurpose || ''}</div>`;
-        introBtn.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
-        el.foundationCardsContainer.appendChild(introBtn);
-
-        const signalBtn = document.createElement('button');
-        signalBtn.className = 'foundation-card-btn';
-        signalBtn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 02</div><div class="foundation-card-title">${signalData?.copyTitle || 'Signal Detection'}</div></div><div class="foundation-card-status">Open</div></div><div class="foundation-card-desc">${signalData?.shortPurpose || ''}</div>`;
-        signalBtn.addEventListener('click', () => setSubcategory('SignalDetection', false));
-        el.foundationCardsContainer.appendChild(signalBtn);
+        intuitionSequence.forEach(({ key, fallbackTitle }, index) => {
+          const data = practiceContent.Intuition?.subcategories?.[key];
+          const btn = document.createElement('button');
+          btn.className = 'foundation-card-btn';
+          const practiceTitle = data?.copyTitle || data?.title || fallbackTitle;
+          const description = data?.shortPurpose || (key === 'IntuitionIntroduction'
+            ? 'Learn how Intuition practice works before moving into signal training.'
+            : 'Coming soon.');
+          const isAvailable = Boolean(data?.audio);
+          const statusLabel = isAvailable ? 'Open' : 'Coming Soon';
+          if (!isAvailable) btn.classList.add('muted');
+          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step ${String(index + 1).padStart(2, '0')}</div><div class="foundation-card-title">${practiceTitle}</div></div><div class="foundation-card-status">${statusLabel}</div></div><div class="foundation-card-desc">${description}</div>`;
+          if (isAvailable) {
+            btn.addEventListener('click', () => setSubcategory(key, false));
+          }
+          el.foundationCardsContainer.appendChild(btn);
+        });
         return;
       }
 
@@ -3626,7 +3641,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const playbackDurationSeconds = Number.isFinite(currentAudio?.duration) && currentAudio.duration > 0 ? Math.round(currentAudio.duration) : 0;
       completedSessionDurationSeconds = Math.max(elapsedSeconds, playbackDurationSeconds);
 
-      if (activePractice === 'Introduction') {
+      if (activePractice === 'Introduction' && practiceContent.Introduction.id === 'foundation-introduction') {
         markMainIntroductionCompleted();
         setTimeout(() => {
           detachAudio();
@@ -3701,6 +3716,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
         exitSessionMode();
         return;
       }
+      const selectedIntuitionPracticeId = practiceContent.Intuition?.subcategories?.[activeSubcategory]?.id;
+      if (selectedIntuitionPracticeId === 'intuition-introduction') {
+        setSessionState(SESSION_STATE.READY, { phase: 'starting' });
+        pendingPlaybackStart = true;
+        startPlayback();
+        return;
+      }
+
       beginSessionGroundingPhase();
     }
 
