@@ -4403,6 +4403,19 @@ window.__ataraxia = {
       if (el.welcomeIntroActionBtn) {
         el.welcomeIntroActionBtn.classList.add('hidden');
         el.welcomeIntroActionBtn.textContent = 'Begin Introduction';
+        el.welcomeIntroActionBtn.onclick = () => {
+          if (!el.welcomeIntroAudio) return;
+          ensureWelcomeIntroAudioGraph();
+          configureBackgroundAudio();
+          el.welcomeIntroAudio.play().then(() => {
+            el.welcomeIntroLabel.textContent = 'Playing';
+            el.welcomeIntroActionBtn.classList.add('hidden');
+            startWelcomeReactiveTicker();
+          }).catch(() => {
+            el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
+            el.welcomeIntroActionBtn.classList.remove('hidden');
+          });
+        };
       }
       el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
       el.welcomeIntroAudio.load();
@@ -4425,6 +4438,7 @@ window.__ataraxia = {
           startWelcomeReactiveTicker();
         }).catch(() => {
           el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
+          if (el.welcomeIntroActionBtn) el.welcomeIntroActionBtn.classList.remove('hidden');
         });
       }
     }
