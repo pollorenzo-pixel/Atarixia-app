@@ -3,6 +3,31 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
 import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 
+
+console.log('[Ataraxia] build version: 2026-05-06-hard-reset-v1');
+
+(async function forceOneTimeCacheReset() {
+  const RESET_KEY = 'ataraxia_cache_reset_2026_05_06_hard_reset_v1';
+  if (localStorage.getItem(RESET_KEY) === 'done') return;
+  try {
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+
+    localStorage.setItem(RESET_KEY, 'done');
+    window.location.reload();
+  } catch (error) {
+    console.warn('[Ataraxia] cache hard reset failed', error);
+  }
+})();
+
+
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', FOUNDATION_SHARED_ENDING_AUDIO];
