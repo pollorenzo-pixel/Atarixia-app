@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ataraxia-v6';
+const CACHE_NAME = 'ataraxia-v7';
 const APP_SHELL_CACHE = [
   './',
   './index.html',
@@ -11,17 +11,7 @@ const APP_SHELL_CACHE = [
   './src/session-mode-controller.js'
 ];
 
-const AUDIO_CACHE = [
-  './audio/introduction audio 2.mp3',
-  './audio/Breath only meditation foundation meditation.mp3',
-  './audio/body awareness meditation.mp3',
-  './audio/Thought awareness meditation.mp3',
-  './audio/Emotional Awareness meditations.mp3',
-  './audio/deep focus meditation.mp3',
-  './audio/ending audio foundation.mp3'
-];
-
-const URLS_TO_CACHE = [...APP_SHELL_CACHE, ...AUDIO_CACHE];
+const URLS_TO_CACHE = [...APP_SHELL_CACHE];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
