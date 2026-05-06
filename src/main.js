@@ -755,6 +755,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     let activePractice = 'Introduction';
     let activeDestination = 'Home';
+    const appState = { activeView: 'home' };
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
@@ -866,15 +867,27 @@ You do not need to force anything. Arrive and follow the guidance.`,
       flow: 'If overwhelmed, return to stability before flow.'
     };
 
-    function loadCoachHistory() {
+    function getCoachHistory() {
       try { return JSON.parse(localStorage.getItem(COACH_HISTORY_STORAGE_KEY) || '[]'); } catch { return []; }
     }
 
     function renderCoachHistory() {
       if (!el.coachHistoryList) return;
-      const items = loadCoachHistory().slice(0, 5);
+      const items = getCoachHistory().slice(0, 5);
       if (!items.length) { el.coachHistoryList.innerHTML = '<div class="profile-history-empty">No coach reflections saved yet.</div>'; return; }
       el.coachHistoryList.innerHTML = items.map((item) => `<div class="profile-history-item"><div class="profile-history-head"><div>${new Date(item.timestamp).toLocaleDateString()}</div><div>${item.currentState}</div></div><div class="profile-history-practice">Practice: ${item.recommendedPractice}</div><div class="profile-history-reflection">${(item.userText || '').slice(0, 100)}</div></div>`).join('');
+    }
+
+    function saveCoachHistory(entry) {
+      const history = getCoachHistory();
+      history.unshift(entry);
+      localStorage.setItem(COACH_HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 25)));
+      console.log('[Ataraxia Coach] saved reflection:', entry.id);
+    }
+
+    function renderCoachPage() {
+      if (activeDestination !== 'Coach') return;
+      renderCoachHistory();
     }
 
     function analyseReflection(userText, currentState, selectedTrainingArea) {
@@ -919,9 +932,7 @@ Do one short session today. Keep the action simple and controlled.`;
       }
       if (el.coachResponseBody) el.coachResponseBody.textContent = aiResponse;
       const entry = { id: `coach_${Date.now()}`, timestamp: new Date().toISOString(), userText, currentState, selectedTrainingArea, detectedTrainingArea: analysis.detectedTrainingArea || 'Safety', recommendedPractice: analysis.recommendedPractice || 'Safety Support', aiResponse };
-      const history = loadCoachHistory();
-      history.unshift(entry);
-      localStorage.setItem(COACH_HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 25)));
+      saveCoachHistory(entry);
       renderCoachHistory();
     }
     window.analyseCoachReflection = analyseCoachReflection;
@@ -3061,20 +3072,41 @@ Do one short session today. Keep the action simple and controlled.`;
     }
 
     function syncUI() {
+      const destinationToView = {
+        Home: 'home',
+        Train: 'foundation',
+        Progress: 'progress',
+        Account: 'home',
+        Coach: 'coach'
+      };
+      appState.activeView = destinationToView[activeDestination] || 'home';
+      if (el.sessionOverlay?.classList.contains('active')) appState.activeView = 'session';
+      console.log('[Ataraxia] activeView:', appState.activeView);
       updateTopNavigationShell();
       updateContentUI();
       updateTrainViewVisibility();
       updateMenuState();
       updateJourneyButtons();
       updateAudioStatus();
-      renderHome();
-      if (activeDestination === 'Train') {
-        renderFoundationHomeCards();
-        renderStabilityHomeCards();
-      }
-      if (activeDestination === 'Progress') {
-        renderProfilePage();
-        updateInsightCard();
+      switch (appState.activeView) {
+        case 'home':
+          renderHome();
+          break;
+        case 'foundation':
+          renderFoundationHomeCards();
+          renderStabilityHomeCards();
+          break;
+        case 'progress':
+          renderProfilePage();
+          updateInsightCard();
+          break;
+        case 'coach':
+          renderCoachPage();
+          break;
+        case 'session':
+          break;
+        default:
+          renderHome();
       }
       if (!el.sessionOverlay) {
         warnMissingUiRef('sessionOverlay', 'session');
@@ -3845,6 +3877,7 @@ Do one short session today. Keep the action simple and controlled.`;
       sessionAudioReady = false;
       const launchToken = Date.now();
       sessionLaunchToken = launchToken;
+      console.log('[Ataraxia] starting session:', getSelectedPracticeKey());
       logSessionAudioEvent('session-start-state', {
         launchToken,
         activePractice,
