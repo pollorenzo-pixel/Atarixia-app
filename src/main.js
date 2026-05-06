@@ -4653,13 +4653,26 @@ window.__ataraxia = {
 
     function showOpeningQuoteScene() {
       const q = getRandomOpeningQuote();
-      el.appShell.classList.add('revealed');
-      el.openingScene.classList.remove('fade-out');
-      el.openingQuote.textContent = `“${q.text}”`;
-      el.openingAuthor.textContent = q.author;
+      if (el.appShell) {
+        el.appShell.classList.add('revealed');
+      } else {
+        warnMissingUiRef('appShell', 'boot');
+      }
+
+      const hasOpeningScene = Boolean(el.openingScene && el.openingQuote && el.openingAuthor);
+      if (hasOpeningScene) {
+        el.openingScene.classList.remove('fade-out');
+        el.openingQuote.textContent = `“${q.text}”`;
+        el.openingAuthor.textContent = q.author;
+      } else {
+        warnMissingUiRef('openingScene/openingQuote/openingAuthor', 'boot');
+      }
+
       markQuoteSeen();
       setTimeout(() => {
-        el.openingScene.classList.add('fade-out');
+        if (el.openingScene) {
+          el.openingScene.classList.add('fade-out');
+        }
         activePractice = getDefaultOpeningMode();
         activeDestination = inferDestinationFromPractice(activePractice);
         try {
