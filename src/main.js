@@ -584,18 +584,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       welcomeIntroActionBtn: document.getElementById('welcomeIntroActionBtn'),
       welcomeIntroSkipBtn: document.getElementById('welcomeIntroSkipBtn'),
       welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
-      intuitionIntroAudio: document.getElementById('intuitionIntroAudio'),
       sessionAudio: document.getElementById('sessionAudio'),
-      homeTabBtn: document.getElementById('homeTabBtn'),
-      trainTabBtn: document.getElementById('trainTabBtn'),
-      progressTabBtn: document.getElementById('progressTabBtn'),
-      accountTabBtn: document.getElementById('accountTabBtn'),
-      coachTabBtn: document.getElementById('coachTabBtn'),
       homeScreen: document.getElementById('homeScreen'),
       trainScreen: document.getElementById('trainScreen'),
-      progressScreen: document.getElementById('progressScreen'),
-      accountScreen: document.getElementById('accountScreen'),
-      coachScreen: document.getElementById('coachScreen'),
       homeQuoteText: document.getElementById('homeQuoteText'),
       homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
@@ -614,18 +605,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       appliedAwarenessBtn: document.getElementById('appliedAwarenessBtn'),
       coreStabilityList: document.getElementById('coreStabilityList'),
       appliedAwarenessList: document.getElementById('appliedAwarenessList'),
-      eyebrowText: document.getElementById('eyebrowText'),
-      heroTitle: document.getElementById('heroTitle'),
-      heroSubtitle: document.getElementById('heroSubtitle'),
-      trainEyebrowText: document.getElementById('trainEyebrowText'),
-      trainHeroTitle: document.getElementById('trainHeroTitle'),
-      trainHeroSubtitle: document.getElementById('trainHeroSubtitle'),
-      practiceCopyLabel: document.getElementById('practiceCopyLabel'),
-      practiceCopyTitle: document.getElementById('practiceCopyTitle'),
-      practiceCopyBody: document.getElementById('practiceCopyBody'),
       trainPracticeCopyLabel: document.getElementById('trainPracticeCopyLabel'),
-      trainPracticeCopyTitle: document.getElementById('trainPracticeCopyTitle'),
-      trainPracticeCopyBody: document.getElementById('trainPracticeCopyBody'),
       lessonCard: document.getElementById('lessonCard'),
       lessonTitle: document.getElementById('lessonTitle'),
       lessonBody: document.getElementById('lessonBody'),
@@ -633,49 +613,23 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainLessonTitle: document.getElementById('trainLessonTitle'),
       trainLessonBody: document.getElementById('trainLessonBody'),
       lessonOverlay: document.getElementById('lessonOverlay'),
-      lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
-      lessonOverlayBody: document.getElementById('lessonOverlayBody'),
       foundationHomePanel: document.getElementById('foundationHomePanel'),
-      foundationProgressModule: document.getElementById('foundationProgressModule'),
-      foundationSubgroupPanel: document.getElementById('foundationSubgroupPanel'),
-      foundationPracticeHeader: document.getElementById('foundationPracticeHeader'),
-      foundationCoreBtn: document.getElementById('foundationCoreBtn'),
-      foundationAppliedBtn: document.getElementById('foundationAppliedBtn'),
-      foundationOverallPercent: document.getElementById('foundationOverallPercent'),
-      foundationCompletedPractices: document.getElementById('foundationCompletedPractices'),
-      foundationTotalPractices: document.getElementById('foundationTotalPractices'),
-      foundationCoreProgress: document.getElementById('foundationCoreProgress'),
-      foundationAppliedProgress: document.getElementById('foundationAppliedProgress'),
       foundationCardsContainer: document.getElementById('foundationCardsContainer'),
-      trainTrackFoundationBtn: document.getElementById('trainTrackFoundationBtn'),
-      trainTrackIntuitionBtn: document.getElementById('trainTrackIntuitionBtn'),
-      trainTrackFlowBtn: document.getElementById('trainTrackFlowBtn'),
       trainHierarchyBackBtn: document.getElementById('trainHierarchyBackBtn'),
       trainHierarchyTitle: document.getElementById('trainHierarchyTitle'),
       trainDetailBackBtn: document.getElementById('trainDetailBackBtn'),
       trainPracticeNavRow: document.getElementById('trainPracticeNavRow'),
       previousPracticeBtn: document.getElementById('previousPracticeBtn'),
       profilePagePanel: document.getElementById('profilePagePanel'),
-      profileCoachTitle: document.getElementById('profileCoachTitle'),
-      profileCoachBody: document.getElementById('profileCoachBody'),
-      profileTotalSessions: document.getElementById('profileTotalSessions'),
       profileTotalMinutes: document.getElementById('profileTotalMinutes'),
-      profileStreak: document.getElementById('profileStreak'),
       profileBestStreak: document.getElementById('profileBestStreak'),
       profileFoundationCompletions: document.getElementById('profileFoundationCompletions'),
       profileUniquePractices: document.getElementById('profileUniquePractices'),
       profileTopReflection: document.getElementById('profileTopReflection'),
       profileTopPractice: document.getElementById('profileTopPractice'),
-      foundationNextCategory: document.getElementById('foundationNextCategory'),
-      foundationNextTitle: document.getElementById('foundationNextTitle'),
-      foundationNextPractice: document.getElementById('foundationNextPractice'),
-      foundationNextBody: document.getElementById('foundationNextBody'),
-      foundationNextActionBtn: document.getElementById('foundationNextActionBtn'),
       profileInsightsList: document.getElementById('profileInsightsList'),
       profileHistoryList: document.getElementById('profileHistoryList'),
       sessionFeedbackOverlay: document.getElementById('sessionFeedbackOverlay'),
-      sessionFeedbackTitle: document.getElementById('sessionFeedbackTitle'),
-      sessionFeedbackBody: document.getElementById('sessionFeedbackBody'),
       sessionFeedbackContinueBtn: document.getElementById('sessionFeedbackContinueBtn'),
       profileConsistencyScore: document.getElementById('profileConsistencyScore'),
       profileStabilityScore: document.getElementById('profileStabilityScore'),
@@ -691,26 +645,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
       journalPromptToggleBtn: document.getElementById('journalPromptToggleBtn'),
       journalSaveBtn: document.getElementById('journalSaveBtn'),
       journalDeleteBtn: document.getElementById('journalDeleteBtn'),
-      journalCancelBtn: document.getElementById('journalCancelBtn'),
       journalList: document.getElementById('journalList'),
       nextPracticeBtn: document.getElementById('nextPracticeBtn'),
-      backToFoundationPathBtn: document.getElementById('backToFoundationPathBtn'),
       startSessionBtn: document.getElementById('startSessionBtn'),
       audioStatus: document.getElementById('audioStatus'),
       audioText: document.getElementById('audioText'),
       volumeControl: document.getElementById('volumeControl'),
       volumeSlider: document.querySelector('.volume-slider'),
-      bottomNote: document.getElementById('bottomNote'),
       journeyPanel: document.querySelector('.journey-panel'),
-      statusRow: document.querySelector('.status-row'),
       sessionOverlay: document.getElementById('sessionOverlay'),
-      sessionStage: document.querySelector('.session-stage'),
       sessionCircleShell: document.getElementById('sessionCircleShell'),
       sessionGrainCanvas: document.getElementById('sessionGrainCanvas'),
-      sessionInnerCore: document.getElementById('sessionInnerCore'),
-      wave1: document.getElementById('wave1'),
-      wave2: document.getElementById('wave2'),
-      wave3: document.getElementById('wave3'),
       sessionProgressRing: document.getElementById('sessionProgressRing'),
       sessionModeBadge: document.getElementById('sessionModeBadge'),
       sessionStateText: document.getElementById('sessionStateText'),
@@ -727,11 +672,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       completionScreenTitle: document.getElementById('completionScreenTitle'),
       completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
       insightCard: document.getElementById('insightCard'),
-      insightTitle: document.getElementById('insightTitle'),
-      insightBody: document.getElementById('insightBody'),
-      coachReflectionInput: document.getElementById('coachReflectionInput'),
-      coachCurrentState: document.getElementById('coachCurrentState'),
-      coachTrainingArea: document.getElementById('coachTrainingArea'),
       coachResponseBody: document.getElementById('coachResponseBody'),
       coachHistoryList: document.getElementById('coachHistoryList')
     };
@@ -893,7 +833,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const history = getCoachHistory();
       history.unshift(entry);
       localStorage.setItem(COACH_HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 25)));
-      console.log('[Ataraxia Coach] saved reflection:', entry.id);
     }
 
     function renderCoachPage() {
@@ -2084,7 +2023,6 @@ Do one short session today. Keep the action simple and controlled.`;
       el.completionScreen?.classList.toggle('active', isComplete);
       appState.currentScreen = resolvedScreen;
       appState.isSessionActive = isSession;
-      console.log('[Ataraxia][screen]', resolvedScreen);
     }
 
     function refreshCurrentMode() {
@@ -3136,8 +3074,6 @@ Do one short session today. Keep the action simple and controlled.`;
       else if (el.sessionOverlay?.classList.contains('active')) appState.currentScreen = 'session';
       else if (el.reflectionScreen?.classList.contains('active')) appState.currentScreen = 'reflection';
       else if (el.completionScreen?.classList.contains('active')) appState.currentScreen = 'complete';
-      console.log('[Ataraxia][destination]', activeDestination);
-      console.log('[Ataraxia][state]', { ...appState });
       updateTopNavigationShell();
       updateContentUI();
       updateTrainViewVisibility();
@@ -3934,7 +3870,6 @@ Do one short session today. Keep the action simple and controlled.`;
       sessionAudioReady = false;
       const launchToken = Date.now();
       sessionLaunchToken = launchToken;
-      console.log('[Ataraxia] starting session:', getSelectedPracticeKey());
       logSessionAudioEvent('session-start-state', {
         launchToken,
         activePractice,
@@ -4067,7 +4002,6 @@ Do one short session today. Keep the action simple and controlled.`;
       }
       if (name === 'Intuition') {
         const intuitionUnlocked = isIntuitionUnlocked();
-        console.log('Intuition unlocked:', isIntuitionUnlocked());
         if (!intuitionUnlocked) {
           activeDestination = 'Train';
           activePractice = 'FoundationHome';
@@ -4536,7 +4470,6 @@ window.__ataraxia = {
         markWelcomeStartedOnFinish
       };
       welcomeIntroMode = 'welcome';
-      console.log('[Ataraxia][intro] launch', { type: 'welcome', storageKey: INTRO_COMPLETED_STORAGE_KEY, audio: WELCOME_AUDIO });
       closeMenu();
       openWelcomeIntroOverlay();
       resetWelcomeIntroUI();
@@ -4587,7 +4520,6 @@ window.__ataraxia = {
         markWelcomeStartedOnFinish: false
       };
       welcomeIntroMode = 'intuition';
-      console.log('[Ataraxia][intro] launch', { type: 'intuition', storageKey: INTUITION_INTRO_STORAGE_KEY, audio: INTUITION_INTRO_AUDIO });
       closeMenu();
       openWelcomeIntroOverlay();
       resetWelcomeIntroUI();
