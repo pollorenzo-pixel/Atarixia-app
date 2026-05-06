@@ -50,6 +50,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const JOURNAL_STORAGE_KEY = 'ataraxia_journal_entries_v1';
+    const COACH_HISTORY_STORAGE_KEY = 'ATARAXIA_COACH_HISTORY';
     const JOURNAL_PROMPTS = [
       'What did I notice in my mind today?',
       'What emotion stayed with me the longest today?',
@@ -588,10 +589,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainTabBtn: document.getElementById('trainTabBtn'),
       progressTabBtn: document.getElementById('progressTabBtn'),
       accountTabBtn: document.getElementById('accountTabBtn'),
+      coachTabBtn: document.getElementById('coachTabBtn'),
       homeScreen: document.getElementById('homeScreen'),
       trainScreen: document.getElementById('trainScreen'),
       progressScreen: document.getElementById('progressScreen'),
       accountScreen: document.getElementById('accountScreen'),
+      coachScreen: document.getElementById('coachScreen'),
       homeQuoteText: document.getElementById('homeQuoteText'),
       homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
@@ -724,7 +727,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
       completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
       insightCard: document.getElementById('insightCard'),
       insightTitle: document.getElementById('insightTitle'),
-      insightBody: document.getElementById('insightBody')
+      insightBody: document.getElementById('insightBody'),
+      coachReflectionInput: document.getElementById('coachReflectionInput'),
+      coachCurrentState: document.getElementById('coachCurrentState'),
+      coachTrainingArea: document.getElementById('coachTrainingArea'),
+      coachResponseBody: document.getElementById('coachResponseBody'),
+      coachHistoryList: document.getElementById('coachHistoryList')
     };
 
     const radius = 236;
@@ -823,11 +831,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let sessionGrainCircle = null;
 
     // Navigation Controller Section (V2 shell): top-level destination mapping
-    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
+    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account', 'Coach'];
 
     function inferDestinationFromPractice(practice = activePractice) {
       if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition') return 'Train';
       if (practice === 'Profile') return 'Account';
+      if (practice === 'Coach') return 'Coach';
       return 'Home';
     }
 
@@ -844,6 +853,78 @@ You do not need to force anything. Arrive and follow the guidance.`,
         ...details
       });
     }
+
+
+
+    const ATARAXIA_DOCTRINE = {
+      description: 'Ataraxia is a structured mental training system for awareness, intuition, and performance.',
+      rules: ['Awareness before intuition.', 'Regulation before performance.', 'Stability before intensity.']
+    };
+    const EXPERT_KNOWLEDGE_BASE = {
+      attention: 'Distraction is feedback; return without forcing.',
+      regulation: 'Regulate first, then interpret.',
+      flow: 'If overwhelmed, return to stability before flow.'
+    };
+
+    function loadCoachHistory() {
+      try { return JSON.parse(localStorage.getItem(COACH_HISTORY_STORAGE_KEY) || '[]'); } catch { return []; }
+    }
+
+    function renderCoachHistory() {
+      if (!el.coachHistoryList) return;
+      const items = loadCoachHistory().slice(0, 5);
+      if (!items.length) { el.coachHistoryList.innerHTML = '<div class="profile-history-empty">No coach reflections saved yet.</div>'; return; }
+      el.coachHistoryList.innerHTML = items.map((item) => `<div class="profile-history-item"><div class="profile-history-head"><div>${new Date(item.timestamp).toLocaleDateString()}</div><div>${item.currentState}</div></div><div class="profile-history-practice">Practice: ${item.recommendedPractice}</div><div class="profile-history-reflection">${(item.userText || '').slice(0, 100)}</div></div>`).join('');
+    }
+
+    function analyseReflection(userText, currentState, selectedTrainingArea) {
+      const lower = (userText || '').toLowerCase();
+      const crisis = /(suicide|kill myself|self-harm|harm myself|want to die)/i.test(lower);
+      if (crisis) return { crisis: true };
+      let detectedTrainingArea = 'Foundation';
+      let recommendedPractice = 'Breath Awareness';
+      if (/(overwhelmed|anxious|tense|angry|sad|pressure|stressed|panic)/.test(lower) || ['Stressed', 'Emotional'].includes(currentState)) { detectedTrainingArea = 'Foundation'; recommendedPractice = Math.random() > 0.5 ? 'Stress Reset' : 'Emotional Awareness'; }
+      else if (/(distracted|scattered|can.t focus|wandering|restless)/.test(lower)) { detectedTrainingArea = 'Foundation'; recommendedPractice = Math.random() > 0.5 ? 'Breath Awareness' : 'Deep Focus'; }
+      else if (/(gut|signal|instinct|feeling|room|energy|sense|noise)/.test(lower)) { detectedTrainingArea = 'Intuition'; recommendedPractice = Math.random() > 0.5 ? 'Signal Detection' : 'Signal vs Noise'; }
+      else if (currentState === 'Under pressure' || /(performance|pressure|compete|work|deadline|decision)/.test(lower)) { detectedTrainingArea = 'Flow'; recommendedPractice = Math.random() > 0.5 ? 'Calm Under Pressure' : 'Decision Clarity'; }
+      else if (currentState === 'Focused' || /(clear|focused|calm|steady)/.test(lower)) { detectedTrainingArea = 'Flow'; recommendedPractice = Math.random() > 0.5 ? 'Focus for Work' : 'Present Moment'; }
+      if (selectedTrainingArea !== 'Auto' && !['Stressed', 'Emotional'].includes(currentState)) detectedTrainingArea = selectedTrainingArea;
+      return { crisis: false, detectedTrainingArea, recommendedPractice };
+    }
+
+    function analyseCoachReflection() {
+      const userText = (el.coachReflectionInput?.value || '').trim();
+      const currentState = el.coachCurrentState?.value || 'Unclear';
+      const selectedTrainingArea = el.coachTrainingArea?.value || 'Auto';
+      if (!userText) return;
+      const analysis = analyseReflection(userText, currentState, selectedTrainingArea);
+      let aiResponse = '';
+      if (analysis.crisis) {
+        aiResponse = 'I'm really sorry you're feeling this. Ataraxia Coach is not designed for crisis support. Please contact emergency services or a trusted person immediately. If you are in the UK, you can contact Samaritans on 116 123.';
+      } else {
+        aiResponse = `Observation:
+${currentState === 'Focused' ? 'You noticed stable attention. That is useful data.' : 'You noticed meaningful internal data. That is useful.'}
+
+Pattern:
+This may suggest a ${analysis.detectedTrainingArea === 'Foundation' ? 'regulation/attention' : analysis.detectedTrainingArea === 'Intuition' ? 'signal-detection' : 'performance-pressure'} pattern.
+
+Training Direction:
+${analysis.detectedTrainingArea}.
+
+Recommended Practice:
+${analysis.recommendedPractice}.
+
+Next Step:
+Do one short session today. Keep the action simple and controlled.`;
+      }
+      if (el.coachResponseBody) el.coachResponseBody.textContent = aiResponse;
+      const entry = { id: `coach_${Date.now()}`, timestamp: new Date().toISOString(), userText, currentState, selectedTrainingArea, detectedTrainingArea: analysis.detectedTrainingArea || 'Safety', recommendedPractice: analysis.recommendedPractice || 'Safety Support', aiResponse };
+      const history = loadCoachHistory();
+      history.unshift(entry);
+      localStorage.setItem(COACH_HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 25)));
+      renderCoachHistory();
+    }
+    window.analyseCoachReflection = analyseCoachReflection;
 
         function loadProgress() {
       try {
@@ -2307,7 +2388,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         { node: el.homeScreen, destination: 'Home' },
         { node: el.trainScreen, destination: 'Train' },
         { node: el.progressScreen, destination: 'Progress' },
-        { node: el.accountScreen, destination: 'Account' }
+        { node: el.accountScreen, destination: 'Account' },
+        { node: el.coachScreen, destination: 'Coach' }
       ];
 
       topLevelScreens.forEach(({ node, destination }) => {
@@ -3859,7 +3941,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         }
         trainViewState = TRAIN_VIEW_STATE.LIST;
         activeDestination = destination;
-        activePractice = destination === 'Home' ? getDefaultOpeningMode() : 'Profile';
+        activePractice = destination === 'Home' ? getDefaultOpeningMode() : (destination === 'Coach' ? 'Coach' : 'Profile');
       }
 
       refreshCurrentMode();
