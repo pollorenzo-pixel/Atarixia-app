@@ -1,10 +1,14 @@
-const CACHE_NAME = 'ataraxia-v5';
+const CACHE_NAME = 'ataraxia-v6';
 const APP_SHELL_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './src/main.js',
+  './src/recommendation-engine.js',
+  './src/grain-circle.js',
+  './src/session-mode-controller.js'
 ];
 
 const AUDIO_CACHE = [
