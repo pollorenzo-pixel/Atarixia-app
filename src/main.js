@@ -2037,28 +2037,54 @@ Do one short session today. Keep the action simple and controlled.`;
     }
 
     function applyScreenVisibility(screen) {
-      const screenMap = {
+      const resolvedScreen = screen || 'home';
+      const primaryScreenMap = {
         home: el.homeScreen,
         train: el.trainScreen,
-        lesson: el.trainScreen,
-        intro: el.welcomeIntroOverlay,
-        session: el.sessionOverlay,
-        reflection: el.reflectionScreen,
-        complete: el.completionScreen
+        progress: el.progressScreen,
+        account: el.accountScreen,
+        coach: el.coachScreen,
+        intro: null,
+        session: null,
+        reflection: null,
+        complete: null,
+        lesson: el.trainScreen
       };
+      const activePrimaryScreen = primaryScreenMap[resolvedScreen] || el.homeScreen;
+
       ['homeScreen', 'trainScreen', 'progressScreen', 'accountScreen', 'coachScreen'].forEach((key) => {
         const node = el[key];
         if (!node) return;
-        if (screenMap[screen] === node) node.classList.remove('hidden');
-        else node.classList.add('hidden');
+        const isActive = node === activePrimaryScreen;
+        node.classList.toggle('hidden', !isActive);
+        node.toggleAttribute('hidden', !isActive);
+        node.setAttribute('aria-hidden', String(!isActive));
+        if (!isActive) node.setAttribute('inert', '');
+        else node.removeAttribute('inert');
       });
-      el.welcomeIntroOverlay?.classList.toggle('active', screen === 'intro');
-      el.sessionOverlay?.classList.toggle('active', screen === 'session');
-      el.reflectionScreen?.classList.toggle('active', screen === 'reflection');
-      el.completionScreen?.classList.toggle('active', screen === 'complete');
-      appState.currentScreen = screen;
-      appState.isSessionActive = screen === 'session';
-      console.log('[Ataraxia][screen]', screen);
+
+      const isIntro = resolvedScreen === 'intro';
+      const isSession = resolvedScreen === 'session';
+      const isReflection = resolvedScreen === 'reflection';
+      const isComplete = resolvedScreen === 'complete';
+      const isOverlayActive = isIntro || isSession || isReflection || isComplete;
+
+      if (isOverlayActive) {
+        ['homeScreen', 'trainScreen', 'progressScreen', 'accountScreen', 'coachScreen'].forEach((key) => {
+          const node = el[key];
+          if (!node) return;
+          node.setAttribute('inert', '');
+          node.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      el.welcomeIntroOverlay?.classList.toggle('active', isIntro);
+      el.sessionOverlay?.classList.toggle('active', isSession);
+      el.reflectionScreen?.classList.toggle('active', isReflection);
+      el.completionScreen?.classList.toggle('active', isComplete);
+      appState.currentScreen = resolvedScreen;
+      appState.isSessionActive = isSession;
+      console.log('[Ataraxia][screen]', resolvedScreen);
     }
 
     function refreshCurrentMode() {
@@ -2432,23 +2458,6 @@ Do one short session today. Keep the action simple and controlled.`;
         if (button) button.classList.toggle('active', activeDestination === tab);
       });
 
-      const topLevelScreens = [
-        { node: el.homeScreen, destination: 'Home' },
-        { node: el.trainScreen, destination: 'Train' },
-        { node: el.progressScreen, destination: 'Progress' },
-        { node: el.accountScreen, destination: 'Account' },
-        { node: el.coachScreen, destination: 'Coach' }
-      ];
-
-      topLevelScreens.forEach(({ node, destination }) => {
-        if (!node) return;
-        const isActive = activeDestination === destination;
-        node.classList.toggle('hidden', !isActive);
-        node.toggleAttribute('hidden', !isActive);
-        node.setAttribute('aria-hidden', String(!isActive));
-        if (!isActive) node.setAttribute('inert', '');
-        else node.removeAttribute('inert');
-      });
       if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
     }
 
@@ -3113,7 +3122,7 @@ Do one short session today. Keep the action simple and controlled.`;
         Home: 'home',
         Train: 'train',
         Progress: 'progress',
-        Account: 'home',
+        Account: 'account',
         Coach: 'coach'
       };
       appState.currentTab = activeDestination;
@@ -3123,7 +3132,11 @@ Do one short session today. Keep the action simple and controlled.`;
       appState.hasSeenWelcome = hasCompletedMainIntroduction();
       appState.intuitionUnlocked = isIntuitionUnlocked();
       appState.currentScreen = destinationToView[activeDestination] || 'home';
-      if (el.sessionOverlay?.classList.contains('active')) appState.currentScreen = 'session';
+      if (el.welcomeIntroOverlay?.classList.contains('active')) appState.currentScreen = 'intro';
+      else if (el.sessionOverlay?.classList.contains('active')) appState.currentScreen = 'session';
+      else if (el.reflectionScreen?.classList.contains('active')) appState.currentScreen = 'reflection';
+      else if (el.completionScreen?.classList.contains('active')) appState.currentScreen = 'complete';
+      console.log('[Ataraxia][destination]', activeDestination);
       console.log('[Ataraxia][state]', { ...appState });
       updateTopNavigationShell();
       updateContentUI();
