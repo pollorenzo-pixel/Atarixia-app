@@ -43,8 +43,8 @@ import { createSessionModeController } from './session-mode-controller.js';
     const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
     const QUOTE_SEEN_STORAGE_KEY = 'ataraxia_quote_seen_v1';
     const WELCOME_STARTED_STORAGE_KEY = DISCLAIMER_STORAGE_KEY;
-    const INTRO_COMPLETED_STORAGE_KEY = 'ataraxia_intro_completed_v1';
-    const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
+    const INTRO_COMPLETED_STORAGE_KEY = 'WELCOME_SEEN';
+    const INTUITION_INTRO_STORAGE_KEY = 'INTUITION_INTRO_SEEN';
     const INTUITION_UNLOCK_KEY = 'ATARAXIA_INTUITION_UNLOCKED';
     const DEV_INTUITION_UNLOCK_PASSWORD = 'y0jak13hS';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
@@ -584,6 +584,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       welcomeIntroActionBtn: document.getElementById('welcomeIntroActionBtn'),
       welcomeIntroSkipBtn: document.getElementById('welcomeIntroSkipBtn'),
       welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
+      intuitionIntroAudio: document.getElementById('intuitionIntroAudio'),
       sessionAudio: document.getElementById('sessionAudio'),
       homeTabBtn: document.getElementById('homeTabBtn'),
       trainTabBtn: document.getElementById('trainTabBtn'),
@@ -755,7 +756,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     let activePractice = 'Introduction';
     let activeDestination = 'Home';
-    const appState = { activeView: 'home' };
+    const appState = {
+      currentTab: 'Home',
+      currentSection: 'Foundation',
+      currentCategory: 'CoreStability',
+      currentPractice: 'Introduction',
+      currentScreen: 'home',
+      isSessionActive: false,
+      isAudioPlaying: false,
+      hasSeenWelcome: false,
+      intuitionUnlocked: false
+    };
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
@@ -2022,6 +2033,32 @@ Do one short session today. Keep the action simple and controlled.`;
       if (!el.audioText || !el.audioStatus) return;
       el.audioText.textContent = text;
       el.audioStatus.classList.toggle('playing', isPlaying);
+      appState.isAudioPlaying = Boolean(isPlaying);
+    }
+
+    function applyScreenVisibility(screen) {
+      const screenMap = {
+        home: el.homeScreen,
+        train: el.trainScreen,
+        lesson: el.trainScreen,
+        intro: el.welcomeIntroOverlay,
+        session: el.sessionOverlay,
+        reflection: el.reflectionScreen,
+        complete: el.completionScreen
+      };
+      ['homeScreen', 'trainScreen', 'progressScreen', 'accountScreen', 'coachScreen'].forEach((key) => {
+        const node = el[key];
+        if (!node) return;
+        if (screenMap[screen] === node) node.classList.remove('hidden');
+        else node.classList.add('hidden');
+      });
+      el.welcomeIntroOverlay?.classList.toggle('active', screen === 'intro');
+      el.sessionOverlay?.classList.toggle('active', screen === 'session');
+      el.reflectionScreen?.classList.toggle('active', screen === 'reflection');
+      el.completionScreen?.classList.toggle('active', screen === 'complete');
+      appState.currentScreen = screen;
+      appState.isSessionActive = screen === 'session';
+      console.log('[Ataraxia][screen]', screen);
     }
 
     function refreshCurrentMode() {
@@ -2039,7 +2076,7 @@ Do one short session today. Keep the action simple and controlled.`;
 
     function openWelcomeIntroOverlay() {
       document.body.classList.add('session-active');
-      el.welcomeIntroOverlay.classList.add('active');
+      applyScreenVisibility('intro');
     }
 
     function closeWelcomeIntroOverlay() {
@@ -3074,21 +3111,28 @@ Do one short session today. Keep the action simple and controlled.`;
     function syncUI() {
       const destinationToView = {
         Home: 'home',
-        Train: 'foundation',
+        Train: 'train',
         Progress: 'progress',
         Account: 'home',
         Coach: 'coach'
       };
-      appState.activeView = destinationToView[activeDestination] || 'home';
-      if (el.sessionOverlay?.classList.contains('active')) appState.activeView = 'session';
-      console.log('[Ataraxia] activeView:', appState.activeView);
+      appState.currentTab = activeDestination;
+      appState.currentPractice = activeSubcategory || activePractice;
+      appState.currentSection = activeTrainTrack || 'Foundation';
+      appState.currentCategory = activeFoundationGroup || activeFoundationSubgroup || '';
+      appState.hasSeenWelcome = hasCompletedMainIntroduction();
+      appState.intuitionUnlocked = isIntuitionUnlocked();
+      appState.currentScreen = destinationToView[activeDestination] || 'home';
+      if (el.sessionOverlay?.classList.contains('active')) appState.currentScreen = 'session';
+      console.log('[Ataraxia][state]', { ...appState });
       updateTopNavigationShell();
       updateContentUI();
       updateTrainViewVisibility();
       updateMenuState();
       updateJourneyButtons();
       updateAudioStatus();
-      switch (appState.activeView) {
+      applyScreenVisibility(appState.currentScreen);
+      switch (appState.currentScreen) {
         case 'home':
           renderHome();
           break;
@@ -3809,16 +3853,16 @@ Do one short session today. Keep the action simple and controlled.`;
       if (el.volumeControl) el.volumeControl.classList.add('active');
       updateSeekUI();
 
+      if (SESSION_AUTOSTART_ON_READY) {
+        setSessionState(SESSION_STATE.READY, { phase: 'starting' });
+        pendingPlaybackStart = true;
+        startPlayback();
+        return;
+      }
       groundingTimeout = setTimeout(() => {
         if (sessionState !== SESSION_STATE.READY || sessionPlaybackPhase !== 'grounding') return;
-        if (SESSION_AUTOSTART_ON_READY) {
-          setSessionState(SESSION_STATE.READY, { phase: 'starting' });
-          pendingPlaybackStart = true;
-          startPlayback();
-          return;
-        }
         setSessionState(SESSION_STATE.READY, { phase: 'ready' });
-      }, 2000);
+      }, 1200);
     }
 
     function resetSession() {
@@ -4479,6 +4523,7 @@ window.__ataraxia = {
         markWelcomeStartedOnFinish
       };
       welcomeIntroMode = 'welcome';
+      console.log('[Ataraxia][intro] launch', { type: 'welcome', storageKey: INTRO_COMPLETED_STORAGE_KEY, audio: WELCOME_AUDIO });
       closeMenu();
       openWelcomeIntroOverlay();
       resetWelcomeIntroUI();
@@ -4512,7 +4557,8 @@ window.__ataraxia = {
       const {
         returnTarget = { destination: 'Train', practice: 'FoundationHome', trainTrack: 'Intuition' }
       } = options;
-      if (!el.welcomeIntroOverlay || !el.welcomeIntroAudio) {
+      const introAudio = el.intuitionIntroAudio || el.welcomeIntroAudio;
+      if (!el.welcomeIntroOverlay || !introAudio) {
         markIntuitionIntroCompleted();
         activePractice = returnTarget.practice || 'FoundationHome';
         activeDestination = returnTarget.destination || 'Train';
@@ -4528,6 +4574,7 @@ window.__ataraxia = {
         markWelcomeStartedOnFinish: false
       };
       welcomeIntroMode = 'intuition';
+      console.log('[Ataraxia][intro] launch', { type: 'intuition', storageKey: INTUITION_INTRO_STORAGE_KEY, audio: INTUITION_INTRO_AUDIO });
       closeMenu();
       openWelcomeIntroOverlay();
       resetWelcomeIntroUI();
@@ -4542,10 +4589,10 @@ window.__ataraxia = {
         el.welcomeIntroActionBtn.classList.add('hidden');
         el.welcomeIntroActionBtn.textContent = 'Begin Introduction';
         el.welcomeIntroActionBtn.onclick = () => {
-          if (!el.welcomeIntroAudio) return;
+          if (!introAudio) return;
           ensureWelcomeIntroAudioGraph();
           configureBackgroundAudio();
-          el.welcomeIntroAudio.play().then(() => {
+          introAudio.play().then(() => {
             el.welcomeIntroLabel.textContent = 'Playing';
             el.welcomeIntroActionBtn.classList.add('hidden');
             startWelcomeReactiveTicker();
@@ -4555,20 +4602,20 @@ window.__ataraxia = {
           });
         };
       }
-      el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
-      el.welcomeIntroAudio.load();
-      el.welcomeIntroAudio.volume = getCurrentVolume();
-      el.welcomeIntroAudio.currentTime = 0;
+      introAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
+      introAudio.load();
+      introAudio.volume = getCurrentVolume();
+      introAudio.currentTime = 0;
       ensureWelcomeIntroAudioGraph();
-      el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
-      el.welcomeIntroAudio.ontimeupdate = () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
-      el.welcomeIntroAudio.onended = () => {
+      introAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
+      introAudio.ontimeupdate = () => renderWelcomeIntroCue(introAudio.currentTime || 0);
+      introAudio.onended = () => {
         markIntuitionIntroCompleted();
         el.welcomeIntroLabel.textContent = 'Introduction Complete';
         setTimeout(() => endWelcomeIntro(false, false), 350);
       };
       configureBackgroundAudio();
-      const playPromise = el.welcomeIntroAudio.play();
+      const playPromise = introAudio.play();
       startWelcomeIntroTicker();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise.then(() => {
