@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ataraxia-v7';
+const CACHE_NAME = 'ataraxia-v10';
 const APP_SHELL_CACHE = [
   './',
   './index.html',
@@ -6,9 +6,22 @@ const APP_SHELL_CACHE = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './src/main.js',
-  './src/recommendation-engine.js',
+  './src/audio-engine.js',
+  './src/bridge.js',
+  './src/config.js',
+  './src/dom.js',
   './src/grain-circle.js',
-  './src/session-mode-controller.js'
+  './src/insights.js',
+  './src/menu.js',
+  './src/practices.js',
+  './src/profile.js',
+  './src/recommendation-engine.js',
+  './src/session-engine.js',
+  './src/session-mode-controller.js',
+  './src/state.js',
+  './src/storage.js',
+  './src/ui.js',
+  './src/welcome-intro.js'
 ];
 
 const URLS_TO_CACHE = [...APP_SHELL_CACHE];
@@ -25,7 +38,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) =>
       Promise.all(
         cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .filter((cacheName) => cacheName.startsWith('ataraxia-') && cacheName !== CACHE_NAME)
           .map((cacheName) => caches.delete(cacheName))
       )
     )
