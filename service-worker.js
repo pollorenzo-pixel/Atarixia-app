@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ataraxia-v10';
+const CACHE_NAME = 'ataraxia-v20';
 const APP_SHELL_CACHE = [
   './',
   './index.html',

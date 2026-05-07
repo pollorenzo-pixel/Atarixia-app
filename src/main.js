@@ -4,11 +4,11 @@ import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 
 
-console.log('[Ataraxia] build version: 2026-05-06-hard-reset-v1');
+console.log("[Ataraxia] main.js loaded — recovery build v1");
 
 (async function forceOneTimeCacheReset() {
-  const RESET_KEY = 'ataraxia_cache_reset_2026_05_06_hard_reset_v1';
-  if (localStorage.getItem(RESET_KEY) === 'done') return;
+  const RESET_KEY = 'ATARAXIA_CACHE_RESET_V1';
+  if (localStorage.getItem(RESET_KEY) === 'true') return;
   try {
     if ('serviceWorker' in navigator) {
       const registrations = await navigator.serviceWorker.getRegistrations();
@@ -20,10 +20,10 @@ console.log('[Ataraxia] build version: 2026-05-06-hard-reset-v1');
       await Promise.all(keys.map((key) => caches.delete(key)));
     }
 
-    localStorage.setItem(RESET_KEY, 'done');
+    localStorage.setItem(RESET_KEY, 'true');
     window.location.reload();
   } catch (error) {
-    console.warn('[Ataraxia] cache hard reset failed', error);
+    console.warn('[Ataraxia] cache reset failed', error);
   }
 })();
 
@@ -700,6 +700,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       coachResponseBody: document.getElementById('coachResponseBody'),
       coachHistoryList: document.getElementById('coachHistoryList')
     };
+
+    console.log("[Ataraxia] DOM check", {
+      homeScreen: !!el.homeScreen,
+      trainScreen: !!el.trainScreen,
+      sessionOverlay: !!el.sessionOverlay,
+      welcomeIntroOverlay: !!el.welcomeIntroOverlay,
+      sessionAudio: !!el.sessionAudio
+    });
 
     const radius = 236;
     const circumference = 2 * Math.PI * radius;
@@ -3094,11 +3102,16 @@ Do one short session today. Keep the action simple and controlled.`;
       appState.currentCategory = activeFoundationGroup || activeFoundationSubgroup || '';
       appState.hasSeenWelcome = hasCompletedMainIntroduction();
       appState.intuitionUnlocked = isIntuitionUnlocked();
-      appState.currentScreen = destinationToView[activeDestination] || 'home';
-      if (el.welcomeIntroOverlay?.classList.contains('active')) appState.currentScreen = 'intro';
-      else if (el.sessionOverlay?.classList.contains('active')) appState.currentScreen = 'session';
-      else if (el.reflectionScreen?.classList.contains('active')) appState.currentScreen = 'reflection';
-      else if (el.completionScreen?.classList.contains('active')) appState.currentScreen = 'complete';
+      const previousScreen = appState.currentScreen;
+      const overlayScreen = el.welcomeIntroOverlay?.classList.contains('active') ? 'intro'
+        : el.sessionOverlay?.classList.contains('active') ? 'session'
+          : el.reflectionScreen?.classList.contains('active') ? 'reflection'
+            : el.completionScreen?.classList.contains('active') ? 'complete'
+              : null;
+      appState.currentScreen = overlayScreen
+        || ((previousScreen === 'session' || previousScreen === 'reflection' || previousScreen === 'complete' || previousScreen === 'intro')
+          ? previousScreen
+          : (destinationToView[activeDestination] || 'home'));
       updateTopNavigationShell();
       updateContentUI();
       updateTrainViewVisibility();
