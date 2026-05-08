@@ -3,32 +3,6 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
 import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 
-
-console.log('[Ataraxia] recovery build v21 loaded');
-
-(async function forceOneTimeCacheReset() {
-  const RESET_KEY = 'ATARAXIA_CACHE_RESET_V2';
-  if (localStorage.getItem(RESET_KEY) === 'true') return;
-  try {
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map((registration) => registration.unregister()));
-    }
-
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((key) => caches.delete(key)));
-    }
-
-    localStorage.setItem(RESET_KEY, 'true');
-    window.location.reload();
-  } catch (error) {
-    console.warn('[Ataraxia] cache reset failed', error);
-    localStorage.setItem(RESET_KEY, 'true');
-  }
-})();
-
-
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', FOUNDATION_SHARED_ENDING_AUDIO];
@@ -69,14 +43,13 @@ console.log('[Ataraxia] recovery build v21 loaded');
     const DISCLAIMER_STORAGE_KEY = 'ataraxia_disclaimer_seen_v1';
     const QUOTE_SEEN_STORAGE_KEY = 'ataraxia_quote_seen_v1';
     const WELCOME_STARTED_STORAGE_KEY = DISCLAIMER_STORAGE_KEY;
-    const INTRO_COMPLETED_STORAGE_KEY = 'WELCOME_SEEN';
-    const INTUITION_INTRO_STORAGE_KEY = 'INTUITION_INTRO_SEEN';
+    const INTRO_COMPLETED_STORAGE_KEY = 'ataraxia_intro_completed_v1';
+    const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
     const INTUITION_UNLOCK_KEY = 'ATARAXIA_INTUITION_UNLOCKED';
     const DEV_INTUITION_UNLOCK_PASSWORD = 'y0jak13hS';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
     const SESSION_HISTORY_STORAGE_KEY = 'ataraxia_session_history_v1';
     const JOURNAL_STORAGE_KEY = 'ataraxia_journal_entries_v1';
-    const COACH_HISTORY_STORAGE_KEY = 'ATARAXIA_COACH_HISTORY';
     const JOURNAL_PROMPTS = [
       'What did I notice in my mind today?',
       'What emotion stayed with me the longest today?',
@@ -611,8 +584,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       welcomeIntroSkipBtn: document.getElementById('welcomeIntroSkipBtn'),
       welcomeIntroAudio: document.getElementById('welcomeIntroAudio'),
       sessionAudio: document.getElementById('sessionAudio'),
+      homeTabBtn: document.getElementById('homeTabBtn'),
+      trainTabBtn: document.getElementById('trainTabBtn'),
+      progressTabBtn: document.getElementById('progressTabBtn'),
+      accountTabBtn: document.getElementById('accountTabBtn'),
       homeScreen: document.getElementById('homeScreen'),
       trainScreen: document.getElementById('trainScreen'),
+      progressScreen: document.getElementById('progressScreen'),
+      accountScreen: document.getElementById('accountScreen'),
       homeQuoteText: document.getElementById('homeQuoteText'),
       homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
@@ -631,7 +610,18 @@ You do not need to force anything. Arrive and follow the guidance.`,
       appliedAwarenessBtn: document.getElementById('appliedAwarenessBtn'),
       coreStabilityList: document.getElementById('coreStabilityList'),
       appliedAwarenessList: document.getElementById('appliedAwarenessList'),
+      eyebrowText: document.getElementById('eyebrowText'),
+      heroTitle: document.getElementById('heroTitle'),
+      heroSubtitle: document.getElementById('heroSubtitle'),
+      trainEyebrowText: document.getElementById('trainEyebrowText'),
+      trainHeroTitle: document.getElementById('trainHeroTitle'),
+      trainHeroSubtitle: document.getElementById('trainHeroSubtitle'),
+      practiceCopyLabel: document.getElementById('practiceCopyLabel'),
+      practiceCopyTitle: document.getElementById('practiceCopyTitle'),
+      practiceCopyBody: document.getElementById('practiceCopyBody'),
       trainPracticeCopyLabel: document.getElementById('trainPracticeCopyLabel'),
+      trainPracticeCopyTitle: document.getElementById('trainPracticeCopyTitle'),
+      trainPracticeCopyBody: document.getElementById('trainPracticeCopyBody'),
       lessonCard: document.getElementById('lessonCard'),
       lessonTitle: document.getElementById('lessonTitle'),
       lessonBody: document.getElementById('lessonBody'),
@@ -639,23 +629,49 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainLessonTitle: document.getElementById('trainLessonTitle'),
       trainLessonBody: document.getElementById('trainLessonBody'),
       lessonOverlay: document.getElementById('lessonOverlay'),
+      lessonOverlayTitle: document.getElementById('lessonOverlayTitle'),
+      lessonOverlayBody: document.getElementById('lessonOverlayBody'),
       foundationHomePanel: document.getElementById('foundationHomePanel'),
+      foundationProgressModule: document.getElementById('foundationProgressModule'),
+      foundationSubgroupPanel: document.getElementById('foundationSubgroupPanel'),
+      foundationPracticeHeader: document.getElementById('foundationPracticeHeader'),
+      foundationCoreBtn: document.getElementById('foundationCoreBtn'),
+      foundationAppliedBtn: document.getElementById('foundationAppliedBtn'),
+      foundationOverallPercent: document.getElementById('foundationOverallPercent'),
+      foundationCompletedPractices: document.getElementById('foundationCompletedPractices'),
+      foundationTotalPractices: document.getElementById('foundationTotalPractices'),
+      foundationCoreProgress: document.getElementById('foundationCoreProgress'),
+      foundationAppliedProgress: document.getElementById('foundationAppliedProgress'),
       foundationCardsContainer: document.getElementById('foundationCardsContainer'),
+      trainTrackFoundationBtn: document.getElementById('trainTrackFoundationBtn'),
+      trainTrackIntuitionBtn: document.getElementById('trainTrackIntuitionBtn'),
+      trainTrackFlowBtn: document.getElementById('trainTrackFlowBtn'),
       trainHierarchyBackBtn: document.getElementById('trainHierarchyBackBtn'),
       trainHierarchyTitle: document.getElementById('trainHierarchyTitle'),
       trainDetailBackBtn: document.getElementById('trainDetailBackBtn'),
       trainPracticeNavRow: document.getElementById('trainPracticeNavRow'),
       previousPracticeBtn: document.getElementById('previousPracticeBtn'),
       profilePagePanel: document.getElementById('profilePagePanel'),
+      profileCoachTitle: document.getElementById('profileCoachTitle'),
+      profileCoachBody: document.getElementById('profileCoachBody'),
+      profileTotalSessions: document.getElementById('profileTotalSessions'),
       profileTotalMinutes: document.getElementById('profileTotalMinutes'),
+      profileStreak: document.getElementById('profileStreak'),
       profileBestStreak: document.getElementById('profileBestStreak'),
       profileFoundationCompletions: document.getElementById('profileFoundationCompletions'),
       profileUniquePractices: document.getElementById('profileUniquePractices'),
       profileTopReflection: document.getElementById('profileTopReflection'),
       profileTopPractice: document.getElementById('profileTopPractice'),
+      foundationNextCategory: document.getElementById('foundationNextCategory'),
+      foundationNextTitle: document.getElementById('foundationNextTitle'),
+      foundationNextPractice: document.getElementById('foundationNextPractice'),
+      foundationNextBody: document.getElementById('foundationNextBody'),
+      foundationNextActionBtn: document.getElementById('foundationNextActionBtn'),
       profileInsightsList: document.getElementById('profileInsightsList'),
       profileHistoryList: document.getElementById('profileHistoryList'),
       sessionFeedbackOverlay: document.getElementById('sessionFeedbackOverlay'),
+      sessionFeedbackTitle: document.getElementById('sessionFeedbackTitle'),
+      sessionFeedbackBody: document.getElementById('sessionFeedbackBody'),
       sessionFeedbackContinueBtn: document.getElementById('sessionFeedbackContinueBtn'),
       profileConsistencyScore: document.getElementById('profileConsistencyScore'),
       profileStabilityScore: document.getElementById('profileStabilityScore'),
@@ -671,17 +687,26 @@ You do not need to force anything. Arrive and follow the guidance.`,
       journalPromptToggleBtn: document.getElementById('journalPromptToggleBtn'),
       journalSaveBtn: document.getElementById('journalSaveBtn'),
       journalDeleteBtn: document.getElementById('journalDeleteBtn'),
+      journalCancelBtn: document.getElementById('journalCancelBtn'),
       journalList: document.getElementById('journalList'),
       nextPracticeBtn: document.getElementById('nextPracticeBtn'),
+      backToFoundationPathBtn: document.getElementById('backToFoundationPathBtn'),
       startSessionBtn: document.getElementById('startSessionBtn'),
       audioStatus: document.getElementById('audioStatus'),
       audioText: document.getElementById('audioText'),
       volumeControl: document.getElementById('volumeControl'),
       volumeSlider: document.querySelector('.volume-slider'),
+      bottomNote: document.getElementById('bottomNote'),
       journeyPanel: document.querySelector('.journey-panel'),
+      statusRow: document.querySelector('.status-row'),
       sessionOverlay: document.getElementById('sessionOverlay'),
+      sessionStage: document.querySelector('.session-stage'),
       sessionCircleShell: document.getElementById('sessionCircleShell'),
       sessionGrainCanvas: document.getElementById('sessionGrainCanvas'),
+      sessionInnerCore: document.getElementById('sessionInnerCore'),
+      wave1: document.getElementById('wave1'),
+      wave2: document.getElementById('wave2'),
+      wave3: document.getElementById('wave3'),
       sessionProgressRing: document.getElementById('sessionProgressRing'),
       sessionModeBadge: document.getElementById('sessionModeBadge'),
       sessionStateText: document.getElementById('sessionStateText'),
@@ -698,17 +723,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       completionScreenTitle: document.getElementById('completionScreenTitle'),
       completionScreenSubtitle: document.getElementById('completionScreenSubtitle'),
       insightCard: document.getElementById('insightCard'),
-      coachResponseBody: document.getElementById('coachResponseBody'),
-      coachHistoryList: document.getElementById('coachHistoryList')
+      insightTitle: document.getElementById('insightTitle'),
+      insightBody: document.getElementById('insightBody')
     };
-
-    console.log("[Ataraxia] DOM check", {
-      homeScreen: !!el.homeScreen,
-      trainScreen: !!el.trainScreen,
-      sessionOverlay: !!el.sessionOverlay,
-      welcomeIntroOverlay: !!el.welcomeIntroOverlay,
-      sessionAudio: !!el.sessionAudio
-    });
 
     const radius = 236;
     const circumference = 2 * Math.PI * radius;
@@ -730,17 +747,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     let activePractice = 'Introduction';
     let activeDestination = 'Home';
-    const appState = {
-      currentTab: 'Home',
-      currentSection: 'Foundation',
-      currentCategory: 'CoreStability',
-      currentPractice: 'Introduction',
-      currentScreen: 'home',
-      isSessionActive: false,
-      isAudioPlaying: false,
-      hasSeenWelcome: false,
-      intuitionUnlocked: false
-    };
     let appBooted = false;
     let activeSubcategory = 'BreathAwareness';
     let foundationMenuOpen = false;
@@ -817,12 +823,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let sessionGrainCircle = null;
 
     // Navigation Controller Section (V2 shell): top-level destination mapping
-    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account', 'Coach'];
+    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
 
     function inferDestinationFromPractice(practice = activePractice) {
       if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition') return 'Train';
       if (practice === 'Profile') return 'Account';
-      if (practice === 'Coach') return 'Coach';
       return 'Home';
     }
 
@@ -839,87 +844,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
         ...details
       });
     }
-
-
-
-    const ATARAXIA_DOCTRINE = {
-      description: 'Ataraxia is a structured mental training system for awareness, intuition, and performance.',
-      rules: ['Awareness before intuition.', 'Regulation before performance.', 'Stability before intensity.']
-    };
-    const EXPERT_KNOWLEDGE_BASE = {
-      attention: 'Distraction is feedback; return without forcing.',
-      regulation: 'Regulate first, then interpret.',
-      flow: 'If overwhelmed, return to stability before flow.'
-    };
-
-    function getCoachHistory() {
-      try { return JSON.parse(localStorage.getItem(COACH_HISTORY_STORAGE_KEY) || '[]'); } catch { return []; }
-    }
-
-    function renderCoachHistory() {
-      if (!el.coachHistoryList) return;
-      const items = getCoachHistory().slice(0, 5);
-      if (!items.length) { el.coachHistoryList.innerHTML = '<div class="profile-history-empty">No coach reflections saved yet.</div>'; return; }
-      el.coachHistoryList.innerHTML = items.map((item) => `<div class="profile-history-item"><div class="profile-history-head"><div>${new Date(item.timestamp).toLocaleDateString()}</div><div>${item.currentState}</div></div><div class="profile-history-practice">Practice: ${item.recommendedPractice}</div><div class="profile-history-reflection">${(item.userText || '').slice(0, 100)}</div></div>`).join('');
-    }
-
-    function saveCoachHistory(entry) {
-      const history = getCoachHistory();
-      history.unshift(entry);
-      localStorage.setItem(COACH_HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 25)));
-    }
-
-    function renderCoachPage() {
-      if (activeDestination !== 'Coach') return;
-      renderCoachHistory();
-    }
-
-    function analyseReflection(userText, currentState, selectedTrainingArea) {
-      const lower = (userText || '').toLowerCase();
-      const crisis = /(suicide|kill myself|self-harm|harm myself|want to die)/i.test(lower);
-      if (crisis) return { crisis: true };
-      let detectedTrainingArea = 'Foundation';
-      let recommendedPractice = 'Breath Awareness';
-      if (/(overwhelmed|anxious|tense|angry|sad|pressure|stressed|panic)/.test(lower) || ['Stressed', 'Emotional'].includes(currentState)) { detectedTrainingArea = 'Foundation'; recommendedPractice = Math.random() > 0.5 ? 'Stress Reset' : 'Emotional Awareness'; }
-      else if (/(distracted|scattered|can.t focus|wandering|restless)/.test(lower)) { detectedTrainingArea = 'Foundation'; recommendedPractice = Math.random() > 0.5 ? 'Breath Awareness' : 'Deep Focus'; }
-      else if (/(gut|signal|instinct|feeling|room|energy|sense|noise)/.test(lower)) { detectedTrainingArea = 'Intuition'; recommendedPractice = Math.random() > 0.5 ? 'Signal Detection' : 'Signal vs Noise'; }
-      else if (currentState === 'Under pressure' || /(performance|pressure|compete|work|deadline|decision)/.test(lower)) { detectedTrainingArea = 'Flow'; recommendedPractice = Math.random() > 0.5 ? 'Calm Under Pressure' : 'Decision Clarity'; }
-      else if (currentState === 'Focused' || /(clear|focused|calm|steady)/.test(lower)) { detectedTrainingArea = 'Flow'; recommendedPractice = Math.random() > 0.5 ? 'Focus for Work' : 'Present Moment'; }
-      if (selectedTrainingArea !== 'Auto' && !['Stressed', 'Emotional'].includes(currentState)) detectedTrainingArea = selectedTrainingArea;
-      return { crisis: false, detectedTrainingArea, recommendedPractice };
-    }
-
-    function analyseCoachReflection() {
-      const userText = (el.coachReflectionInput?.value || '').trim();
-      const currentState = el.coachCurrentState?.value || 'Unclear';
-      const selectedTrainingArea = el.coachTrainingArea?.value || 'Auto';
-      if (!userText) return;
-      const analysis = analyseReflection(userText, currentState, selectedTrainingArea);
-      let aiResponse = '';
-      if (analysis.crisis) {
-        aiResponse = 'I'm really sorry you're feeling this. Ataraxia Coach is not designed for crisis support. Please contact emergency services or a trusted person immediately. If you are in the UK, you can contact Samaritans on 116 123.';
-      } else {
-        aiResponse = `Observation:
-${currentState === 'Focused' ? 'You noticed stable attention. That is useful data.' : 'You noticed meaningful internal data. That is useful.'}
-
-Pattern:
-This may suggest a ${analysis.detectedTrainingArea === 'Foundation' ? 'regulation/attention' : analysis.detectedTrainingArea === 'Intuition' ? 'signal-detection' : 'performance-pressure'} pattern.
-
-Training Direction:
-${analysis.detectedTrainingArea}.
-
-Recommended Practice:
-${analysis.recommendedPractice}.
-
-Next Step:
-Do one short session today. Keep the action simple and controlled.`;
-      }
-      if (el.coachResponseBody) el.coachResponseBody.textContent = aiResponse;
-      const entry = { id: `coach_${Date.now()}`, timestamp: new Date().toISOString(), userText, currentState, selectedTrainingArea, detectedTrainingArea: analysis.detectedTrainingArea || 'Safety', recommendedPractice: analysis.recommendedPractice || 'Safety Support', aiResponse };
-      saveCoachHistory(entry);
-      renderCoachHistory();
-    }
-    window.analyseCoachReflection = analyseCoachReflection;
 
         function loadProgress() {
       try {
@@ -2006,57 +1930,6 @@ Do one short session today. Keep the action simple and controlled.`;
       if (!el.audioText || !el.audioStatus) return;
       el.audioText.textContent = text;
       el.audioStatus.classList.toggle('playing', isPlaying);
-      appState.isAudioPlaying = Boolean(isPlaying);
-    }
-
-    function applyScreenVisibility(screen) {
-      const resolvedScreen = screen || 'home';
-      const primaryScreenMap = {
-        home: el.homeScreen,
-        train: el.trainScreen,
-        progress: el.progressScreen,
-        account: el.accountScreen,
-        coach: el.coachScreen,
-        intro: null,
-        session: null,
-        reflection: null,
-        complete: null,
-        lesson: el.trainScreen
-      };
-      const activePrimaryScreen = primaryScreenMap[resolvedScreen] || el.homeScreen;
-
-      ['homeScreen', 'trainScreen', 'progressScreen', 'accountScreen', 'coachScreen'].forEach((key) => {
-        const node = el[key];
-        if (!node) return;
-        const isActive = node === activePrimaryScreen;
-        node.classList.toggle('hidden', !isActive);
-        node.toggleAttribute('hidden', !isActive);
-        node.setAttribute('aria-hidden', String(!isActive));
-        if (!isActive) node.setAttribute('inert', '');
-        else node.removeAttribute('inert');
-      });
-
-      const isIntro = resolvedScreen === 'intro';
-      const isSession = resolvedScreen === 'session';
-      const isReflection = resolvedScreen === 'reflection';
-      const isComplete = resolvedScreen === 'complete';
-      const isOverlayActive = isIntro || isSession || isReflection || isComplete;
-
-      if (isOverlayActive) {
-        ['homeScreen', 'trainScreen', 'progressScreen', 'accountScreen', 'coachScreen'].forEach((key) => {
-          const node = el[key];
-          if (!node) return;
-          node.setAttribute('inert', '');
-          node.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      el.welcomeIntroOverlay?.classList.toggle('active', isIntro);
-      el.sessionOverlay?.classList.toggle('active', isSession);
-      el.reflectionScreen?.classList.toggle('active', isReflection);
-      el.completionScreen?.classList.toggle('active', isComplete);
-      appState.currentScreen = resolvedScreen;
-      appState.isSessionActive = isSession;
     }
 
     function refreshCurrentMode() {
@@ -2074,7 +1947,7 @@ Do one short session today. Keep the action simple and controlled.`;
 
     function openWelcomeIntroOverlay() {
       document.body.classList.add('session-active');
-      applyScreenVisibility('intro');
+      el.welcomeIntroOverlay.classList.add('active');
     }
 
     function closeWelcomeIntroOverlay() {
@@ -2430,6 +2303,22 @@ Do one short session today. Keep the action simple and controlled.`;
         if (button) button.classList.toggle('active', activeDestination === tab);
       });
 
+      const topLevelScreens = [
+        { node: el.homeScreen, destination: 'Home' },
+        { node: el.trainScreen, destination: 'Train' },
+        { node: el.progressScreen, destination: 'Progress' },
+        { node: el.accountScreen, destination: 'Account' }
+      ];
+
+      topLevelScreens.forEach(({ node, destination }) => {
+        if (!node) return;
+        const isActive = activeDestination === destination;
+        node.classList.toggle('hidden', !isActive);
+        node.toggleAttribute('hidden', !isActive);
+        node.setAttribute('aria-hidden', String(!isActive));
+        if (!isActive) node.setAttribute('inert', '');
+        else node.removeAttribute('inert');
+      });
       if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
     }
 
@@ -3090,55 +2979,20 @@ Do one short session today. Keep the action simple and controlled.`;
     }
 
     function syncUI() {
-      const destinationToView = {
-        Home: 'home',
-        Train: 'train',
-        Progress: 'progress',
-        Account: 'account',
-        Coach: 'coach'
-      };
-      appState.currentTab = activeDestination;
-      appState.currentPractice = activeSubcategory || activePractice;
-      appState.currentSection = activeTrainTrack || 'Foundation';
-      appState.currentCategory = activeFoundationGroup || activeFoundationSubgroup || '';
-      appState.hasSeenWelcome = hasCompletedMainIntroduction();
-      appState.intuitionUnlocked = isIntuitionUnlocked();
-      const previousScreen = appState.currentScreen;
-      const overlayScreen = el.welcomeIntroOverlay?.classList.contains('active') ? 'intro'
-        : el.sessionOverlay?.classList.contains('active') ? 'session'
-          : el.reflectionScreen?.classList.contains('active') ? 'reflection'
-            : el.completionScreen?.classList.contains('active') ? 'complete'
-              : null;
-      appState.currentScreen = overlayScreen
-        || ((previousScreen === 'session' || previousScreen === 'reflection' || previousScreen === 'complete' || previousScreen === 'intro')
-          ? previousScreen
-          : (destinationToView[activeDestination] || 'home'));
       updateTopNavigationShell();
       updateContentUI();
       updateTrainViewVisibility();
       updateMenuState();
       updateJourneyButtons();
       updateAudioStatus();
-      applyScreenVisibility(appState.currentScreen);
-      switch (appState.currentScreen) {
-        case 'home':
-          renderHome();
-          break;
-        case 'foundation':
-          renderFoundationHomeCards();
-          renderStabilityHomeCards();
-          break;
-        case 'progress':
-          renderProfilePage();
-          updateInsightCard();
-          break;
-        case 'coach':
-          renderCoachPage();
-          break;
-        case 'session':
-          break;
-        default:
-          renderHome();
+      renderHome();
+      if (activeDestination === 'Train') {
+        renderFoundationHomeCards();
+        renderStabilityHomeCards();
+      }
+      if (activeDestination === 'Progress') {
+        renderProfilePage();
+        updateInsightCard();
       }
       if (!el.sessionOverlay) {
         warnMissingUiRef('sessionOverlay', 'session');
@@ -3841,16 +3695,16 @@ Do one short session today. Keep the action simple and controlled.`;
       if (el.volumeControl) el.volumeControl.classList.add('active');
       updateSeekUI();
 
-      if (SESSION_AUTOSTART_ON_READY) {
-        setSessionState(SESSION_STATE.READY, { phase: 'starting' });
-        pendingPlaybackStart = true;
-        startPlayback();
-        return;
-      }
       groundingTimeout = setTimeout(() => {
         if (sessionState !== SESSION_STATE.READY || sessionPlaybackPhase !== 'grounding') return;
+        if (SESSION_AUTOSTART_ON_READY) {
+          setSessionState(SESSION_STATE.READY, { phase: 'starting' });
+          pendingPlaybackStart = true;
+          startPlayback();
+          return;
+        }
         setSessionState(SESSION_STATE.READY, { phase: 'ready' });
-      }, 1200);
+      }, 2000);
     }
 
     function resetSession() {
@@ -4005,7 +3859,7 @@ Do one short session today. Keep the action simple and controlled.`;
         }
         trainViewState = TRAIN_VIEW_STATE.LIST;
         activeDestination = destination;
-        activePractice = destination === 'Home' ? getDefaultOpeningMode() : (destination === 'Coach' ? 'Coach' : 'Profile');
+        activePractice = destination === 'Home' ? getDefaultOpeningMode() : 'Profile';
       }
 
       refreshCurrentMode();
@@ -4041,6 +3895,7 @@ Do one short session today. Keep the action simple and controlled.`;
       }
       if (name === 'Intuition') {
         const intuitionUnlocked = isIntuitionUnlocked();
+        console.log('Intuition unlocked:', isIntuitionUnlocked());
         if (!intuitionUnlocked) {
           activeDestination = 'Train';
           activePractice = 'FoundationHome';
@@ -4542,8 +4397,7 @@ window.__ataraxia = {
       const {
         returnTarget = { destination: 'Train', practice: 'FoundationHome', trainTrack: 'Intuition' }
       } = options;
-      const introAudio = el.intuitionIntroAudio || el.welcomeIntroAudio;
-      if (!el.welcomeIntroOverlay || !introAudio) {
+      if (!el.welcomeIntroOverlay || !el.welcomeIntroAudio) {
         markIntuitionIntroCompleted();
         activePractice = returnTarget.practice || 'FoundationHome';
         activeDestination = returnTarget.destination || 'Train';
@@ -4573,10 +4427,10 @@ window.__ataraxia = {
         el.welcomeIntroActionBtn.classList.add('hidden');
         el.welcomeIntroActionBtn.textContent = 'Begin Introduction';
         el.welcomeIntroActionBtn.onclick = () => {
-          if (!introAudio) return;
+          if (!el.welcomeIntroAudio) return;
           ensureWelcomeIntroAudioGraph();
           configureBackgroundAudio();
-          introAudio.play().then(() => {
+          el.welcomeIntroAudio.play().then(() => {
             el.welcomeIntroLabel.textContent = 'Playing';
             el.welcomeIntroActionBtn.classList.add('hidden');
             startWelcomeReactiveTicker();
@@ -4586,20 +4440,20 @@ window.__ataraxia = {
           });
         };
       }
-      introAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
-      introAudio.load();
-      introAudio.volume = getCurrentVolume();
-      introAudio.currentTime = 0;
+      el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
+      el.welcomeIntroAudio.load();
+      el.welcomeIntroAudio.volume = getCurrentVolume();
+      el.welcomeIntroAudio.currentTime = 0;
       ensureWelcomeIntroAudioGraph();
-      introAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
-      introAudio.ontimeupdate = () => renderWelcomeIntroCue(introAudio.currentTime || 0);
-      introAudio.onended = () => {
+      el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
+      el.welcomeIntroAudio.ontimeupdate = () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
+      el.welcomeIntroAudio.onended = () => {
         markIntuitionIntroCompleted();
         el.welcomeIntroLabel.textContent = 'Introduction Complete';
         setTimeout(() => endWelcomeIntro(false, false), 350);
       };
       configureBackgroundAudio();
-      const playPromise = introAudio.play();
+      const playPromise = el.welcomeIntroAudio.play();
       startWelcomeIntroTicker();
       if (playPromise && typeof playPromise.then === 'function') {
         playPromise.then(() => {
@@ -4637,26 +4491,13 @@ window.__ataraxia = {
 
     function showOpeningQuoteScene() {
       const q = getRandomOpeningQuote();
-      if (el.appShell) {
-        el.appShell.classList.add('revealed');
-      } else {
-        warnMissingUiRef('appShell', 'boot');
-      }
-
-      const hasOpeningScene = Boolean(el.openingScene && el.openingQuote && el.openingAuthor);
-      if (hasOpeningScene) {
-        el.openingScene.classList.remove('fade-out');
-        el.openingQuote.textContent = `“${q.text}”`;
-        el.openingAuthor.textContent = q.author;
-      } else {
-        warnMissingUiRef('openingScene/openingQuote/openingAuthor', 'boot');
-      }
-
+      el.appShell.classList.add('revealed');
+      el.openingScene.classList.remove('fade-out');
+      el.openingQuote.textContent = `“${q.text}”`;
+      el.openingAuthor.textContent = q.author;
       markQuoteSeen();
       setTimeout(() => {
-        if (el.openingScene) {
-          el.openingScene.classList.add('fade-out');
-        }
+        el.openingScene.classList.add('fade-out');
         activePractice = getDefaultOpeningMode();
         activeDestination = inferDestinationFromPractice(activePractice);
         try {
