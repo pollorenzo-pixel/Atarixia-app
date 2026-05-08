@@ -1,10 +1,8 @@
-const CACHE_NAME = 'ataraxia-v20';
+const CACHE_NAME = 'ataraxia-v21';
 const APP_SHELL_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
   './src/main.js',
   './src/audio-engine.js',
   './src/bridge.js',

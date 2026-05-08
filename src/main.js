@@ -4,10 +4,10 @@ import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 
 
-console.log("[Ataraxia] main.js loaded — recovery build v1");
+console.log('[Ataraxia] recovery build v21 loaded');
 
 (async function forceOneTimeCacheReset() {
-  const RESET_KEY = 'ATARAXIA_CACHE_RESET_V1';
+  const RESET_KEY = 'ATARAXIA_CACHE_RESET_V2';
   if (localStorage.getItem(RESET_KEY) === 'true') return;
   try {
     if ('serviceWorker' in navigator) {
@@ -24,6 +24,7 @@ console.log("[Ataraxia] main.js loaded — recovery build v1");
     window.location.reload();
   } catch (error) {
     console.warn('[Ataraxia] cache reset failed', error);
+    localStorage.setItem(RESET_KEY, 'true');
   }
 })();
 
