@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Ataraxia recovery build v21 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#030303" />
   <title>Ataraxia</title>
-  <!-- build-version: 2026-05-06-hard-reset-v1 -->
   <style>
     * {
       margin: 0;
@@ -115,21 +113,12 @@
       backdrop-filter: blur(10px);
       opacity: 1;
       transition: opacity 1.4s ease, visibility 1.4s ease;
-      animation: openingAutoDismiss 0.9s ease 5s forwards;
     }
 
     .opening-scene.fade-out {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-    }
-
-    @keyframes openingAutoDismiss {
-      to {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
     }
 
     .opening-inner {
@@ -206,7 +195,7 @@
       top: 78px;
       z-index: 95;
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       padding: 8px 14px 10px;
       background: linear-gradient(to bottom, rgba(0,0,0,0.78), rgba(0,0,0,0.4), transparent);
@@ -1888,7 +1877,6 @@
       <button class="tab-btn" id="trainTabBtn" onclick="setTopDestination('Train')">Train</button>
       <button class="tab-btn" id="progressTabBtn" onclick="setTopDestination('Progress')">Progress</button>
       <button class="tab-btn" id="accountTabBtn" onclick="setTopDestination('Account')">Account</button>
-      <button class="tab-btn" id="coachTabBtn" onclick="setTopDestination('Coach')">Coach β</button>
     </div>
 
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
@@ -1909,10 +1897,6 @@
         <button class="menu-item" id="flowMenuBtn" onclick="setTrainTrack('Flow', true)">
           <div class="menu-item-title">Flow</div>
           <div class="menu-item-desc">Performance-state training.</div>
-        </button>
-        <button class="menu-item" onclick="setTopDestination('Coach')">
-          <div class="menu-item-title">Ataraxia Coach <span style="font-size:10px;opacity:.7;">Beta</span></div>
-          <div class="menu-item-desc">Guided reflection analysis with structured Ataraxia coaching.</div>
         </button>
 
         <div class="menu-subsection" id="foundationSubsection">
@@ -2132,47 +2116,6 @@
       </div>
       </section>
 
-      
-
-      <!-- Coach Screen -->
-      <section class="screen-container hidden" id="coachScreen">
-        <div class="profile-page-panel">
-          <div class="profile-card">
-            <div class="profile-card-kicker">Ataraxia Coach <span style="font-size:10px;opacity:.75;">Beta</span></div>
-            <div class="profile-card-title">Ataraxia Coach</div>
-            <div class="profile-card-body">A guided reflection coach for awareness, intuition, and performance.</div>
-            <div class="profile-insight-note" style="margin-top:12px;">This is not therapy or medical advice. It is a mental training support tool.</div>
-            <div class="profile-insight-note" style="margin-top:8px;">Ataraxia Coach is for mental training and reflection only. It does not diagnose, treat, or replace professional support.</div>
-          </div>
-
-          <div class="profile-card">
-            <textarea id="coachReflectionInput" class="journal-textarea" placeholder="What did you notice?"></textarea>
-            <div class="journal-header-actions" style="margin-top:12px;">
-              <select id="coachCurrentState" class="journal-input">
-                <option>Calm</option><option>Distracted</option><option>Stressed</option><option>Emotional</option><option>Unclear</option><option>Focused</option><option>Under pressure</option>
-              </select>
-              <select id="coachTrainingArea" class="journal-input">
-                <option>Auto</option><option>Foundation</option><option>Intuition</option><option>Flow</option>
-              </select>
-            </div>
-            <div class="journal-header-actions" style="margin-top:12px;">
-              <button class="journal-btn primary" onclick="analyseCoachReflection()">Analyse Reflection</button>
-            </div>
-          </div>
-
-          <div class="profile-card" id="coachResponseCard">
-            <div class="profile-card-kicker">Response</div>
-            <div class="profile-card-body" id="coachResponseBody">Submit a reflection to receive structured guidance.</div>
-          </div>
-
-          <div class="profile-history-card">
-            <div class="profile-card-kicker">Coach History</div>
-            <div class="profile-card-title">Last 5 reflections</div>
-            <div class="profile-history-list" id="coachHistoryList"></div>
-          </div>
-        </div>
-      </section>
-
       <!-- Account Screen -->
       <section class="screen-container hidden" id="accountScreen">
       <div class="profile-page-panel" id="accountPagePanel">
@@ -2224,9 +2167,6 @@
       <button class="journey-btn secondary" id="welcomeIntroSkipBtn" style="position:absolute;bottom:max(28px,calc(env(safe-area-inset-bottom) + 12px));left:50%;transform:translateX(-50%);z-index:2;" onclick="skipWelcomeIntro()">Skip</button>
       <audio id="welcomeIntroAudio" preload="auto" playsinline webkit-playsinline>
         <source src="audio/Brittney welcome audio.mp3" type="audio/mpeg">
-      </audio>
-      <audio id="intuitionIntroAudio" preload="auto" playsinline webkit-playsinline>
-        <source src="audio/Intuition_intro.mp3" type="audio/mpeg">
       </audio>
       <audio id="sessionAudio" preload="auto" playsinline webkit-playsinline></audio>
     </div>
