@@ -55,7 +55,8 @@ import { createSessionModeController } from './session-mode-controller.js';
     const QUOTE_SEEN_STORAGE_KEY = 'ataraxia_quote_seen_v1';
     const WELCOME_STARTED_STORAGE_KEY = DISCLAIMER_STORAGE_KEY;
     const INTRO_COMPLETED_STORAGE_KEY = 'ataraxia_intro_completed_v1';
-    const INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
+    const INTUITION_INTRO_STORAGE_KEY = 'ATARAXIA_INTUITION_INTRO_COMPLETED';
+    const LEGACY_INTUITION_INTRO_STORAGE_KEY = 'ataraxia_intuition_intro_completed_v1';
     const INTUITION_UNLOCK_KEY = 'ATARAXIA_INTUITION_UNLOCKED';
     const DEV_INTUITION_UNLOCK_PASSWORD = 'y0jak13hS';
     const REFLECTION_STORAGE_KEY = 'ataraxia_reflections_v1';
@@ -920,7 +921,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function hasCompletedIntuitionIntro() {
       try {
-        return localStorage.getItem(INTUITION_INTRO_STORAGE_KEY) === 'true';
+        return localStorage.getItem(INTUITION_INTRO_STORAGE_KEY) === 'true'
+          || localStorage.getItem(LEGACY_INTUITION_INTRO_STORAGE_KEY) === 'true';
       } catch {
         return false;
       }
@@ -929,6 +931,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function markIntuitionIntroCompleted() {
       try {
         localStorage.setItem(INTUITION_INTRO_STORAGE_KEY, 'true');
+        localStorage.setItem(LEGACY_INTUITION_INTRO_STORAGE_KEY, 'true');
       } catch {}
     }
 
@@ -4282,6 +4285,55 @@ window.__ataraxia = {
   el.welcomeIntroAudio.onloadedmetadata = null;
 }
 
+    function stopCurrentAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.ontimeupdate = null;
+        currentAudio.onended = null;
+        currentAudio.onpause = null;
+        currentAudio.onloadedmetadata = null;
+      }
+      sessionState = SESSION_STATE.IDLE;
+      sessionPlaybackPhase = 'idle';
+      pendingPlaybackStart = false;
+      playRequestPending = false;
+      sessionAudioReady = false;
+      setAudioStatus('Intuition Intro Playing', true);
+    }
+
+    function startIntuitionIntroAudio() {
+      if (!el.welcomeIntroAudio) return;
+      stopCurrentAudio();
+      stopWelcomeIntroAudio();
+      el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
+      el.welcomeIntroAudio.load();
+      el.welcomeIntroAudio.volume = getCurrentVolume();
+      el.welcomeIntroAudio.currentTime = 0;
+      ensureWelcomeIntroAudioGraph();
+      el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
+      el.welcomeIntroAudio.ontimeupdate = () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
+      el.welcomeIntroAudio.onended = () => {
+        markIntuitionIntroCompleted();
+        el.welcomeIntroLabel.textContent = 'Introduction Complete';
+        setAudioStatus('Intuition Intro Complete', false);
+        setTimeout(() => endWelcomeIntro(false, false), 350);
+      };
+      configureBackgroundAudio();
+      const playPromise = el.welcomeIntroAudio.play();
+      startWelcomeIntroTicker();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise.then(() => {
+          el.welcomeIntroLabel.textContent = 'Playing';
+          setAudioStatus('Intuition Intro Playing', true);
+          startWelcomeReactiveTicker();
+        }).catch(() => {
+          el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
+          setAudioStatus('Intuition Intro Paused', false);
+          if (el.welcomeIntroActionBtn) el.welcomeIntroActionBtn.classList.remove('hidden');
+        });
+      }
+    }
+
     function getActiveIntroScriptCues() {
       return welcomeIntroMode === 'intuition'
         ? INTUITION_INTRO_SCRIPT_CUES
@@ -4451,30 +4503,7 @@ window.__ataraxia = {
           });
         };
       }
-      el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
-      el.welcomeIntroAudio.load();
-      el.welcomeIntroAudio.volume = getCurrentVolume();
-      el.welcomeIntroAudio.currentTime = 0;
-      ensureWelcomeIntroAudioGraph();
-      el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
-      el.welcomeIntroAudio.ontimeupdate = () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
-      el.welcomeIntroAudio.onended = () => {
-        markIntuitionIntroCompleted();
-        el.welcomeIntroLabel.textContent = 'Introduction Complete';
-        setTimeout(() => endWelcomeIntro(false, false), 350);
-      };
-      configureBackgroundAudio();
-      const playPromise = el.welcomeIntroAudio.play();
-      startWelcomeIntroTicker();
-      if (playPromise && typeof playPromise.then === 'function') {
-        playPromise.then(() => {
-          el.welcomeIntroLabel.textContent = 'Playing';
-          startWelcomeReactiveTicker();
-        }).catch(() => {
-          el.welcomeIntroLabel.textContent = 'Tap Begin Introduction';
-          if (el.welcomeIntroActionBtn) el.welcomeIntroActionBtn.classList.remove('hidden');
-        });
-      }
+      startIntuitionIntroAudio();
     }
 
     function preloadMeditationAudio() {
