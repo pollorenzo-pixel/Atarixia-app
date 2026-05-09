@@ -1,4 +1,15 @@
+/*
+ATARAXIA STABLE CHECKPOINT
+Version: v1-stable-foundation
 
+This is the last fully stable build before
+AI Coach experimentation.
+
+If future experiments break the app,
+return to:
+- branch: stable/pre-ai-coach
+- tag: v1-stable-foundation
+*/
 import { createPracticeRecommendation } from './recommendation-engine.js';
 import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
