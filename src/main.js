@@ -2633,85 +2633,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
           ? 'Build stable attention and awareness.'
           : 'Locked until Introduction is completed.';
         el.foundationCardsContainer.appendChild(createTrackCard('Foundation', foundationTrackCopy, () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
-        const intuitionTrackCopy = intuitionUnlocked
-          ? (intuitionIntroCompleted ? 'Unlocked. Enter Intuition track.' : 'Ready to unlock. Begin Intuition Introduction.')
-          : 'Complete Foundation first to unlock Intuition.';
+        const intuitionTrackCopy = 'Intuition practices are available in a normal sequence.';
         el.foundationCardsContainer.appendChild(createTrackCard('Intuition', intuitionTrackCopy, () => setTrainTrack('Intuition'), activeTrainTrack === 'Intuition'));
         return;
       }
 
       if (activeTrainTrack === 'Intuition') {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
-        if (!intuitionUnlocked) {
-          const lockCard = document.createElement('div');
-          lockCard.className = 'intuition-lock-card';
-          lockCard.innerHTML = `
-            <div class="intuition-lock-title">Intuition is locked</div>
-            <div class="intuition-lock-body">Complete the Foundation path to open Intuition training.</div>
-            <div class="intuition-lock-body">Foundation progress: ${computeFoundationOverallProgress()}%</div>
-          `;
-          const continueFoundationBtn = document.createElement('button');
-          continueFoundationBtn.className = 'journey-btn';
-          continueFoundationBtn.type = 'button';
-          continueFoundationBtn.textContent = 'Continue Foundation';
-          continueFoundationBtn.addEventListener('click', () => setTrainTrack('Foundation'));
-          lockCard.appendChild(continueFoundationBtn);
-          el.foundationCardsContainer.appendChild(lockCard);
 
-          const unlockCard = document.createElement('div');
-          unlockCard.className = 'intuition-lock-card';
-          unlockCard.innerHTML = `
-            <div class="intuition-lock-title">Developer Access</div>
-            <div class="intuition-lock-body">Enter access key to preview Intuition.</div>
-          `;
-          const unlockForm = document.createElement('form');
-          unlockForm.className = 'intuition-access-form';
-          unlockForm.innerHTML = `
-            <input class="intuition-access-input" type="password" name="accessKey" autocomplete="off" placeholder="Enter password" aria-label="Enter password" required>
-            <button class="intuition-access-submit" type="submit">Unlock Intuition</button>
-          `;
-          unlockForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const accessKey = String(new FormData(unlockForm).get('accessKey') || '').trim();
-            if (accessKey === DEV_INTUITION_UNLOCK_PASSWORD) {
-              localStorage.setItem(INTUITION_UNLOCK_KEY, 'true');
-              const accessInput = unlockForm.querySelector('input[name="accessKey"]');
-              if (accessInput) accessInput.value = '';
-              intuitionAccessError = '';
-              setTrainTrack('Intuition');
-              return;
-            } else {
-              intuitionAccessError = 'Access key not recognised.';
-            }
-            renderFoundationHomeCards();
-          });
-          unlockCard.appendChild(unlockForm);
-          el.foundationCardsContainer.appendChild(unlockCard);
-
-          if (intuitionAccessError) {
-            const errorLine = document.createElement('div');
-            errorLine.className = 'intuition-access-error';
-            errorLine.textContent = intuitionAccessError;
-            el.foundationCardsContainer.appendChild(errorLine);
-          }
-          return;
-        }
-        if (!intuitionIntroCompleted) {
-          const introCard = document.createElement('div');
-          introCard.className = 'intuition-lock-card';
-          introCard.innerHTML = `
-            <div class="intuition-lock-title">Intuition Introduction</div>
-            <div class="intuition-lock-body">Start the introduction to unlock Signal Detection practice.</div>
-          `;
-          const introBtn = document.createElement('button');
-          introBtn.className = 'journey-btn';
-          introBtn.type = 'button';
-          introBtn.textContent = 'Begin Intuition Introduction';
-          introBtn.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
-          introCard.appendChild(introBtn);
-          el.foundationCardsContainer.appendChild(introCard);
-          return;
-        }
         const intuitionSequence = [
           { key: 'IntuitionIntroduction', fallbackTitle: 'Introduction to Intuition' },
           { key: 'SignalDetection', fallbackTitle: 'Signal Detection' },
@@ -3908,31 +3837,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       if (name === 'Intuition') {
-        const intuitionUnlocked = isIntuitionUnlocked();
-        console.log('Intuition unlocked:', isIntuitionUnlocked());
-        if (!intuitionUnlocked) {
-          activeDestination = 'Train';
-          activePractice = 'FoundationHome';
-          activeTrainTrack = 'Intuition';
-          trainViewState = TRAIN_VIEW_STATE.LIST;
-          trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.INTUITION_ACCESS;
-          foundationMenuOpen = false;
-          shownLessonKey = '';
-          refreshCurrentMode();
-          if (closeAfter) closeMenu();
-          return;
-        }
-        if (!hasCompletedIntuitionIntro()) {
-          startIntuitionIntro({
-            returnTarget: {
-              destination: 'Train',
-              practice: 'FoundationHome',
-              trainTrack: 'Intuition'
-            }
-          });
-          if (closeAfter) closeMenu();
-          return;
-        }
+        console.log('Intuition track selected.');
       }
       activeDestination = 'Train';
       activePractice = 'FoundationHome';
