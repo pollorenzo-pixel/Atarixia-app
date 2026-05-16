@@ -2640,16 +2640,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (activeTrainTrack === 'Intuition') {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
 
-        if (!intuitionIntroCompleted) {
-          const introCard = document.createElement('button');
-          introCard.className = 'foundation-card-btn';
-          introCard.type = 'button';
-          introCard.innerHTML = '<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">Introduction to Intuition</div></div><div class="foundation-card-status">Start</div></div><div class="foundation-card-desc">Begin and complete the Intuition Introduction to access the rest of Intuition practices.</div>';
-          introCard.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
-          el.foundationCardsContainer.appendChild(introCard);
-          return;
-        }
-
         const intuitionSequence = [
           { key: 'IntuitionIntroduction', fallbackTitle: 'Introduction to Intuition' },
           { key: 'SignalDetection', fallbackTitle: 'Signal Detection' },
