@@ -2624,7 +2624,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return btn;
       };
 
-      const intuitionUnlocked = isIntuitionUnlocked();
       const intuitionIntroCompleted = hasCompletedIntuitionIntro();
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.ROOT) {
