@@ -30,6 +30,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const INTUITION_INTRO_AUDIO = 'audio/Intuition_intro.mp3';
     const INTUITION_SIGNAL_DETECTION_AUDIO = 'audio/Signal Detection Meditation.mp3';
+    const INTUITION_SIGNAL_VS_NOISE_AUDIO = 'audio/Signal vs Noise Meditation.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
     const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
@@ -580,6 +581,23 @@ You do not need to force anything. Arrive and follow the guidance.`,
             reinforcement: 'Subtle cues become clearer when reaction slows down.',
             activeText: 'Playing',
             activeLabel: 'Signal Detection'
+          },
+          SignalVsNoise: {
+            title: 'Signal vs Noise',
+            shortPurpose: 'Differentiate clear intuitive signals from mental noise and reactivity.',
+            eyebrow: 'Intuition',
+            hero: 'Signal vs Noise',
+            subtitle: ['Practice distinguishing clear signals from noise and impulse.'],
+            note: 'Train yourself to recognize what is stable and trustworthy versus what is reactive.',
+            badge: 'Intuition · Signal vs Noise',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Signal vs Noise',
+            copyBody: 'Practice distinguishing clear signals from noise and impulse, then return to steady attention.',
+            audio: INTUITION_SIGNAL_VS_NOISE_AUDIO,
+            lesson: 'True signals feel steady; noise feels urgent or scattered.',
+            reinforcement: 'Clarity improves when you pause and observe before acting.',
+            activeText: 'Playing',
+            activeLabel: 'Signal vs Noise'
           }
         }
       }
@@ -2640,6 +2658,16 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (activeTrainTrack === 'Intuition') {
         if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Intuition';
 
+        if (!intuitionIntroCompleted) {
+          const introCard = document.createElement('button');
+          introCard.className = 'foundation-card-btn';
+          introCard.type = 'button';
+          introCard.innerHTML = '<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">Introduction to Intuition</div></div><div class="foundation-card-status">Start</div></div><div class="foundation-card-desc">Begin and complete the Intuition Introduction to access the rest of Intuition practices.</div>';
+          introCard.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
+          el.foundationCardsContainer.appendChild(introCard);
+          return;
+        }
+
         const intuitionSequence = [
           { key: 'IntuitionIntroduction', fallbackTitle: 'Introduction to Intuition' },
           { key: 'SignalDetection', fallbackTitle: 'Signal Detection' },
@@ -4416,6 +4444,7 @@ window.__ataraxia = {
         INTRODUCTION_AUDIO,
         INTUITION_INTRO_AUDIO,
         INTUITION_SIGNAL_DETECTION_AUDIO,
+        INTUITION_SIGNAL_VS_NOISE_AUDIO,
         ...FOUNDATION_BREATH_AWARENESS_AUDIO,
         ...FOUNDATION_BODY_AWARENESS_AUDIO,
         ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
