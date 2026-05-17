@@ -30,7 +30,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
     const INTUITION_INTRO_AUDIO = 'audio/Intuition_intro.mp3';
     const INTUITION_SIGNAL_DETECTION_AUDIO = 'audio/Signal Detection Meditation.mp3';
-    const INTUITION_SIGNAL_VS_NOISE_AUDIO = 'audio/Signal vs Noise Meditation.mp3';
+    const INTUITION_SIGNAL_VS_NOISE_AUDIO = 'audio/signal vs noise meditation.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
     const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
@@ -851,6 +851,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let pendingPlaybackStart = false;
     let playRequestPending = false;
     let sessionGrainCircle = null;
+    let hasRecordedActiveSessionCompletion = false;
 
     const DEBUG_ATARAXIA = false;
     const appState = {
@@ -1034,6 +1035,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function recordCompletedSession(reflection) {
       if (activePractice === 'Introduction') return;
+      if (hasRecordedActiveSessionCompletion) return;
 
       const history = loadSessionHistory();
       const durationSeconds = Number.isFinite(completedSessionDurationSeconds) && completedSessionDurationSeconds > 0
@@ -1050,6 +1052,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       });
 
       saveSessionHistory(history.slice(-120));
+      hasRecordedActiveSessionCompletion = true;
       completedSessionDurationSeconds = 0;
       activeSessionStartedAt = 0;
     }
@@ -3700,6 +3703,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       setSessionState(SESSION_STATE.READY, { phase: 'grounding' });
       activeSessionStartedAt = Date.now();
+      hasRecordedActiveSessionCompletion = false;
       completedSessionDurationSeconds = 0;
       setAudioStatus(el.audioText?.textContent || 'Grounding', false);
       if (el.volumeControl) el.volumeControl.classList.add('active');
@@ -3831,6 +3835,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       setSessionState(SESSION_STATE.IDLE, { phase: 'idle' });
       activeSessionStartedAt = 0;
       completedSessionDurationSeconds = 0;
+      hasRecordedActiveSessionCompletion = false;
       detachAudio();
       initAudio();
       setAudioStatus(el.audioText?.textContent || 'Session', false);
@@ -4277,7 +4282,7 @@ window.__ataraxia = {
       playRequestPending = false;
       sessionAudioReady = false;
       syncAppState({ isAudioReady: false });
-      setAudioStatus('Intuition Intro Playing', true);
+      setAudioStatus('Session Stopped', false);
     }
 
     function startIntuitionIntroAudio() {
