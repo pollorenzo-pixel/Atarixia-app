@@ -852,6 +852,41 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let playRequestPending = false;
     let sessionGrainCircle = null;
 
+    const DEBUG_ATARAXIA = false;
+    const appState = {
+      activeTab: 'home',
+      activeCategory: 'foundation',
+      activePracticeId: null,
+      activeOverlay: null,
+      sessionStatus: 'idle',
+      isAudioReady: false
+    };
+
+    function debugLog(eventName, payload = {}) {
+      if (!DEBUG_ATARAXIA) return;
+      console.log(`[Ataraxia][Debug] ${eventName}`, { ...appState, ...payload });
+    }
+
+    function syncAppState(patch = {}) {
+      Object.assign(appState, patch);
+      debugLog('state-change');
+    }
+
+    function syncOverlayState() {
+      const sessionActive = Boolean(el.sessionOverlay?.classList.contains('active'));
+      const reflectionActive = Boolean(el.reflectionScreen?.classList.contains('active'));
+      const completionActive = Boolean(el.completionScreen?.classList.contains('active'));
+      const lessonActive = Boolean(el.lessonOverlay?.classList.contains('active'));
+      const welcomeActive = Boolean(el.welcomeIntroOverlay?.classList.contains('active'));
+      let overlay = null;
+      if (welcomeActive) overlay = 'welcome';
+      else if (completionActive) overlay = 'completion';
+      else if (reflectionActive) overlay = 'reflection';
+      else if (sessionActive) overlay = 'session';
+      else if (lessonActive) overlay = 'lesson';
+      syncAppState({ activeOverlay: overlay });
+    }
+
     // Navigation Controller Section (V2 shell): top-level destination mapping
     const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
 
@@ -869,6 +904,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function logSessionAudioEvent(eventName, details = {}) {
+      if (!DEBUG_ATARAXIA) return;
       console.info(`[Ataraxia][SessionAudio] ${eventName}`, {
         practiceKey: getSelectedPracticeKey(),
         ...details
@@ -2352,6 +2388,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         else node.removeAttribute('inert');
       });
       if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
+      syncAppState({ activeTab: activeDestination.toLowerCase() });
+      syncOverlayState();
     }
 
     function updateJourneyButtons() {
@@ -2975,6 +3013,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function setSessionState(state, options = {}) {
       sessionState = state;
+      syncAppState({ sessionStatus: state });
       if (options.phase) sessionPlaybackPhase = options.phase;
       if (!options.skipMediaSync) syncMediaPlaybackState();
       syncSessionUIToAudioState(sessionState);
@@ -3060,6 +3099,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       currentAudio.pause();
       playRequestPending = false;
       sessionAudioReady = false;
+      syncAppState({ isAudioReady: false });
       currentAudio.ontimeupdate = null;
       currentAudio.onended = null;
       currentAudio.onpause = null;
@@ -3731,6 +3771,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       pendingPlaybackStart = false;
       playRequestPending = false;
       sessionAudioReady = false;
+      syncAppState({ isAudioReady: false });
       const launchToken = Date.now();
       sessionLaunchToken = launchToken;
       logSessionAudioEvent('session-start-state', {
@@ -3747,6 +3788,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       const audioReady = await prepareSessionAudio(launchToken);
+      syncAppState({ isAudioReady: Boolean(audioReady) });
       if (!audioReady || !currentPlaylist.length || !currentAudio || launchToken !== sessionLaunchToken) {
         console.warn('[Ataraxia] Session launch aborted: missing playlist/audio readiness.');
         exitSessionMode();
@@ -3783,6 +3825,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       clearSessionTimers();
       sessionLaunchToken += 1;
       sessionAudioReady = false;
+      syncAppState({ isAudioReady: false });
       pendingPlaybackStart = false;
       playRequestPending = false;
       setSessionState(SESSION_STATE.IDLE, { phase: 'idle' });
@@ -3794,6 +3837,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.volumeControl) el.volumeControl.classList.remove('active');
       resetVisualSessionState();
       exitSessionMode();
+      syncOverlayState();
     }
     window.exitSessionEarly = exitSessionEarly;
 
@@ -3839,6 +3883,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function selectMainMode(name) {
       activePractice = name;
+      syncAppState({ activePracticeId: getSelectedPracticeKey() });
       activeDestination = inferDestinationFromPractice(name);
       if (activeDestination !== 'Train') trainViewState = TRAIN_VIEW_STATE.LIST;
       foundationMenuOpen = false;
@@ -3889,6 +3934,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       activePractice = 'FoundationHome';
       activeTrainTrack = 'Foundation';
       activeFoundationSubgroup = group;
+      syncAppState({ activeCategory: 'foundation' });
       activeFoundationGroup = group;
       openFoundationGroup = group;
       trainViewState = TRAIN_VIEW_STATE.LIST;
@@ -4230,6 +4276,7 @@ window.__ataraxia = {
       pendingPlaybackStart = false;
       playRequestPending = false;
       sessionAudioReady = false;
+      syncAppState({ isAudioReady: false });
       setAudioStatus('Intuition Intro Playing', true);
     }
 
