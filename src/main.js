@@ -3082,7 +3082,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (state === SESSION_STATE.READY && (sessionPlaybackPhase === 'starting' || sessionPlaybackPhase === 'buffering')) {
         setCircleState('grounding');
         if (el.sessionStateText) el.sessionStateText.textContent = 'Starting';
-        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Preparing Audio';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Arrive first. Preparing your session...';
         if (el.sessionTapHint) el.sessionTapHint.textContent = 'Tap to start if autoplay is blocked · Double tap to restart';
         return;
       }
@@ -3610,7 +3610,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         pendingPlaybackStart = true;
         setSessionState(SESSION_STATE.READY, { phase: 'starting' });
         if (el.sessionStateText) el.sessionStateText.textContent = 'Preparing';
-        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Buffering Audio';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Preparing your session...';
         logSessionAudioEvent('start-blocked-waiting-canplay', {
           trackIndex: currentTrackIndex
         });
