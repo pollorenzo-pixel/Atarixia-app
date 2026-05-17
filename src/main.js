@@ -622,6 +622,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       trainScreen: document.getElementById('trainScreen'),
       progressScreen: document.getElementById('progressScreen'),
       accountScreen: document.getElementById('accountScreen'),
+      coachScreen: document.getElementById('coachScreen'),
       homeQuoteText: document.getElementById('homeQuoteText'),
       homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
@@ -889,7 +890,34 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     // Navigation Controller Section (V2 shell): top-level destination mapping
-    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account'];
+    const DESTINATION_TABS = ['Home', 'Train', 'Progress', 'Account', 'Coach'];
+
+    function getVisiblePrimaryViews() {
+      const viewNodes = [
+        ['Home', el.homeScreen],
+        ['Train', el.trainScreen],
+        ['Progress', el.progressScreen],
+        ['Account', el.accountScreen],
+        ['Coach', el.coachScreen]
+      ];
+      return viewNodes
+        .filter(([, node]) => node && !node.classList.contains('hidden') && !node.hasAttribute('hidden'))
+        .map(([name]) => name);
+    }
+
+    function getVisibleOverlays() {
+      const overlayNodes = [
+        ['Welcome', el.welcomeIntroOverlay],
+        ['Disclaimer', el.welcomeIntroOverlay],
+        ['Lesson', el.lessonOverlay],
+        ['Session', el.sessionOverlay],
+        ['Reflection', el.reflectionScreen],
+        ['Completion', el.completionScreen]
+      ];
+      return overlayNodes
+        .filter(([, node]) => node && node.classList.contains('active'))
+        .map(([name]) => name);
+    }
 
     function inferDestinationFromPractice(practice = activePractice) {
       if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition') return 'Train';
@@ -2378,7 +2406,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         { node: el.homeScreen, destination: 'Home' },
         { node: el.trainScreen, destination: 'Train' },
         { node: el.progressScreen, destination: 'Progress' },
-        { node: el.accountScreen, destination: 'Account' }
+        { node: el.accountScreen, destination: 'Account' },
+        { node: el.coachScreen, destination: 'Coach' }
       ];
 
       topLevelScreens.forEach(({ node, destination }) => {
@@ -2393,6 +2422,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
       syncAppState({ activeTab: activeDestination.toLowerCase() });
       syncOverlayState();
+      debugLog('render-primary-visibility', {
+        visibleViews: getVisiblePrimaryViews()
+      });
     }
 
     function updateJourneyButtons() {
@@ -2485,6 +2517,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       el.lessonOverlay.classList.remove('active', 'exit');
+      syncOverlayState();
     }
 
     function getActiveHeroElements() {
@@ -2524,6 +2557,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       el.lessonOverlay.classList.add('active');
+      syncOverlayState();
       lessonOverlayTimeout = setTimeout(() => {
         el.lessonOverlay.classList.add('exit');
         const activeLessonCard = activeDestination === 'Train' ? el.trainLessonCard : el.lessonCard;
@@ -2531,6 +2565,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         else warnMissingUiRef(activeDestination === 'Train' ? 'trainLessonCard' : 'lessonCard');
         lessonOverlayExitTimeout = setTimeout(() => {
           el.lessonOverlay.classList.remove('active', 'exit');
+          syncOverlayState();
           setTimeout(() => {
             if (activeLessonCard) activeLessonCard.classList.remove('highlight');
           }, 250);
@@ -3322,6 +3357,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       el.reflectionScreen.classList.add('active');
+      syncOverlayState();
     }
 
     function hideCompletionTakeover() {
@@ -3330,6 +3366,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       el.completionScreen.classList.remove('active');
+      syncOverlayState();
     }
 
     function showCompletionTakeover(reflection = '') {
@@ -3343,6 +3380,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       el.completionScreenTitle.textContent = 'Well done';
       el.completionScreenSubtitle.textContent = `${completionLoop.trained} ${completionLoop.why}`;
       el.completionScreen.classList.add('active');
+      syncOverlayState();
     }
 
     Object.entries(practiceContent.Foundation.subcategories).forEach(([practiceKey, data]) => {
@@ -3519,15 +3557,28 @@ You do not need to force anything. Arrive and follow the guidance.`,
     // 2) enterSessionMode guarantees the takeover layer becomes visible.
     // 3) beginSessionGroundingPhase transitions to active playback state.
     function enterSessionMode() {
+      hideLessonOverlayImmediate();
       hideReflectionTakeover();
       hideCompletionTakeover();
-      return sessionModeController.start();
+      const started = sessionModeController.start();
+      syncOverlayState();
+      debugLog('render-overlay-visibility', {
+        visibleOverlays: getVisibleOverlays(),
+        audioSrc: currentAudio?.currentSrc || currentAudio?.src || null
+      });
+      return started;
     }
 
     function exitSessionMode() {
       sessionModeController.stop();
+      hideLessonOverlayImmediate();
       hideReflectionTakeover();
       hideCompletionTakeover();
+      syncOverlayState();
+      debugLog('render-overlay-visibility', {
+        visibleOverlays: getVisibleOverlays(),
+        audioSrc: currentAudio?.currentSrc || currentAudio?.src || null
+      });
     }
 
     function isIntroSessionExperience() {
@@ -3843,6 +3894,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       resetVisualSessionState();
       exitSessionMode();
       syncOverlayState();
+      debugLog('session-exit-cleanup', {
+        audioSrc: currentAudio?.currentSrc || currentAudio?.src || null,
+        visibleViews: getVisiblePrimaryViews(),
+        visibleOverlays: getVisibleOverlays()
+      });
     }
     window.exitSessionEarly = exitSessionEarly;
 
@@ -4283,6 +4339,13 @@ window.__ataraxia = {
       sessionAudioReady = false;
       syncAppState({ isAudioReady: false });
       setAudioStatus('Session Stopped', false);
+      clearSessionTimers();
+      if (sessionGrainCircle) sessionGrainCircle.stop({ clear: true });
+      releaseWakeLock();
+      syncOverlayState();
+      debugLog('stop-current-audio', {
+        audioSrc: currentAudio?.currentSrc || currentAudio?.src || null
+      });
     }
 
     function startIntuitionIntroAudio() {
