@@ -956,6 +956,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let sessionAudioReady = false;
     let pendingPlaybackStart = false;
     let playRequestPending = false;
+    let hasSessionEnteredPlayingState = false;
+    let pauseRequestedByUser = false;
     let sessionGrainCircle = null;
     let hasRecordedActiveSessionCompletion = false;
 
@@ -1043,6 +1045,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
         practiceKey: getSelectedPracticeKey(),
         ...details
       });
+    }
+
+    function debugSessionLaunchEvent(eventName, details = {}) {
+      if (!DEBUG_ATARAXIA) return;
+      console.info(`[Ataraxia][SessionLaunch] ${eventName}`, details);
     }
 
         function loadProgress() {
@@ -3270,9 +3277,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
           currentTime: currentAudio?.currentTime || 0
         });
         updateSeekUI();
-        if (sessionState !== SESSION_STATE.ENDED && sessionState !== SESSION_STATE.IDLE && !playRequestPending) {
+        const shouldRespectPause = pauseRequestedByUser || hasSessionEnteredPlayingState;
+        if (sessionState !== SESSION_STATE.ENDED && sessionState !== SESSION_STATE.IDLE && !playRequestPending && shouldRespectPause) {
           setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
         }
+        pauseRequestedByUser = false;
       };
       currentAudio.onloadedmetadata = () => {
         logSessionAudioEvent('loadedmetadata', {
@@ -3296,6 +3305,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
           currentTime: currentAudio?.currentTime || 0
         });
         playRequestPending = false;
+        hasSessionEnteredPlayingState = true;
+        pauseRequestedByUser = false;
         setSessionState(SESSION_STATE.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
         });
@@ -3307,6 +3318,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
           currentTime: currentAudio?.currentTime || 0
         });
         playRequestPending = false;
+        hasSessionEnteredPlayingState = true;
+        pauseRequestedByUser = false;
         setSessionState(SESSION_STATE.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
         });
@@ -3726,9 +3739,24 @@ You do not need to force anything. Arrive and follow the guidance.`,
       configureBackgroundAudio();
       playRequestPending = true;
       pendingPlaybackStart = false;
+      debugSessionLaunchEvent('audio play requested', {
+        trackIndex: currentTrackIndex,
+        phase: sessionPlaybackPhase
+      });
       currentAudio.play().then(() => {
+        debugSessionLaunchEvent('audio play resolved', {
+          trackIndex: currentTrackIndex
+        });
+        hasSessionEnteredPlayingState = true;
+        pauseRequestedByUser = false;
         setSessionState(SESSION_STATE.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
+        });
+        debugSessionLaunchEvent('sessionStatus after play', { sessionStatus: sessionState });
+        debugSessionLaunchEvent('timer started', { activeSessionStartedAt });
+        debugSessionLaunchEvent('circle label updated', {
+          stateText: el.sessionStateText?.textContent || '',
+          stateLabel: el.sessionStateLabel?.textContent || ''
         });
         if (el.volumeControl) el.volumeControl.classList.add('active');
         requestWakeLock();
@@ -3742,6 +3770,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!currentAudio) return;
       pendingPlaybackStart = false;
       playRequestPending = false;
+      pauseRequestedByUser = true;
       setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
       currentAudio.pause();
       setAudioStatus(el.audioText?.textContent || 'Session Paused', false);
@@ -3932,10 +3961,16 @@ You do not need to force anything. Arrive and follow the guidance.`,
       clearSessionTimers();
       pendingPlaybackStart = false;
       playRequestPending = false;
+      hasSessionEnteredPlayingState = false;
+      pauseRequestedByUser = false;
       sessionAudioReady = false;
       syncAppState({ isAudioReady: false });
       const launchToken = Date.now();
       sessionLaunchToken = launchToken;
+      debugSessionLaunchEvent('start practice clicked', {
+        launchToken,
+        destination: activeDestination
+      });
       logSessionAudioEvent('session-start-state', {
         launchToken,
         activePractice,
@@ -3948,6 +3983,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         exitSessionMode();
         return;
       }
+      debugSessionLaunchEvent('session opened', { launchToken });
 
       const audioReady = await prepareSessionAudio(launchToken);
       syncAppState({ isAudioReady: Boolean(audioReady) });
