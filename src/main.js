@@ -31,6 +31,10 @@ import { createSessionModeController } from './session-mode-controller.js';
     const INTUITION_INTRO_AUDIO = 'audio/Intuition_intro.mp3';
     const INTUITION_SIGNAL_DETECTION_AUDIO = 'audio/Signal Detection Meditation.mp3';
     const INTUITION_SIGNAL_VS_NOISE_AUDIO = 'audio/signal vs noise meditation.mp3';
+    const INTUITION_GUT_AWARENESS_AUDIO = 'audio/Gut Awareness meditation.mp3';
+    const INTUITION_READ_THE_ROOM_AUDIO = 'audio/Read The Room meditation.mp3';
+    const INTUITION_PAUSE_BEFORE_REACTION_AUDIO = 'audio/Pause Before Reacton Meditation.mp3';
+    const INTUITION_TRUST_THE_SIGNAL_AUDIO = 'audio/Trust the Signal Meditation.mp3';
     const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
     const DEFAULT_WELCOME_STATE = 'Settle';
     const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
@@ -119,9 +123,13 @@ import { createSessionModeController } from './session-mode-controller.js';
       'walking-meditation': Object.freeze({ title: 'Walking Meditation', category: 'foundation', audio: FOUNDATION_WALKING_MEDITATION_AUDIO, intro: 'Train awareness in motion.', status: 'complete' }),
       'stress-reset': Object.freeze({ title: 'Stress Reset', category: 'foundation', audio: FOUNDATION_STRESS_RESET_AUDIO, intro: 'Regulate stress quickly and cleanly.', status: 'complete' }),
       'pre-sleep': Object.freeze({ title: 'Pre-Sleep', category: 'foundation', audio: FOUNDATION_PRE_SLEEP_AUDIO, intro: 'Downregulate before rest.', status: 'complete' }),
-      'intuition-introduction': Object.freeze({ title: 'Introduction to Intuition', category: 'intuition', audio: INTUITION_INTRO_AUDIO, intro: 'Begin Intuition sequence.', status: 'beta' }),
-      'signal-detection': Object.freeze({ title: 'Signal Detection', category: 'intuition', audio: INTUITION_SIGNAL_DETECTION_AUDIO, intro: 'Notice subtle signals before reaction.', status: 'beta' }),
-      'signal-vs-noise': Object.freeze({ title: 'Signal vs Noise', category: 'intuition', audio: INTUITION_SIGNAL_VS_NOISE_AUDIO, intro: 'Differentiate signal from mental noise.', status: 'beta' })
+      'intuition-introduction': Object.freeze({ title: 'Intuition Introduction', category: 'intuition', audio: INTUITION_INTRO_AUDIO, intro: 'Begin Intuition sequence.', status: 'complete' }),
+      'signal-detection': Object.freeze({ title: 'Signal Detection', category: 'intuition', audio: INTUITION_SIGNAL_DETECTION_AUDIO, intro: 'Notice subtle signals before reaction.', status: 'complete' }),
+      'signal-vs-noise': Object.freeze({ title: 'Signal vs Noise', category: 'intuition', audio: INTUITION_SIGNAL_VS_NOISE_AUDIO, intro: 'Differentiate signal from mental noise.', status: 'complete' }),
+      'gut-awareness': Object.freeze({ title: 'Gut Awareness', category: 'intuition', audio: INTUITION_GUT_AWARENESS_AUDIO, intro: 'Tune into first-body knowing before analysis.', status: 'complete' }),
+      'read-the-room': Object.freeze({ title: 'Read the Room', category: 'intuition', audio: INTUITION_READ_THE_ROOM_AUDIO, intro: 'Sense subtle social and environmental shifts.', status: 'complete' }),
+      'pause-before-reaction': Object.freeze({ title: 'Pause Before Reaction', category: 'intuition', audio: INTUITION_PAUSE_BEFORE_REACTION_AUDIO, intro: 'Create space between signal and response.', status: 'complete' }),
+      'trust-the-signal': Object.freeze({ title: 'Trust the Signal', category: 'intuition', audio: INTUITION_TRUST_THE_SIGNAL_AUDIO, intro: 'Reinforce clear signal-led action.', status: 'complete' })
     });
 
     const TRAIN_SECTION_CONTENT = {
@@ -565,7 +573,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         subcategories: {
           IntuitionIntroduction: {
             id: 'intuition-introduction',
-            title: 'Introduction to Intuition',
+            title: 'Intuition Introduction',
             shortPurpose: 'Learn how Intuition practice works before moving into signal training.',
             eyebrow: 'Intuition',
             hero: 'Introduction to Intuition',
@@ -576,12 +584,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
             copyTitle: 'Introduction to Intuition',
             copyBody: 'Start here. This introduction unlocks Signal Detection and future Intuition practices.',
             audio: INTUITION_INTRO_AUDIO,
+            status: 'complete',
             lesson: 'Calm attention first, then train subtle signal recognition.',
             reinforcement: 'A stable baseline helps intuitive signals stand out clearly.',
             activeText: 'Playing',
             activeLabel: 'Introduction to Intuition'
           },
           SignalDetection: {
+            id: 'signal-detection',
             title: 'Signal Detection',
             shortPurpose: 'Notice subtle signals before the mind explains them.',
             eyebrow: 'Intuition',
@@ -593,12 +603,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
             copyTitle: 'Signal Detection',
             copyBody: 'Train awareness to catch quiet internal and external signals before reaction takes over.',
             audio: INTUITION_SIGNAL_DETECTION_AUDIO,
+            status: 'complete',
             lesson: 'Notice what appears first, before interpretation.',
             reinforcement: 'Subtle cues become clearer when reaction slows down.',
             activeText: 'Playing',
             activeLabel: 'Signal Detection'
           },
           SignalVsNoise: {
+            id: 'signal-vs-noise',
             title: 'Signal vs Noise',
             shortPurpose: 'Differentiate clear intuitive signals from mental noise and reactivity.',
             eyebrow: 'Intuition',
@@ -610,10 +622,87 @@ You do not need to force anything. Arrive and follow the guidance.`,
             copyTitle: 'Signal vs Noise',
             copyBody: 'Practice distinguishing clear signals from noise and impulse, then return to steady attention.',
             audio: INTUITION_SIGNAL_VS_NOISE_AUDIO,
+            status: 'complete',
             lesson: 'True signals feel steady; noise feels urgent or scattered.',
             reinforcement: 'Clarity improves when you pause and observe before acting.',
             activeText: 'Playing',
             activeLabel: 'Signal vs Noise'
+          },
+          GutAwareness: {
+            id: 'gut-awareness',
+            title: 'Gut Awareness',
+            shortPurpose: 'Notice body-first knowing before the mind fills in a story.',
+            eyebrow: 'Intuition',
+            hero: 'Gut Awareness',
+            subtitle: ['Feel the first signal in the body before analysis.'],
+            note: 'Use body sensation as an early-channel signal source.',
+            badge: 'Intuition · Gut Awareness',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Gut Awareness',
+            copyBody: 'Train yourself to notice subtle body cues before cognition labels them.',
+            audio: INTUITION_GUT_AWARENESS_AUDIO,
+            status: 'complete',
+            lesson: 'Track sensation first, then let interpretation follow.',
+            reinforcement: 'Body cues often arrive before conscious explanation.',
+            activeText: 'Playing',
+            activeLabel: 'Gut Awareness'
+          },
+          ReadTheRoom: {
+            id: 'read-the-room',
+            title: 'Read the Room',
+            shortPurpose: 'Detect social and environmental tone shifts with steady awareness.',
+            eyebrow: 'Intuition',
+            hero: 'Read the Room',
+            subtitle: ['Notice tone, pace, and energy shifts around you.'],
+            note: 'Expand signal detection to context, not only internal sensation.',
+            badge: 'Intuition · Read the Room',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Read the Room',
+            copyBody: 'Practice sensing atmosphere and subtle interpersonal shifts without overreacting.',
+            audio: INTUITION_READ_THE_ROOM_AUDIO,
+            status: 'complete',
+            lesson: 'Notice the room before deciding what it means.',
+            reinforcement: 'Contextual awareness improves timing and response quality.',
+            activeText: 'Playing',
+            activeLabel: 'Read the Room'
+          },
+          PauseBeforeReaction: {
+            id: 'pause-before-reaction',
+            title: 'Pause Before Reaction',
+            shortPurpose: 'Create a reliable gap between trigger and response.',
+            eyebrow: 'Intuition',
+            hero: 'Pause Before Reaction',
+            subtitle: ['Pause, detect, then choose your response.'],
+            note: 'Interrupt automatic reacting so clearer signals can lead action.',
+            badge: 'Intuition · Pause Before Reaction',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Pause Before Reaction',
+            copyBody: 'Use an intentional pause to let noise settle and signal clarify before acting.',
+            audio: INTUITION_PAUSE_BEFORE_REACTION_AUDIO,
+            status: 'complete',
+            lesson: 'A brief pause protects signal quality under pressure.',
+            reinforcement: 'Response flexibility grows when reaction speed drops.',
+            activeText: 'Playing',
+            activeLabel: 'Pause Before Reaction'
+          },
+          TrustTheSignal: {
+            id: 'trust-the-signal',
+            title: 'Trust the Signal',
+            shortPurpose: 'Strengthen confidence in clear signals through calm execution.',
+            eyebrow: 'Intuition',
+            hero: 'Trust the Signal',
+            subtitle: ['Act from clarity rather than urgency.'],
+            note: 'Integrate signal recognition with grounded, decisive follow-through.',
+            badge: 'Intuition · Trust the Signal',
+            copyLabel: 'Current Intuition Practice',
+            copyTitle: 'Trust the Signal',
+            copyBody: 'Practice acting from steady inner clarity instead of reactive noise.',
+            audio: INTUITION_TRUST_THE_SIGNAL_AUDIO,
+            status: 'complete',
+            lesson: 'True signals feel steady; noise feels urgent or scattered.',
+            reinforcement: 'Clarity improves when you pause and observe before acting.',
+            activeText: 'Playing',
+            activeLabel: 'Trust the Signal'
           }
         }
       }
@@ -2754,14 +2843,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
           const introCard = document.createElement('button');
           introCard.className = 'foundation-card-btn';
           introCard.type = 'button';
-          introCard.innerHTML = '<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">Introduction to Intuition</div></div><div class="foundation-card-status">Start</div></div><div class="foundation-card-desc">Begin and complete the Intuition Introduction to access the rest of Intuition practices.</div>';
+          introCard.innerHTML = '<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">Intuition Introduction</div></div><div class="foundation-card-status">Start</div></div><div class="foundation-card-desc">Begin and complete the Intuition Introduction to access the rest of Intuition practices.</div>';
           introCard.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
           el.foundationCardsContainer.appendChild(introCard);
           return;
         }
 
         const intuitionSequence = [
-          { key: 'IntuitionIntroduction', fallbackTitle: 'Introduction to Intuition' },
+          { key: 'IntuitionIntroduction', fallbackTitle: 'Intuition Introduction' },
           { key: 'SignalDetection', fallbackTitle: 'Signal Detection' },
           { key: 'SignalVsNoise', fallbackTitle: 'Signal vs Noise' },
           { key: 'GutAwareness', fallbackTitle: 'Gut Awareness' },
@@ -4582,6 +4671,10 @@ window.__ataraxia = {
         INTUITION_INTRO_AUDIO,
         INTUITION_SIGNAL_DETECTION_AUDIO,
         INTUITION_SIGNAL_VS_NOISE_AUDIO,
+        INTUITION_GUT_AWARENESS_AUDIO,
+        INTUITION_READ_THE_ROOM_AUDIO,
+        INTUITION_PAUSE_BEFORE_REACTION_AUDIO,
+        INTUITION_TRUST_THE_SIGNAL_AUDIO,
         ...FOUNDATION_BREATH_AWARENESS_AUDIO,
         ...FOUNDATION_BODY_AWARENESS_AUDIO,
         ...FOUNDATION_THOUGHT_AWARENESS_AUDIO,
