@@ -108,6 +108,22 @@ import { createSessionModeController } from './session-mode-controller.js';
       StressReset: 7,
       PreSleep: 12
     };
+    const PRACTICES = Object.freeze({
+      'breath-awareness': Object.freeze({ title: 'Breath Awareness', category: 'foundation', audio: FOUNDATION_BREATH_AWARENESS_AUDIO, intro: 'Return to the present through the breath.', status: 'complete' }),
+      'body-awareness': Object.freeze({ title: 'Body Awareness', category: 'foundation', audio: FOUNDATION_BODY_AWARENESS_AUDIO, intro: 'Settle into the body and soften tension.', status: 'complete' }),
+      'thought-awareness': Object.freeze({ title: 'Thought Awareness', category: 'foundation', audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO, intro: 'Observe thoughts without getting carried away.', status: 'complete' }),
+      'emotional-awareness': Object.freeze({ title: 'Emotional Awareness', category: 'foundation', audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO, intro: 'Recognise the feeling tone with honesty.', status: 'complete' }),
+      'deep-focus': Object.freeze({ title: 'Deep Focus', category: 'foundation', audio: FOUNDATION_DEEP_FOCUS_AUDIO, intro: 'Strengthen attention through steady return.', status: 'complete' }),
+      'open-awareness': Object.freeze({ title: 'Open Awareness', category: 'foundation', audio: FOUNDATION_OPEN_AWARENESS_AUDIO, intro: 'Let awareness open to everything at once.', status: 'complete' }),
+      'sensory-awareness': Object.freeze({ title: 'Sensory Awareness', category: 'foundation', audio: FOUNDATION_SENSORY_AWARENESS_AUDIO, intro: 'Rest in the full field of sensation.', status: 'complete' }),
+      'walking-meditation': Object.freeze({ title: 'Walking Meditation', category: 'foundation', audio: FOUNDATION_WALKING_MEDITATION_AUDIO, intro: 'Train awareness in motion.', status: 'complete' }),
+      'stress-reset': Object.freeze({ title: 'Stress Reset', category: 'foundation', audio: FOUNDATION_STRESS_RESET_AUDIO, intro: 'Regulate stress quickly and cleanly.', status: 'complete' }),
+      'pre-sleep': Object.freeze({ title: 'Pre-Sleep', category: 'foundation', audio: FOUNDATION_PRE_SLEEP_AUDIO, intro: 'Downregulate before rest.', status: 'complete' }),
+      'intuition-introduction': Object.freeze({ title: 'Introduction to Intuition', category: 'intuition', audio: INTUITION_INTRO_AUDIO, intro: 'Begin Intuition sequence.', status: 'beta' }),
+      'signal-detection': Object.freeze({ title: 'Signal Detection', category: 'intuition', audio: INTUITION_SIGNAL_DETECTION_AUDIO, intro: 'Notice subtle signals before reaction.', status: 'beta' }),
+      'signal-vs-noise': Object.freeze({ title: 'Signal vs Noise', category: 'intuition', audio: INTUITION_SIGNAL_VS_NOISE_AUDIO, intro: 'Differentiate signal from mental noise.', status: 'beta' })
+    });
+
     const TRAIN_SECTION_CONTENT = {
       Foundation: {
         eyebrow: 'Train · Foundation',
@@ -623,8 +639,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       progressScreen: document.getElementById('progressScreen'),
       accountScreen: document.getElementById('accountScreen'),
       coachScreen: document.getElementById('coachScreen'),
-      homeQuoteText: document.getElementById('homeQuoteText'),
-      homeQuoteAuthor: document.getElementById('homeQuoteAuthor'),
+      homeProgressSummary: document.getElementById('homeProgressSummary'),
+      homeStreakSummary: document.getElementById('homeStreakSummary'),
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
       homeNextMoveReason: document.getElementById('homeNextMoveReason'),
       openingScene: document.getElementById('openingScene'),
@@ -2902,12 +2918,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function renderHome() {
       if (!el.homeScreen) return;
       const history = loadSessionHistory();
-      const quote = getQuoteOfTheDay();
       const recommendation = getHomeRecommendation(history);
+      const progressStats = getAccountProgressStats(history);
       homeNextMove = recommendation;
 
-      if (el.homeQuoteText) el.homeQuoteText.textContent = `“${quote.text}”`;
-      if (el.homeQuoteAuthor) el.homeQuoteAuthor.textContent = quote.author || 'Unknown';
+      if (el.homeProgressSummary) el.homeProgressSummary.textContent = `${progressStats.totalSessions || 0} sessions · ${progressStats.totalMinutes || 0} minutes`;
+      if (el.homeStreakSummary) el.homeStreakSummary.textContent = `Streak: ${progressStats.currentStreak || 0} days`;
+
       if (el.homeNextMoveTitle) el.homeNextMoveTitle.textContent = recommendation.title;
       if (el.homeNextMoveReason) el.homeNextMoveReason.textContent = recommendation.reason;
 
@@ -2939,16 +2956,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const accountStats = getAccountProgressStats(historyAll);
       const history = historyAll.slice(-8).reverse();
 
-      el.profileCoachTitle.textContent = insights.title;
-      el.profileCoachBody.textContent = insights.body;
+      if (el.profileCoachTitle) el.profileCoachTitle.textContent = 'Weekly Insight Summary';
+      if (el.profileCoachBody) el.profileCoachBody.textContent = (Array.isArray(insights.insightBlocks) && insights.insightBlocks.length ? insights.insightBlocks[0].text : 'No sessions yet. Start one short practice to begin your weekly summary.');
       el.profileTotalSessions.textContent = String(accountStats.totalSessions || 0);
       if (el.profileTotalMinutes) el.profileTotalMinutes.textContent = String(accountStats.totalMinutes || 0);
       el.profileStreak.textContent = String(accountStats.currentStreak || 0);
       if (el.profileBestStreak) el.profileBestStreak.textContent = String(accountStats.bestStreak || 0);
-      if (el.profileFoundationCompletions) el.profileFoundationCompletions.textContent = String(accountStats.completedFoundationCount || 0);
-      if (el.profileUniquePractices) el.profileUniquePractices.textContent = String(accountStats.uniquePractices || 0);
-      if (el.profileTopReflection) el.profileTopReflection.textContent = insights.topReflection || '—';
-      if (el.profileTopPractice) el.profileTopPractice.textContent = insights.topPractice || '—';
+      const foundationMetrics = getFoundationProgressMetrics(historyAll);
+      if (el.profileFoundationCompletions) el.profileFoundationCompletions.textContent = String(foundationMetrics.completionPercent || 0) + '%';
+      if (el.profileUniquePractices) el.profileUniquePractices.textContent = (Array.isArray(insights.insightBlocks) && insights.insightBlocks[0]?.text) ? insights.insightBlocks[0].text : 'No sessions in the last 7 days.';
+      if (el.profileTopReflection && el.profileTopReflection.closest('.profile-stat')) el.profileTopReflection.closest('.profile-stat').style.display = 'none';
+      if (el.profileTopPractice && el.profileTopPractice.closest('.profile-stat')) el.profileTopPractice.closest('.profile-stat').style.display = 'none';
       if (el.profileConsistencyScore) el.profileConsistencyScore.textContent = String(insights.scores?.consistency || 0);
       if (el.profileStabilityScore) el.profileStabilityScore.textContent = String(insights.scores?.stability || 0);
       if (el.profileDepthScore) el.profileDepthScore.textContent = String(insights.scores?.depth || 0);
@@ -3845,8 +3863,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const audioReady = await prepareSessionAudio(launchToken);
       syncAppState({ isAudioReady: Boolean(audioReady) });
       if (!audioReady || !currentPlaylist.length || !currentAudio || launchToken !== sessionLaunchToken) {
-        console.warn('[Ataraxia] Session launch aborted: missing playlist/audio readiness.');
-        exitSessionMode();
+        console.warn('[Ataraxia] Session launch fallback: missing playlist/audio readiness.');
+        setSessionState(SESSION_STATE.READY, { phase: 'ready' });
+        if (el.sessionStateText) el.sessionStateText.textContent = 'Training audio is being prepared';
+        if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Start silent session';
+        setAudioStatus('Training audio is being prepared', false);
         return;
       }
 
@@ -4294,6 +4315,7 @@ window.__ataraxia = {
   toggleStabilityMenu,
   setStabilitySubcategory,
   goToFoundationHome,
+  PRACTICES,
   goToNextPractice,
   goBackInTrain
 };
