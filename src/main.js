@@ -82,10 +82,54 @@ import { createSessionModeController } from './session-mode-controller.js';
     // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
     const intuitionOrder = ['IntuitionIntroduction', 'SignalDetection', 'SignalVsNoise', 'GutAwareness', 'ReadTheRoom', 'PauseBeforeReaction', 'TrustTheSignal'];
+    const flowOrder = ['FocusForWork', 'DecisionClarity', 'DifficultEmotion', 'PresentMoment', 'LettingGo'];
     const foundationGroups = {
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'],
       AppliedAwareness: ['SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep']
     };
+    const FLOW_PRACTICE_CARDS = Object.freeze([
+      Object.freeze({
+        id: 'focus-for-work',
+        key: 'FocusForWork',
+        title: 'Focus for Work',
+        description: 'Train sustained attention and reduce mental drift during work.',
+        category: 'flow',
+        status: 'coming_soon'
+      }),
+      Object.freeze({
+        id: 'decision-clarity',
+        key: 'DecisionClarity',
+        title: 'Decision Clarity',
+        description: 'Reduce noise and improve deliberate decision-making.',
+        category: 'flow',
+        status: 'coming_soon'
+      }),
+      Object.freeze({
+        id: 'difficult-emotion',
+        key: 'DifficultEmotion',
+        title: 'Difficult Emotion',
+        description: 'Train stability when facing emotional discomfort.',
+        category: 'flow',
+        status: 'coming_soon'
+      }),
+      Object.freeze({
+        id: 'present-moment',
+        key: 'PresentMoment',
+        title: 'Present Moment',
+        description: 'Return attention to what matters now.',
+        category: 'flow',
+        status: 'coming_soon'
+      }),
+      Object.freeze({
+        id: 'letting-go',
+        key: 'LettingGo',
+        title: 'Letting Go',
+        description: 'Release mental attachment and unnecessary resistance.',
+        category: 'flow',
+        status: 'coming_soon'
+      })
+    ]);
+
     const FOUNDATION_SKILL_IDENTITIES = {
       BreathAwareness: 'Attention Stability',
       BodyAwareness: 'Interoceptive Awareness',
@@ -100,6 +144,13 @@ import { createSessionModeController } from './session-mode-controller.js';
     };
     const INTUITION_SKILL_IDENTITIES = {
       SignalDetection: 'Signal Awareness'
+    };
+    const FLOW_SKILL_IDENTITIES = {
+      FocusForWork: 'Sustained Execution',
+      DecisionClarity: 'Deliberate Choice',
+      DifficultEmotion: 'Emotional Stability',
+      PresentMoment: 'Present-Moment Execution',
+      LettingGo: 'Release and Reset'
     };
     const FOUNDATION_ESTIMATED_MINUTES = {
       BreathAwareness: 8,
@@ -130,7 +181,12 @@ import { createSessionModeController } from './session-mode-controller.js';
       'gut-awareness': Object.freeze({ title: 'Gut Awareness', category: 'intuition', audio: INTUITION_GUT_AWARENESS_AUDIO, intro: 'Tune into first-body knowing before analysis.', status: 'complete' }),
       'read-the-room': Object.freeze({ title: 'Read the Room', category: 'intuition', audio: INTUITION_READ_THE_ROOM_AUDIO, intro: 'Sense subtle social and environmental shifts.', status: 'complete' }),
       'pause-before-reaction': Object.freeze({ title: 'Pause Before Reaction', category: 'intuition', audio: INTUITION_PAUSE_BEFORE_REACTION_AUDIO, intro: 'Create space between signal and response.', status: 'complete' }),
-      'trust-the-signal': Object.freeze({ title: 'Trust the Signal', category: 'intuition', audio: INTUITION_TRUST_THE_SIGNAL_AUDIO, intro: 'Reinforce clear signal-led action.', status: 'complete' })
+      'trust-the-signal': Object.freeze({ title: 'Trust the Signal', category: 'intuition', audio: INTUITION_TRUST_THE_SIGNAL_AUDIO, intro: 'Reinforce clear signal-led action.', status: 'complete' }),
+      'focus-for-work': Object.freeze({ title: 'Focus for Work', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
+      'decision-clarity': Object.freeze({ title: 'Decision Clarity', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
+      'difficult-emotion': Object.freeze({ title: 'Difficult Emotion', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
+      'present-moment': Object.freeze({ title: 'Present Moment', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
+      'letting-go': Object.freeze({ title: 'Letting Go', category: 'flow', audio: null, intro: null, status: 'coming_soon' })
     });
 
     const TRAIN_SECTION_CONTENT = {
@@ -152,11 +208,11 @@ import { createSessionModeController } from './session-mode-controller.js';
       },
       Flow: {
         eyebrow: 'Train · Flow',
-        hero: 'Flow training.<br>State alignment.',
-        subtitle: ['System', 'State', 'Alignment'],
+        hero: 'Flow training.<br>Apply what you know.',
+        subtitle: ['Execution', 'Performance', 'Core Flow'],
         copyLabel: 'Flow',
-        copyTitle: 'Flow Track',
-        copyBody: 'Use this section for flow-state training and performance alignment.'
+        copyTitle: 'EXECUTION & PERFORMANCE',
+        copyBody: 'Apply awareness and intuition under real-world conditions.'
       }
     };
     const APP_BOOT_DELAY = 1800;
@@ -360,7 +416,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         badge: 'Train',
         copyLabel: 'Train',
         copyTitle: 'Structured Practice Map',
-        copyBody: 'Use the Train Map to continue in Foundation or Intuition.'
+        copyBody: 'Use the Train Map to continue in Foundation, Intuition, or Flow.'
       },
       Profile: {
         eyebrow: 'Profile',
@@ -706,6 +762,39 @@ You do not need to force anything. Arrive and follow the guidance.`,
             activeLabel: 'Trust the Signal'
           }
         }
+      },
+      Flow: {
+        groundingText: 'Settle and prepare to apply awareness under pressure.',
+        completionMessage: 'Well done. Carry this clarity into action.',
+        readyAudioText: 'Training audio is being prepared',
+        pausedText: 'Paused',
+        pausedLabel: 'Session Paused',
+        activeText: 'Playing',
+        activeLabel: 'Flow Practice',
+        subcategories: FLOW_PRACTICE_CARDS.reduce((acc, practice) => {
+          acc[practice.key] = {
+            id: practice.id,
+            title: practice.title,
+            shortPurpose: practice.description,
+            eyebrow: 'Flow',
+            hero: practice.title,
+            subtitle: ['EXECUTION & PERFORMANCE'],
+            note: 'Apply awareness and intuition under real-world conditions.',
+            badge: `Flow · Core Flow · ${practice.title}`,
+            copyLabel: 'Current Flow Practice',
+            copyTitle: practice.title,
+            copyBody: practice.description,
+            category: practice.category,
+            audio: null,
+            intro: null,
+            status: practice.status,
+            lesson: 'Training audio is being prepared.',
+            reinforcement: 'Flow training will open here when audio is ready.',
+            activeText: 'Preparing',
+            activeLabel: 'Training audio is being prepared'
+          };
+          return acc;
+        }, {})
       }
     };
 
@@ -1043,7 +1132,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function inferDestinationFromPractice(practice = activePractice) {
-      if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition') return 'Train';
+      if (practice === 'FoundationHome' || practice === 'Foundation' || practice === 'Intuition' || practice === 'Flow') return 'Train';
       if (practice === 'Profile') return 'Account';
       return 'Home';
     }
@@ -1052,6 +1141,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (activePractice === 'Introduction') return practiceContent.Introduction.id;
       if (activePractice === 'Foundation') return activeSubcategory || 'UnknownFoundationPractice';
       if (activePractice === 'Intuition') return activeSubcategory || 'UnknownIntuitionPractice';
+      if (activePractice === 'Flow') return activeSubcategory || 'UnknownFlowPractice';
       return activePractice || 'UnknownPractice';
     }
 
@@ -1674,12 +1764,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (!practiceKey) return 'Guided Action';
       if (foundationGroups.CoreStability.includes(practiceKey)) return 'Core Stability';
       if (foundationGroups.AppliedAwareness.includes(practiceKey)) return 'Applied Awareness';
+      if (flowOrder.includes(practiceKey)) return 'Core Flow';
       return 'Guided Action';
     }
 
     function hasPlayablePracticeAudio(practiceKey) {
       const practice = practiceContent.Foundation?.subcategories?.[practiceKey]
-        || practiceContent.Intuition?.subcategories?.[practiceKey];
+        || practiceContent.Intuition?.subcategories?.[practiceKey]
+        || practiceContent.Flow?.subcategories?.[practiceKey];
       if (!practice?.audio) return false;
       const playlist = Array.isArray(practice.audio) ? practice.audio : [practice.audio];
       return playlist.some((item) => typeof item === 'string' && item.trim().length > 0);
@@ -2087,12 +2179,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function getModeConfig() {
       if (activePractice === 'Foundation') return practiceContent.Foundation;
       if (activePractice === 'Intuition') return practiceContent.Intuition;
+      if (activePractice === 'Flow') return practiceContent.Flow;
       return null;
     }
 
     function getSubcategoryData() {
       if (activePractice === 'Foundation') return practiceContent.Foundation.subcategories[activeSubcategory] || null;
       if (activePractice === 'Intuition') return practiceContent.Intuition.subcategories[activeSubcategory] || null;
+      if (activePractice === 'Flow') return practiceContent.Flow.subcategories[activeSubcategory] || null;
       return null;
     }
 
@@ -2102,6 +2196,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function getSkillLabel(practiceKey = '', practiceMode = activePractice) {
       if (practiceMode === 'Intuition') return INTUITION_SKILL_IDENTITIES[practiceKey] || '';
+      if (practiceMode === 'Flow') return FLOW_SKILL_IDENTITIES[practiceKey] || '';
       return FOUNDATION_SKILL_IDENTITIES[practiceKey] || '';
     }
 
@@ -2558,16 +2653,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function getPracticeOrderForTrack(track) {
       if (track === 'Intuition') return intuitionOrder;
+      if (track === 'Flow') return flowOrder;
       return foundationOrder;
     }
 
     function getCurrentPracticeNavigation() {
       const order = getPracticeOrderForTrack(activePractice);
       const currentPracticeIndex = order.indexOf(activeSubcategory);
-      const isPracticeDetail = (activePractice === 'Foundation' || activePractice === 'Intuition')
+      const isPracticeDetail = (activePractice === 'Foundation' || activePractice === 'Intuition' || activePractice === 'Flow')
         && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON
         && currentPracticeIndex >= 0;
-      const currentCategory = activePractice === 'Intuition' ? 'Intuition' : 'Foundation';
+      const currentCategory = activePractice === 'Intuition' ? 'Intuition' : activePractice === 'Flow' ? 'Flow' : 'Foundation';
       const showPrevious = isPracticeDetail && currentPracticeIndex > 0;
       const showNext = isPracticeDetail && currentPracticeIndex < order.length - 1;
 
@@ -2606,7 +2702,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       el.startSessionBtn.style.display = isPracticeDetail ? 'inline-flex' : 'none';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Start Session';
-      const canStartSelectedPractice = !((activePractice === 'Foundation' || activePractice === 'Intuition') && !hasPlayablePracticeAudio(activeSubcategory));
+      const canStartSelectedPractice = activePractice === 'Flow'
+        || !((activePractice === 'Foundation' || activePractice === 'Intuition') && !hasPlayablePracticeAudio(activeSubcategory));
       el.startSessionBtn.disabled = !canStartSelectedPractice;
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
 
@@ -2633,10 +2730,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function updateTrainViewVisibility() {
       if (activeDestination !== 'Train') return;
-      const isDetailView = (activePractice === 'Foundation' || activePractice === 'Intuition')
+      const isDetailView = (activePractice === 'Foundation' || activePractice === 'Intuition' || activePractice === 'Flow')
         && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON
         && Boolean(activeSubcategory);
-      const isFoundationDetailView = isDetailView && activePractice === 'Foundation';
       const trainSkillCard = el.trainPracticeCopyLabel?.closest('.practice-copy');
 
       if (el.foundationHomePanel) {
@@ -2718,7 +2814,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         };
       }
       const view = getActiveHeroElements();
-      const skillLabel = (activePractice === 'Foundation' || activePractice === 'Intuition')
+      const skillLabel = (activePractice === 'Foundation' || activePractice === 'Intuition' || activePractice === 'Flow')
         ? (data.skillLabel || getSkillLabel(activeSubcategory, activePractice))
         : '';
       const skillBadge = formatSkillBadge(skillLabel);
@@ -2757,6 +2853,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       else if (activePractice === 'Foundation') setAudioStatus(practiceContent.Foundation.readyAudioText);
       else if (activePractice === 'Intuition') setAudioStatus(practiceContent.Intuition.readyAudioText);
+      else if (activePractice === 'Flow') setAudioStatus(hasPlayablePracticeAudio(activeSubcategory) ? practiceContent.Flow.readyAudioText : 'Training audio is being prepared');
       else if (activeDestination === 'Progress' || activeDestination === 'Account') setAudioStatus('Training Status');
     }
 
@@ -2854,6 +2951,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         el.foundationCardsContainer.appendChild(createTrackCard('Foundation', foundationTrackCopy, () => setTrainTrack('Foundation'), activeTrainTrack === 'Foundation'));
         const intuitionTrackCopy = 'Intuition practices are available in a normal sequence.';
         el.foundationCardsContainer.appendChild(createTrackCard('Intuition', intuitionTrackCopy, () => setTrainTrack('Intuition'), activeTrainTrack === 'Intuition'));
+        el.foundationCardsContainer.appendChild(createTrackCard('Flow', 'Apply awareness and intuition under real-world conditions.', () => setTrainTrack('Flow'), activeTrainTrack === 'Flow'));
         return;
       }
 
@@ -2891,6 +2989,39 @@ You do not need to force anything. Arrive and follow the guidance.`,
           if (isAvailable) {
             btn.addEventListener('click', () => setSubcategory(key, false));
           }
+          el.foundationCardsContainer.appendChild(btn);
+        });
+        return;
+      }
+
+
+      if (activeTrainTrack === 'Flow') {
+        if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = 'Core Flow';
+        const progressMetrics = getFoundationProgressMetrics();
+        const completedSet = progressMetrics.completedSet || new Set();
+        const currentPracticeKey = flowOrder[0] || '';
+
+        flowOrder.forEach((key, index) => {
+          const data = practiceContent.Flow?.subcategories?.[key];
+          if (!data) return;
+          const hasAudio = hasPlayablePracticeAudio(key);
+          const isComplete = completedSet.has(key);
+          const isCurrent = key === currentPracticeKey || key === activeSubcategory;
+          const btn = document.createElement('button');
+          btn.className = 'foundation-card-btn';
+          if (isComplete) btn.classList.add('completed');
+          if (isCurrent && !isComplete && hasAudio) btn.classList.add('current');
+          if (!hasAudio) btn.classList.add('muted');
+          const status = !hasAudio
+            ? { label: '🔒 locked', className: 'locked' }
+            : isComplete
+              ? { label: '✓ complete', className: 'complete' }
+              : isCurrent
+                ? { label: '▶ current', className: 'current' }
+                : { label: '▶ current', className: 'current' };
+
+          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Core Flow · Step ${String(index + 1).padStart(2, '0')}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${status.className}">${status.label}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+          btn.addEventListener('click', () => setSubcategory(key, false));
           el.foundationCardsContainer.appendChild(btn);
         });
         return;
@@ -3532,6 +3663,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
     });
     Object.entries(practiceContent.Intuition.subcategories).forEach(([practiceKey, data]) => {
       data.skillLabel = getSkillLabel(practiceKey, 'Intuition');
+    });
+    Object.entries(practiceContent.Flow.subcategories).forEach(([practiceKey, data]) => {
+      data.skillLabel = getSkillLabel(practiceKey, 'Flow');
     });
 
     const sessionModeController = createSessionModeController({
@@ -4221,7 +4355,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       activeDestination = 'Train';
-      activePractice = activeTrainTrack === 'Intuition' ? 'Intuition' : 'Foundation';
+      activePractice = activeTrainTrack === 'Intuition' ? 'Intuition' : activeTrainTrack === 'Flow' ? 'Flow' : 'Foundation';
       activeSubcategory = name;
       if (activePractice === 'Foundation') {
         activeFoundationGroup = foundationGroups.AppliedAwareness.includes(name) ? 'AppliedAwareness' : 'CoreStability';
@@ -4232,7 +4366,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         openFoundationGroup = activeFoundationGroup;
       }
       foundationMenuOpen = true;
-      activeTrainTrack = activePractice === 'Intuition' ? 'Intuition' : 'Foundation';
+      activeTrainTrack = activePractice === 'Intuition' ? 'Intuition' : activePractice === 'Flow' ? 'Flow' : 'Foundation';
       trainViewState = TRAIN_VIEW_STATE.DETAIL;
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
       shownLessonKey = '';
@@ -4281,11 +4415,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON) {
-        if (activeTrainTrack === 'Intuition') {
+        if (activeTrainTrack === 'Intuition' || activeTrainTrack === 'Flow') {
           trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.INTUITION_ACCESS;
           trainViewState = TRAIN_VIEW_STATE.LIST;
           activePractice = 'FoundationHome';
-          activeTrainTrack = 'Intuition';
+          activeTrainTrack = activeTrainTrack === 'Flow' ? 'Flow' : 'Intuition';
           refreshCurrentMode();
           return;
         }
@@ -4314,7 +4448,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     window.goBackInTrain = goBackInTrain;
 
     function backToPracticeCategory() {
-      const targetTrack = activePractice === 'Intuition' ? 'Intuition' : 'Foundation';
+      const targetTrack = activePractice === 'Intuition' ? 'Intuition' : activePractice === 'Flow' ? 'Flow' : 'Foundation';
       activeDestination = 'Train';
       activeTrainTrack = targetTrack;
       activePractice = 'FoundationHome';
