@@ -958,6 +958,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let playRequestPending = false;
     let hasSessionEnteredPlayingState = false;
     let pauseRequestedByUser = false;
+    let isPrimingSessionAudio = false;
     let sessionGrainCircle = null;
     let hasRecordedActiveSessionCompletion = false;
 
@@ -993,6 +994,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       else if (reflectionActive) overlay = 'reflection';
       else if (sessionActive) overlay = 'session';
       else if (lessonActive) overlay = 'lesson';
+      [el.welcomeIntroOverlay, el.lessonOverlay, el.sessionOverlay, el.reflectionScreen, el.completionScreen].forEach((node) => {
+        if (!node) return;
+        const isActive = node.classList.contains('active');
+        node.toggleAttribute('hidden', !isActive);
+        node.setAttribute('aria-hidden', String(!isActive));
+        if (!isActive) node.setAttribute('inert', '');
+        else node.removeAttribute('inert');
+      });
       syncAppState({ activeOverlay: overlay });
     }
 
@@ -3060,7 +3069,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.profileBestStreak) el.profileBestStreak.textContent = String(accountStats.bestStreak || 0);
       const foundationMetrics = getFoundationProgressMetrics(historyAll);
       if (el.profileFoundationCompletions) el.profileFoundationCompletions.textContent = String(foundationMetrics.completionPercent || 0) + '%';
-      if (el.profileUniquePractices) el.profileUniquePractices.textContent = (Array.isArray(insights.insightBlocks) && insights.insightBlocks[0]?.text) ? insights.insightBlocks[0].text : 'No sessions in the last 7 days.';
+      if (el.profileUniquePractices) el.profileUniquePractices.textContent = String(historyAll.slice(-8).length || 0);
       if (el.profileTopReflection && el.profileTopReflection.closest('.profile-stat')) el.profileTopReflection.closest('.profile-stat').style.display = 'none';
       if (el.profileTopPractice && el.profileTopPractice.closest('.profile-stat')) el.profileTopPractice.closest('.profile-stat').style.display = 'none';
       if (el.profileConsistencyScore) el.profileConsistencyScore.textContent = String(insights.scores?.consistency || 0);
@@ -3272,6 +3281,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       currentAudio.ontimeupdate = updateSeekUI;
       currentAudio.onended = handleTrackEnd;
       currentAudio.onpause = () => {
+        if (isPrimingSessionAudio) return;
         logSessionAudioEvent('pause', {
           trackIndex: currentTrackIndex,
           currentTime: currentAudio?.currentTime || 0
@@ -3300,6 +3310,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         }
       };
       currentAudio.onplay = () => {
+        if (isPrimingSessionAudio) return;
         logSessionAudioEvent('play', {
           trackIndex: currentTrackIndex,
           currentTime: currentAudio?.currentTime || 0
@@ -3313,6 +3324,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         setAudioStatus(el.audioText?.textContent || 'Session Active', true);
       };
       currentAudio.onplaying = () => {
+        if (isPrimingSessionAudio) return;
         logSessionAudioEvent('playing', {
           trackIndex: currentTrackIndex,
           currentTime: currentAudio?.currentTime || 0
@@ -3569,15 +3581,20 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     async function primeSessionAudioFromGesture() {
       if (!currentAudio) return;
+      isPrimingSessionAudio = true;
       try {
         // iOS/Safari autoplay safeguard: unlock audio during the launch tap so delayed playback can start.
         await currentAudio.play();
         currentAudio.pause();
         currentAudio.currentTime = 0;
+        hasSessionEnteredPlayingState = false;
+        pauseRequestedByUser = false;
         logSessionAudioEvent('primed-from-gesture', { success: true });
       } catch (error) {
         console.warn('[Ataraxia] Session audio priming failed; playback may require another tap.', error);
         logSessionAudioEvent('primed-from-gesture', { success: false, reason: error?.message || 'play rejected' });
+      } finally {
+        isPrimingSessionAudio = false;
       }
     }
 
@@ -3925,7 +3942,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
+      pendingPlaybackStart = true;
       beginSessionGroundingPhase();
+      startPlayback();
     }
 
     function resetSessionFromDoubleTap() {
@@ -3996,7 +4015,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
+      pendingPlaybackStart = true;
       beginSessionGroundingPhase();
+      startPlayback();
     }
     window.startSessionButton = startSessionButton;
 
