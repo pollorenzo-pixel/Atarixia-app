@@ -81,6 +81,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const SESSION_AUTOSTART_ON_READY = true;
     // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
     const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
+    const intuitionOrder = ['IntuitionIntroduction', 'SignalDetection', 'SignalVsNoise', 'GutAwareness', 'ReadTheRoom', 'PauseBeforeReaction', 'TrustTheSignal'];
     const foundationGroups = {
       CoreStability: ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'],
       AppliedAwareness: ['SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep']
@@ -2548,24 +2549,46 @@ You do not need to force anything. Arrive and follow the guidance.`,
       });
     }
 
+    function getPracticeOrderForTrack(track) {
+      if (track === 'Intuition') return intuitionOrder;
+      return foundationOrder;
+    }
+
+    function getCurrentPracticeNavigation() {
+      const order = getPracticeOrderForTrack(activePractice);
+      const currentPracticeIndex = order.indexOf(activeSubcategory);
+      const isPracticeDetail = (activePractice === 'Foundation' || activePractice === 'Intuition')
+        && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON
+        && currentPracticeIndex >= 0;
+      const currentCategory = activePractice === 'Intuition' ? 'Intuition' : 'Foundation';
+      const showPrevious = isPracticeDetail && currentPracticeIndex > 0;
+      const showNext = isPracticeDetail && currentPracticeIndex < order.length - 1;
+
+      return {
+        isPracticeDetail,
+        currentCategory,
+        currentPracticeIndex,
+        showNavigation: {
+          showPrevious,
+          showNext,
+          showBack: isPracticeDetail,
+          backLabel: `Back to ${currentCategory}`
+        }
+      };
+    }
+
     function updateJourneyButtons() {
       const inTrainMode = activeDestination === 'Train';
-      const inSessionView = inTrainMode && (activePractice === 'Foundation' || activePractice === 'Intuition');
-      const inFoundationDetailView = inSessionView
-        && activePractice === 'Foundation'
-        && trainHierarchyLevel === TRAIN_HIERARCHY_LEVEL.FOUNDATION_LESSON;
-      const selectedPracticeIndex = foundationOrder.indexOf(activeSubcategory);
-      const hasPreviousPractice = selectedPracticeIndex > 0;
-      const hasNextPractice = selectedPracticeIndex >= 0 && selectedPracticeIndex < foundationOrder.length - 1;
+      const navigationState = getCurrentPracticeNavigation();
+      const { isPracticeDetail, showNavigation } = navigationState;
 
-      const shouldShowFoundationHomePanel = inTrainMode && !inSessionView;
+      const shouldShowFoundationHomePanel = inTrainMode && !isPracticeDetail;
       if (el.foundationHomePanel) {
         el.foundationHomePanel.classList.toggle('hidden', !shouldShowFoundationHomePanel);
         el.foundationHomePanel.toggleAttribute('hidden', !shouldShowFoundationHomePanel);
       }
       if (el.profilePagePanel) el.profilePagePanel.classList.toggle('hidden', activeDestination !== 'Progress');
 
-      // Keep V2 session CTA scoped to Train only.
       if (el.journeyPanel) el.journeyPanel.classList.toggle('hidden', !inTrainMode);
 
       if (!el.startSessionBtn) {
@@ -2573,8 +2596,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      // Keep only one primary CTA on Home. Train owns this control for practice launches.
-      el.startSessionBtn.style.display = inSessionView ? 'inline-flex' : 'none';
+      el.startSessionBtn.style.display = isPracticeDetail ? 'inline-flex' : 'none';
       const current = currentViewData();
       el.startSessionBtn.textContent = current.startLabel || 'Start Session';
       const canStartSelectedPractice = !((activePractice === 'Foundation' || activePractice === 'Intuition') && !hasPlayablePracticeAudio(activeSubcategory));
@@ -2582,16 +2604,23 @@ You do not need to force anything. Arrive and follow the guidance.`,
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
 
       if (el.trainPracticeNavRow) {
-        el.trainPracticeNavRow.classList.toggle('hidden', !inFoundationDetailView);
-        el.trainPracticeNavRow.toggleAttribute('hidden', !inFoundationDetailView);
+        const showNavRow = isPracticeDetail && (showNavigation.showPrevious || showNavigation.showNext || showNavigation.showBack);
+        el.trainPracticeNavRow.classList.toggle('hidden', !showNavRow);
+        el.trainPracticeNavRow.toggleAttribute('hidden', !showNavRow);
       }
       if (el.previousPracticeBtn) {
-        el.previousPracticeBtn.disabled = !hasPreviousPractice;
-        el.previousPracticeBtn.classList.toggle('disabled', !hasPreviousPractice);
+        el.previousPracticeBtn.style.display = showNavigation.showPrevious ? 'inline-flex' : 'none';
+        el.previousPracticeBtn.disabled = !showNavigation.showPrevious;
+        el.previousPracticeBtn.classList.toggle('disabled', !showNavigation.showPrevious);
       }
       if (el.nextPracticeBtn) {
-        el.nextPracticeBtn.disabled = !hasNextPractice;
-        el.nextPracticeBtn.classList.toggle('disabled', !hasNextPractice);
+        el.nextPracticeBtn.style.display = showNavigation.showNext ? 'inline-flex' : 'none';
+        el.nextPracticeBtn.disabled = !showNavigation.showNext;
+        el.nextPracticeBtn.classList.toggle('disabled', !showNavigation.showNext);
+      }
+      if (el.backToFoundationPathBtn) {
+        el.backToFoundationPathBtn.style.display = showNavigation.showBack ? 'inline-flex' : 'none';
+        el.backToFoundationPathBtn.textContent = showNavigation.backLabel;
       }
     }
 
@@ -2865,15 +2894,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
           return;
         }
 
-        const intuitionSequence = [
-          { key: 'IntuitionIntroduction', fallbackTitle: 'Intuition Introduction' },
-          { key: 'SignalDetection', fallbackTitle: 'Signal Detection' },
-          { key: 'SignalVsNoise', fallbackTitle: 'Signal vs Noise' },
-          { key: 'GutAwareness', fallbackTitle: 'Gut Awareness' },
-          { key: 'ReadTheRoom', fallbackTitle: 'Read the Room' },
-          { key: 'PauseBeforeReaction', fallbackTitle: 'Pause Before Reaction' },
-          { key: 'TrustTheSignal', fallbackTitle: 'Trust the Signal' }
-        ];
+        const intuitionSequence = intuitionOrder.map((key) => ({
+          key,
+          fallbackTitle: key.replace(/([A-Z])/g, ' $1').trim()
+        }));
 
         intuitionSequence.forEach(({ key, fallbackTitle }, index) => {
           const data = practiceContent.Intuition?.subcategories?.[key];
@@ -4300,31 +4324,34 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
     window.goBackInTrain = goBackInTrain;
 
-    function backToFoundationPath() {
+    function backToPracticeCategory() {
+      const targetTrack = activePractice === 'Intuition' ? 'Intuition' : 'Foundation';
       activeDestination = 'Train';
-      activeTrainTrack = 'Foundation';
+      activeTrainTrack = targetTrack;
       activePractice = 'FoundationHome';
       activeSubcategory = '';
       trainViewState = TRAIN_VIEW_STATE.LIST;
       trainHierarchyLevel = TRAIN_HIERARCHY_LEVEL.FOUNDATION_MEDITATION_LIST;
-      foundationMenuOpen = true;
+      foundationMenuOpen = targetTrack === 'Foundation';
       shownLessonKey = '';
       refreshCurrentMode();
     }
-    window.backToFoundationPath = backToFoundationPath;
+    window.backToFoundationPath = backToPracticeCategory;
 
     function goToPreviousPractice() {
-      const index = foundationOrder.indexOf(activeSubcategory);
+      const order = getPracticeOrderForTrack(activePractice);
+      const index = order.indexOf(activeSubcategory);
       if (index <= 0) return;
-      const previous = foundationOrder[index - 1];
+      const previous = order[index - 1];
       setSubcategory(previous, false);
     }
     window.goToPreviousPractice = goToPreviousPractice;
 
     function goToNextPractice() {
-      const index = foundationOrder.indexOf(activeSubcategory);
-      if (index < 0 || index >= foundationOrder.length - 1) return;
-      const next = foundationOrder[index + 1];
+      const order = getPracticeOrderForTrack(activePractice);
+      const index = order.indexOf(activeSubcategory);
+      if (index < 0 || index >= order.length - 1) return;
+      const next = order[index + 1];
       setSubcategory(next, false);
     }
     window.goToNextPractice = goToNextPractice;
