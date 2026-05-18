@@ -983,18 +983,26 @@ You do not need to force anything. Arrive and follow the guidance.`,
       debugLog('state-change');
     }
 
+    function setOnlyActiveOverlay(activeNode = null) {
+      [el.welcomeIntroOverlay, el.lessonOverlay, el.sessionOverlay, el.reflectionScreen, el.completionScreen]
+        .filter(Boolean)
+        .forEach((node) => {
+          node.classList.toggle('active', node === activeNode);
+          if (node !== activeNode) node.classList.remove('exit');
+        });
+      syncOverlayState();
+    }
+
     function syncOverlayState() {
       const sessionActive = Boolean(el.sessionOverlay?.classList.contains('active'));
       const reflectionActive = Boolean(el.reflectionScreen?.classList.contains('active'));
       const completionActive = Boolean(el.completionScreen?.classList.contains('active'));
-      const lessonActive = Boolean(el.lessonOverlay?.classList.contains('active'));
       const welcomeActive = Boolean(el.welcomeIntroOverlay?.classList.contains('active'));
       let overlay = null;
       if (welcomeActive) overlay = 'welcome';
       else if (completionActive) overlay = 'completion';
       else if (reflectionActive) overlay = 'reflection';
       else if (sessionActive) overlay = 'session';
-      else if (lessonActive) overlay = 'lesson';
       [el.welcomeIntroOverlay, el.lessonOverlay, el.sessionOverlay, el.reflectionScreen, el.completionScreen].forEach((node) => {
         if (!node) return;
         const isActive = node.classList.contains('active');
@@ -1025,8 +1033,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function getVisibleOverlays() {
       const overlayNodes = [
         ['Welcome', el.welcomeIntroOverlay],
-        ['Disclaimer', el.welcomeIntroOverlay],
-        ['Lesson', el.lessonOverlay],
         ['Session', el.sessionOverlay],
         ['Reflection', el.reflectionScreen],
         ['Completion', el.completionScreen]
@@ -2168,12 +2174,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
     function openWelcomeIntroOverlay() {
       document.body.classList.add('session-active');
-      el.welcomeIntroOverlay.classList.add('active');
+      setOnlyActiveOverlay(el.welcomeIntroOverlay);
     }
 
     function closeWelcomeIntroOverlay() {
       el.welcomeIntroOverlay.classList.remove('active');
       document.body.classList.remove('session-active');
+      syncOverlayState();
     }
 
     function resetWelcomeIntroUI() {
@@ -2604,7 +2611,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       el.startSessionBtn.classList.toggle('disabled', !canStartSelectedPractice);
 
       if (el.trainPracticeNavRow) {
-        const showNavRow = isPracticeDetail && (showNavigation.showPrevious || showNavigation.showNext || showNavigation.showBack);
+        const showNavRow = isPracticeDetail && (showNavigation.showPrevious || showNavigation.showNext);
         el.trainPracticeNavRow.classList.toggle('hidden', !showNavRow);
         el.trainPracticeNavRow.toggleAttribute('hidden', !showNavRow);
       }
@@ -2648,7 +2655,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       if (el.trainHierarchyBackBtn) {
-        const showHierarchyBackButton = !isFoundationDetailView && trainHierarchyLevel !== TRAIN_HIERARCHY_LEVEL.ROOT;
+        const showHierarchyBackButton = trainHierarchyLevel !== TRAIN_HIERARCHY_LEVEL.ROOT;
         el.trainHierarchyBackBtn.classList.toggle('hidden', !showHierarchyBackButton);
         el.trainHierarchyBackBtn.toggleAttribute('hidden', !showHierarchyBackButton);
       }
@@ -2697,30 +2704,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
       };
     }
 
-    function maybeShowLessonOverlay(data) {
-      const lessonKey = `${activePractice}:${activeSubcategory}:${data.lesson || ''}`;
-      if (!data.lesson || shownLessonKey === lessonKey) return;
-      shownLessonKey = lessonKey;
+    function maybeShowLessonOverlay() {
+      // Phase 1 cleanup: lesson placeholders and automatic lesson overlays are disabled.
       hideLessonOverlayImmediate();
-      if (!el.lessonOverlay) {
-        warnMissingUiRef('lessonOverlay');
-        return;
-      }
-      el.lessonOverlay.classList.add('active');
-      syncOverlayState();
-      lessonOverlayTimeout = setTimeout(() => {
-        el.lessonOverlay.classList.add('exit');
-        const activeLessonCard = activeDestination === 'Train' ? el.trainLessonCard : el.lessonCard;
-        if (activeLessonCard) activeLessonCard.classList.add('highlight');
-        else warnMissingUiRef(activeDestination === 'Train' ? 'trainLessonCard' : 'lessonCard');
-        lessonOverlayExitTimeout = setTimeout(() => {
-          el.lessonOverlay.classList.remove('active', 'exit');
-          syncOverlayState();
-          setTimeout(() => {
-            if (activeLessonCard) activeLessonCard.classList.remove('highlight');
-          }, 250);
-        }, 560);
-      }, 4400);
     }
 
     function updateContentUI() {
@@ -2751,24 +2737,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (el.sessionSubtitle) el.sessionSubtitle.innerHTML = (data.subtitle || []).map((s) => `<span>${s}</span>`).join('');
       else warnMissingUiRef('sessionSubtitle', 'session');
 
-      const shouldShowTrainLessonCard = false;
-
-      if (data.lesson && shouldShowTrainLessonCard) {
-        if (view.lessonCard) view.lessonCard.style.display = 'block';
-        if (view.lessonTitle) view.lessonTitle.textContent = data.copyTitle || 'Before you begin';
-        if (view.lessonBody) view.lessonBody.textContent = data.lesson;
-        el.lessonOverlayTitle.textContent = data.copyTitle || 'Before you begin';
-        el.lessonOverlayBody.textContent = data.lesson;
-        maybeShowLessonOverlay(data);
-      } else {
-        if (el.lessonCard) el.lessonCard.style.display = 'none';
-        if (el.trainLessonCard) el.trainLessonCard.style.display = 'none';
-        if (el.lessonTitle) el.lessonTitle.textContent = 'Before you begin';
-        if (el.lessonBody) el.lessonBody.textContent = '';
-        if (el.trainLessonTitle) el.trainLessonTitle.textContent = 'Before you begin';
-        if (el.trainLessonBody) el.trainLessonBody.textContent = '';
-        hideLessonOverlayImmediate();
-      }
+      if (el.lessonCard) el.lessonCard.style.display = 'none';
+      if (el.trainLessonCard) el.trainLessonCard.style.display = 'none';
+      if (el.lessonTitle) el.lessonTitle.textContent = '';
+      if (el.lessonBody) el.lessonBody.textContent = '';
+      if (el.trainLessonTitle) el.trainLessonTitle.textContent = '';
+      if (el.trainLessonBody) el.trainLessonBody.textContent = '';
+      hideLessonOverlayImmediate();
     }
 
     function updateAudioStatus() {
@@ -2786,6 +2761,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function updateInsightCard() {
+      if (!el.insightCard || !el.insightTitle || !el.insightBody) return;
       const insights = getTrainingInsights();
       const showOnThisScreen = activeDestination === 'Progress';
       if (!insights.total || !showOnThisScreen) {
@@ -2888,7 +2864,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
           const introCard = document.createElement('button');
           introCard.className = 'foundation-card-btn';
           introCard.type = 'button';
-          introCard.innerHTML = '<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">Intuition Introduction</div></div><div class="foundation-card-status">Start</div></div><div class="foundation-card-desc">Begin and complete the Intuition Introduction to access the rest of Intuition practices.</div>';
+          introCard.innerHTML = '<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step 01</div><div class="foundation-card-title">Intuition Introduction</div></div><div class="foundation-card-status current">▶ current</div></div><div class="foundation-card-desc">Begin and complete the Intuition Introduction to access the rest of Intuition practices.</div>';
           introCard.addEventListener('click', () => setSubcategory('IntuitionIntroduction', false));
           el.foundationCardsContainer.appendChild(introCard);
           return;
@@ -2908,9 +2884,10 @@ You do not need to force anything. Arrive and follow the guidance.`,
             ? 'Learn how Intuition practice works before moving into signal training.'
             : 'Coming soon.');
           const isAvailable = Boolean(data?.audio);
-          const statusLabel = isAvailable ? 'Open' : 'Coming Soon';
+          const statusLabel = isAvailable ? '▶ current' : '🔒 locked';
+          const statusClass = isAvailable ? 'current' : 'locked';
           if (!isAvailable) btn.classList.add('muted');
-          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step ${String(index + 1).padStart(2, '0')}</div><div class="foundation-card-title">${practiceTitle}</div></div><div class="foundation-card-status">${statusLabel}</div></div><div class="foundation-card-desc">${description}</div>`;
+          btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">Intuition · Step ${String(index + 1).padStart(2, '0')}</div><div class="foundation-card-title">${practiceTitle}</div></div><div class="foundation-card-status ${statusClass}">${statusLabel}</div></div><div class="foundation-card-desc">${description}</div>`;
           if (isAvailable) {
             btn.addEventListener('click', () => setSubcategory(key, false));
           }
@@ -2958,21 +2935,33 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       const subgroupKeys = foundationGroups[activeFoundationSubgroup] || [];
       const subgroupTitle = activeFoundationSubgroup === 'CoreStability' ? 'Core Stability' : 'Applied Awareness';
+      const progressMetrics = getFoundationProgressMetrics();
+      const currentPracticeKey = progressMetrics.practices.find((key) => !progressMetrics.completedSet.has(key)) || subgroupKeys[0] || '';
       if (el.trainHierarchyTitle) el.trainHierarchyTitle.textContent = subgroupTitle;
 
       subgroupKeys.forEach((key, index) => {
         const data = practiceContent.Foundation.subcategories[key];
         if (!data) return;
         const hasAudio = hasPlayablePracticeAudio(key);
+        const isComplete = progressMetrics.completedSet.has(key);
+        const isCurrent = key === currentPracticeKey || key === activeSubcategory;
         const btn = document.createElement('button');
         btn.className = 'foundation-card-btn';
+        if (isComplete) btn.classList.add('completed');
+        if (isCurrent && !isComplete && hasAudio) btn.classList.add('current');
         if (!hasAudio) btn.classList.add('muted');
         const estimated = FOUNDATION_ESTIMATED_MINUTES[key];
         const metadataLine = [estimated ? `${estimated} min` : '', `Step ${String(index + 1).padStart(2, '0')}`].filter(Boolean).join(' · ');
-        const statusLabel = hasAudio ? 'Open' : 'Audio Soon';
+        const status = !hasAudio
+          ? { label: '🔒 locked', className: 'locked' }
+          : isComplete
+            ? { label: '✓ complete', className: 'complete' }
+            : isCurrent
+              ? { label: '▶ current', className: 'current' }
+              : { label: '▶ current', className: 'current' };
 
-        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${metadataLine}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status">${statusLabel}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
-        btn.addEventListener('click', () => setSubcategory(key, false));
+        btn.innerHTML = `<div class="foundation-card-top"><div><div class="foundation-card-kicker">${metadataLine}</div><div class="foundation-card-title">${data.copyTitle}</div></div><div class="foundation-card-status ${status.className}">${status.label}</div></div><div class="foundation-card-desc">${data.shortPurpose || data.note || ''}</div>`;
+        if (hasAudio) btn.addEventListener('click', () => setSubcategory(key, false));
         el.foundationCardsContainer.appendChild(btn);
       });
     }
@@ -3429,6 +3418,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
       el.reflectionScreen.classList.remove('active');
+      syncOverlayState();
       el.reflectionOptionsTakeover.querySelectorAll('.reflection-option-btn').forEach((btn) => btn.classList.remove('active'));
     }
 
@@ -3512,8 +3502,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         warnMissingUiRef('reflectionScreen', 'session');
         return;
       }
-      el.reflectionScreen.classList.add('active');
-      syncOverlayState();
+      setOnlyActiveOverlay(el.reflectionScreen);
     }
 
     function hideCompletionTakeover() {
@@ -3535,8 +3524,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const completionLoop = getPracticeCompletionLoop(activeSubcategory, activePractice);
       el.completionScreenTitle.textContent = 'Well done';
       el.completionScreenSubtitle.textContent = `${completionLoop.trained} ${completionLoop.why}`;
-      el.completionScreen.classList.add('active');
-      syncOverlayState();
+      setOnlyActiveOverlay(el.completionScreen);
     }
 
     Object.entries(practiceContent.Foundation.subcategories).forEach(([practiceKey, data]) => {
@@ -3722,7 +3710,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
       hideReflectionTakeover();
       hideCompletionTakeover();
       const started = sessionModeController.start();
-      syncOverlayState();
+      if (started) setOnlyActiveOverlay(el.sessionOverlay);
+      else syncOverlayState();
       debugLog('render-overlay-visibility', {
         visibleOverlays: getVisibleOverlays(),
         audioSrc: currentAudio?.currentSrc || currentAudio?.src || null
