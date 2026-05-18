@@ -365,8 +365,8 @@
       align-items: center;
     }
 
-    .eyebrow { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 14px; }
-    .hero-title { font-size: clamp(34px, 8vw, 60px); line-height: 0.95; font-weight: 800; letter-spacing: -0.05em; text-transform: uppercase; color: var(--text); margin-bottom: 14px; }
+    .eyebrow { font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 10px; }
+    .hero-title { font-size: clamp(28px, 6.2vw, 42px); line-height: 0.98; font-weight: 800; letter-spacing: -0.05em; text-transform: uppercase; color: var(--text); margin-bottom: 10px; }
 
     .hero-subtitle,
     .session-subtitle {
@@ -519,55 +519,6 @@
       border-color: var(--line-strong);
       color: var(--text);
       font-weight: 700;
-    }
-
-    .lesson-card { position: relative; overflow: hidden; }
-
-    .lesson-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 310;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at center, rgba(255,255,255,0.03) 0%, transparent 42%),
-        rgba(2,2,2,0.98);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition: opacity 0.45s ease, visibility 0.45s ease;
-    }
-
-    .lesson-overlay.active { opacity: 1; visibility: visible; }
-    .lesson-overlay-panel {
-      width: min(880px, 100%);
-      padding: 32px 20px;
-      text-align: center;
-      transform: translateY(12px) scale(0.985);
-      opacity: 0;
-    }
-    .lesson-overlay.active .lesson-overlay-panel { animation: lessonOverlayIn 0.6s ease forwards; }
-    .lesson-overlay.exit .lesson-overlay-panel { animation: lessonOverlayOut 0.55s ease forwards; }
-    .lesson-overlay-kicker { font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 16px; }
-    .lesson-overlay-title { font-size: clamp(30px, 6vw, 56px); line-height: 1.02; letter-spacing: -0.05em; font-weight: 800; color: var(--text); text-transform: uppercase; margin-bottom: 16px; }
-    .lesson-overlay-body { max-width: 700px; margin: 0 auto; font-size: 16px; line-height: 1.9; color: var(--text-dim); white-space: pre-line; }
-    .lesson-card.highlight { animation: lessonCardPulse 0.8s ease; }
-
-    @keyframes lessonOverlayIn {
-      0% { opacity: 0; transform: translateY(18px) scale(0.97); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes lessonOverlayOut {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-8px) scale(0.99); }
-    }
-
-    @keyframes lessonCardPulse {
-      0%,100% { border-color: var(--line); background: var(--panel); }
-      50% { border-color: var(--line-strong); background: rgba(255,255,255,0.06); }
     }
 
     .journey-panel {
@@ -733,7 +684,7 @@
     .foundation-home-panel,
     .stability-home-panel,
     .profile-page-panel { width: min(720px, 100%); display: flex; flex-direction: column; gap: 14px; }
-    .profile-page-panel.hidden { display: none; }
+    .profile-page-panel.hidden, .phase-two-content.hidden { display: none; }
     .profile-card,
     .profile-stat-grid,
     .profile-history-card {
@@ -1327,7 +1278,10 @@
     .foundation-card-title { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); text-transform: none; }
     .foundation-card-skill { margin-top: 6px; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); }
     .foundation-card-status { flex-shrink: 0; min-width: 92px; text-align: right; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint); padding-top: 4px; }
-    .foundation-card-status.next { color: var(--success); }
+    .foundation-card-status.next,
+    .foundation-card-status.current { color: var(--success); }
+    .foundation-card-status.locked { color: var(--text-faint); opacity: 0.72; }
+    .foundation-card-status.complete { color: rgba(255,255,255,0.72); }
     .foundation-card-desc { font-size: 12px; line-height: 1.72; color: var(--text-dim); letter-spacing: normal; text-transform: none; font-weight: 500; }
     .intuition-lock-card {
       border: 1px solid var(--line);
@@ -1968,8 +1922,6 @@
       </div>
 
 
-      <button class="journey-btn secondary hidden" id="trainDetailBackBtn" onclick="goBackInTrain()" hidden>Back</button>
-
       <div class="foundation-home-panel hidden" id="foundationHomePanel">
         <button class="journey-btn secondary hidden" id="trainHierarchyBackBtn" onclick="goBackInTrain()">Back</button>
         <div class="foundation-home-header" id="trainHierarchyTitle">Train Map</div>
@@ -1983,7 +1935,6 @@
         <div class="journey-row hidden" id="trainPracticeNavRow">
           <button class="journey-btn secondary" id="previousPracticeBtn" onclick="goToPreviousPractice()">Previous Practice</button>
           <button class="journey-btn secondary" id="nextPracticeBtn" onclick="goToNextPractice()">Next Practice</button>
-          <button class="journey-btn secondary" id="backToFoundationPathBtn" onclick="backToFoundationPath()">Back</button>
         </div>
       </div>
       </section>
@@ -2026,88 +1977,14 @@
               <div class="profile-stat-sub">Recent sessions</div>
             </div>
           </div>
-          <div class="profile-card-kicker">Scoring Layer</div>
-          <div class="profile-card-title">Mental training scores</div>
-          <div class="profile-score-grid">
-            <div class="profile-score-card">
-              <div class="profile-score-label">Consistency</div>
-              <div class="profile-score-value" id="profileConsistencyScore">0</div>
-              <div class="profile-score-caption" id="profileConsistencyCaption">Built from streak and recent session frequency.</div>
-            </div>
-            <div class="profile-score-card">
-              <div class="profile-score-label">Stability</div>
-              <div class="profile-score-value" id="profileStabilityScore">0</div>
-              <div class="profile-score-caption" id="profileStabilityCaption">Built from lower wandering and cleaner returns.</div>
-            </div>
-            <div class="profile-score-card">
-              <div class="profile-score-label">Depth</div>
-              <div class="profile-score-value" id="profileDepthScore">0</div>
-              <div class="profile-score-caption" id="profileDepthCaption">Built from readiness to move beyond basic anchoring.</div>
-            </div>
-          </div>
         </div>
-
-        <div class="profile-card hidden" id="progressPhase2Panel" hidden aria-hidden="true" inert>
-          <div class="profile-card-kicker">Insights</div>
-          <div class="profile-card-title">Awareness Mirror</div>
-          <div class="insight-card" id="insightCard">
-            <div class="insight-kicker">Awareness Mirror</div>
-            <div class="insight-title" id="insightTitle">You are building consistency.</div>
-            <div class="insight-body" id="insightBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
-          </div>
-        </div>
-
-        <div class="profile-card hidden" id="progressCoachPanel" hidden aria-hidden="true" inert>
-          <div class="profile-card-kicker">AI Coach</div>
-          <div class="profile-card-title" id="profileCoachTitle">Your training pattern is still forming.</div>
-          <div class="profile-card-body" id="profileCoachBody">Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.</div>
-        </div>
-
-        <div class="profile-card hidden" id="progressInsightsPanel" hidden aria-hidden="true" inert>
-          <div class="profile-card-kicker">Awareness Insights</div>
-          <div class="profile-card-title">Pattern reflections</div>
-          <div class="profile-insights-list" id="profileInsightsList"></div>
-          <div class="profile-insight-note">Generated on this device from recent patterns.</div>
-        </div>
-
         <div class="profile-history-card">
           <div class="profile-card-kicker">Recent History</div>
           <div class="profile-card-title">Latest sessions</div>
           <div class="profile-history-list" id="profileHistoryList"></div>
         </div>
 
-        <div class="profile-history-card hidden" id="progressJournalPanel" hidden aria-hidden="true" inert>
-          <div class="journal-header">
-            <div>
-              <div class="profile-card-kicker">Journal</div>
-              <div class="profile-card-title">Personal Journal</div>
-            </div>
-            <div class="journal-header-actions">
-              <button class="journal-btn primary" id="journalNewEntryBtn" onclick="startNewJournalEntry()">New Entry</button>
-            </div>
-          </div>
 
-          <div class="journal-editor hidden" id="journalEditorPanel">
-            <div class="journal-editor-meta" id="journalEditorMeta"></div>
-            <input class="journal-input" id="journalTitleInput" type="text" maxlength="120" placeholder="Optional title">
-            <textarea class="journal-textarea" id="journalBodyInput" placeholder="Write what you noticed in practice..."></textarea>
-            <div class="journal-editor-actions">
-              <div class="journal-header-actions">
-                <button class="journal-btn" id="journalPromptToggleBtn" onclick="toggleJournalPromptPanel()">Need a prompt?</button>
-              </div>
-              <div class="journal-header-actions">
-                <button class="journal-btn" id="journalDeleteBtn" onclick="deleteCurrentJournalEntry()">Delete</button>
-                <button class="journal-btn" id="journalCancelBtn" onclick="cancelJournalEditor()">Close</button>
-                <button class="journal-btn primary" id="journalSaveBtn" onclick="saveJournalEntry()">Save Entry</button>
-              </div>
-            </div>
-            <div class="journal-prompt-panel" id="journalPromptPanel"></div>
-          </div>
-
-          <div class="journal-list" id="journalList"></div>
-
-          <div class="journal-note">Your journal stays on this device. Clearing browser data may remove entries.</div>
-        </div>
       </div>
       </section>
 
@@ -2117,13 +1994,7 @@
         <div class="profile-card">
           <div class="profile-card-kicker">Account</div>
           <div class="profile-card-title">Personal settings space</div>
-          <div class="profile-card-body">Training intelligence, history, and journaling now live under Progress.</div>
-        </div>
-        <div class="profile-card">
-          <div class="profile-card-kicker">Help · Safety · Guidance</div>
-          <div class="profile-card-title">Before You Begin (Disclaimer)</div>
-          <div class="profile-card-body">Ataraxia supports mindfulness training. It is not medical or crisis care. Practice in a safe place, and pause anytime.</div>
-          <button class="profile-next-move-action" style="margin-top:12px;" onclick="openDisclaimerFromAccount()">Replay Welcome Guidance</button>
+          <div class="profile-card-body">Phase 1 settings and support live here.</div>
         </div>
       </div>
       </section>
@@ -2140,15 +2011,7 @@
         </div>
       </div>
 
-<div class="lesson-overlay" id="lessonOverlay">
-    <div class="lesson-overlay-panel">
-      <div class="lesson-overlay-kicker">Lesson</div>
-      <div class="lesson-overlay-title" id="lessonOverlayTitle">Before you begin</div>
-      <div class="lesson-overlay-body" id="lessonOverlayBody">A short lesson will appear here.</div>
-    </div>
-  </div>
-
-  <div class="welcome-intro-overlay" id="welcomeIntroOverlay">
+  <div class="welcome-intro-overlay" id="welcomeIntroOverlay" hidden aria-hidden="true" inert>
     <div class="welcome-intro-stage">
       <div class="welcome-intro-bg"></div>
       <canvas class="welcome-intro-particles" id="welcomeIntroParticles"></canvas>
@@ -2167,7 +2030,7 @@
     </div>
   </div>
 
-  <div class="session-overlay" id="sessionOverlay">
+  <div class="session-overlay" id="sessionOverlay" hidden aria-hidden="true" inert>
     <div class="session-topbar">
       <button class="session-exit-btn" onclick="exitSessionEarly()">Exit Session</button>
     </div>
@@ -2207,7 +2070,7 @@
     </div>
   </div>
 
-  <div class="reflection-screen" id="reflectionScreen">
+  <div class="reflection-screen" id="reflectionScreen" hidden aria-hidden="true" inert>
     <div class="reflection-screen-panel">
       <div class="reflection-screen-kicker">Reflection</div>
       <div class="reflection-screen-title">What did you notice most?</div>
@@ -2221,7 +2084,7 @@
     </div>
   </div>
 
-  <div class="completion-screen" id="completionScreen">
+  <div class="completion-screen" id="completionScreen" hidden aria-hidden="true" inert>
     <div class="completion-screen-panel">
       <div class="completion-screen-kicker">Session Complete</div>
       <div class="completion-screen-title" id="completionScreenTitle">Well done</div>
