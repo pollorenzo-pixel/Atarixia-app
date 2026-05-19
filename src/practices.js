@@ -82,13 +82,13 @@ export const practiceContent = {
       },
       Introduction: {
         startLabel: 'Begin Meditation',
-        eyebrow: 'Introduction',
+        eyebrow: 'VEXIS Introduction',
         hero: 'Arrive first.<br>Then begin.',
         subtitle: ['Settle', 'Notice', 'Prepare'],
         note: 'This is your starting point.',
-        badge: 'Introduction',
+        badge: 'VEXIS Introduction',
         copyLabel: 'Session Guidance',
-        copyTitle: 'Introduction',
+        copyTitle: 'VEXIS Introduction',
         copyBody: `This is a place to begin.
 
 You do not need to clear your mind. You do not need to perform. You only need to arrive and follow the guidance.`,

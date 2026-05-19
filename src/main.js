@@ -15,7 +15,7 @@ import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CUES } from './welcome-script.js';
 
-        const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+        const INTRODUCTION_AUDIO = 'audio/vexis introduction.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
     const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', FOUNDATION_SHARED_ENDING_AUDIO];
     const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
@@ -382,13 +382,13 @@ import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CU
         id: 'foundation-introduction',
         type: 'introduction',
         startLabel: 'Start Today’s Session',
-        eyebrow: 'Introduction',
+        eyebrow: 'VEXIS Introduction',
         hero: 'Arrive first.<br>Then begin.',
         subtitle: ['Settle', 'Notice', 'Prepare'],
         note: 'Start here.',
-        badge: 'Introduction',
+        badge: 'VEXIS Introduction',
         copyLabel: 'Session Guidance',
-        copyTitle: 'Introduction',
+        copyTitle: 'VEXIS Introduction',
         copyBody: `This is a place to begin.
 
 You do not need to force anything. Arrive and follow the guidance.`,
@@ -3471,6 +3471,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
           code: mediaError?.code || null,
           message: mediaError?.message || 'Unknown media error'
         });
+        if (activePractice === 'Introduction') {
+          console.warn('VEXIS Introduction audio failed to load');
+        }
         if (sessionState !== SESSION_STATE.ENDED && sessionState !== SESSION_STATE.IDLE) {
           setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
         }
