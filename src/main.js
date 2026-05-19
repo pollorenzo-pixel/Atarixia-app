@@ -809,7 +809,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
       homeNextMoveTitle: document.getElementById('homeNextMoveTitle'),
       homeNextMoveReason: document.getElementById('homeNextMoveReason'),
       openingScene: document.getElementById('openingScene'),
-      navMenuBtn: document.getElementById('navMenuBtn'),
       openingQuote: document.getElementById('openingQuote'),
       openingAuthor: document.getElementById('openingAuthor'),
       appShell: document.getElementById('appShell'),
@@ -2629,7 +2628,6 @@ You do not need to force anything. Arrive and follow the guidance.`,
         if (!isActive) node.setAttribute('inert', '');
         else node.removeAttribute('inert');
       });
-      if (el.navMenuBtn) el.navMenuBtn.style.visibility = activeDestination === 'Train' ? 'visible' : 'hidden';
       syncAppState({ activeTab: activeDestination.toLowerCase() });
       syncOverlayState();
       debugLog('render-primary-visibility', {
