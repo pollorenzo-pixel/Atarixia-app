@@ -8,6 +8,7 @@ import {
   STABILITY_OPEN_AWARENESS_AUDIO,
   STABILITY_SENSORY_AWARENESS_AUDIO
 } from './config.js';
+import { VEXIS_BEFORE_YOU_BEGIN_TEXT } from './welcome-script.js';
 
 export const REFLECTION_REINFORCEMENT = {
       Breath: {
@@ -75,51 +76,7 @@ export const practiceContent = {
         badge: 'Before You Begin (Disclaimer)',
         copyLabel: 'Session Guidance',
         copyTitle: 'Before You Begin (Disclaimer)',
-        copyBody: `Hey… welcome to Vexis.
-
-Before we begin, just a quick note.
-
-Vexis is designed as a mental training system…
-
-to help you build awareness, strengthen focus, and develop a more steady and intentional mind.
-
-Think of it like training at the gym…
-
-but for your attention, perception, and mental performance.
-
-The practices inside Vexis are inspired by widely studied ideas from mindfulness, psychology, attention training, and performance development.
-
-They're designed to help you understand your mind better…
-
-and train it with consistency.
-
-While these practices can be powerful tools for growth, they are not a replacement for professional medical, psychological, or therapeutic care.
-
-If you feel you need additional support, reaching out to a qualified professional is always important.
-
-Some sessions involve deeper focus, visualization, or closing your eyes.
-
-So make sure you're in a safe and comfortable environment…
-
-and never use these sessions while driving or doing anything that requires your full attention.
-
-And remember…
-
-you're always in control.
-
-If something doesn't feel right, you can pause, adjust, skip, or stop at any time.
-
-There is no competition here.
-
-No pressure.
-
-No perfect pace.
-
-Just practice.
-
-Alright…
-
-let's begin.`,
+        copyBody: VEXIS_BEFORE_YOU_BEGIN_TEXT,
         startLabel: 'Begin',
         audio: []
       },
