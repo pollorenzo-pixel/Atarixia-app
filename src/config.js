@@ -7,7 +7,7 @@ export const FOUNDATION_DEEP_FOCUS_AUDIO = ['audio/deep focus meditation.mp3', '
 export const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.mp3';
 export const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
 
-export const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
+export const WELCOME_AUDIO = 'audio/vexis before you begin audio.mp3';
 export const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to VEXIS.';
 export const DEFAULT_WELCOME_STATE = 'Settle';
 export const DEFAULT_WELCOME_LABEL = 'Welcome Audio';

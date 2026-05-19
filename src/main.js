@@ -27,7 +27,7 @@ import { createSessionModeController } from './session-mode-controller.js';
     const FOUNDATION_STRESS_RESET_AUDIO = 'audio/Stress reset.mp3';
     const FOUNDATION_PRE_SLEEP_AUDIO = 'audio/Pre-sleep.mp3';
 
-    const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
+    const WELCOME_AUDIO = 'audio/vexis before you begin audio.mp3';
     const INTUITION_INTRO_AUDIO = 'audio/Intuition_intro.mp3';
     const INTUITION_SIGNAL_DETECTION_AUDIO = 'audio/Signal Detection Meditation.mp3';
     const INTUITION_SIGNAL_VS_NOISE_AUDIO = 'audio/signal vs noise meditation.mp3';
@@ -386,7 +386,7 @@ import { createSessionModeController } from './session-mode-controller.js';
         badge: 'Before You Begin (Disclaimer)',
         copyLabel: 'Session Guidance',
         copyTitle: 'Before You Begin (Disclaimer)',
-        copyBody: `Ataraxia supports mindfulness training. It is not medical or crisis care.
+        copyBody: `VEXIS supports mindfulness training. It is not medical or crisis care.
 
 Practice only in a safe place. Pause or stop anytime.`,
         startLabel: 'Begin',
@@ -4806,6 +4806,9 @@ window.__ataraxia = {
       const cueTrack = ensureWelcomeIntroTextTrack();
       ensureWelcomeIntroAudioGraph();
       el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
+      el.welcomeIntroAudio.onerror = () => {
+        console.warn('VEXIS Before You Begin audio failed to load');
+      };
       el.welcomeIntroAudio.ontimeupdate = cueTrack ? null : () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
       el.welcomeIntroAudio.onended = () => endWelcomeIntro(true, markWelcomeStartedOnFinish);
       configureBackgroundAudio();
