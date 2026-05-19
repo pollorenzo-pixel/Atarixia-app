@@ -8,11 +8,11 @@ export const STABILITY_OPEN_AWARENESS_AUDIO = 'audio/open awareness meditation.m
 export const STABILITY_SENSORY_AWARENESS_AUDIO = 'audio/sensory awareness meditation.mp3';
 
 export const WELCOME_AUDIO = 'audio/Brittney welcome audio.mp3';
-export const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
+export const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to VEXIS.';
 export const DEFAULT_WELCOME_STATE = 'Settle';
 export const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
 export const WELCOME_SCRIPT_CUES = [
-  { start: 0.00, end: 2.95, text: 'Hey… welcome to Ataraxia.' },
+  { start: 0.00, end: 2.95, text: 'Hey… welcome to VEXIS.' },
   { start: 3.00, end: 5.28, text: 'Before we begin, just a quick note.' },
   { start: 5.32, end: 15.12, text: 'This app is designed to help you train your mind… to build focus, awareness, and a calmer, more steady state. Think of it like going to the gym… but for your attention.' },
   { start: 16.40, end: 31.18, text: 'Now, while these practices are based on well-known techniques in mindfulness and mental training… this isn’t a replacement for professional medical or psychological care. If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },

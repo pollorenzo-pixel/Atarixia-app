@@ -1,7 +1,7 @@
 {
-  "name": "Ataraxia",
-  "short_name": "Ataraxia",
-  "description": "A meditation app for calm, clarity, and inner stability.",
+  "name": "VEXIS",
+  "short_name": "VEXIS",
+  "description": "A mental training system for awareness, intuition, and performance.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
