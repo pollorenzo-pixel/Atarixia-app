@@ -13,6 +13,7 @@ return to:
 import { createPracticeRecommendation } from './recommendation-engine.js';
 import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
+import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CUES } from './welcome-script.js';
 
         const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -35,19 +36,6 @@ import { createSessionModeController } from './session-mode-controller.js';
     const INTUITION_READ_THE_ROOM_AUDIO = 'audio/Read The Room meditation.mp3';
     const INTUITION_PAUSE_BEFORE_REACTION_AUDIO = 'audio/Pause Before Reacton Meditation.mp3';
     const INTUITION_TRUST_THE_SIGNAL_AUDIO = 'audio/Trust the Signal Meditation.mp3';
-    const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to VEXIS.';
-    const DEFAULT_WELCOME_STATE = 'Settle';
-    const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
-    const WELCOME_SCRIPT_CUES = [
-      { start: 0.00, end: 2.95, text: 'Hey… welcome to VEXIS.' },
-      { start: 3.00, end: 5.28, text: 'Before we begin, just a quick note.' },
-      { start: 5.32, end: 15.12, text: 'This app is designed to help you train your mind… to build focus, awareness, and a calmer, more steady state. Think of it like going to the gym… but for your attention.' },
-      { start: 16.40, end: 31.18, text: 'Now, while these practices are based on well-known techniques in mindfulness and mental training… this isn’t a replacement for professional medical or psychological care. If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
-      { start: 31.90, end: 42.50, text: 'Also, some sessions involve closing your eyes or going into deeper focus. So just make sure you’re in a safe place… and definitely not driving or doing anything that needs your full attention.' },
-      { start: 43.55, end: 50.82, text: 'And remember… you’re always in control. If something doesn’t feel right, you can pause, adjust, or stop at any time.' },
-      { start: 51.82, end: 56.05, text: 'Take what works for you… leave what doesn’t… and move at your own pace.' },
-      { start: 56.90, end: 58.67, text: 'Alright… let’s begin.' }
-    ];
     const INTUITION_INTRO_SCRIPT_CUES = [
       { start: 0.00, end: 7.50, text: 'Intuition training begins after awareness becomes stable.' },
       { start: 7.50, end: 16.80, text: 'This next phase trains you to notice subtle signals before reaction takes over.' },
@@ -386,51 +374,7 @@ import { createSessionModeController } from './session-mode-controller.js';
         badge: 'Before You Begin (Disclaimer)',
         copyLabel: 'Session Guidance',
         copyTitle: 'Before You Begin (Disclaimer)',
-        copyBody: `Hey… welcome to Vexis.
-
-Before we begin, just a quick note.
-
-Vexis is designed as a mental training system…
-
-to help you build awareness, strengthen focus, and develop a more steady and intentional mind.
-
-Think of it like training at the gym…
-
-but for your attention, perception, and mental performance.
-
-The practices inside Vexis are inspired by widely studied ideas from mindfulness, psychology, attention training, and performance development.
-
-They're designed to help you understand your mind better…
-
-and train it with consistency.
-
-While these practices can be powerful tools for growth, they are not a replacement for professional medical, psychological, or therapeutic care.
-
-If you feel you need additional support, reaching out to a qualified professional is always important.
-
-Some sessions involve deeper focus, visualization, or closing your eyes.
-
-So make sure you're in a safe and comfortable environment…
-
-and never use these sessions while driving or doing anything that requires your full attention.
-
-And remember…
-
-you're always in control.
-
-If something doesn't feel right, you can pause, adjust, skip, or stop at any time.
-
-There is no competition here.
-
-No pressure.
-
-No perfect pace.
-
-Just practice.
-
-Alright…
-
-let's begin.`,
+        copyBody: VEXIS_BEFORE_YOU_BEGIN_TEXT,
         startLabel: 'Begin',
         audio: []
       },
