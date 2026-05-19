@@ -1,5 +1,5 @@
 import { DEFAULT_WELCOME_CAPTION, WELCOME_SCRIPT_CUES } from './welcome-script.js';
-export const INTRODUCTION_AUDIO = 'audio/introduction audio 2.mp3';
+export const INTRODUCTION_AUDIO = 'audio/vexis introduction.mp3';
 export const FOUNDATION_BREATH_AWARENESS_AUDIO = ['audio/Breath only meditation foundation meditation.mp3', 'audio/ending audio foundation.mp3'];
 export const FOUNDATION_BODY_AWARENESS_AUDIO = ['audio/body awareness meditation.mp3', 'audio/body awareness ending audio.mp3'];
 export const FOUNDATION_THOUGHT_AWARENESS_AUDIO = ['audio/Thought awareness meditation.mp3', 'audio/thought awareness ending audio.mp3'];
