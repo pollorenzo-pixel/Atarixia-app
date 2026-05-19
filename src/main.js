@@ -35,11 +35,11 @@ import { createSessionModeController } from './session-mode-controller.js';
     const INTUITION_READ_THE_ROOM_AUDIO = 'audio/Read The Room meditation.mp3';
     const INTUITION_PAUSE_BEFORE_REACTION_AUDIO = 'audio/Pause Before Reacton Meditation.mp3';
     const INTUITION_TRUST_THE_SIGNAL_AUDIO = 'audio/Trust the Signal Meditation.mp3';
-    const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to Ataraxia.';
+    const DEFAULT_WELCOME_CAPTION = 'Hey… welcome to VEXIS.';
     const DEFAULT_WELCOME_STATE = 'Settle';
     const DEFAULT_WELCOME_LABEL = 'Welcome Audio';
     const WELCOME_SCRIPT_CUES = [
-      { start: 0.00, end: 2.95, text: 'Hey… welcome to Ataraxia.' },
+      { start: 0.00, end: 2.95, text: 'Hey… welcome to VEXIS.' },
       { start: 3.00, end: 5.28, text: 'Before we begin, just a quick note.' },
       { start: 5.32, end: 15.12, text: 'This app is designed to help you train your mind… to build focus, awareness, and a calmer, more steady state. Think of it like going to the gym… but for your attention.' },
       { start: 16.40, end: 31.18, text: 'Now, while these practices are based on well-known techniques in mindfulness and mental training… this isn’t a replacement for professional medical or psychological care. If you ever feel like you need extra support, it’s always a good idea to reach out to a qualified professional.' },
@@ -1857,7 +1857,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         assessment: '',
         feedback: '',
         title: 'You are building consistency.',
-        body: 'Complete a few sessions and Ataraxia will start noticing what your practice is revealing over time.',
+        body: 'Complete a few sessions and VEXIS will start noticing what your practice is revealing over time.',
         patternInsights: [{ id: 'fallback-empty', text: 'More sessions will reveal your patterns.' }],
         recommendationKey: 'BreathAwareness',
         recommendationLabel: 'Breath Awareness',
@@ -2077,7 +2077,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       const feedback = feedbackParts.join(' ');
       const bodyParts = [
-        'What Ataraxia is noticing:',
+        'What VEXIS is noticing:',
         assessment,
         '',
         'Pattern emerging: ' + (topReflection || 'Still emerging') + (topPracticeLabel ? ' • Most used practice: ' + topPracticeLabel : ''),
@@ -3112,7 +3112,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function getQuoteOfTheDay() {
-      if (!quotes.length) return { text: 'Begin where you are.', author: 'Ataraxia' };
+      if (!quotes.length) return { text: 'Begin where you are.', author: 'VEXIS' };
       const now = new Date();
       const startOfYear = Date.UTC(now.getUTCFullYear(), 0, 0);
       const dayOfYear = Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - startOfYear) / 86400000);
@@ -3520,9 +3520,9 @@ You do not need to force anything. Arrive and follow the guidance.`,
           navigator.mediaSession.playbackState = (sessionState === SESSION_STATE.PLAYING) ? 'playing' : 'paused';
           if (!navigator.mediaSession.metadata) {
             navigator.mediaSession.metadata = new MediaMetadata({
-              title: 'Ataraxia',
+              title: 'VEXIS',
               artist: 'Meditation Session',
-              album: 'Ataraxia'
+              album: 'VEXIS'
             });
           }
         } catch (error) {
@@ -4715,7 +4715,7 @@ window.__ataraxia = {
     function renderWelcomeIntroCue(time = 0) {
       if (!el.welcomeIntroCaption) return;
       const activeCues = getActiveIntroScriptCues();
-      let activeText = activeCues[0]?.text || 'Welcome to Ataraxia.';
+      let activeText = activeCues[0]?.text || 'Welcome to VEXIS.';
       for (let i = 0; i < activeCues.length; i++) {
         if (time >= activeCues[i].start) {
           activeText = activeCues[i].text;
