@@ -704,6 +704,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         activeText: 'Playing',
         activeLabel: 'Flow Practice',
         subcategories: FLOW_PRACTICE_CARDS.reduce((acc, practice) => {
+          const canonicalPractice = PRACTICES_BY_ID[practice.id] || {};
+          const hasAudio = typeof canonicalPractice.audio === 'string' && canonicalPractice.audio.trim().length > 0;
           acc[practice.key] = {
             id: practice.id,
             title: practice.title,
@@ -717,13 +719,13 @@ You do not need to force anything. Arrive and follow the guidance.`,
             copyTitle: practice.title,
             copyBody: practice.description,
             category: practice.category,
-            audio: null,
-            intro: null,
-            status: practice.status,
-            lesson: 'Training audio is being prepared.',
-            reinforcement: 'Flow training will open here when audio is ready.',
-            activeText: 'Preparing',
-            activeLabel: 'Training audio is being prepared'
+            audio: canonicalPractice.audio || null,
+            intro: canonicalPractice.intro || null,
+            status: canonicalPractice.status || practice.status,
+            lesson: hasAudio ? 'Use this session to apply steady awareness under real-world pressure.' : 'Training audio is being prepared.',
+            reinforcement: hasAudio ? 'Repeat this practice to build reliable clarity under pressure.' : 'Flow training will open here when audio is ready.',
+            activeText: hasAudio ? 'Playing' : 'Preparing',
+            activeLabel: hasAudio ? practice.title : 'Training audio is being prepared'
           };
           return acc;
         }, {})
