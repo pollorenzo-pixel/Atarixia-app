@@ -18,6 +18,8 @@ const INTUITION_GUT_AWARENESS_AUDIO = 'audio/Gut Awareness meditation.mp3';
 const INTUITION_READ_THE_ROOM_AUDIO = 'audio/Read The Room meditation.mp3';
 const INTUITION_PAUSE_BEFORE_REACTION_AUDIO = 'audio/Pause Before Reacton Meditation.mp3';
 const INTUITION_TRUST_THE_SIGNAL_AUDIO = 'audio/Trust the Signal Meditation.mp3';
+const FLOW_FOCUS_FOR_WORK_AUDIO = 'audio/Focus For Work Meditation.mp3';
+const FLOW_DECISION_CLARITY_AUDIO = 'audio/Decision Clarity Meditation.mp3';
 
 export const PRACTICE_STATUS = Object.freeze({ COMPLETE: 'complete', COMING_SOON: 'coming_soon' });
 const VALID_STATUS = new Set(Object.values(PRACTICE_STATUS));
@@ -40,8 +42,8 @@ export const CANONICAL_PRACTICES = Object.freeze([
   { id: 'read-the-room', key: 'ReadTheRoom', title: 'Read the Room', category: 'intuition', pillar: 'SignalTraining', order: 5, audio: INTUITION_READ_THE_ROOM_AUDIO, status: PRACTICE_STATUS.COMPLETE, durationMinutes: 9, unlock: 'intuition_intro' },
   { id: 'pause-before-reaction', key: 'PauseBeforeReaction', title: 'Pause Before Reaction', category: 'intuition', pillar: 'SignalTraining', order: 6, audio: INTUITION_PAUSE_BEFORE_REACTION_AUDIO, status: PRACTICE_STATUS.COMPLETE, durationMinutes: 8, unlock: 'intuition_intro' },
   { id: 'trust-the-signal', key: 'TrustTheSignal', title: 'Trust the Signal', category: 'intuition', pillar: 'SignalTraining', order: 7, audio: INTUITION_TRUST_THE_SIGNAL_AUDIO, status: PRACTICE_STATUS.COMPLETE, durationMinutes: 9, unlock: 'intuition_intro' },
-  { id: 'focus-for-work', key: 'FocusForWork', title: 'Focus for Work', category: 'flow', pillar: 'CoreFlow', order: 1, audio: null, status: PRACTICE_STATUS.COMING_SOON, durationMinutes: null, unlock: 'coming_soon' },
-  { id: 'decision-clarity', key: 'DecisionClarity', title: 'Decision Clarity', category: 'flow', pillar: 'CoreFlow', order: 2, audio: null, status: PRACTICE_STATUS.COMING_SOON, durationMinutes: null, unlock: 'coming_soon' },
+  { id: 'focus-for-work', key: 'FocusForWork', title: 'Focus for Work', category: 'flow', pillar: 'CoreFlow', order: 1, audio: FLOW_FOCUS_FOR_WORK_AUDIO, status: PRACTICE_STATUS.COMPLETE, durationMinutes: 10, unlock: 'flow_core_unlocked' },
+  { id: 'decision-clarity', key: 'DecisionClarity', title: 'Decision Clarity', category: 'flow', pillar: 'CoreFlow', order: 2, audio: FLOW_DECISION_CLARITY_AUDIO, status: PRACTICE_STATUS.COMPLETE, durationMinutes: 10, unlock: 'flow_core_unlocked' },
   { id: 'difficult-emotion', key: 'DifficultEmotion', title: 'Difficult Emotion', category: 'flow', pillar: 'CoreFlow', order: 3, audio: null, status: PRACTICE_STATUS.COMING_SOON, durationMinutes: null, unlock: 'coming_soon' },
   { id: 'present-moment', key: 'PresentMoment', title: 'Present Moment', category: 'flow', pillar: 'CoreFlow', order: 4, audio: null, status: PRACTICE_STATUS.COMING_SOON, durationMinutes: null, unlock: 'coming_soon' },
   { id: 'letting-go', key: 'LettingGo', title: 'Letting Go', category: 'flow', pillar: 'CoreFlow', order: 5, audio: null, status: PRACTICE_STATUS.COMING_SOON, durationMinutes: null, unlock: 'coming_soon' }
