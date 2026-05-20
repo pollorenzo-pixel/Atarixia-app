@@ -1,4 +1,4 @@
-import { SESSION_STATE } from './config.js';
+import { SESSION_STATES } from './config.js';
 
 export const state = {
   activePractice: 'Welcome',
@@ -9,7 +9,7 @@ export const state = {
   currentPlaylist: [],
   currentTrackIndex: 0,
   currentAudio: null,
-  sessionState: SESSION_STATE.IDLE,
+  sessionState: SESSION_STATES.READY,
   singleTapTimeout: null,
   groundingTimeout: null,
   transitionTimeout: null,

@@ -3,7 +3,7 @@ export function createSessionModeController(options = {}) {
     getOverlay = () => null,
     getStage = () => null,
     getRoot = () => document.documentElement,
-    sessionState = () => 'idle',
+    sessionState = () => 'ready',
     isTerminalState = () => false,
     onStart = () => {},
     onStop = () => {},

@@ -23,14 +23,12 @@ export const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwar
 export const stabilityOrder = ['OpenAwareness', 'SensoryAwareness'];
 export const APP_BOOT_DELAY = 1800;
 
-export const SESSION_STATE = {
-  IDLE: 'idle',
-  GROUNDING: 'grounding',
+export const SESSION_STATES = Object.freeze({
+  READY: 'ready',
   PLAYING: 'playing',
   PAUSED: 'paused',
-  ENDING: 'ending',
-  COMPLETE: 'complete'
-};
+  ENDED: 'ended'
+});
 
 export const openingQuotes = [
   { text: 'You are not your thoughts. You are the awareness behind them.', author: 'Unknown' },
