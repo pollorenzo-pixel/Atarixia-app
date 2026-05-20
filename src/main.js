@@ -15,6 +15,7 @@ import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CUES } from './welcome-script.js';
 import { foundationOrder, intuitionOrder, flowOrder, foundationGroups, FLOW_PRACTICE_CARDS, PRACTICES_BY_ID, validatePracticeSchema } from './practice-schema.js';
+import { SESSION_STATES } from './config.js';
 
         const INTRODUCTION_AUDIO = 'audio/vexis introduction.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -928,20 +929,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
     let currentTrackIndex = 0;
     let currentAudio = null;
     // Unified session playback state (single source of truth for session UI/audio sync).
-    const SESSION_STATE = {
-      READY: 'ready',
-      PLAYING: 'playing',
-      PAUSED: 'paused',
-      ENDED: 'ended'
-    };
     const SESSION_TRANSITIONS = {
-      [SESSION_STATE.READY]: new Set([SESSION_STATE.READY, SESSION_STATE.PLAYING, SESSION_STATE.ENDED]),
-      [SESSION_STATE.PLAYING]: new Set([SESSION_STATE.PLAYING, SESSION_STATE.PAUSED, SESSION_STATE.ENDED, SESSION_STATE.READY]),
-      [SESSION_STATE.PAUSED]: new Set([SESSION_STATE.PAUSED, SESSION_STATE.PLAYING, SESSION_STATE.ENDED, SESSION_STATE.READY]),
-      [SESSION_STATE.ENDED]: new Set([SESSION_STATE.ENDED, SESSION_STATE.READY])
+      [SESSION_STATES.READY]: new Set([SESSION_STATES.READY, SESSION_STATES.PLAYING, SESSION_STATES.ENDED]),
+      [SESSION_STATES.PLAYING]: new Set([SESSION_STATES.PLAYING, SESSION_STATES.PAUSED, SESSION_STATES.ENDED, SESSION_STATES.READY]),
+      [SESSION_STATES.PAUSED]: new Set([SESSION_STATES.PAUSED, SESSION_STATES.PLAYING, SESSION_STATES.ENDED, SESSION_STATES.READY]),
+      [SESSION_STATES.ENDED]: new Set([SESSION_STATES.ENDED, SESSION_STATES.READY])
     };
 
-    let sessionState = SESSION_STATE.READY;
+    let sessionState = SESSION_STATES.READY;
     let sessionPlaybackPhase = 'ready';
     let singleTapTimeout = null;
     let groundingTimeout = null;
@@ -3220,7 +3215,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     window.startRecommendedFoundationPractice = startRecommendedFoundationPractice;
 
     function resetVisualSessionState() {
-      setSessionState(SESSION_STATE.READY, { phase: 'idle', skipMediaSync: true });
+      setSessionState(SESSION_STATES.READY, { phase: 'idle', skipMediaSync: true });
       updateSeekUI();
     }
 
@@ -3250,7 +3245,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function assertValidSessionTransition(nextState) {
-      if (!Object.values(SESSION_STATE).includes(nextState)) return false;
+      if (!Object.values(SESSION_STATES).includes(nextState)) return false;
       return SESSION_TRANSITIONS[sessionState]?.has(nextState) ?? false;
     }
 
@@ -3273,7 +3268,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       const inGroundingPhase = sessionPlaybackPhase === 'grounding';
       const inEndingPhase = sessionPlaybackPhase === 'ending';
 
-      if (state === SESSION_STATE.READY && inGroundingPhase) {
+      if (state === SESSION_STATES.READY && inGroundingPhase) {
         setCircleState('grounding');
         if (el.sessionStateText) el.sessionStateText.textContent = 'Settle';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Grounding';
@@ -3281,7 +3276,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      if (state === SESSION_STATE.READY && (sessionPlaybackPhase === 'starting' || sessionPlaybackPhase === 'buffering')) {
+      if (state === SESSION_STATES.READY && (sessionPlaybackPhase === 'starting' || sessionPlaybackPhase === 'buffering')) {
         setCircleState('grounding');
         if (el.sessionStateText) el.sessionStateText.textContent = 'Starting';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Arrive first. Preparing your session...';
@@ -3289,7 +3284,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      if (state === SESSION_STATE.READY) {
+      if (state === SESSION_STATES.READY) {
         setCircleState('idle');
         if (el.sessionStateText) el.sessionStateText.textContent = 'Ready';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Tap to Start';
@@ -3297,7 +3292,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      if (state === SESSION_STATE.PLAYING) {
+      if (state === SESSION_STATES.PLAYING) {
         setCircleState(inEndingPhase ? 'ending' : 'playing');
         if (el.sessionStateText) el.sessionStateText.textContent = inEndingPhase
           ? (sub?.endingText || 'Closing')
@@ -3309,7 +3304,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      if (state === SESSION_STATE.PAUSED) {
+      if (state === SESSION_STATES.PAUSED) {
         setCircleState('paused');
         if (el.sessionStateText) el.sessionStateText.textContent = modeConfig?.pausedText || 'Paused';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = modeConfig?.pausedLabel || 'Session Paused';
@@ -3317,7 +3312,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      if (state === SESSION_STATE.ENDED) {
+      if (state === SESSION_STATES.ENDED) {
         setCircleState('complete');
         if (el.sessionStateText) el.sessionStateText.textContent = 'Complete';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Session Complete';
@@ -3372,8 +3367,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         });
         updateSeekUI();
         const shouldRespectPause = pauseRequestedByUser || hasSessionEnteredPlayingState;
-        if (sessionState !== SESSION_STATE.ENDED && sessionState !== SESSION_STATE.READY && !playRequestPending && shouldRespectPause) {
-          setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
+        if (sessionState !== SESSION_STATES.ENDED && sessionState !== SESSION_STATES.READY && !playRequestPending && shouldRespectPause) {
+          setSessionState(SESSION_STATES.PAUSED, { phase: 'paused' });
         }
         pauseRequestedByUser = false;
       };
@@ -3389,7 +3384,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
           trackIndex: currentTrackIndex,
           duration: Number.isFinite(currentAudio?.duration) ? currentAudio.duration : 0
         });
-        if (pendingPlaybackStart && sessionState === SESSION_STATE.READY) {
+        if (pendingPlaybackStart && sessionState === SESSION_STATES.READY) {
           startPlayback();
         }
       };
@@ -3402,7 +3397,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         playRequestPending = false;
         hasSessionEnteredPlayingState = true;
         pauseRequestedByUser = false;
-        setSessionState(SESSION_STATE.PLAYING, {
+        setSessionState(SESSION_STATES.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
         });
         setAudioStatus(el.audioText?.textContent || 'Session Active', true);
@@ -3416,7 +3411,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         playRequestPending = false;
         hasSessionEnteredPlayingState = true;
         pauseRequestedByUser = false;
-        setSessionState(SESSION_STATE.PLAYING, {
+        setSessionState(SESSION_STATES.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
         });
         setAudioStatus(el.audioText?.textContent || 'Session Active', true);
@@ -3430,8 +3425,8 @@ You do not need to force anything. Arrive and follow the guidance.`,
         if (activePractice === 'Introduction') {
           console.warn(`VEXIS Introduction audio failed to load (possible missing/404): ${currentAudio?.src || src}`);
         }
-        if (sessionState !== SESSION_STATE.ENDED && sessionState !== SESSION_STATE.READY) {
-          setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
+        if (sessionState !== SESSION_STATES.ENDED && sessionState !== SESSION_STATES.READY) {
+          setSessionState(SESSION_STATES.PAUSED, { phase: 'paused' });
         }
       };
       currentAudio.load();
@@ -3460,7 +3455,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       if ('mediaSession' in navigator) {
         try {
-          navigator.mediaSession.playbackState = (sessionState === SESSION_STATE.PLAYING) ? 'playing' : 'paused';
+          navigator.mediaSession.playbackState = (sessionState === SESSION_STATES.PLAYING) ? 'playing' : 'paused';
           if (!navigator.mediaSession.metadata) {
             navigator.mediaSession.metadata = new MediaMetadata({
               title: 'VEXIS',
@@ -3477,7 +3472,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     function syncMediaPlaybackState() {
       if (!('mediaSession' in navigator)) return;
       try {
-        navigator.mediaSession.playbackState = (sessionState === SESSION_STATE.PLAYING) ? 'playing' : 'paused';
+        navigator.mediaSession.playbackState = (sessionState === SESSION_STATES.PLAYING) ? 'playing' : 'paused';
       } catch {}
     }
 
@@ -3615,7 +3610,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       getOverlay: () => el.sessionOverlay,
       getStage: () => el.sessionStage,
       sessionState: () => sessionState,
-      isTerminalState: (state) => state === SESSION_STATE.ENDED,
+      isTerminalState: (state) => state === SESSION_STATES.ENDED,
       onStart: () => {
         if (!isIntroSessionExperience()) return;
         initSessionGrainCircle();
@@ -3831,11 +3826,11 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function startPlayback() {
-      if (!currentAudio || sessionState === SESSION_STATE.ENDED) return;
+      if (!currentAudio || sessionState === SESSION_STATES.ENDED) return;
       if (playRequestPending || !currentAudio.paused) return;
       if (!sessionAudioReady) {
         pendingPlaybackStart = true;
-        setSessionState(SESSION_STATE.READY, { phase: 'starting' });
+        setSessionState(SESSION_STATES.READY, { phase: 'starting' });
         if (el.sessionStateText) el.sessionStateText.textContent = 'Preparing';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Preparing your session...';
         logSessionAudioEvent('start-blocked-waiting-canplay', {
@@ -3856,7 +3851,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         });
         hasSessionEnteredPlayingState = true;
         pauseRequestedByUser = false;
-        setSessionState(SESSION_STATE.PLAYING, {
+        setSessionState(SESSION_STATES.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
         });
         debugSessionLaunchEvent('sessionStatus after play', { sessionStatus: sessionState });
@@ -3869,7 +3864,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         requestWakeLock();
       }).catch(() => {
         playRequestPending = false;
-        setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
+        setSessionState(SESSION_STATES.PAUSED, { phase: 'paused' });
       });
     }
 
@@ -3878,7 +3873,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       pendingPlaybackStart = false;
       playRequestPending = false;
       pauseRequestedByUser = true;
-      setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
+      setSessionState(SESSION_STATES.PAUSED, { phase: 'paused' });
       currentAudio.pause();
       setAudioStatus(el.audioText?.textContent || 'Session Paused', false);
 
@@ -3903,17 +3898,17 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function maybeRecoverAudioState() {
-      if (!el.sessionOverlay || sessionState === SESSION_STATE.READY || sessionState === SESSION_STATE.ENDED || !el.sessionOverlay.classList.contains('active')) return;
+      if (!el.sessionOverlay || sessionState === SESSION_STATES.READY || sessionState === SESSION_STATES.ENDED || !el.sessionOverlay.classList.contains('active')) return;
 
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
         const recovered = advanceToNextTrackIfNeeded();
         if (recovered) return;
       }
 
-      if (currentAudio && sessionState === SESSION_STATE.PLAYING && currentAudio.paused && !document.hidden) {
+      if (currentAudio && sessionState === SESSION_STATES.PLAYING && currentAudio.paused && !document.hidden) {
         configureBackgroundAudio();
         currentAudio.play().catch(() => {
-          setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
+          setSessionState(SESSION_STATES.PAUSED, { phase: 'paused' });
         });
       }
     }
@@ -3926,7 +3921,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (isLegacyMultiTrackSession() && currentTrackIndex < currentPlaylist.length - 1) {
         pendingTrackAdvance = true;
         clearTimeout(transitionTimeout);
-        setSessionState(SESSION_STATE.PLAYING, { phase: 'ending' });
+        setSessionState(SESSION_STATES.PLAYING, { phase: 'ending' });
 
         const continueNow = document.hidden || document.visibilityState === 'hidden';
         if (continueNow) {
@@ -3940,7 +3935,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         return;
       }
 
-      setSessionState(SESSION_STATE.ENDED, { phase: 'ended' });
+      setSessionState(SESSION_STATES.ENDED, { phase: 'ended' });
       pendingPlaybackStart = false;
       playRequestPending = false;
       setAudioStatus(el.audioText?.textContent || 'Session Complete', false);
@@ -3975,7 +3970,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
     }
 
     function handleCircleTap() {
-      if (!currentAudio || sessionState === SESSION_STATE.ENDED) return;
+      if (!currentAudio || sessionState === SESSION_STATES.ENDED) return;
 
       if (singleTapTimeout) {
         clearTimeout(singleTapTimeout);
@@ -3985,7 +3980,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       singleTapTimeout = setTimeout(() => {
-        if (sessionState === SESSION_STATE.PLAYING) pausePlayback();
+        if (sessionState === SESSION_STATES.PLAYING) pausePlayback();
         else startPlayback();
         singleTapTimeout = null;
       }, 220);
@@ -3997,7 +3992,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       pendingTrackAdvance = false;
       pendingPlaybackStart = false;
 
-      setSessionState(SESSION_STATE.READY, { phase: 'grounding' });
+      setSessionState(SESSION_STATES.READY, { phase: 'grounding' });
       activeSessionStartedAt = Date.now();
       hasRecordedActiveSessionCompletion = false;
       completedSessionDurationSeconds = 0;
@@ -4006,14 +4001,14 @@ You do not need to force anything. Arrive and follow the guidance.`,
       updateSeekUI();
 
       groundingTimeout = setTimeout(() => {
-        if (sessionState !== SESSION_STATE.READY || sessionPlaybackPhase !== 'grounding') return;
+        if (sessionState !== SESSION_STATES.READY || sessionPlaybackPhase !== 'grounding') return;
         if (SESSION_AUTOSTART_ON_READY) {
-          setSessionState(SESSION_STATE.READY, { phase: 'starting' });
+          setSessionState(SESSION_STATES.READY, { phase: 'starting' });
           pendingPlaybackStart = true;
           startPlayback();
           return;
         }
-        setSessionState(SESSION_STATE.READY, { phase: 'ready' });
+        setSessionState(SESSION_STATES.READY, { phase: 'ready' });
       }, 2000);
     }
 
@@ -4028,7 +4023,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
       const selectedIntuitionPracticeId = practiceContent.Intuition?.subcategories?.[activeSubcategory]?.id;
       if (selectedIntuitionPracticeId === 'intuition-introduction') {
-        setSessionState(SESSION_STATE.READY, { phase: 'starting' });
+        setSessionState(SESSION_STATES.READY, { phase: 'starting' });
         pendingPlaybackStart = true;
         startPlayback();
         return;
@@ -4100,7 +4095,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       syncAppState({ isAudioReady: Boolean(audioReady) });
       if (!audioReady || !currentPlaylist.length || !currentAudio || launchToken !== sessionLaunchToken) {
         console.warn('[Ataraxia] Session launch fallback: missing playlist/audio readiness.');
-        setSessionState(SESSION_STATE.READY, { phase: 'ready' });
+        setSessionState(SESSION_STATES.READY, { phase: 'ready' });
         if (el.sessionStateText) el.sessionStateText.textContent = 'Training audio is being prepared';
         if (el.sessionStateLabel) el.sessionStateLabel.textContent = 'Start silent session';
         setAudioStatus('Training audio is being prepared', false);
@@ -4142,7 +4137,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       syncAppState({ isAudioReady: false });
       pendingPlaybackStart = false;
       playRequestPending = false;
-      setSessionState(SESSION_STATE.READY, { phase: 'idle' });
+      setSessionState(SESSION_STATES.READY, { phase: 'idle' });
       activeSessionStartedAt = 0;
       completedSessionDurationSeconds = 0;
       hasRecordedActiveSessionCompletion = false;
@@ -4595,7 +4590,7 @@ window.__ataraxia = {
         currentAudio.onpause = null;
         currentAudio.onloadedmetadata = null;
       }
-      sessionState = SESSION_STATE.READY;
+      sessionState = SESSION_STATES.READY;
       sessionPlaybackPhase = 'ready';
       pendingPlaybackStart = false;
       playRequestPending = false;
@@ -4964,7 +4959,7 @@ window.__ataraxia = {
 
       setTimeout(() => {
         maybeRecoverAudioState();
-        if (el.sessionOverlay?.classList.contains('active') && sessionState !== SESSION_STATE.READY && sessionState !== SESSION_STATE.ENDED) {
+        if (el.sessionOverlay?.classList.contains('active') && sessionState !== SESSION_STATES.READY && sessionState !== SESSION_STATES.ENDED) {
           requestWakeLock();
           updateSessionScrollability();
         }
@@ -4981,7 +4976,7 @@ window.__ataraxia = {
       }
       setTimeout(() => {
         maybeRecoverAudioState();
-        if (el.sessionOverlay?.classList.contains('active') && sessionState !== SESSION_STATE.READY && sessionState !== SESSION_STATE.ENDED) {
+        if (el.sessionOverlay?.classList.contains('active') && sessionState !== SESSION_STATES.READY && sessionState !== SESSION_STATES.ENDED) {
           requestWakeLock();
           updateSessionScrollability();
         }
