@@ -14,6 +14,7 @@ import { createPracticeRecommendation } from './recommendation-engine.js';
 import { GrainCircle } from './grain-circle.js';
 import { createSessionModeController } from './session-mode-controller.js';
 import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CUES } from './welcome-script.js';
+import { foundationOrder, intuitionOrder, flowOrder, foundationGroups, FLOW_PRACTICE_CARDS, PRACTICES_BY_ID, validatePracticeSchema } from './practice-schema.js';
 
         const INTRODUCTION_AUDIO = 'audio/vexis introduction.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -67,57 +68,6 @@ import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CU
     const TRANSITION_DELAY = 2000;
     const SESSION_UI_READY_DELAY = 120;
     const SESSION_AUTOSTART_ON_READY = true;
-    // Locked production baseline: preserve identifiers and ordering for progression, unlocks, and history compatibility.
-    const foundationOrder = ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus', 'SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep'];
-    const intuitionOrder = ['IntuitionIntroduction', 'SignalDetection', 'SignalVsNoise', 'GutAwareness', 'ReadTheRoom', 'PauseBeforeReaction', 'TrustTheSignal'];
-    const flowOrder = ['FocusForWork', 'DecisionClarity', 'DifficultEmotion', 'PresentMoment', 'LettingGo'];
-    const foundationGroups = {
-      CoreStability: ['BreathAwareness', 'BodyAwareness', 'ThoughtAwareness', 'EmotionalAwareness', 'DeepFocus'],
-      AppliedAwareness: ['SensoryAwareness', 'WalkingMeditation', 'OpenAwareness', 'StressReset', 'PreSleep']
-    };
-    const FLOW_PRACTICE_CARDS = Object.freeze([
-      Object.freeze({
-        id: 'focus-for-work',
-        key: 'FocusForWork',
-        title: 'Focus for Work',
-        description: 'Train sustained attention and reduce mental drift during work.',
-        category: 'flow',
-        status: 'coming_soon'
-      }),
-      Object.freeze({
-        id: 'decision-clarity',
-        key: 'DecisionClarity',
-        title: 'Decision Clarity',
-        description: 'Reduce noise and improve deliberate decision-making.',
-        category: 'flow',
-        status: 'coming_soon'
-      }),
-      Object.freeze({
-        id: 'difficult-emotion',
-        key: 'DifficultEmotion',
-        title: 'Difficult Emotion',
-        description: 'Train stability when facing emotional discomfort.',
-        category: 'flow',
-        status: 'coming_soon'
-      }),
-      Object.freeze({
-        id: 'present-moment',
-        key: 'PresentMoment',
-        title: 'Present Moment',
-        description: 'Return attention to what matters now.',
-        category: 'flow',
-        status: 'coming_soon'
-      }),
-      Object.freeze({
-        id: 'letting-go',
-        key: 'LettingGo',
-        title: 'Letting Go',
-        description: 'Release mental attachment and unnecessary resistance.',
-        category: 'flow',
-        status: 'coming_soon'
-      })
-    ]);
-
     const FOUNDATION_SKILL_IDENTITIES = {
       BreathAwareness: 'Attention Stability',
       BodyAwareness: 'Interoceptive Awareness',
@@ -152,30 +102,9 @@ import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CU
       StressReset: 7,
       PreSleep: 12
     };
-    const PRACTICES = Object.freeze({
-      'breath-awareness': Object.freeze({ title: 'Breath Awareness', category: 'foundation', audio: FOUNDATION_BREATH_AWARENESS_AUDIO, intro: 'Return to the present through the breath.', status: 'complete' }),
-      'body-awareness': Object.freeze({ title: 'Body Awareness', category: 'foundation', audio: FOUNDATION_BODY_AWARENESS_AUDIO, intro: 'Settle into the body and soften tension.', status: 'complete' }),
-      'thought-awareness': Object.freeze({ title: 'Thought Awareness', category: 'foundation', audio: FOUNDATION_THOUGHT_AWARENESS_AUDIO, intro: 'Observe thoughts without getting carried away.', status: 'complete' }),
-      'emotional-awareness': Object.freeze({ title: 'Emotional Awareness', category: 'foundation', audio: FOUNDATION_EMOTIONAL_AWARENESS_AUDIO, intro: 'Recognise the feeling tone with honesty.', status: 'complete' }),
-      'deep-focus': Object.freeze({ title: 'Deep Focus', category: 'foundation', audio: FOUNDATION_DEEP_FOCUS_AUDIO, intro: 'Strengthen attention through steady return.', status: 'complete' }),
-      'open-awareness': Object.freeze({ title: 'Open Awareness', category: 'foundation', audio: FOUNDATION_OPEN_AWARENESS_AUDIO, intro: 'Let awareness open to everything at once.', status: 'complete' }),
-      'sensory-awareness': Object.freeze({ title: 'Sensory Awareness', category: 'foundation', audio: FOUNDATION_SENSORY_AWARENESS_AUDIO, intro: 'Rest in the full field of sensation.', status: 'complete' }),
-      'walking-meditation': Object.freeze({ title: 'Walking Meditation', category: 'foundation', audio: FOUNDATION_WALKING_MEDITATION_AUDIO, intro: 'Train awareness in motion.', status: 'complete' }),
-      'stress-reset': Object.freeze({ title: 'Stress Reset', category: 'foundation', audio: FOUNDATION_STRESS_RESET_AUDIO, intro: 'Regulate stress quickly and cleanly.', status: 'complete' }),
-      'pre-sleep': Object.freeze({ title: 'Pre-Sleep', category: 'foundation', audio: FOUNDATION_PRE_SLEEP_AUDIO, intro: 'Downregulate before rest.', status: 'complete' }),
-      'intuition-introduction': Object.freeze({ title: 'Intuition Introduction', category: 'intuition', audio: INTUITION_INTRO_AUDIO, intro: 'Begin Intuition sequence.', status: 'complete' }),
-      'signal-detection': Object.freeze({ title: 'Signal Detection', category: 'intuition', audio: INTUITION_SIGNAL_DETECTION_AUDIO, intro: 'Notice subtle signals before reaction.', status: 'complete' }),
-      'signal-vs-noise': Object.freeze({ title: 'Signal vs Noise', category: 'intuition', audio: INTUITION_SIGNAL_VS_NOISE_AUDIO, intro: 'Differentiate signal from mental noise.', status: 'complete' }),
-      'gut-awareness': Object.freeze({ title: 'Gut Awareness', category: 'intuition', audio: INTUITION_GUT_AWARENESS_AUDIO, intro: 'Tune into first-body knowing before analysis.', status: 'complete' }),
-      'read-the-room': Object.freeze({ title: 'Read the Room', category: 'intuition', audio: INTUITION_READ_THE_ROOM_AUDIO, intro: 'Sense subtle social and environmental shifts.', status: 'complete' }),
-      'pause-before-reaction': Object.freeze({ title: 'Pause Before Reaction', category: 'intuition', audio: INTUITION_PAUSE_BEFORE_REACTION_AUDIO, intro: 'Create space between signal and response.', status: 'complete' }),
-      'trust-the-signal': Object.freeze({ title: 'Trust the Signal', category: 'intuition', audio: INTUITION_TRUST_THE_SIGNAL_AUDIO, intro: 'Reinforce clear signal-led action.', status: 'complete' }),
-      'focus-for-work': Object.freeze({ title: 'Focus for Work', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
-      'decision-clarity': Object.freeze({ title: 'Decision Clarity', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
-      'difficult-emotion': Object.freeze({ title: 'Difficult Emotion', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
-      'present-moment': Object.freeze({ title: 'Present Moment', category: 'flow', audio: null, intro: null, status: 'coming_soon' }),
-      'letting-go': Object.freeze({ title: 'Letting Go', category: 'flow', audio: null, intro: null, status: 'coming_soon' })
-    });
+
+    const PRACTICES = PRACTICES_BY_ID;
+
 
     const TRAIN_SECTION_CONTENT = {
       Foundation: {
@@ -204,6 +133,11 @@ import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CU
       }
     };
     const APP_BOOT_DELAY = 1800;
+
+    const practiceSchemaErrors = validatePracticeSchema();
+    if (practiceSchemaErrors.length) {
+      console.warn('[Ataraxia] Practice schema validation issues detected:', practiceSchemaErrors);
+    }
 
     function resolveAssetPath(path) {
       if (!path) return '';
