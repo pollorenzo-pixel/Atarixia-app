@@ -16,6 +16,7 @@ import { createSessionModeController } from './session-mode-controller.js';
 import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CUES } from './welcome-script.js';
 import { foundationOrder, intuitionOrder, flowOrder, foundationGroups, FLOW_PRACTICE_CARDS, PRACTICES_BY_ID, validatePracticeSchema } from './practice-schema.js';
 import { SESSION_STATES } from './config.js';
+import { logSessionLifecycleEvent } from './session-event-logger.js';
 
         const INTRODUCTION_AUDIO = 'audio/vexis introduction.mp3';
     const FOUNDATION_SHARED_ENDING_AUDIO = 'audio/ending audio foundation.mp3';
@@ -1072,6 +1073,27 @@ You do not need to force anything. Arrive and follow the guidance.`,
       if (activePractice === 'Intuition') return activeSubcategory || 'UnknownIntuitionPractice';
       if (activePractice === 'Flow') return activeSubcategory || 'UnknownFlowPractice';
       return activePractice || 'UnknownPractice';
+    }
+
+
+    function getActivePillar() {
+      if (activePractice === 'Foundation' || activePractice === 'Intuition' || activePractice === 'Flow') return activePractice;
+      return activePractice || 'Unknown';
+    }
+
+    function getSessionDurationElapsedSeconds() {
+      if (activeSessionStartedAt <= 0) return 0;
+      return Math.max(0, Math.round((Date.now() - activeSessionStartedAt) / 1000));
+    }
+
+    function logSessionLifecycle(eventType) {
+      logSessionLifecycleEvent({
+        practiceId: getSelectedPracticeKey(),
+        pillar: getActivePillar(),
+        eventType,
+        sessionState,
+        durationElapsed: getSessionDurationElapsedSeconds()
+      });
     }
 
     function logSessionAudioEvent(eventName, details = {}) {
@@ -3846,6 +3868,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         phase: sessionPlaybackPhase
       });
       currentAudio.play().then(() => {
+        const wasPaused = sessionState === SESSION_STATES.PAUSED;
         debugSessionLaunchEvent('audio play resolved', {
           trackIndex: currentTrackIndex
         });
@@ -3854,6 +3877,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
         setSessionState(SESSION_STATES.PLAYING, {
           phase: isLegacyMultiTrackSession() && currentTrackIndex > 0 ? 'ending' : 'active'
         });
+        if (wasPaused) logSessionLifecycle('session_resumed');
         debugSessionLaunchEvent('sessionStatus after play', { sessionStatus: sessionState });
         debugSessionLaunchEvent('timer started', { activeSessionStartedAt });
         debugSessionLaunchEvent('circle label updated', {
@@ -3874,6 +3898,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       playRequestPending = false;
       pauseRequestedByUser = true;
       setSessionState(SESSION_STATES.PAUSED, { phase: 'paused' });
+      logSessionLifecycle('session_paused');
       currentAudio.pause();
       setAudioStatus(el.audioText?.textContent || 'Session Paused', false);
 
@@ -3936,6 +3961,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       }
 
       setSessionState(SESSION_STATES.ENDED, { phase: 'ended' });
+      logSessionLifecycle('session_completed');
       pendingPlaybackStart = false;
       playRequestPending = false;
       setAudioStatus(el.audioText?.textContent || 'Session Complete', false);
@@ -4031,6 +4057,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       pendingPlaybackStart = true;
       beginSessionGroundingPhase();
+      logSessionLifecycle('session_started');
       startPlayback();
     }
 
@@ -4104,6 +4131,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
 
       pendingPlaybackStart = true;
       beginSessionGroundingPhase();
+      logSessionLifecycle('session_started');
       startPlayback();
     }
     window.startSessionButton = startSessionButton;
@@ -4138,6 +4166,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
       pendingPlaybackStart = false;
       playRequestPending = false;
       setSessionState(SESSION_STATES.READY, { phase: 'idle' });
+      logSessionLifecycle('session_exited');
       activeSessionStartedAt = 0;
       completedSessionDurationSeconds = 0;
       hasRecordedActiveSessionCompletion = false;
