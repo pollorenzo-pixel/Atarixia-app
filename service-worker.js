@@ -1,4 +1,4 @@
-const CACHE_NAME = "ataraxia-v6";
+const CACHE_NAME = "ataraxia-v7";
 
 const urlsToCache = [
   "./",
@@ -8,6 +8,7 @@ const urlsToCache = [
   "./icons/icon-512.png",
 
   // meditation audio
+  "./audio/vexis before you begin audio.mp3",
   "./audio/vexis introduction.mp3",
   "./audio/Breath only meditation foundation meditation.mp3",
   "./audio/body awareness meditation.mp3",
