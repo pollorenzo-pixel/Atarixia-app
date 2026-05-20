@@ -215,6 +215,16 @@ import { DEFAULT_WELCOME_CAPTION, VEXIS_BEFORE_YOU_BEGIN_TEXT, WELCOME_SCRIPT_CU
       }
     }
 
+    function validateAudioSource(label, src) {
+      const normalizedSrc = (typeof src === 'string') ? src.trim() : '';
+      if (!normalizedSrc) {
+        console.warn(`[Ataraxia] Missing audio source for ${label}. Received:`, src);
+        return { ok: false, resolvedSrc: '' };
+      }
+      const resolvedSrc = resolveAssetPath(normalizedSrc);
+      return { ok: true, resolvedSrc };
+    }
+
     const openingQuotes = [
       { text: 'You are not your thoughts. You are the awareness behind them.', author: 'Unknown' },
       { text: 'The obstacle is the way.', author: 'Marcus Aurelius' },
@@ -3397,7 +3407,12 @@ You do not need to force anything. Arrive and follow the guidance.`,
       currentAudio.onplay = null;
       currentAudio.onplaying = null;
       currentAudio.onerror = null;
-      currentAudio.src = resolveAssetPath(src);
+      const sourceCheck = validateAudioSource('session track', src);
+      if (!sourceCheck.ok) return false;
+      currentAudio.src = sourceCheck.resolvedSrc;
+      if (activePractice === 'Introduction') {
+        console.log(`Playing VEXIS Introduction audio: ${currentAudio.src}`);
+      }
       logSessionAudioEvent('resolved-source', {
         trackIndex: index,
         src,
@@ -3472,7 +3487,7 @@ You do not need to force anything. Arrive and follow the guidance.`,
           message: mediaError?.message || 'Unknown media error'
         });
         if (activePractice === 'Introduction') {
-          console.warn('VEXIS Introduction audio failed to load');
+          console.warn(`VEXIS Introduction audio failed to load (possible missing/404): ${currentAudio?.src || src}`);
         }
         if (sessionState !== SESSION_STATE.ENDED && sessionState !== SESSION_STATE.IDLE) {
           setSessionState(SESSION_STATE.PAUSED, { phase: 'paused' });
@@ -4657,7 +4672,13 @@ window.__ataraxia = {
       if (!el.welcomeIntroAudio) return;
       stopCurrentAudio();
       stopWelcomeIntroAudio();
-      el.welcomeIntroAudio.src = resolveAssetPath(INTUITION_INTRO_AUDIO);
+      const introAudioCheck = validateAudioSource('VEXIS Introduction', INTUITION_INTRO_AUDIO);
+      if (!introAudioCheck.ok) {
+        el.welcomeIntroLabel.textContent = 'Audio unavailable';
+        console.warn('VEXIS Introduction audio source is missing, empty, or undefined.');
+        return;
+      }
+      el.welcomeIntroAudio.src = introAudioCheck.resolvedSrc;
       el.welcomeIntroAudio.load();
       el.welcomeIntroAudio.volume = getCurrentVolume();
       el.welcomeIntroAudio.currentTime = 0;
@@ -4786,7 +4807,14 @@ window.__ataraxia = {
       el.welcomeIntroState.textContent = 'Welcome';
       el.welcomeIntroLabel.textContent = 'Playing';
       el.welcomeIntroCaption.textContent = getActiveIntroScriptCues()[0]?.text || DEFAULT_WELCOME_CAPTION;
-      el.welcomeIntroAudio.src = resolveAssetPath(WELCOME_AUDIO);
+      const welcomeAudioCheck = validateAudioSource('Before You Begin', WELCOME_AUDIO);
+      if (!welcomeAudioCheck.ok) {
+        el.welcomeIntroLabel.textContent = 'Audio unavailable';
+        console.warn('VEXIS Before You Begin audio source is missing, empty, or undefined.');
+        return;
+      }
+      el.welcomeIntroAudio.src = welcomeAudioCheck.resolvedSrc;
+      console.log(`Playing Before You Begin audio: ${el.welcomeIntroAudio.src}`);
       el.welcomeIntroAudio.load();
       el.welcomeIntroAudio.volume = getCurrentVolume();
       el.welcomeIntroAudio.currentTime = 0;
@@ -4794,7 +4822,7 @@ window.__ataraxia = {
       ensureWelcomeIntroAudioGraph();
       el.welcomeIntroAudio.onloadedmetadata = () => renderWelcomeIntroCue(0);
       el.welcomeIntroAudio.onerror = () => {
-        console.warn('VEXIS Before You Begin audio failed to load');
+        console.warn(`VEXIS Before You Begin audio failed to load (possible missing/404): ${el.welcomeIntroAudio?.src || WELCOME_AUDIO}`);
       };
       el.welcomeIntroAudio.ontimeupdate = cueTrack ? null : () => renderWelcomeIntroCue(el.welcomeIntroAudio.currentTime || 0);
       el.welcomeIntroAudio.onended = () => endWelcomeIntro(true, markWelcomeStartedOnFinish);
